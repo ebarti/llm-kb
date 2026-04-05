@@ -302,3 +302,15 @@ Tracks which raw files have been compiled into the wiki.
 | `raw/raschka-pretraining-post-training-paradigms.md` | compiled | 2026-04-05 |
 | `raw/analyticsvidhya-llm-pretraining-guide.md` | compiled | 2026-04-05 |
 | `raw/hf-ultrascale-playbook.md` | compiled | 2026-04-05 |
+| `raw/illustrated-transformer-jalammar.md` | compiled | 2026-04-05 |
+| `raw/raschka-self-attention-coding.md` | compiled | 2026-04-05 |
+| `raw/huggingface-mixture-of-experts.md` | compiled | 2026-04-05 |
+| `raw/mamba-state-space-models-visual-guide.md` | compiled | 2026-04-05 |
+| `raw/flashattention-3-paper.md` | compiled | 2026-04-05 |
+| `raw/eleutherai-rotary-embeddings.md` | compiled | 2026-04-05 |
+| `raw/speculative-decoding-bentoml.md` | compiled | 2026-04-05 |
+| `raw/ssm-vs-transformers-tradeoffs.md` | compiled | 2026-04-05 |
+| `raw/vlms-2025-huggingface.md` | compiled | 2026-04-05 |
+| `raw/chinchilla-scaling-laws.md` | compiled | 2026-04-05 |
+| `raw/unite-ai-bert-gpt-t5-comparison.md` | compiled | 2026-04-05 |
+| `raw/moe-models-comparison-2025.md` | compiled | 2026-04-05 |

@@ -1,8 +1,8 @@
 ---
 title: "Software 2.0"
 type: concept
-sources: ["[[sources/karpathy-software-2-0]]", "[[sources/wikipedia-vibe-coding]]"]
-related: ["[[concepts/vibe-coding]]", "[[concepts/ai-code-generation]]", "[[concepts/post-code-ai-workflow]]", "[[concepts/agentic-coding]]", "[[concepts/natural-language-programming]]", "[[entities/andrej-karpathy]]"]
+sources: ["[[sources/karpathy-software-2-0]]", "[[sources/wikipedia-vibe-coding]]", "[[sources/karpathy-llm-os-concept]]", "[[sources/karpathy-2025-llm-year-review]]"]
+related: ["[[concepts/vibe-coding]]", "[[concepts/ai-code-generation]]", "[[concepts/post-code-ai-workflow]]", "[[concepts/agentic-coding]]", "[[concepts/natural-language-programming]]", "[[concepts/llm-os]]", "[[concepts/ai-native-education]]", "[[entities/andrej-karpathy]]"]
 tags: [paradigm-shift, neural-networks, software-engineering, karpathy]
 date_ingested: 2026-04-05
 last_compiled: 2026-04-05
@@ -70,3 +70,5 @@ This directly connects to the [[concepts/llm-knowledge-base]] concept: if manipu
 
 - [[sources/karpathy-software-2-0]] -- the original 2017 essay
 - [[sources/wikipedia-vibe-coding]] -- documents the evolution from Software 2.0 to vibe coding to agentic engineering
+- [[sources/karpathy-llm-os-concept]] -- extension to Software 3.0 and [[concepts/llm-os]]
+- [[sources/karpathy-2025-llm-year-review]] -- retrospective placing the evolution in 2025 context

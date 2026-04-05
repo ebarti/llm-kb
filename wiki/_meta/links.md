@@ -2339,3 +2339,173 @@ Pages with no incoming links:
 
 ## comparisons/symbolic-vs-neural-knowledge-representation
 → [[concepts/symbolic-ai]], [[concepts/llms-as-knowledge-bases]], [[concepts/neural-symbolic-integration]], [[concepts/llm-knowledge-base]], [[entities/cyc-project]]
+
+## LLM Pretraining Research (2026-04-05)
+
+## concepts/llm-pretraining
+← [[sources/mlops-pretraining-pipeline]], [[sources/analyticsvidhya-llm-pretraining-guide]], [[sources/raschka-pretraining-post-training-paradigms]], [[sources/chinchilla-scaling-laws-explained]], [[sources/training-costs-2026-analysis]], [[concepts/distributed-training]], [[concepts/chinchilla-scaling-laws]], [[concepts/training-stability]], [[concepts/next-token-prediction]], [[concepts/pretraining-data-pipeline]], [[concepts/multi-stage-pretraining]], [[concepts/llm-training-costs]], [[concepts/compute-optimal-training]], [[concepts/loss-spikes]], [[concepts/learning-rate-schedules]]
+→ [[concepts/next-token-prediction]], [[concepts/pretraining-data-pipeline]], [[concepts/distributed-training]], [[concepts/chinchilla-scaling-laws]], [[concepts/training-stability]], [[concepts/llm-training-costs]], [[concepts/multi-stage-pretraining]], [[concepts/fine-tuning]], [[concepts/tokenization]], [[concepts/loss-spikes]], [[concepts/learning-rate-schedules]]
+
+## concepts/distributed-training
+← [[concepts/llm-pretraining]], [[sources/jeremy-jordan-distributed-training]], [[sources/hf-ultrascale-playbook]], [[sources/deepspeed-megatron-frameworks]], [[concepts/data-parallelism]], [[concepts/tensor-parallelism]], [[concepts/pipeline-parallelism]], [[concepts/3d-parallelism]], [[concepts/5d-parallelism]], [[concepts/zero-optimizer]], [[concepts/training-infrastructure]], [[concepts/mixed-precision-training]]
+→ [[concepts/data-parallelism]], [[concepts/tensor-parallelism]], [[concepts/pipeline-parallelism]], [[concepts/3d-parallelism]], [[concepts/5d-parallelism]], [[concepts/zero-optimizer]], [[concepts/training-infrastructure]], [[concepts/llm-pretraining]], [[concepts/llm-training-costs]]
+
+## concepts/data-parallelism
+← [[concepts/distributed-training]], [[sources/jeremy-jordan-distributed-training]], [[sources/deepspeed-megatron-frameworks]], [[concepts/zero-optimizer]]
+→ [[concepts/distributed-training]], [[concepts/tensor-parallelism]], [[concepts/pipeline-parallelism]], [[concepts/zero-optimizer]]
+
+## concepts/tensor-parallelism
+← [[concepts/distributed-training]], [[sources/jeremy-jordan-distributed-training]], [[sources/deepspeed-megatron-frameworks]], [[concepts/3d-parallelism]], [[entities/megatron-lm]]
+→ [[concepts/distributed-training]], [[concepts/data-parallelism]], [[concepts/pipeline-parallelism]], [[concepts/3d-parallelism]], [[entities/megatron-lm]]
+
+## concepts/pipeline-parallelism
+← [[concepts/distributed-training]], [[sources/jeremy-jordan-distributed-training]], [[sources/deepspeed-megatron-frameworks]], [[concepts/3d-parallelism]], [[entities/megatron-lm]]
+→ [[concepts/distributed-training]], [[concepts/data-parallelism]], [[concepts/tensor-parallelism]], [[concepts/3d-parallelism]]
+
+## concepts/3d-parallelism
+← [[concepts/distributed-training]], [[sources/jeremy-jordan-distributed-training]], [[sources/deepspeed-megatron-frameworks]], [[sources/hf-ultrascale-playbook]], [[concepts/5d-parallelism]], [[concepts/training-infrastructure]]
+→ [[concepts/data-parallelism]], [[concepts/tensor-parallelism]], [[concepts/pipeline-parallelism]], [[concepts/5d-parallelism]], [[concepts/distributed-training]]
+
+## concepts/5d-parallelism
+← [[concepts/distributed-training]], [[sources/hf-ultrascale-playbook]], [[concepts/3d-parallelism]]
+→ [[concepts/3d-parallelism]], [[concepts/distributed-training]], [[concepts/data-parallelism]], [[concepts/tensor-parallelism]], [[concepts/pipeline-parallelism]], [[concepts/zero-optimizer]]
+
+## concepts/chinchilla-scaling-laws
+← [[sources/chinchilla-scaling-laws-explained]], [[sources/mlops-pretraining-pipeline]], [[concepts/llm-pretraining]], [[concepts/compute-optimal-training]], [[concepts/llm-training-costs]], [[entities/chinchilla]]
+→ [[concepts/compute-optimal-training]], [[concepts/llm-pretraining]], [[concepts/llm-training-costs]]
+
+## concepts/compute-optimal-training
+← [[sources/chinchilla-scaling-laws-explained]], [[concepts/chinchilla-scaling-laws]], [[concepts/llm-training-costs]]
+→ [[concepts/chinchilla-scaling-laws]], [[concepts/llm-pretraining]], [[concepts/llm-training-costs]]
+
+## concepts/training-stability
+← [[sources/spike-no-more-training-stability]], [[sources/rohan-paul-stabilizing-llm-training]], [[concepts/llm-pretraining]], [[concepts/loss-spikes]], [[concepts/learning-rate-schedules]], [[concepts/mixed-precision-training]]
+→ [[concepts/loss-spikes]], [[concepts/learning-rate-schedules]], [[concepts/mixed-precision-training]], [[concepts/llm-pretraining]]
+
+## concepts/loss-spikes
+← [[sources/spike-no-more-training-stability]], [[sources/rohan-paul-stabilizing-llm-training]], [[concepts/training-stability]], [[concepts/llm-pretraining]]
+→ [[concepts/training-stability]], [[concepts/mixed-precision-training]], [[concepts/learning-rate-schedules]]
+
+## concepts/learning-rate-schedules
+← [[sources/rohan-paul-stabilizing-llm-training]], [[concepts/training-stability]], [[concepts/loss-spikes]]
+→ [[concepts/training-stability]], [[concepts/loss-spikes]], [[concepts/llm-pretraining]]
+
+## concepts/mixed-precision-training
+← [[sources/rohan-paul-stabilizing-llm-training]], [[concepts/training-stability]], [[concepts/loss-spikes]]
+→ [[concepts/training-stability]], [[concepts/distributed-training]], [[concepts/training-infrastructure]]
+
+## concepts/zero-optimizer
+← [[sources/deepspeed-megatron-frameworks]], [[concepts/data-parallelism]], [[concepts/distributed-training]], [[concepts/5d-parallelism]]
+→ [[concepts/data-parallelism]], [[entities/deepspeed]], [[concepts/distributed-training]]
+
+## concepts/next-token-prediction
+← [[sources/mlops-pretraining-pipeline]], [[sources/analyticsvidhya-llm-pretraining-guide]], [[concepts/llm-pretraining]]
+→ [[concepts/llm-pretraining]], [[concepts/tokenization]]
+
+## concepts/pretraining-data-pipeline
+← [[sources/analyticsvidhya-llm-pretraining-guide]], [[sources/mlops-pretraining-pipeline]], [[sources/raschka-pretraining-post-training-paradigms]], [[concepts/llm-pretraining]]
+→ [[concepts/llm-pretraining]], [[concepts/tokenization]], [[concepts/data-quality-bottleneck]], [[entities/fineweb]]
+
+## concepts/multi-stage-pretraining
+← [[sources/raschka-pretraining-post-training-paradigms]], [[sources/mlops-pretraining-pipeline]], [[concepts/llm-pretraining]]
+→ [[concepts/llm-pretraining]], [[concepts/pretraining-data-pipeline]], [[concepts/learning-rate-schedules]]
+
+## concepts/llm-training-costs
+← [[sources/training-costs-2026-analysis]], [[sources/chinchilla-scaling-laws-explained]], [[concepts/llm-pretraining]], [[concepts/distributed-training]], [[concepts/chinchilla-scaling-laws]]
+→ [[concepts/training-infrastructure]], [[concepts/compute-optimal-training]], [[concepts/distributed-training]]
+
+## concepts/training-infrastructure
+← [[sources/jeremy-jordan-distributed-training]], [[sources/hf-ultrascale-playbook]], [[sources/training-costs-2026-analysis]], [[concepts/llm-training-costs]], [[concepts/mixed-precision-training]]
+→ [[concepts/distributed-training]], [[concepts/3d-parallelism]], [[concepts/llm-training-costs]]
+
+## entities/deepspeed
+← [[sources/deepspeed-megatron-frameworks]], [[concepts/zero-optimizer]]
+→ [[concepts/zero-optimizer]], [[concepts/distributed-training]], [[concepts/data-parallelism]], [[entities/megatron-lm]]
+
+## entities/megatron-lm
+← [[sources/deepspeed-megatron-frameworks]], [[sources/jeremy-jordan-distributed-training]], [[concepts/tensor-parallelism]]
+→ [[concepts/tensor-parallelism]], [[concepts/pipeline-parallelism]], [[concepts/distributed-training]], [[entities/deepspeed]]
+
+## entities/deepseek-v3
+← [[sources/training-costs-2026-analysis]]
+→ [[concepts/llm-training-costs]], [[concepts/llm-pretraining]], [[concepts/5d-parallelism]]
+
+## comparisons/deepspeed-vs-megatron-lm
+→ [[entities/deepspeed]], [[entities/megatron-lm]], [[concepts/3d-parallelism]]
+
+## comparisons/compute-optimal-vs-inference-optimal
+→ [[concepts/compute-optimal-training]], [[concepts/chinchilla-scaling-laws]]
+
+## Transformer Architecture & LLM Internals (2026-04-05)
+
+### concepts/transformer-architecture
+← [[sources/illustrated-transformer-jalammar]], [[sources/raschka-self-attention-coding]], [[sources/unite-ai-bert-gpt-t5-comparison]], [[sources/chinchilla-scaling-laws]], [[sources/flashattention-3-paper]], [[sources/huggingface-mixture-of-experts]], [[sources/ssm-vs-transformers-tradeoffs]], [[sources/moe-models-comparison-2025]], [[concepts/self-attention]], [[concepts/multi-head-attention]], [[concepts/flash-attention]], [[concepts/state-space-models]], [[concepts/mixture-of-experts]], [[concepts/kv-cache]], [[concepts/scaling-laws]], [[comparisons/transformers-vs-state-space-models]], [[comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder]], [[comparisons/dense-vs-moe-transformers]]
+→ [[concepts/self-attention]], [[concepts/multi-head-attention]], [[concepts/positional-encoding]], [[concepts/mixture-of-experts]], [[concepts/state-space-models]], [[concepts/scaling-laws]], [[concepts/kv-cache]], [[concepts/flash-attention]], [[concepts/causal-attention]], [[concepts/cross-attention]], [[concepts/rotary-position-embeddings]], [[concepts/speculative-decoding]], [[concepts/multimodal-transformers]], [[concepts/sparse-attention]], [[entities/attention-is-all-you-need]], [[entities/bert]], [[entities/gpt]], [[entities/t5]], [[entities/chinchilla]]
+
+### concepts/self-attention
+← [[concepts/transformer-architecture]], [[concepts/multi-head-attention]], [[concepts/causal-attention]], [[concepts/flash-attention]], [[concepts/sparse-attention]], [[sources/illustrated-transformer-jalammar]], [[sources/raschka-self-attention-coding]]
+→ [[concepts/transformer-architecture]], [[concepts/multi-head-attention]], [[concepts/flash-attention]], [[concepts/positional-encoding]], [[concepts/sparse-attention]]
+
+### concepts/multi-head-attention
+← [[concepts/transformer-architecture]], [[concepts/self-attention]], [[concepts/grouped-query-attention]]
+→ [[concepts/self-attention]], [[concepts/grouped-query-attention]], [[concepts/kv-cache]]
+
+### concepts/mixture-of-experts (updated)
+← [[concepts/transformer-architecture]], [[concepts/scaling-laws]], [[sources/huggingface-mixture-of-experts]], [[sources/moe-models-comparison-2025]], [[sources/vlms-2025-huggingface]], [[comparisons/dense-vs-moe-transformers]]
+→ [[concepts/transformer-architecture]], [[concepts/scaling-laws]], [[concepts/sparse-attention]], [[entities/switch-transformer]], [[entities/mixtral]], [[entities/deepseek]]
+
+### concepts/state-space-models
+← [[concepts/transformer-architecture]], [[concepts/mamba]], [[comparisons/transformers-vs-state-space-models]]
+→ [[concepts/mamba]], [[concepts/transformer-architecture]], [[concepts/flash-attention]]
+
+### concepts/mamba
+← [[concepts/state-space-models]], [[concepts/selective-state-space]], [[comparisons/transformers-vs-state-space-models]]
+→ [[concepts/state-space-models]], [[concepts/transformer-architecture]], [[concepts/flash-attention]], [[concepts/selective-state-space]]
+
+### concepts/flash-attention
+← [[concepts/self-attention]], [[concepts/transformer-architecture]], [[concepts/state-space-models]], [[sources/flashattention-3-paper]]
+→ [[concepts/self-attention]], [[concepts/kv-cache]], [[concepts/sparse-attention]], [[concepts/state-space-models]], [[entities/tri-dao]]
+
+### concepts/rotary-position-embeddings
+← [[concepts/positional-encoding]], [[concepts/multimodal-transformers]], [[sources/eleutherai-rotary-embeddings]]
+→ [[concepts/positional-encoding]], [[concepts/self-attention]], [[concepts/kv-cache]]
+
+### concepts/scaling-laws (updated)
+← [[concepts/transformer-architecture]], [[concepts/mixture-of-experts]], [[sources/chinchilla-scaling-laws]]
+→ [[concepts/transformer-architecture]], [[concepts/mixture-of-experts]], [[entities/chinchilla]]
+
+### concepts/kv-cache (updated)
+← [[concepts/transformer-architecture]], [[concepts/flash-attention]], [[concepts/speculative-decoding]], [[sources/kv-cache-optimization-techniques]]
+→ [[concepts/grouped-query-attention]], [[concepts/sliding-window-attention]], [[concepts/paged-attention]], [[concepts/speculative-decoding]]
+
+### entities/attention-is-all-you-need
+← [[concepts/transformer-architecture]], [[sources/illustrated-transformer-jalammar]]
+→ [[concepts/transformer-architecture]], [[concepts/self-attention]], [[concepts/multi-head-attention]], [[concepts/positional-encoding]]
+
+### entities/bert
+← [[comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder]]
+→ [[concepts/transformer-architecture]], [[entities/gpt]], [[entities/t5]]
+
+### entities/gpt
+← [[comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder]]
+→ [[concepts/transformer-architecture]], [[concepts/causal-attention]], [[concepts/scaling-laws]], [[entities/bert]], [[entities/t5]]
+
+### entities/mixtral
+← [[concepts/mixture-of-experts]], [[comparisons/dense-vs-moe-transformers]]
+→ [[concepts/mixture-of-experts]], [[concepts/grouped-query-attention]]
+
+### entities/tri-dao
+← [[concepts/flash-attention]]
+→ [[concepts/flash-attention]], [[concepts/mamba]]
+
+### comparisons/transformers-vs-state-space-models
+← [[concepts/state-space-models]], [[concepts/mamba]]
+→ [[concepts/transformer-architecture]], [[concepts/state-space-models]], [[concepts/mamba]]
+
+### comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder
+← (none)
+→ [[entities/bert]], [[entities/gpt]], [[entities/t5]], [[concepts/transformer-architecture]], [[concepts/self-attention]], [[concepts/causal-attention]], [[concepts/cross-attention]]
+
+### comparisons/dense-vs-moe-transformers
+← (none)
+→ [[concepts/transformer-architecture]], [[concepts/mixture-of-experts]], [[entities/mixtral]]

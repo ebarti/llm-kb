@@ -1171,3 +1171,54 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 - [[comparisons/ppo-vs-dpo]] — PPO wins on hard tasks (code, reasoning) via online learning; DPO wins on simplicity, cost, accessibility.
 - [[comparisons/rlhf-alternatives]] — 9+ method comparison (RLHF, DPO, KTO, IPO, ORPO, SPIN): no single winner; data quality dominates method choice.
 - [[comparisons/rlhf-vs-constitutional-ai]] — RLHF (human labels, all dimensions) vs CAI (AI labels for harmlessness, human for helpfulness).
+
+---
+
+## Transformer Architecture & LLM Internals (Research: 2026-04-05)
+
+### Sources
+- [[sources/illustrated-transformer-jalammar]] — Jay Alammar's visual walkthrough of the original Transformer: encoder-decoder stacks, Q/K/V self-attention, multi-head attention, positional encoding.
+- [[sources/raschka-self-attention-coding]] — Sebastian Raschka's code-first deep dive into self-attention, multi-head, causal masking, and cross-attention with PyTorch.
+- [[sources/huggingface-mixture-of-experts]] — Comprehensive MoE guide: routing, load balancing, Switch Transformer, Mixtral 8x7B, fine-tuning, expert parallelism.
+- [[sources/mamba-state-space-models-visual-guide]] — Visual walkthrough of SSM/S4/Mamba: selective scan, hardware-aware kernel fusion, dual train/infer modes.
+- [[sources/flashattention-3-paper]] — FlashAttention-3: 75% H100 utilization via warp specialization, interleaved matmul/softmax, FP8 (1.2 PFLOPS).
+- [[sources/eleutherai-rotary-embeddings]] — RoPE: position as rotation in complex-number space, outperforms learned/T5 RPE, 1-3% overhead.
+- [[sources/kv-cache-optimization-techniques]] — GQA (8x reduction), sliding window, PagedAttention (waste 60-80% to 4%), distributed cache.
+- [[sources/speculative-decoding-bentoml]] — Draft-then-verify: EAGLE (<5% overhead for 70B), P-EAGLE (parallel drafting), 2-3x speedup.
+- [[sources/ssm-vs-transformers-tradeoffs]] — Gu's analysis: SSMs=brains, Transformers=databases; SSMs win on byte/DNA data; hybrids 3:1-10:1 optimal.
+- [[sources/vlms-2025-huggingface]] — 2025 VLMs: MoE decoders (Kimi-VL 2.8B active), any-to-any, video understanding, VLAs, multimodal RAG.
+- [[sources/chinchilla-scaling-laws]] — 20:1 token/parameter ratio; 70B Chinchilla beats 280B Gopher, 175B GPT-3 on same compute.
+- [[sources/unite-ai-bert-gpt-t5-comparison]] — BERT (encoder-only, bidirectional), GPT (decoder-only, causal), T5 (enc-dec, text-to-text).
+- [[sources/moe-models-comparison-2025]] — 2025 MoE specs: DeepSeek-R1 671B/37B, Llama 4 400B/17B, Qwen3 235B/22B.
+
+### Concepts
+- [[concepts/transformer-architecture]] — The foundational NN architecture based on attention, powering all frontier LLMs since 2017.
+- [[concepts/self-attention]] — Scaled dot-product Q/K/V attention: Attention(Q,K,V) = softmax(QK^T/sqrt(d_k))V.
+- [[concepts/multi-head-attention]] — Parallel attention heads with independent Q/K/V for diverse representation subspaces.
+- [[concepts/causal-attention]] — Masked self-attention restricting each position to attend only to previous positions (decoder-only LLMs).
+- [[concepts/cross-attention]] — Queries from one sequence, keys/values from another — for encoder-decoder and multimodal fusion.
+- [[concepts/positional-encoding]] — Injecting position information: sinusoidal → learned → relative → RoPE.
+- [[concepts/rotary-position-embeddings]] — Parameter-free position encoding via complex-number rotation; standard for all modern LLMs.
+- [[concepts/flash-attention]] — IO-aware tiling reducing attention memory O(N^2)→O(N); FlashAttention-3 at 75% H100 utilization.
+- [[concepts/state-space-models]] — SSMs: linear-complexity sequence models; Mamba/S4; excel on raw data; hybrid architectures emerging.
+- [[concepts/mamba]] — Selective SSM with input-dependent state transitions and hardware-aware kernel fusion.
+- [[concepts/selective-state-space]] — S6: Mamba's mechanism making B, C, delta input-dependent for content-aware reasoning.
+- [[concepts/grouped-query-attention]] — Share KV heads across query groups; Llama-2-70B achieves 8x cache reduction.
+- [[concepts/sliding-window-attention]] — Attend only to W recent tokens; effective receptive field = W * n_layers.
+- [[concepts/paged-attention]] — Virtual-memory-inspired KV cache: non-contiguous allocation, 60-80% waste to 4%.
+- [[concepts/sparse-attention]] — Subset-of-pairs attention via fixed patterns, routing, clustering, or linear approximation.
+- [[concepts/multimodal-transformers]] — Multi-modality architectures: vision encoders + LLM decoders, MoE, VLAs.
+
+### Entities
+- [[entities/attention-is-all-you-need]] — 2017 paper: the Transformer architecture, most cited ML paper of 21st century.
+- [[entities/bert]] — Google 2018 encoder-only bidirectional Transformer; 110M-340M params; now mainly for embeddings.
+- [[entities/gpt]] — OpenAI decoder-only family: GPT-1 (117M) to GPT-4; established the dominant LLM architecture.
+- [[entities/t5]] — Google 2019 encoder-decoder text-to-text; 220M-11B; basis for Switch Transformer.
+- [[entities/switch-transformer]] — Google 2021: 1.6T params, 2048 experts, single-expert routing, 4x speedup over T5-XXL.
+- [[entities/mixtral]] — Mistral 2023: 47B total / 12B active MoE; outperforms Llama 2 70B.
+- [[entities/tri-dao]] — Creator of FlashAttention and co-creator of Mamba.
+
+### Comparisons
+- [[comparisons/transformers-vs-state-space-models]] — Databases vs brains: Transformers for tokenized text, SSMs for raw data, hybrids optimal.
+- [[comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder]] — BERT vs GPT vs T5: why decoder-only won.
+- [[comparisons/dense-vs-moe-transformers]] — Dense (all params per token) vs MoE (sparse routing): MoE now default for frontier.

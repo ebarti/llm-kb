@@ -639,3 +639,71 @@ Deep research pass on Personal Knowledge Management (PKM), Zettelkasten, second 
   - concepts/tokenization (added pretraining-related links)
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
 - **Total new wiki pages**: 33 (10 sources + 18 concepts + 3 entities + 2 comparisons)
+
+## [2026-04-05] research | RLHF, Constitutional AI, DPO, and LLM Alignment Techniques
+- Deep research pass on aligning LLMs with human preferences
+- Ran 11 web searches covering: RLHF explained, DPO, Constitutional AI, RLHF alternatives (DPO/KTO/IPO), reward models, preference data collection, instruction tuning vs RLHF, AI alignment techniques, RLAIF, PPO vs DPO, reward hacking/overoptimization
+- Fetched 10 high-quality web sources from HuggingFace, Cameron Wolfe (Deep Learning Focus), Anthropic, Argilla/MantisNLP, Lilian Weng (Lil'Log), arXiv
+- **Raw files ingested** (9):
+  - huggingface-rlhf-illustrated (foundational RLHF tutorial)
+  - wolfe-direct-preference-optimization (DPO mathematical derivation)
+  - anthropic-constitutional-ai (Constitutional AI paper)
+  - argilla-rlhf-alternatives-overview (9+ method comparison)
+  - wolfe-reward-models-llm (reward model architecture and best practices)
+  - wolfe-rlaif-reinforcement-learning-ai-feedback (RLAIF technical overview)
+  - lilianweng-reward-hacking (reward hacking taxonomy)
+  - dpo-vs-ppo-comprehensive-study (PPO vs DPO empirical comparison)
+  - argilla-kto-kahneman-tversky (KTO prospect theory alignment)
+- **Source summaries created** (9): one per raw file
+- **Concept articles created** (12): rlhf, dpo, rlaif, reward-model, reward-hacking, ppo-for-llms, kto, bradley-terry-model, sycophancy, orpo, ipo, process-reward-model
+- **Concept articles updated** (5): constitutional-ai (major expansion), preference-data (method comparison table), instruction-tuning (pipeline context), scalable-oversight (RLHF links), ai-alignment (RLHF links)
+- **Entity pages created** (4): instructgpt, cameron-wolfe, lilian-weng, trl
+- **Comparison pages created** (2): ppo-vs-dpo, rlhf-alternatives
+- **Comparison pages updated** (1): rlhf-vs-constitutional-ai (added new sources)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+- **Total new wiki pages**: 27 (9 sources + 12 concepts + 4 entities + 2 comparisons)
+
+## [2026-04-05] research | Transformer architecture, attention mechanisms, and LLM architecture evolution
+
+- **Topic**: Deep research on transformer architecture fundamentals — the models powering the KB system itself
+- **Searches**: 14 web searches covering:
+  - Transformer architecture and "Attention Is All You Need"
+  - Self-attention, multi-head attention mechanisms
+  - Transformer variants (GPT, BERT, T5 comparison)
+  - Mixture of Experts (MoE) architecture and 2025 models
+  - State space models (Mamba, S4) vs transformers
+  - FlashAttention-3 efficient attention
+  - Chinchilla scaling laws
+  - KV cache optimization techniques
+  - Rotary Position Embeddings (RoPE)
+  - Speculative decoding inference optimization
+  - Multimodal transformers and VLMs 2025
+  - Sparse attention and linear attention alternatives
+  - Grouped-Query Attention (GQA)
+  - Transformer architecture improvements 2025-2026
+- **Sources fetched and ingested**: 11 raw files
+  - `raw/illustrated-transformer-jalammar.md` — Jay Alammar's visual Transformer walkthrough
+  - `raw/raschka-self-attention-coding.md` — Sebastian Raschka's attention variants with code
+  - `raw/huggingface-mixture-of-experts.md` — Comprehensive MoE guide from Hugging Face
+  - `raw/mamba-state-space-models-visual-guide.md` — Maarten Grootendorst's Mamba visual guide
+  - `raw/flashattention-3-paper.md` — Tri Dao's FlashAttention-3 paper
+  - `raw/eleutherai-rotary-embeddings.md` — EleutherAI's RoPE technical deep dive
+  - `raw/kv-cache-optimization-techniques.md` — Omri Mallis KV cache optimization (already existed, updated)
+  - `raw/speculative-decoding-bentoml.md` — BentoML speculative decoding guide
+  - `raw/ssm-vs-transformers-tradeoffs.md` — Goomba Lab SSM vs Transformer analysis
+  - `raw/vlms-2025-huggingface.md` — Hugging Face VLM survey 2025
+  - `raw/chinchilla-scaling-laws.md` — DeepMind Chinchilla scaling law paper
+  - `raw/unite-ai-bert-gpt-t5-comparison.md` — BERT/GPT/T5 comparison
+  - `raw/moe-models-comparison-2025.md` — 2025 MoE model comparison
+- **Wiki pages created**: 38 new pages
+  - 12 source summaries (sources/)
+  - 15 concept articles (concepts/): transformer-architecture, self-attention, multi-head-attention, causal-attention, cross-attention, positional-encoding, rotary-position-embeddings, flash-attention, state-space-models, mamba, selective-state-space, grouped-query-attention, sliding-window-attention, paged-attention, sparse-attention, multimodal-transformers
+  - 8 entity pages (entities/): attention-is-all-you-need, bert, gpt, t5, switch-transformer, mixtral, tri-dao
+  - 3 comparison pages: transformers-vs-state-space-models, encoder-only-vs-decoder-only-vs-encoder-decoder, dense-vs-moe-transformers
+- **Wiki pages updated**: 5
+  - concepts/mixture-of-experts — added architecture deep dive, routing strategies, load balancing
+  - concepts/scaling-laws — added Chinchilla source and transformer-architecture link
+  - concepts/kv-cache — added links to GQA, sliding window, paged attention, speculative decoding
+  - concepts/speculative-decoding — added new source and transformer architecture links
+  - entities/chinchilla — added Chinchilla scaling laws source
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
