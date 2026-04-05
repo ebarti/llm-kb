@@ -886,3 +886,39 @@ Deep research pass on the expanding frontier of LLM applications beyond code gen
 - **Comparison pages created** (3): comparisons/softmax-vs-linear-attention, comparisons/mha-vs-gqa-vs-mqa, comparisons/self-attention-vs-cross-attention
 - **Total wiki pages touched**: 31 (9 sources + 13 concepts + 6 entities + 3 comparisons)
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+
+## [2026-04-05] research | AI geopolitics, US-China AI race, export controls, open vs closed source, global power dynamics
+- **Searched 11 queries**: US China AI race 2025 2026, AI chip export controls impact, DeepSeek China AI breakthrough, open source AI regulation debate, EU AI Act implementation impact, AI sovereignty national strategies, AI arms race military, AI talent global competition, AI regulation comparison US EU China, AI industry consolidation big tech, AI startup funding landscape 2026
+- **Fetched 10 sources** (8 successful): TIME (US-China race graphs), CSIS (DeepSeek breakthrough), CFR (2026 AI future), CFR (China chip deficit), Lawfare (China AI ecosystem), Nanonets (AI warfare Pentagon vs China), Pernot-Leplay (AI regulation comparison), Crunchbase (Q1 2026 funding), Euronews (AI brain drain Europe), Stimson (America wrong AI race)
+- **Raw files created** (10): raw/time-us-china-ai-race-graphs.md, raw/csis-deepseek-breakthrough-redefining-ai-race.md, raw/cfr-how-2026-decides-future-of-ai.md, raw/cfr-china-ai-chip-deficit-huawei-nvidia.md, raw/lawfare-china-ai-ecosystem-beyond-deepseek.md, raw/nanonets-ai-warfare-pentagon-china-2026.md, raw/pernot-leplay-ai-regulation-china-eu-us.md, raw/crunchbase-q1-2026-record-ai-funding.md, raw/euronews-ai-brain-drain-europe.md, raw/stimson-america-wrong-ai-race.md
+- **Source summaries created** (9): sources/time-us-china-ai-race-graphs, sources/csis-deepseek-breakthrough-redefining-ai-race, sources/cfr-how-2026-decides-future-of-ai, sources/cfr-china-ai-chip-deficit-huawei-nvidia, sources/lawfare-china-ai-ecosystem-beyond-deepseek, sources/nanonets-ai-warfare-pentagon-china-2026, sources/pernot-leplay-ai-regulation-china-eu-us, sources/crunchbase-q1-2026-record-ai-funding, sources/euronews-ai-brain-drain-europe
+- **Concept articles created** (13): concepts/ai-geopolitics, concepts/us-china-ai-race, concepts/ai-chip-export-controls, concepts/ai-sovereignty, concepts/open-source-vs-closed-ai, concepts/ai-arms-race, concepts/ai-regulation-landscape, concepts/ai-talent-competition, concepts/ai-industry-consolidation, concepts/ai-industrial-policy, concepts/ai-military-applications, concepts/semiconductor-supply-chain, concepts/brussels-effect
+- **Entity pages created** (2): entities/nvidia, entities/huawei
+- **Comparison pages created** (3): comparisons/us-vs-china-vs-eu-ai-regulation, comparisons/us-vs-china-ai-military, comparisons/nvidia-vs-huawei-ai-chips
+- **Total wiki pages touched**: 27 (9 sources + 13 concepts + 2 entities + 3 comparisons)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
+
+## [2026-04-05] research | Test-time compute, inference-time scaling, and the paradigm shift from training to inference intelligence
+- **Scope**: Deep research on test-time compute scaling, test-time training, inference scaling laws, reasoning tokens, MCTS for LLMs, adaptive compute allocation, latent reasoning, and the training-vs-inference paradigm shift.
+- **Web searches performed**: 13 queries covering test-time compute scaling 2025-2026, test-time training adaptation, inference scaling laws, reasoning tokens and thinking budgets, MCTS for LLM reasoning, process reward model verification, adaptive compute allocation, verifier-guided search, long thinking reasoning models, compute-optimal inference, latent reasoning, TTRL, and the TTS survey landscape.
+- **Sources fetched and ingested** (11 new raw files):
+  1. raw/zhang-test-time-scaling-survey.md — Definitive 2025 TTS survey (What/How/Where/How Well taxonomy)
+  2. raw/agarwal-art-of-scaling-test-time-compute.md — First large-scale empirical TTS study (30B+ tokens, 8 models)
+  3. raw/roberts-train-to-test-scaling-laws.md — T2 scaling laws bridging training and inference optimization
+  4. raw/ttrl-test-time-reinforcement-learning.md — NeurIPS 2025 TTRL (211% AIME improvement)
+  5. raw/hao-coconut-latent-reasoning.md — COCONUT latent reasoning (Meta)
+  6. raw/khalifa-thinkprm-process-reward-models-that-think.md — ThinkPRM generative verification
+  7. raw/chen-deep-thinking-tokens.md — Deep-thinking tokens vs raw token count
+  8. raw/wu-inference-scaling-laws.md — ICLR 2025 inference scaling laws
+  9. raw/sakana-ab-mcts-collective-inference.md — AB-MCTS multi-LLM collective inference
+  10. raw/introl-inference-time-scaling-paradigm-shift.md — Paradigm shift analysis (118x demand ratio)
+  11. raw/emergehaus-test-time-compute-overview.md — Enterprise test-time compute overview
+  12. raw/iacobacci-thinking-budget-not-enough.md — Thinking budget limitations
+  13. raw/hu-test-time-learning-llm.md — TLM test-time domain adaptation (ICML 2025)
+- **Source summaries created** (11): sources/zhang-test-time-scaling-survey, sources/agarwal-art-of-scaling-test-time-compute, sources/roberts-train-to-test-scaling-laws, sources/ttrl-test-time-reinforcement-learning, sources/hao-coconut-latent-reasoning, sources/khalifa-thinkprm, sources/chen-deep-thinking-tokens, sources/wu-inference-scaling-laws, sources/sakana-ab-mcts, sources/introl-inference-time-scaling-paradigm-shift, sources/emergehaus-test-time-compute-overview, sources/iacobacci-thinking-budget-not-enough, sources/hu-test-time-learning-llm
+- **Concept articles created** (8): concepts/inference-scaling-laws, concepts/training-vs-inference-compute, concepts/adaptive-compute-allocation, concepts/latent-reasoning, concepts/test-time-training, concepts/best-of-n-sampling, concepts/mcts-llm-reasoning, concepts/reasoning-tokens
+- **Concept articles updated** (2): concepts/test-time-compute (massively expanded with 8 new sources), concepts/process-reward-models (added ThinkPRM, scaling challenges)
+- **Entity pages created** (3): entities/thinkprm, entities/coconut, entities/ttrl
+- **Comparison pages created** (2): comparisons/parallel-vs-sequential-test-time-scaling, comparisons/training-time-vs-inference-time-scaling
+- **Total wiki pages touched**: 26 (13 sources + 8 new concepts + 2 updated concepts + 3 entities + 2 comparisons)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md

@@ -1,8 +1,8 @@
 ---
 title: "Flow Matching"
 type: concept
-sources: ["[[sources/flow-matching-iclr-2025]]", "[[sources/flux-architecture-demystified]]", "[[sources/flux-vs-stable-diffusion-2026]]"]
-related: ["[[concepts/diffusion-models]]", "[[concepts/rectified-flow]]", "[[concepts/diffusion-transformer]]", "[[concepts/consistency-models]]", "[[entities/flux]]", "[[entities/stable-diffusion]]"]
+sources: ["[[sources/flow-matching-iclr-2025]]", "[[sources/flux-architecture-demystified]]", "[[sources/flux-vs-stable-diffusion-2026]]", "[[sources/physical-intelligence-pi0-foundation-model]]"]
+related: ["[[concepts/diffusion-models]]", "[[concepts/rectified-flow]]", "[[concepts/diffusion-transformer]]", "[[concepts/consistency-models]]", "[[entities/flux]]", "[[entities/stable-diffusion]]", "[[concepts/vision-language-action-models]]", "[[concepts/dexterous-manipulation]]", "[[entities/pi0]]"]
 tags: [flow-matching, generative-models, velocity-field, optimal-transport]
 date_ingested: 2026-04-05
 last_compiled: 2026-04-05
@@ -67,14 +67,24 @@ Flow matching research is exploding: 30+ papers accepted at NeurIPS 2025, 150+ s
 
 Flow matching sits at the intersection of [[concepts/diffusion-models]] theory and practical generation efficiency. It provides the training objective for [[concepts/diffusion-transformer]] architectures, enables [[concepts/fast-generation]] through straight trajectories, and connects theoretically to [[concepts/optimal-transport]]. The combination of flow matching training with DiT/MMDiT architectures defines the current state of the art in [[concepts/image-generation]], [[concepts/video-generation]], and increasingly [[concepts/audio-generation]].
 
+## Flow Matching for Robotics
+
+Beyond image and video generation, flow matching has become a key technique in [[concepts/embodied-intelligence]]. [[entities/pi0]] (Physical Intelligence) uses flow matching to generate smooth, continuous robot action trajectories at 50Hz -- the temporal resolution required for [[concepts/dexterous-manipulation]]. Rather than generating pixels, the model denoises random noise into motor command sequences.
+
+This application achieved breakthrough results: π0 scores 0.971 on table bussing and 1.0 on shirt folding where all prior discrete-token VLA models scored 0. The continuous, smooth trajectories from flow matching are essential for tasks requiring precise force control and fluid motion.
+
+The π0-FAST variant explores an alternative: DCT-based frequency-space tokenization (FAST) that trains 5x faster with lossless action reconstruction, suggesting the optimal action representation is still an open question.
+
 ## Open Questions
 
 - Can flow matching be extended to discrete domains (text generation) as effectively as continuous domains?
 - What is the theoretical minimum number of steps needed for given quality levels?
 - How do flow matching models compose with other conditioning mechanisms (ControlNet, IP-Adapter)?
+- In robotics, is flow matching's smooth continuous output worth the training cost vs. autoregressive alternatives (π0-FAST)?
 
 ## Sources
 
 - [[sources/flow-matching-iclr-2025]] -- comprehensive physics-based explanation
 - [[sources/flux-architecture-demystified]] -- flow matching in FLUX.1
 - [[sources/flux-vs-stable-diffusion-2026]] -- flow matching vs DDPM comparison
+- [[sources/physical-intelligence-pi0-foundation-model]] -- flow matching for 50Hz robot control

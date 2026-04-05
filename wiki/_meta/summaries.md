@@ -988,6 +988,19 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 - [[sources/anthropic-extended-thinking]] — Anthropic 2025: Claude 3.7 Sonnet extended thinking with configurable thinking budgets, 96.5% on GPQA physics.
 - [[sources/adaline-inside-reasoning-models]] — Deep technical analysis of o3 and R1: training pipelines, architectures (dense vs MoE), benchmarks, RL as foundation.
 - [[sources/raschka-state-of-reasoning-inference]] — Sebastian Raschka 2025: four categories of inference-time scaling, emerging techniques (latent reasoning, self-backtracking).
+- [[sources/zhang-test-time-scaling-survey]] — Definitive 2025 survey organizing TTS along four dimensions (what/how/where/how well), cataloguing 30+ techniques from parallel sampling to internal scaling.
+- [[sources/agarwal-art-of-scaling-test-time-compute]] — First large-scale empirical TTS study (30B+ tokens, 8 models, 7B-235B): no universal best strategy, monotonic scaling within model types, practical selection recipe.
+- [[sources/roberts-train-to-test-scaling-laws]] — T2 scaling laws jointly optimizing training+inference: overtraining smaller models becomes compute-optimal when accounting for test-time scaling costs.
+- [[sources/wu-inference-scaling-laws]] — ICLR 2025 inference scaling laws: log10(C) = 1.19*log10(N) + 2.03; Llemma-7B + tree search > Llemma-34B; generation > verification in compute-optimal allocation.
+- [[sources/ttrl-test-time-reinforcement-learning]] — NeurIPS 2025: majority voting as RL reward signal on unlabeled data, 211% AIME improvement, bridges test-time scaling and test-time training.
+- [[sources/hao-coconut-latent-reasoning]] — COCONUT: reasoning in continuous latent space via hidden state feedback, enabling implicit BFS, fewer tokens; some performance degradation vs explicit CoT.
+- [[sources/khalifa-thinkprm]] — ThinkPRM: generative verification CoT needing only 1% of PRM800K labels, outperforms discriminative PRMs by 8% -- thinking paradigm extends to verification.
+- [[sources/chen-deep-thinking-tokens]] — Deep-thinking tokens (significant layer-by-layer revision) correlate with accuracy; raw token count unreliable; Think@n strategy for cost-efficient inference.
+- [[sources/introl-inference-time-scaling-paradigm-shift]] — December 2025 paradigm shift analysis: 7B+100x inference = 70B; inference demand 118x training by 2026; DeepSeek-R1, P1, ThreadWeaver breakthroughs.
+- [[sources/emergehaus-test-time-compute-overview]] — Enterprise TTC overview: AIME 9%->87.5%, System 2 analogy, model cascades (60/30/10), 12-24 month infrastructure outlook.
+- [[sources/iacobacci-thinking-budget-not-enough]] — Increasing thinking budget shows diminishing returns; summary/self-consistency (parallel) outperform naive sequential extension, especially for weaker models.
+- [[sources/hu-test-time-learning-llm]] — TLM (ICML 2025): test-time domain adaptation via perplexity minimization on unlabeled data with LoRA, 20%+ improvement without labels.
+- [[sources/sakana-ab-mcts]] — AB-MCTS: multi-LLM cooperation via Thompson Sampling over depth/width/model dimensions, 30%+ on ARC-AGI-2 through collective intelligence.
 
 ### Concepts
 - [[concepts/llm-reasoning]] — Multi-step inference, logical deduction, and problem-solving in LLMs via prompting, training, and inference-time scaling.
@@ -1003,14 +1016,27 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 - [[concepts/stochastic-parrot-debate]] — Whether LLMs genuinely reason or perform sophisticated pattern matching; evidence on both sides.
 - [[concepts/system-1-system-2-thinking]] — Kahneman's dual-process theory applied to LLMs: fast/intuitive (System 1) vs slow/deliberate (System 2).
 - [[concepts/reinforcement-learning-for-reasoning]] — RL (GRPO, scaled RL with verifiers) as the core training methodology for reasoning models.
+- [[concepts/inference-scaling-laws]] — Formal mathematical relationships governing inference compute: log10(C) = 1.19*log10(N) + 2.03; counterpart to Chinchilla; T2 joint optimization.
+- [[concepts/training-vs-inference-compute]] — The fundamental paradigm shift from training bigger to reasoning harder; inference demand projected 118x training by 2026; $255B market by 2030.
+- [[concepts/adaptive-compute-allocation]] — Dynamic per-query compute allocation based on difficulty/confidence/quality signals; 4x efficiency over uniform; model cascades (60/30/10).
+- [[concepts/best-of-n-sampling]] — Fundamental parallel TTS: generate N, select best via verifier; baseline for all comparisons; generation diversity > verification at scale.
+- [[concepts/mcts-llm-reasoning]] — Monte Carlo Tree Search for LLM reasoning: selection/expansion/simulation/backprop; o3, rStar-Math; multi-model AB-MCTS (30%+ ARC-AGI-2).
+- [[concepts/latent-reasoning]] — Reasoning in continuous hidden states (COCONUT): implicit BFS, fewer tokens, but performance degradation and alignment concerns from opaque reasoning.
+- [[concepts/test-time-training]] — Modifying model weights at inference time: TTRL (RL with majority voting rewards, 211% AIME), TLM (perplexity minimization, 20%+); complementary to TTS.
+- [[concepts/reasoning-tokens]] — The tokens constituting thinking: deep-thinking ratio > raw count for quality; overthinking real; logarithmic scaling; budget control via BudgetThinker.
 
 ### Entities
 - [[entities/jason-wei]] — Google Brain/DeepMind researcher; first author of both the CoT Prompting and Emergent Abilities papers.
 - [[entities/openai]] — Organization behind GPT-4, o1/o3 reasoning models, and PRM800K process reward model dataset.
+- [[entities/thinkprm]] — Generative PRM that verifies by generating verification CoT; only 1% of PRM800K labels needed; outperforms discriminative PRMs by 8%.
+- [[entities/coconut]] — COCONUT (Chain of Continuous Thought): Meta research on latent reasoning via continuous hidden state feedback; implicit breadth-first search.
+- [[entities/ttrl]] — TTRL (Test-Time Reinforcement Learning): NeurIPS 2025 paper; RL on unlabeled test data via majority voting rewards; 211% AIME improvement.
 
 ### Comparisons
 - [[comparisons/o3-vs-r1-vs-claude-reasoning]] — Three leading reasoning model approaches compared: architecture, training, transparency, benchmarks.
 - [[comparisons/process-vs-outcome-supervision]] — Process supervision (step-level, 78% MATH) vs outcome supervision (answer-only, weaker).
+- [[comparisons/parallel-vs-sequential-test-time-scaling]] — Parallel (BoN, majority voting) vs sequential (extended thinking) vs hybrid (MCTS) TTS: no universal winner; adaptive routing emerging.
+- [[comparisons/training-time-vs-inference-time-scaling]] — The defining AI paradigm comparison: Chinchilla training scaling vs inference-time reasoning; T2 shows joint optimization with overtraining optimal.
 
 ## LLM Training Data, Dataset Curation & Data Quality (Research: 2026-04-05)
 
@@ -1400,3 +1426,84 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 ## Comparisons (LLM Applications Beyond Code)
 
 - [[comparisons/coding-vs-knowledge-work-llm-applications]] -- Code generation vs knowledge work LLM applications: shared patterns (automation to orchestration), different maturity, convergence toward knowledge orchestration.
+
+## Sources (World Models, Simulation & Physical AI)
+
+- [[sources/ha-schmidhuber-world-models]] — Foundational 2018 paper: VAE + MDN-RNN + 867-parameter controller solving CarRacing by "learning inside a dream"; agents trained entirely in model-generated environments.
+- [[sources/openai-video-world-simulators]] — OpenAI Sora technical report: spacetime patch diffusion transformer for video generation as world simulation; emergent 3D consistency at scale; Sora 2 improved physics; discontinued March 2026.
+- [[sources/deepmind-genie-2]] — DeepMind's Genie 2: autoregressive latent diffusion generating interactive 3D worlds from single images; keyboard/mouse control, emergent physics, long-horizon memory; Genie 3 (Aug 2025) achieved real-time 24fps 720p.
+- [[sources/meta-v-jepa-2]] — Meta's V-JEPA 2: 1.2B-param self-supervised world model on 1M+ hours video; SOTA action anticipation; zero-shot robot planning with 62 hours robot data; three new physical reasoning benchmarks.
+- [[sources/jepa-deep-dive]] — Technical walkthrough of JEPA family: energy-based formulation, four training criteria without contrastive loss, I-JEPA/V-JEPA/H-JEPA/MC-JEPA variants, collapse prevention via EMA and Isotropic Gaussian regularization.
+- [[sources/nvidia-cosmos-world-foundation]] — NVIDIA Cosmos: wavelet tokenizer (12x faster, +4dB), 7B-14B diffusion and 4B-13B autoregressive world models trained on 20M hours video, open license, 2M+ downloads, robotics/AV adoption.
+- [[sources/world-models-race-2026]] — 2026 competitive landscape: AMI Labs ($1.03B seed), Genie 3 (24fps real-time), NVIDIA Cosmos (2M downloads), World Labs Marble ($230M); over $1.3B in funding.
+- [[sources/llms-and-world-models-mitchell]] — Melanie Mitchell analysis: Sutskever vs LeCun on LLM world understanding; Orrery Spectrum (lookup-map-orrery-simulator); three criteria for genuine world models; community split 50-50.
+
+## Concepts (World Models, Simulation & Physical AI)
+
+- [[concepts/world-models]] — AI systems building internal representations of reality to simulate, predict, and plan — the emerging paradigm challenging LLMs with $1.3B+ in 2026 funding.
+- [[concepts/jepa]] — Yann LeCun's Joint Embedding Predictive Architecture: predicts representations not pixels; I-JEPA, V-JEPA, V-JEPA 2, H-JEPA, LeWorldModel; foundation for AMI Labs.
+- [[concepts/video-generation-as-world-simulation]] — Hypothesis that scaling video generation trains implicit world simulators — pioneered by Sora, challenged by gap between statistical prediction and true causal modeling.
+- [[concepts/latent-world-models]] — World models compressing observations into compact representations for dynamics prediction — from 32-dim VAE to DreamerV3's RSSM to V-JEPA 2's 1.2B ViT.
+- [[concepts/physical-ai]] — AI systems perceiving and acting in the physical world — requiring world models for physics, object permanence, and spatial reasoning.
+- [[concepts/embodied-ai]] — AI agents with physical instantiation learning through world interaction; three-layer framework: perception, world modeling, policy generation.
+- [[concepts/self-supervised-learning]] — Learning representations from unlabeled data: contrastive, generative, joint embedding (JEPA) — the training paradigm for world models.
+- [[concepts/model-based-reinforcement-learning]] — RL that learns environment models for planning through imagination — Dyna (1990) to DreamerV3 (2025, Minecraft diamond).
+- [[concepts/llm-world-understanding]] — Whether LLMs develop genuine world models: split 50-50; Sutskever yes, LeCun no; Orrery Spectrum as evaluation framework.
+
+## Entities (World Models, Simulation & Physical AI)
+
+- [[entities/yann-lecun]] — Turing Award winner, JEPA creator, AMI Labs founder ($1.03B seed at $3.5B); most prominent world models advocate.
+- [[entities/ami-labs]] — LeCun's Paris-based $1.03B startup building JEPA-based world models; largest European seed round ever.
+- [[entities/sora]] — OpenAI's text-to-video model; pioneered "video as world simulation"; discontinued March 2026.
+- [[entities/genie]] — DeepMind's foundation world model: Genie 2 (3D interactive), Genie 3 (24fps real-time 720p).
+- [[entities/nvidia-cosmos]] — World foundation model platform: 7B-14B models; 20M hours training; open license; 2M+ downloads.
+- [[entities/dreamerv3]] — DeepMind general RL algorithm (Nature 2025): 150+ tasks, first Minecraft diamond from scratch.
+- [[entities/world-labs]] — Fei-Fei Li's $230M startup; Marble platform for 3D world generation.
+- [[entities/david-ha]] — Co-author of foundational World Models paper (2018).
+- [[entities/jurgen-schmidhuber]] — LSTM co-inventor; World Models (2018) co-author.
+- [[entities/melanie-mitchell]] — Santa Fe Institute; Orrery Spectrum; LLM world understanding analysis.
+
+## Comparisons (World Models, Simulation & Physical AI)
+
+- [[comparisons/world-models-vs-llms]] — World models vs LLMs as path to AGI; $1.3B+ bet on world models; convergence via hybrid architectures.
+- [[comparisons/jepa-vs-generative-vs-contrastive]] — Three SSL paradigms: generative (pixels), contrastive (negatives), JEPA (representations).
+- [[comparisons/world-model-platforms-comparison]] — AMI Labs vs Genie vs Cosmos vs World Labs: architecture, funding, applications.
+
+## Sources (AI Geopolitics, US-China Race & Global Power Dynamics)
+
+- [[sources/time-us-china-ai-race-graphs]] -- Data-driven analysis: US dominates with 93% of global LLM visits but China surging from 3% to 13% in two months; seven-month average quality gap narrowing; chip production asymmetry remains US advantage.
+- [[sources/csis-deepseek-breakthrough-redefining-ai-race]] -- CSIS analysis: DeepSeek R1 achieves OpenAI o1-comparable results with far less compute; "not a Sputnik moment yet" but gap narrowing; advocates targeted export controls.
+- [[sources/cfr-how-2026-decides-future-of-ai]] -- CFR: 2026 pivotal year; EU AI Act enforcement begins, US state regulations fragment, export control decisions could give China 2-3 year boost, 80%+ workers use unapproved AI.
+- [[sources/cfr-china-ai-chip-deficit-huawei-nvidia]] -- CFR: US chips 5x more powerful (widening to 17x by 2027); Huawei produces 4-5% of Nvidia output; export controls working and should remain.
+- [[sources/lawfare-china-ai-ecosystem-beyond-deepseek]] -- Lawfare deep dive: 2,100+ government guidance funds ($1.86T target), $137B direct investment, provincial competition, computing vouchers across 17 provinces.
+- [[sources/nanonets-ai-warfare-pentagon-china-2026]] -- AI warfare: Project Maven ($480M), Operation Epic Fury (900 strikes in 12 hours), Pentagon AI systems, PLA pursuing fully autonomous combat decisions.
+- [[sources/pernot-leplay-ai-regulation-china-eu-us]] -- Three-way comparison: EU (risk-based, rights-protective), US (sector-specific, innovation-first), China (agile, state-controlled, "develop hard, control tight").
+- [[sources/crunchbase-q1-2026-record-ai-funding]] -- Q1 2026: $300B global VC ($242B in AI, 80% of total); OpenAI $122B, Anthropic $30B, xAI $20B; US captured 83% of global VC.
+- [[sources/euronews-ai-brain-drain-europe]] -- Europe has 30% more AI talent per capita than US but net tech inflows halved; US salaries 30-70% higher; demand-supply ratio 3.2:1 globally.
+
+## Concepts (AI Geopolitics, US-China Race & Global Power Dynamics)
+
+- [[concepts/ai-geopolitics]] -- The intersection of AI development with international power dynamics: US-China competition, export controls, regulatory divergence, military AI, talent flows, sovereignty drives.
+- [[concepts/us-china-ai-race]] -- The defining geopolitical competition: US leads in model quality (7-month gap), market share (93%), compute (5-17x), capital ($250B Q1 2026); China closing via efficiency, open source, state ecosystem.
+- [[concepts/ai-chip-export-controls]] -- US restrictions on advanced AI chip exports; most potent policy lever; policy oscillating between restriction and relaxation; US chips 5-17x more powerful.
+- [[concepts/ai-sovereignty]] -- A nation's ability to develop and control its own AI capabilities; 71% of executives call it existential; requires sovereignty across 6 layers; $600B market by 2030.
+- [[concepts/open-source-vs-closed-ai]] -- Geopolitically charged debate: Chinese open-source usage surged from 1.2% to 30% in 2025; safety vs innovation; DeepSeek R1 MIT license; EU AI Act attempts middle path.
+- [[concepts/ai-arms-race]] -- Escalating military AI competition: US has operational combat experience (Operation Epic Fury), China pursues fully autonomous combat decisions; no international treaty governs AI weapons.
+- [[concepts/ai-regulation-landscape]] -- Three competing regulatory philosophies: EU (comprehensive, risk-based), US (fragmented, innovation-first), China (agile, state-controlled); race for global norms remains open.
+- [[concepts/ai-talent-competition]] -- Global demand exceeds supply 3.2:1; Europe trains 30% more per capita but loses to 30-70% salary premiums; young scholars 100x more likely to leave academia.
+- [[concepts/ai-industry-consolidation]] -- Extreme capital concentration: Q1 2026 $242B in AI VC; 4 companies captured 65% of all global VC; big tech infra spending approaching $700B.
+- [[concepts/ai-industrial-policy]] -- Government AI strategies: China leads ($137B direct, 2,100+ funds); US relies on private sector ($500B Stargate); EU focuses on regulatory power.
+- [[concepts/ai-military-applications]] -- Operational AI in combat by 2026: targeting (Gospel, Lavender), intelligence fusion (Maven), decision support (GenAI.mil), autonomous platforms.
+- [[concepts/semiconductor-supply-chain]] -- Global AI chip supply chain centered on TSMC (Taiwan); SMIC constrained to 7nm creating 2+ generation gap; Taiwan geopolitically critical.
+- [[concepts/brussels-effect]] -- EU regulations becoming de facto global standards through market power; AI Act may replicate GDPR success but outcome uncertain.
+
+## Entities (AI Geopolitics)
+
+- [[entities/nvidia]] -- Dominant AI chip company: 5-17x performance over Chinese competitors; 4.5M chips/year scaling to 10M+; lost $600B market value in one day after DeepSeek; H200 export controversy.
+- [[entities/huawei]] -- China's leading AI chip maker: Ascend 910C at 60% of H100 performance; SMIC 7nm constraint; next-gen chip regresses; 4-5% of Nvidia production.
+
+## Comparisons (AI Geopolitics)
+
+- [[comparisons/us-vs-china-vs-eu-ai-regulation]] -- Three-way: EU (comprehensive, slow), US (fragmented, innovation-first), China (agile, state-controlled); no global standard has emerged.
+- [[comparisons/us-vs-china-ai-military]] -- US has operational combat experience and integrated AI stack; China has efficiency advantage, domestic chips, and fully autonomous doctrine but zero combat testing.
+- [[comparisons/nvidia-vs-huawei-ai-chips]] -- 5x current performance gap (widening to 17x by 2027), 20:1 production ratio; TSMC vs SMIC manufacturing constraint is binding.

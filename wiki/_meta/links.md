@@ -2818,3 +2818,166 @@ Pages with no incoming links:
 
 ### comparisons/coding-vs-knowledge-work-llm-applications
 → [[concepts/agentic-coding]], [[concepts/llm-applications-beyond-code]], [[concepts/post-code-ai-workflow]], [[concepts/ai-creativity-paradox]]
+
+## AI Geopolitics, US-China Race & Global Power Dynamics
+
+### sources/time-us-china-ai-race-graphs
+→ [[concepts/us-china-ai-race]], [[concepts/ai-geopolitics]], [[entities/deepseek]], [[concepts/ai-chip-export-controls]], [[concepts/ai-sovereignty]]
+
+### sources/csis-deepseek-breakthrough-redefining-ai-race
+→ [[entities/deepseek]], [[concepts/us-china-ai-race]], [[concepts/open-source-vs-closed-ai]], [[concepts/ai-chip-export-controls]]
+
+### sources/cfr-how-2026-decides-future-of-ai
+→ [[concepts/ai-geopolitics]], [[concepts/ai-regulation-landscape]], [[entities/eu-ai-act]], [[concepts/us-china-ai-race]], [[concepts/ai-chip-export-controls]]
+
+### sources/cfr-china-ai-chip-deficit-huawei-nvidia
+→ [[concepts/ai-chip-export-controls]], [[entities/nvidia]], [[entities/huawei]], [[concepts/us-china-ai-race]], [[concepts/semiconductor-supply-chain]]
+
+### sources/lawfare-china-ai-ecosystem-beyond-deepseek
+→ [[entities/deepseek]], [[concepts/ai-sovereignty]], [[concepts/us-china-ai-race]], [[concepts/ai-industrial-policy]]
+
+### sources/nanonets-ai-warfare-pentagon-china-2026
+→ [[concepts/ai-military-applications]], [[concepts/us-china-ai-race]], [[concepts/ai-arms-race]], [[entities/huawei]]
+
+### sources/pernot-leplay-ai-regulation-china-eu-us
+→ [[concepts/ai-regulation-landscape]], [[entities/eu-ai-act]], [[concepts/ai-governance]], [[concepts/ai-geopolitics]], [[concepts/brussels-effect]]
+
+### sources/crunchbase-q1-2026-record-ai-funding
+→ [[concepts/ai-industry-consolidation]], [[entities/openai]], [[entities/anthropic]], [[concepts/ai-geopolitics]]
+
+### sources/euronews-ai-brain-drain-europe
+→ [[concepts/ai-talent-competition]], [[concepts/ai-geopolitics]], [[concepts/ai-sovereignty]]
+
+### concepts/ai-geopolitics
+→ [[concepts/us-china-ai-race]], [[concepts/ai-sovereignty]], [[concepts/ai-chip-export-controls]], [[concepts/ai-regulation-landscape]], [[concepts/ai-arms-race]], [[concepts/ai-talent-competition]], [[concepts/ai-industry-consolidation]], [[entities/deepseek]], [[entities/eu-ai-act]], [[entities/nvidia]], [[entities/huawei]]
+
+### concepts/us-china-ai-race
+→ [[concepts/ai-geopolitics]], [[concepts/ai-chip-export-controls]], [[concepts/ai-sovereignty]], [[entities/deepseek]], [[entities/nvidia]], [[entities/huawei]], [[concepts/open-source-vs-closed-ai]], [[concepts/ai-arms-race]], [[concepts/ai-industrial-policy]]
+
+### concepts/ai-chip-export-controls
+→ [[concepts/us-china-ai-race]], [[concepts/ai-geopolitics]], [[entities/nvidia]], [[entities/huawei]], [[concepts/ai-sovereignty]], [[concepts/semiconductor-supply-chain]], [[entities/deepseek]], [[concepts/ai-industrial-policy]], [[concepts/ai-arms-race]]
+
+### concepts/ai-sovereignty
+→ [[concepts/ai-geopolitics]], [[concepts/us-china-ai-race]], [[concepts/ai-chip-export-controls]], [[concepts/ai-industrial-policy]], [[concepts/ai-talent-competition]], [[concepts/ai-regulation-landscape]], [[entities/eu-ai-act]]
+
+### concepts/open-source-vs-closed-ai
+→ [[concepts/ai-geopolitics]], [[concepts/us-china-ai-race]], [[concepts/ai-regulation-landscape]], [[entities/deepseek]], [[concepts/ai-safety]], [[concepts/ai-sovereignty]], [[concepts/ai-industry-consolidation]], [[entities/eu-ai-act]]
+
+### concepts/ai-arms-race
+→ [[concepts/ai-geopolitics]], [[concepts/us-china-ai-race]], [[concepts/ai-military-applications]], [[concepts/ai-safety]], [[entities/huawei]], [[concepts/ai-chip-export-controls]]
+
+### concepts/ai-regulation-landscape
+→ [[concepts/ai-geopolitics]], [[concepts/ai-governance]], [[entities/eu-ai-act]], [[concepts/open-source-vs-closed-ai]], [[concepts/brussels-effect]], [[concepts/ai-sovereignty]], [[concepts/ai-industry-consolidation]]
+
+### concepts/ai-talent-competition
+→ [[concepts/ai-geopolitics]], [[concepts/ai-sovereignty]], [[concepts/us-china-ai-race]], [[concepts/ai-industry-consolidation]], [[concepts/open-source-vs-closed-ai]]
+
+### concepts/ai-industry-consolidation
+→ [[concepts/ai-geopolitics]], [[concepts/us-china-ai-race]], [[concepts/open-source-vs-closed-ai]], [[entities/openai]], [[entities/anthropic]], [[concepts/ai-regulation-landscape]]
+
+### concepts/ai-industrial-policy
+→ [[concepts/ai-sovereignty]], [[concepts/ai-geopolitics]], [[concepts/us-china-ai-race]], [[concepts/ai-chip-export-controls]], [[concepts/ai-talent-competition]]
+
+### concepts/ai-military-applications
+→ [[concepts/ai-arms-race]], [[concepts/ai-geopolitics]], [[concepts/us-china-ai-race]], [[concepts/ai-safety]], [[concepts/ai-chip-export-controls]]
+
+### concepts/semiconductor-supply-chain
+→ [[concepts/ai-chip-export-controls]], [[entities/nvidia]], [[entities/huawei]], [[concepts/ai-sovereignty]], [[concepts/us-china-ai-race]]
+
+### concepts/brussels-effect
+→ [[entities/eu-ai-act]], [[concepts/ai-regulation-landscape]], [[concepts/ai-geopolitics]]
+
+### entities/nvidia
+→ [[entities/huawei]], [[concepts/ai-chip-export-controls]], [[concepts/semiconductor-supply-chain]], [[concepts/us-china-ai-race]]
+
+### entities/huawei
+→ [[entities/nvidia]], [[concepts/ai-chip-export-controls]], [[concepts/us-china-ai-race]], [[concepts/semiconductor-supply-chain]]
+
+### comparisons/us-vs-china-vs-eu-ai-regulation
+→ [[concepts/ai-regulation-landscape]], [[entities/eu-ai-act]], [[concepts/brussels-effect]]
+
+### comparisons/us-vs-china-ai-military
+→ [[concepts/ai-arms-race]], [[concepts/ai-military-applications]], [[concepts/us-china-ai-race]]
+
+### comparisons/nvidia-vs-huawei-ai-chips
+→ [[entities/nvidia]], [[entities/huawei]], [[concepts/ai-chip-export-controls]], [[concepts/semiconductor-supply-chain]]
+
+## Test-Time Compute Deep Research (2026-04-05)
+
+### sources/zhang-test-time-scaling-survey
+→ [[concepts/test-time-compute]], [[concepts/reasoning-models]], [[concepts/process-reward-models]], [[concepts/mcts-llm-reasoning]], [[concepts/adaptive-compute-allocation]], [[concepts/best-of-n-sampling]], [[concepts/latent-reasoning]]
+
+### sources/agarwal-art-of-scaling-test-time-compute
+→ [[concepts/test-time-compute]], [[concepts/adaptive-compute-allocation]], [[concepts/reasoning-models]]
+
+### sources/roberts-train-to-test-scaling-laws
+→ [[concepts/test-time-compute]], [[concepts/inference-scaling-laws]], [[concepts/training-vs-inference-compute]], [[concepts/scaling-laws]]
+
+### sources/ttrl-test-time-reinforcement-learning
+→ [[concepts/test-time-training]], [[concepts/test-time-compute]], [[concepts/reinforcement-learning-for-reasoning]], [[concepts/self-consistency]]
+
+### sources/hao-coconut-latent-reasoning
+→ [[concepts/latent-reasoning]], [[concepts/test-time-compute]], [[concepts/chain-of-thought]]
+
+### sources/khalifa-thinkprm
+→ [[concepts/process-reward-models]], [[concepts/test-time-compute]], [[concepts/reasoning-models]]
+
+### sources/chen-deep-thinking-tokens
+→ [[concepts/test-time-compute]], [[concepts/reasoning-tokens]], [[concepts/adaptive-compute-allocation]]
+
+### sources/wu-inference-scaling-laws
+→ [[concepts/inference-scaling-laws]], [[concepts/test-time-compute]], [[concepts/best-of-n-sampling]], [[concepts/scaling-laws]]
+
+### sources/sakana-ab-mcts
+→ [[concepts/mcts-llm-reasoning]], [[concepts/test-time-compute]], [[concepts/best-of-n-sampling]]
+
+### sources/introl-inference-time-scaling-paradigm-shift
+→ [[concepts/training-vs-inference-compute]], [[concepts/test-time-compute]], [[concepts/reasoning-models]]
+
+### sources/emergehaus-test-time-compute-overview
+→ [[concepts/test-time-compute]], [[concepts/training-vs-inference-compute]], [[concepts/reasoning-models]], [[concepts/adaptive-compute-allocation]]
+
+### sources/iacobacci-thinking-budget-not-enough
+→ [[concepts/test-time-compute]], [[concepts/adaptive-compute-allocation]], [[concepts/reasoning-tokens]], [[concepts/best-of-n-sampling]]
+
+### sources/hu-test-time-learning-llm
+→ [[concepts/test-time-training]], [[concepts/test-time-compute]]
+
+### concepts/inference-scaling-laws
+→ [[concepts/test-time-compute]], [[concepts/scaling-laws]], [[concepts/training-vs-inference-compute]], [[concepts/adaptive-compute-allocation]], [[concepts/best-of-n-sampling]]
+
+### concepts/training-vs-inference-compute
+→ [[concepts/test-time-compute]], [[concepts/inference-scaling-laws]], [[concepts/scaling-laws]], [[concepts/reasoning-models]], [[concepts/adaptive-compute-allocation]]
+
+### concepts/adaptive-compute-allocation
+→ [[concepts/test-time-compute]], [[concepts/inference-scaling-laws]], [[concepts/reasoning-models]], [[concepts/best-of-n-sampling]]
+
+### concepts/latent-reasoning
+→ [[concepts/test-time-compute]], [[concepts/chain-of-thought]], [[concepts/reasoning-models]], [[concepts/reasoning-tokens]], [[concepts/ai-safety]]
+
+### concepts/test-time-training
+→ [[concepts/test-time-compute]], [[concepts/reinforcement-learning-for-reasoning]], [[concepts/reasoning-models]]
+
+### concepts/best-of-n-sampling
+→ [[concepts/test-time-compute]], [[concepts/process-reward-models]], [[concepts/self-consistency]], [[concepts/adaptive-compute-allocation]], [[concepts/inference-scaling-laws]]
+
+### concepts/mcts-llm-reasoning
+→ [[concepts/test-time-compute]], [[concepts/process-reward-models]], [[concepts/best-of-n-sampling]], [[concepts/reasoning-models]]
+
+### concepts/reasoning-tokens
+→ [[concepts/test-time-compute]], [[concepts/reasoning-models]], [[concepts/chain-of-thought]], [[concepts/adaptive-compute-allocation]], [[concepts/latent-reasoning]]
+
+### entities/thinkprm
+→ [[concepts/process-reward-models]], [[concepts/test-time-compute]], [[concepts/reasoning-models]]
+
+### entities/coconut
+→ [[concepts/latent-reasoning]], [[concepts/chain-of-thought]], [[concepts/test-time-compute]]
+
+### entities/ttrl
+→ [[concepts/test-time-training]], [[concepts/test-time-compute]], [[concepts/reinforcement-learning-for-reasoning]]
+
+### comparisons/parallel-vs-sequential-test-time-scaling
+→ [[concepts/best-of-n-sampling]], [[concepts/test-time-compute]], [[concepts/mcts-llm-reasoning]], [[concepts/reasoning-tokens]], [[concepts/adaptive-compute-allocation]]
+
+### comparisons/training-time-vs-inference-time-scaling
+→ [[concepts/scaling-laws]], [[concepts/test-time-compute]], [[concepts/training-vs-inference-compute]], [[concepts/inference-scaling-laws]], [[concepts/reasoning-models]]

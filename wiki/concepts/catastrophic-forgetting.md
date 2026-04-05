@@ -1,10 +1,10 @@
 ---
 title: "Catastrophic Forgetting"
 type: concept
-sources: ["[[sources/lora-qlora-efficient-fine-tuning]]", "[[sources/rome-memit-knowledge-editing]]"]
-related: ["[[concepts/fine-tuning]]", "[[concepts/parameter-efficient-fine-tuning]]", "[[concepts/knowledge-editing]]", "[[concepts/domain-adaptive-pretraining]]"]
+sources: ["[[sources/lora-qlora-efficient-fine-tuning]]", "[[sources/rome-memit-knowledge-editing]]", "[[sources/sleep-replay-catastrophic-forgetting]]", "[[sources/hippocampus-stability-plasticity-dilemma]]", "[[sources/memory-systems-brain-to-ai-agents]]"]
+related: ["[[concepts/fine-tuning]]", "[[concepts/parameter-efficient-fine-tuning]]", "[[concepts/knowledge-editing]]", "[[concepts/domain-adaptive-pretraining]]", "[[concepts/continual-learning]]", "[[concepts/complementary-learning-systems]]", "[[concepts/sleep-consolidation-ai]]", "[[concepts/brain-inspired-ai]]"]
 last_compiled: 2026-04-05
-summary: "Models losing previously learned knowledge when fine-tuned on new data — mitigated by PEFT (LoRA), regularization (EWC), experience replay, parameter isolation, and careful learning rate selection."
+summary: "Models losing previously learned knowledge when fine-tuned on new data — mitigated by PEFT (LoRA), regularization (EWC), experience replay, parameter isolation, careful learning rate selection, and neuroscience-inspired approaches like sleep consolidation and complementary learning systems."
 ---
 
 ## Overview
@@ -55,6 +55,22 @@ Research has established scaling relationships: forgetting during fine-tuning fo
 
 [[concepts/knowledge-editing|ROME and MEMIT]] face their own version of catastrophic forgetting: sequential edits induce gradual forgetting of prior facts, with neighborhood specificity being lost progressively until an abrupt catastrophic failure phase. This limits the practical number of knowledge edits that can be applied to a single model.
 
+## Neuroscience-Inspired Solutions
+
+Beyond engineering mitigations, neuroscience offers deeper insights into how brains solve forgetting:
+
+### The Stability-Plasticity Dilemma
+Catastrophic forgetting is an instance of the fundamental stability-plasticity tradeoff. The brain solves this through [[concepts/complementary-learning-systems]] — a fast-learning hippocampus for rapid encoding and a slow-learning neocortex for stable long-term storage, with sleep-mediated transfer between them.
+
+### Sleep Replay Consolidation (SRC)
+After supervised learning, networks enter an offline "sleep" phase using Hebbian plasticity (not backpropagation). This creates sparse, decorrelated representations that separate task-specific patterns. Results: CUB-200 first-task accuracy recovers from 5% to 63.2%; combined with iCaRL, reduces needed training epochs from 10 to 3-4. See [[concepts/sleep-consolidation-ai]].
+
+### Hippocampal-Cortical Dynamics
+Recent neuroscience discoveries reveal that sleep consolidation involves two complementary processes: Sharp-Wave Ripples (SWRs) that strengthen recent patterns, and Barrages (BARRs) that provide selective inhibition. AI implementations using this dual dynamic show improved stability-plasticity balance.
+
+### Generative Replay
+Rather than storing actual past examples, a generative model (hippocampus analog) produces pseudo-examples of past experiences. This achieves up to 38% reduction in forgetting and 17.6% increase in zero-shot transfer, without requiring a replay buffer.
+
 ## Practical Recommendations
 
 1. **Start with PEFT** (LoRA/QLoRA) as the default — it dramatically reduces forgetting
@@ -68,6 +84,9 @@ Research has established scaling relationships: forgetting during fine-tuning fo
 
 - [[sources/lora-qlora-efficient-fine-tuning]] — PEFT as forgetting mitigation
 - [[sources/rome-memit-knowledge-editing]] — forgetting in knowledge editing
+- [[sources/sleep-replay-catastrophic-forgetting]] — sleep-like replay for continual learning
+- [[sources/hippocampus-stability-plasticity-dilemma]] — biological blueprint for the stability-plasticity dilemma
+- [[sources/memory-systems-brain-to-ai-agents]] — how AI agents handle memory over time
 
 ## Related Concepts
 
@@ -75,3 +94,7 @@ Research has established scaling relationships: forgetting during fine-tuning fo
 - [[concepts/parameter-efficient-fine-tuning]] — primary mitigation technique
 - [[concepts/knowledge-editing]] — sequential edits cause analogous forgetting
 - [[concepts/domain-adaptive-pretraining]] — careful DAPT can reduce forgetting during later fine-tuning
+- [[concepts/continual-learning]] — the broader goal of learning without forgetting
+- [[concepts/complementary-learning-systems]] — the brain's dual-system solution
+- [[concepts/sleep-consolidation-ai]] — sleep-inspired offline consolidation phases
+- [[concepts/brain-inspired-ai]] — the broader field of neuroscience-guided AI

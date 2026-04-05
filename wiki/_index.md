@@ -1081,6 +1081,18 @@ reading_time: "5 min"
 - [[sources/anthropic-extended-thinking]] — Anthropic 2025: Claude 3.7 extended thinking, 96.5% on GPQA physics
 - [[sources/adaline-inside-reasoning-models]] — Technical deep-dive: o3 vs R1 training pipelines and benchmarks
 - [[sources/raschka-state-of-reasoning-inference]] — 2025: four categories of inference-time scaling
+- [[sources/zhang-test-time-scaling-survey]] — Definitive 2025 survey: What/How/Where/How Well taxonomy of test-time scaling (30+ techniques)
+- [[sources/agarwal-art-of-scaling-test-time-compute]] — First large-scale empirical TTS study: 30B+ tokens, 8 models, no universal best strategy
+- [[sources/roberts-train-to-test-scaling-laws]] — T2 scaling laws: joint training-inference optimization shows overtraining becomes compute-optimal
+- [[sources/wu-inference-scaling-laws]] — ICLR 2025: inference scaling laws, Llemma-7B + tree search > Llemma-34B
+- [[sources/ttrl-test-time-reinforcement-learning]] — NeurIPS 2025 TTRL: RL on unlabeled data via majority voting rewards, 211% AIME improvement
+- [[sources/hao-coconut-latent-reasoning]] — COCONUT: reasoning in continuous latent space with implicit breadth-first search
+- [[sources/khalifa-thinkprm]] — ThinkPRM: generative verification CoT needing only 1% of PRM800K labels
+- [[sources/chen-deep-thinking-tokens]] — Deep-thinking tokens: token count unreliable, layer-by-layer revision correlates with accuracy
+- [[sources/introl-inference-time-scaling-paradigm-shift]] — Training-to-inference paradigm shift: 118x demand ratio, $106B inference market
+- [[sources/emergehaus-test-time-compute-overview]] — Enterprise TTC overview: System 2 analogy, model cascades, infrastructure outlook
+- [[sources/iacobacci-thinking-budget-not-enough]] — Increasing thinking budget hits plateaus; parallel strategies outperform naive extension
+- [[sources/hu-test-time-learning-llm]] — TLM (ICML 2025): test-time domain adaptation via perplexity minimization, 20%+ improvement
 
 ### Concepts
 - [[concepts/llm-reasoning]] — Multi-step inference, logical deduction, and problem-solving in LLMs
@@ -1096,14 +1108,27 @@ reading_time: "5 min"
 - [[concepts/stochastic-parrot-debate]] — Whether LLMs genuinely reason or pattern-match
 - [[concepts/system-1-system-2-thinking]] — Kahneman's dual-process theory applied to LLMs
 - [[concepts/reinforcement-learning-for-reasoning]] — RL as core training method for reasoning models
+- [[concepts/inference-scaling-laws]] — Formal mathematical relationships for inference compute (counterpart to Chinchilla)
+- [[concepts/training-vs-inference-compute]] — The paradigm shift from training bigger to reasoning harder (118x demand shift)
+- [[concepts/adaptive-compute-allocation]] — Dynamic per-query compute allocation achieving 4x efficiency over uniform
+- [[concepts/best-of-n-sampling]] — Fundamental parallel TTS: generate N, select best; baseline for all comparisons
+- [[concepts/mcts-llm-reasoning]] — Monte Carlo Tree Search for LLM reasoning: o3, rStar-Math, multi-model AB-MCTS
+- [[concepts/latent-reasoning]] — Reasoning in hidden states without explicit tokens (COCONUT, recurrent depth)
+- [[concepts/test-time-training]] — Modifying model weights at inference time (TTRL, TLM): complementary to TTS
+- [[concepts/reasoning-tokens]] — The tokens constituting thinking: deep-thinking ratio, overthinking, budget control
 
 ### Entities
 - [[entities/jason-wei]] — First author of CoT and Emergent Abilities papers
 - [[entities/openai]] — Organization behind o1, o3, and process reward models
+- [[entities/thinkprm]] — Generative PRM requiring 1% of labels, extending thinking paradigm to verification
+- [[entities/coconut]] — COCONUT: latent reasoning via continuous hidden state feedback (Meta)
+- [[entities/ttrl]] — TTRL: test-time RL using majority voting as reward (NeurIPS 2025)
 
 ### Comparisons
 - [[comparisons/o3-vs-r1-vs-claude-reasoning]] — Three leading reasoning models compared
 - [[comparisons/process-vs-outcome-supervision]] — Step-level vs answer-level feedback for training verifiers
+- [[comparisons/parallel-vs-sequential-test-time-scaling]] — Parallel (BoN) vs sequential (extended thinking) vs hybrid (MCTS) test-time scaling
+- [[comparisons/training-time-vs-inference-time-scaling]] — Training bigger (Chinchilla) vs reasoning harder (TTS): the defining AI paradigm shift
 
 ---
 
@@ -1281,3 +1306,212 @@ reading_time: "5 min"
 
 ### Comparisons
 - [[comparisons/coding-vs-knowledge-work-llm-applications]] — Code generation vs. knowledge work LLM applications
+
+---
+
+## World Models, Simulation & Physical AI (Research: 2026-04-05)
+
+### Sources
+- [[sources/ha-schmidhuber-world-models]] — The foundational 2018 paper: VAE + MDN-RNN + controller, "learning inside a dream"
+- [[sources/openai-video-world-simulators]] — OpenAI Sora technical report: video generation as world simulation
+- [[sources/deepmind-genie-2]] — Genie 2: interactive 3D world generation from single images
+- [[sources/meta-v-jepa-2]] — V-JEPA 2: 1.2B-param self-supervised world model for understanding and robotic planning
+- [[sources/jepa-deep-dive]] — Comprehensive technical walkthrough of the JEPA architecture family
+- [[sources/nvidia-cosmos-world-foundation]] — NVIDIA Cosmos: world foundation model platform for physical AI
+- [[sources/world-models-race-2026]] — 2026 competitive landscape: AMI Labs, Genie, Cosmos, World Labs
+- [[sources/llms-and-world-models-mitchell]] — Melanie Mitchell: do LLMs develop genuine world models?
+
+### Concepts
+- [[concepts/world-models]] — AI systems building internal representations of reality to simulate, predict, and plan
+- [[concepts/jepa]] — Joint Embedding Predictive Architecture: predicting representations, not pixels
+- [[concepts/video-generation-as-world-simulation]] — The hypothesis that video generation trains implicit world simulators
+- [[concepts/latent-world-models]] — World models operating in compressed representation space
+- [[concepts/physical-ai]] — AI systems perceiving and acting in the physical world
+- [[concepts/embodied-ai]] — AI agents with physical instantiation learning through world interaction
+- [[concepts/self-supervised-learning]] — Learning representations from unlabeled data via pretext tasks
+- [[concepts/model-based-reinforcement-learning]] — RL that learns environment models for planning through imagination
+- [[concepts/llm-world-understanding]] — The debate over whether LLMs develop genuine internal world models
+
+### Entities
+- [[entities/yann-lecun]] — Turing Award winner, JEPA creator, AMI Labs founder
+- [[entities/ami-labs]] — LeCun's $1.03B startup building world models based on JEPA
+- [[entities/sora]] — OpenAI's video generation model (discontinued March 2026)
+- [[entities/genie]] — DeepMind's foundation world model series (Genie 1/2/3)
+- [[entities/nvidia-cosmos]] — NVIDIA's world foundation model platform
+- [[entities/dreamerv3]] — DeepMind's general RL algorithm (Nature 2025, Minecraft diamond)
+- [[entities/world-labs]] — Fei-Fei Li's 3D world generation startup ($230M)
+- [[entities/david-ha]] — Co-author of World Models (2018)
+- [[entities/jurgen-schmidhuber]] — Co-author of World Models (2018), LSTM co-inventor
+- [[entities/melanie-mitchell]] — Santa Fe Institute, LLM world understanding analysis
+
+### Comparisons
+- [[comparisons/world-models-vs-llms]] — World models (physical dynamics) vs LLMs (text prediction) as path to AGI
+- [[comparisons/jepa-vs-generative-vs-contrastive]] — Three self-supervised learning paradigms for world modeling
+- [[comparisons/world-model-platforms-comparison]] — AMI Labs vs Genie vs Cosmos vs World Labs
+
+---
+
+## AI Geopolitics, US-China Race & Global Power Dynamics (Research: 2026-04-05)
+
+### Sources
+- [[sources/time-us-china-ai-race-graphs]] — TIME data analysis: US holds 93% of LLM market share, China surging from 3% to 13%; seven-month quality gap
+- [[sources/csis-deepseek-breakthrough-redefining-ai-race]] — CSIS: DeepSeek R1 matches OpenAI o1 at fraction of compute; "not a Sputnik moment yet"
+- [[sources/cfr-how-2026-decides-future-of-ai]] — CFR: 2026 as pivotal year for AI governance; EU enforcement begins, export control decisions, 80%+ shadow AI
+- [[sources/cfr-china-ai-chip-deficit-huawei-nvidia]] — CFR: US chips 5-17x more powerful than China's; Huawei produces 4-5% of Nvidia output; controls working
+- [[sources/lawfare-china-ai-ecosystem-beyond-deepseek]] — Lawfare: China's AI ecosystem ($137B direct investment, 2,100+ guidance funds, provincial competition)
+- [[sources/nanonets-ai-warfare-pentagon-china-2026]] — AI warfare: Project Maven ($480M), Operation Epic Fury (900 strikes in 12 hours), PLA fully autonomous goal
+- [[sources/pernot-leplay-ai-regulation-china-eu-us]] — Three-way regulation comparison: EU (risk-based), US (fragmented), China (agile, state-controlled)
+- [[sources/crunchbase-q1-2026-record-ai-funding]] — Q1 2026: $300B global VC, $242B in AI (80% of total), top 4 companies captured 65%
+- [[sources/euronews-ai-brain-drain-europe]] — Europe's AI brain drain: 30% more talent per capita than US but losing them to 30-70% salary premiums
+
+### Concepts
+- [[concepts/ai-geopolitics]] — AI development intersecting with international power dynamics across all dimensions
+- [[concepts/us-china-ai-race]] — The defining geopolitical competition: US leads in quality, compute, capital; China closing via efficiency and open source
+- [[concepts/ai-chip-export-controls]] — US restrictions on advanced AI chip exports; most potent policy lever in the AI race
+- [[concepts/ai-sovereignty]] — A nation's ability to develop and control its own AI; 71% call it existential; $600B market by 2030
+- [[concepts/open-source-vs-closed-ai]] — Geopolitically charged debate; China's open-source strategy surged from 1.2% to 30% of global usage
+- [[concepts/ai-arms-race]] — Escalating military AI competition; US has combat experience, China pursues full autonomy
+- [[concepts/ai-regulation-landscape]] — Three competing philosophies: EU (comprehensive), US (fragmented), China (agile)
+- [[concepts/ai-talent-competition]] — Global demand exceeds supply 3.2:1; Europe trains talent but can't retain it
+- [[concepts/ai-industry-consolidation]] — Extreme capital concentration: 4 companies captured 65% of all Q1 2026 global VC
+- [[concepts/ai-industrial-policy]] — Government strategies to build AI capabilities; China leads with coordinated state investment
+- [[concepts/ai-military-applications]] — Operational AI in combat: targeting systems, intelligence fusion, decision support
+- [[concepts/semiconductor-supply-chain]] — TSMC vs SMIC: 2+ generation manufacturing gap; Taiwan geopolitically critical
+- [[concepts/brussels-effect]] — EU regulation becoming de facto global standard through market power
+
+### Entities
+- [[entities/nvidia]] — Dominant AI chip company: 5-17x performance over Chinese competitors; central to export control debate
+- [[entities/huawei]] — China's AI chip champion: Ascend 910C at 60% of H100 performance; SMIC 7nm constraint
+
+### Comparisons
+- [[comparisons/us-vs-china-vs-eu-ai-regulation]] — Three-way regulatory comparison: comprehensive vs fragmented vs agile
+- [[comparisons/us-vs-china-ai-military]] — US operational experience vs China's doctrinal ambition and efficiency advantage
+- [[comparisons/nvidia-vs-huawei-ai-chips]] — 5-17x performance gap, 20:1 production ratio, widening over time
+
+---
+
+## AI Robotics & Embodied Intelligence (Research: 2026-04-05)
+
+### Sources
+- [[sources/deloitte-physical-ai-humanoid-robots-2026]] — Deloitte Tech Trends 2026: physical AI definition, VLA models, humanoid market ($30-50B by 2035), deployment at Waymo/Amazon/BMW
+- [[sources/google-deepmind-rt2-vla-model]] — RT-2: pioneering VLA model; 62% novel scenario success (vs 32% RT-1); emergent reasoning from web pre-training
+- [[sources/physical-intelligence-pi0-foundation-model]] — π0: 3B-param VLA with flow matching at 50Hz; first to fold laundry (1.0 success) and assemble boxes; open-sourced
+- [[sources/llms-for-robotics-survey-2025]] — Comprehensive survey: 4-pillar taxonomy (perception/decision/control/interaction); VLA evolution RT-1→RT-2→OpenVLA→π0→GR00T
+- [[sources/saycan-grounding-language-robotic-affordances]] — SayCan: grounding language in affordances; 84% plan success, 74% execution on 101 kitchen tasks
+- [[sources/figure-ai-humanoid-robots]] — Figure AI: $39B valuation, three robot generations, OpenAI→Helix pivot, BotQ factory
+- [[sources/tesla-optimus-humanoid-robot]] — Tesla Optimus: Gen 3 (22 DOF hands), FSD AI, summer 2026 production, teleoperation criticism
+- [[sources/nvidia-isaac-groot-n1-foundation-model]] — NVIDIA GR00T N1: open humanoid foundation model, dual System 1/2, 780K synthetic trajectories in 11h
+- [[sources/nvidia-automate-sim-to-real-assembly]] — AutoMate: sim-to-real assembly with only 4.2% gap; generalist policy at 84.5% real-world success
+
+### Concepts
+- [[concepts/embodied-intelligence]] — AI systems that perceive, reason about, and physically act in the real world
+- [[concepts/vision-language-action-models]] — Neural architectures unifying vision, language, and motor control (RT-2, π0, GR00T)
+- [[concepts/foundation-models-for-robotics]] — Large-scale pre-training → task-specific fine-tuning for robot control
+- [[concepts/humanoid-robots]] — Human-shaped robots for infrastructure compatibility; $30-50B market by 2035
+- [[concepts/language-grounding-for-robots]] — Connecting language understanding to physical capabilities (SayCan, SayPlan, VLAs)
+- [[concepts/sim-to-real-transfer]] — Training in simulation, deploying in reality; domain randomization, synthetic data
+- [[concepts/dexterous-manipulation]] — Teaching robots human-level hand skills; π0 first to fold laundry
+- [[concepts/cross-embodiment-transfer]] — One model controlling diverse robot morphologies
+- [[concepts/flow-matching]] — *(updated)* Added robotics application: π0's 50Hz continuous control
+- [[concepts/robot-learning-from-demonstration]] — Teaching robots through expert demonstrations, teleoperation, motion capture
+- [[concepts/autonomous-driving]] — Most commercially mature physical AI domain; end-to-end foundation models
+
+### Entities
+- [[entities/rt-2]] — Google DeepMind's pioneering VLA model (2023, 55B params)
+- [[entities/pi0]] — Physical Intelligence's 3B VLA with flow matching (2024, open-source)
+- [[entities/physical-intelligence]] — SF startup behind π0; raised $400M+
+- [[entities/figure-ai]] — Humanoid robot company; $39B valuation; Helix VLA
+- [[entities/tesla-optimus]] — Tesla's humanoid robot; Gen 3, FSD AI, summer 2026 production
+- [[entities/nvidia-groot]] — NVIDIA's open humanoid foundation model platform
+- [[entities/saycan]] — Google's foundational language-to-affordance grounding system
+- [[entities/helix-vla]] — Figure AI's proprietary VLA replacing OpenAI partnership
+- [[entities/boston-dynamics]] — Pioneer robotics; Electric Atlas, DeepMind Gemini partnership
+- [[entities/waymo]] — Alphabet's autonomous driving; 10M+ paid rides
+
+### Comparisons
+- [[comparisons/rt2-vs-pi0-vs-groot]] — Three leading robot foundation models compared
+- [[comparisons/tesla-optimus-vs-figure-vs-atlas]] — Three leading humanoid robot programs compared
+
+---
+
+## AI for Scientific Discovery (Research: 2026-04-05)
+
+### Sources
+- [[sources/alphafold-five-years-impact]] — AlphaFold five-year retrospective: 3M+ researchers, 200M+ structures, Nobel Prize, expanding ecosystem
+- [[sources/ai-drug-discovery-phase-iii-2026]] — 173+ AI drug programs in clinical development; 15-20 entering Phase III in 2026
+- [[sources/gnome-materials-discovery]] — GNoME: 2.2M new crystal structures via graph neural networks and active learning
+- [[sources/funsearch-mathematical-discovery]] — FunSearch: LLM + evaluator evolutionary loop cracking the cap set problem
+- [[sources/gencast-weather-prediction]] — GenCast: diffusion-based weather forecasting outperforming ECMWF on 97.2% of metrics
+- [[sources/alphagenome-genomics]] — AlphaGenome: 1M base-pair DNA analysis for non-coding genome (98%)
+- [[sources/alphaevolve-algorithm-discovery]] — AlphaEvolve: broke Strassen's 56-year matrix multiplication record, 0.7% Google compute savings
+- [[sources/gemini-deep-think-scientific-discovery]] — Gemini Deep Think: IMO gold, 4 open Erdos conjectures solved, Vibe-Proving paradigm
+- [[sources/nobel-prizes-ai-2024]] — 2024 Nobel Prizes: Physics (Hopfield, Hinton) and Chemistry (Baker, Hassabis, Jumper)
+- [[sources/self-driving-labs-revolution]] — Self-driving labs: AI + robotics automating the entire scientific method
+- [[sources/rfdiffusion3-protein-design]] — RFdiffusion3: de novo protein design at atomic level, 10x faster than v2
+- [[sources/ucsd-nine-ai-breakthroughs]] — Nine AI breakthroughs spanning health, climate, and art at UC San Diego
+
+### Concepts
+- [[concepts/ai-for-scientific-discovery]] — Umbrella concept: AI's most transformative real-world impact across biology, materials, math, weather, drugs, genomics
+- [[concepts/ai-drug-discovery]] — AI-powered pharmaceutical development: 173+ programs, 80-90% Phase I success, 30-month timelines
+- [[concepts/ai-materials-science]] — AI materials discovery: GNoME's 2.2M crystals, A-Lab autonomous synthesis, battery and solar applications
+- [[concepts/ai-mathematical-reasoning]] — From IMO gold to breaking Strassen's record: three paradigms of AI mathematical reasoning
+- [[concepts/ai-protein-structure-prediction]] — AlphaFold solved the 50-year protein folding problem; 200M+ structures, Nobel Prize
+- [[concepts/ai-protein-design]] — De novo protein engineering using diffusion models: custom antibodies, enzymes, biosensors
+- [[concepts/ai-genomics]] — AI for DNA analysis: AlphaGenome (non-coding genome), Evo2 (genome generation), variant interpretation
+- [[concepts/ai-weather-climate]] — AI weather models outperform supercomputer-based forecasting; operational at NOAA
+- [[concepts/self-driving-labs]] — Autonomous experimental facilities: A-Lab, Periodic Labs, cloud labs
+- [[concepts/nobel-prizes-ai-2024]] — Both Physics and Chemistry 2024 Nobel Prizes awarded to AI researchers
+- [[concepts/llm-as-search-operator]] — LLMs generating candidates in evolutionary loops with automated verification
+- [[concepts/generative-chemistry]] — AI molecular design from scratch for drug discovery
+
+### Entities
+- [[entities/alphafold]] — DeepMind's protein structure prediction system; Nobel Prize, 3M+ researchers, 200M+ structures
+- [[entities/gnome]] — Graph Networks for Materials Exploration; 2.2M crystal structures discovered
+- [[entities/funsearch]] — DeepMind's LLM + evaluator system for mathematical discovery
+- [[entities/alphaevolve]] — Gemini-powered evolutionary algorithm discovery agent
+- [[entities/gencast]] — DeepMind's diffusion-based weather forecasting model
+- [[entities/alphagenome]] — DeepMind's AI tool for non-coding genome analysis
+- [[entities/rfdiffusion]] — David Baker's diffusion-based protein design tool family
+- [[entities/demis-hassabis]] — CEO of Google DeepMind; 2024 Nobel Prize in Chemistry
+- [[entities/david-baker]] — Protein design pioneer; 2024 Nobel Prize in Chemistry
+- [[entities/geoffrey-hinton]] — "Godfather of AI"; 2024 Nobel Prize in Physics
+- [[entities/insilico-medicine]] — AI drug discovery using generative chemistry; rentosertib in clinical trials
+- [[entities/recursion-pharmaceuticals]] — Phenomics-based AI drug discovery; merged with Exscientia (2025)
+- [[entities/isomorphic-labs]] — Hassabis-founded drug discovery company leveraging AlphaFold
+
+### Comparisons
+- [[comparisons/alphafold-vs-rfdiffusion]] — Protein structure prediction vs design: complementary Nobel Prize-winning approaches
+- [[comparisons/ai-scientific-domains-comparison]] — AI maturity and impact across six scientific domains
+
+---
+
+## AGI, AI Economics, Compute Scaling & the Future of AI (Research: 2026-04-05)
+
+### Sources
+- [[sources/amodei-machines-of-loving-grace]] — Dario Amodei's optimistic vision: powerful AI compresses a century of progress into 5-10 years across biology, health, economics, governance
+- [[sources/aschenbrenner-situational-awareness]] — Leopold Aschenbrenner's influential essay: AGI by 2027, intelligence explosion, trillion-dollar infrastructure, national security framing
+- [[sources/sutskever-ssi-safe-superintelligence]] — Ilya Sutskever declares "the age of scaling is ending," founds SSI ($30B valuation) for safety-first superintelligence research
+- [[sources/epoch-ai-scaling-limits-2030]] — Epoch AI analysis: 2e29 FLOP training runs feasible by 2030, power as binding constraint
+- [[sources/agi-timeline-predictions-2026]] — Comprehensive survey: expert AGI timelines compressed from 2060-2070 (2020) to 2028-2033 (2026)
+- [[sources/ai-economics-investment-2026]] — $2.52T global AI spending (2026), $700B Big Tech CapEx, GDP impact surpasses dot-com era
+- [[sources/ai-scaling-paradigm-shift-2026]] — Three eras of scaling: pre-training to post-training to test-time compute, with DeepSeek-R1 proving RL-only reasoning
+
+### Concepts
+- [[concepts/path-to-agi]] — Three competing theories (compute extrapolation, marginal returns to intelligence, research-driven breakthroughs) pointing to AGI between 2027-2033
+- [[concepts/intelligence-explosion]] — Post-AGI recursive self-improvement compressing decades of progress into months; three framings from Amodei, Aschenbrenner, and Sutskever
+- [[concepts/compute-scaling]] — Multi-dimensional scaling landscape: pre-training plateau, test-time compute emergence, power/chips/data/latency constraints
+- [[concepts/ai-optimism-and-abundance]] — The positive-sum thesis: AI compressing a century of human progress into 5-10 years across five domains
+- [[concepts/superalignment]] — Aligning systems smarter than humans: scalable oversight, interpretability, adversarial testing — with civilization-level stakes
+- [[concepts/ai-economics]] — Trillion-dollar economics: $2.52T spending, $700B CapEx, GDP impact, but revenue gap remains central risk
+- [[concepts/ai-energy-and-infrastructure]] — Power as binding constraint: 415 TWh (2024) doubling to 945 TWh (2030), GPU/memory shortages
+- [[concepts/data-wall]] — Training data exhaustion by 2026-2028 forcing shift to synthetic data, multimodal sources, and new paradigms
+
+### Entities
+- [[entities/leopold-aschenbrenner]] — Former OpenAI researcher; "Situational Awareness" essay; $1.5B+ hedge fund; predicts AGI 2027
+- [[entities/ilya-sutskever]] — Former OpenAI Chief Scientist; SSI founder; "the age of scaling is ending"; 5-20 year AGI timeline
+- [[entities/safe-superintelligence-inc]] — Sutskever's lab: $30B valuation, 50 employees, zero revenue, singular mission
+- [[entities/epoch-ai]] — Research org tracking compute trends and scaling limits
+
+### Comparisons
+- [[comparisons/amodei-vs-aschenbrenner-vs-sutskever]] — Three visions of AGI: optimism (Amodei) vs urgency (Aschenbrenner) vs research pivot (Sutskever)
+- [[comparisons/scaling-vs-research-path-to-agi]] — Compute scaling vs novel research vs test-time compute as paths to AGI
