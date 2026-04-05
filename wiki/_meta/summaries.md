@@ -1679,3 +1679,94 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 
 - [[comparisons/biological-vs-artificial-neural-networks]] — Brain (86B neurons, 20W, Hebbian, continuous adaptation) vs AI (millions of params, kilowatts, backprop, train/deploy) across 10 dimensions.
 - [[comparisons/neuromorphic-vs-gpu-computing]] — Neuromorphic (100-1000x efficiency, event-driven, edge) vs GPU (training, ecosystem, scale): complementary, not competitive.
+
+## Sources (AI Hardware, Chips & Compute Infrastructure)
+
+- [[sources/ai-hardware-accelerators-2026-guide]] — Comprehensive 2026 overview: NVIDIA Blackwell, AMD MI300, custom silicon from Google/Amazon/Meta/Microsoft/OpenAI with cost-per-FLOPS comparisons.
+- [[sources/cerebras-vs-sambanova-vs-groq-chips]] — Three NVIDIA alternatives: Cerebras (WSE-3, 4T transistors), SambaNova (RDU, 3TB/socket), Groq (LPU, inference-only).
+- [[sources/google-tpu-architecture-gemini]] — TPU evolution v1-v7; Ironwood at 4,614 TFLOPS, 42.5 exaFLOPS/pod; Gemini 3 trained entirely on TPUs.
+- [[sources/ai-inference-accelerators-compared]] — Inference benchmarks: Etched Sohu (62,500 tok/s), Taalas (17,000), Cerebras (2,100), Groq (594), NVIDIA B200 (353).
+- [[sources/photonic-computing-ai-2026]] — 100x speed/energy gains in labs; commercial revolution unrealistic before 2030; near-term in optical interconnects.
+- [[sources/quantum-machine-learning-2026]] — QML via hybrid quantum-classical; NISQ hardware improving; enterprise-scale needs thousands of logical qubits.
+- [[sources/iea-ai-energy-demand-2026]] — Data centers at 1,100 TWh in 2026 (equivalent to Japan); inference now dominant energy consumer.
+- [[sources/hbm-memory-wall-roadmap]] — Memory-Parkinson dynamic; HBM3e at 8 TB/s; HBM4 custom base dies; China domestic HBM.
+- [[sources/nvidia-gpu-specs-ai-training-2026]] — A100 through GB200 NVL72 specs; Vera Rubin (3.6 EFLOPS, late 2026).
+- [[sources/ai-infrastructure-investment-2026]] — $2.5T global AI spending; Big Tech capex $527B+; Stargate $500B; inference at 2/3 of spend.
+
+## Concepts (AI Hardware, Chips & Compute Infrastructure)
+
+- [[concepts/ai-hardware-landscape]] — NVIDIA dominance (~80%) challenged by custom silicon, inference ASICs, and emerging paradigms.
+- [[concepts/ai-accelerators]] — From GPUs to custom ASICs; generality-efficiency spectrum from Blackwell to Taalas.
+- [[concepts/memory-bandwidth-wall]] — Dominant AI bottleneck; memory-Parkinson dynamic; A100 (2 TB/s) to B200 (8 TB/s) to HBM4E.
+- [[concepts/training-vs-inference-hardware]] — Training (compute-bound) vs inference (bandwidth-bound, 2/3 of spend); ASICs deliver 10-100x inference speedups.
+- [[concepts/custom-silicon]] — Hyperscaler proprietary chips (TPU, Trainium, MTIA, Maia); 30-40% cost advantage.
+- [[concepts/ai-data-center-energy]] — 1,100 TWh in 2026; TDP 700W to 1,000W+; liquid cooling 47%; nuclear/solar commitments.
+- [[concepts/ai-infrastructure-investment]] — $2.5T globally; Big Tech capex $527B+; reshaping grids, trade, real estate.
+- [[concepts/photonic-computing]] — 100x energy efficiency potential; three platforms (InP, SiN, SiPh); 2030+ commercial.
+- [[concepts/quantum-machine-learning]] — Hybrid quantum-classical; practical advantage undemonstrated; $162.6M market by 2030.
+- [[concepts/wafer-scale-computing]] — Entire wafer as processor (46,225 mm2, 4T transistors); eliminates memory wall.
+
+## Entities (AI Hardware, Chips & Compute Infrastructure)
+
+- [[entities/nvidia]] — ~80% market; Blackwell B200 (1800 TFLOPS); acquired Groq ($20B); Vera Rubin late 2026.
+- [[entities/cerebras]] — WSE-3 (4T transistors, 900K cores); $10B+ OpenAI deal; IPO $22B Q2 2026.
+- [[entities/groq]] — LPU for deterministic inference; acquired by NVIDIA for $20B.
+- [[entities/google-tpu]] — 7 generations; Ironwood v7 (4,614 TFLOPS); Gemini 3 TPU-only; 3x energy efficiency.
+- [[entities/amd]] — MI300X at $2.20/FLOPS-hour; MI400 Helios with HBM4 (2026).
+- [[entities/sambanova]] — RDU with 3TB/socket; Los Alamos/LLNL deployments.
+
+## Comparisons (AI Hardware, Chips & Compute Infrastructure)
+
+- [[comparisons/gpu-vs-custom-asic-vs-emerging]] — GPUs vs custom ASICs vs inference chips vs photonic/quantum.
+- [[comparisons/nvidia-vs-google-tpu]] — Universal CUDA vs 30-40% cheaper cloud-locked TPU.
+- [[comparisons/inference-asics-compared]] — Speed spectrum from Etched (62,500 tok/s) to NVIDIA B200 (353).
+
+## Sources (Diffusion Models & Multimodal Generation)
+
+- [[sources/bentoml-open-source-image-generation-2026]] -- 2026 open-source image generation: FLUX.2 (32B), SD 3.5, GLM-Image (hybrid AR+diffusion), HunyuanImage-3.0 (80B MoE), Z-Image-Turbo, Qwen-Image (20B).
+- [[sources/dit-diffusion-transformer-architecture]] -- DiT architecture: U-Net to transformer backbone, patchification, adaLN-Zero conditioning, FID 2.27 on ImageNet 256x256, predictable scaling.
+- [[sources/ai-video-market-2026]] -- AI video post-Sora shutdown ($15M/day compute): Runway Gen-4 ($0.12/sec), Kling 3.0 ($0.07/sec), Veo 3 (native audio, $0.05-0.50/sec), 34.2% CAGR.
+- [[sources/ai-music-generation-2026]] -- AI music 2026: Suno v5 (~100M users, 44.1kHz, 12-track stems), Udio (near-real fidelity), ElevenLabs Music, label settlements.
+- [[sources/nerf-vs-gaussian-splatting-2025]] -- NeRF (implicit neural, 4K/8K quality, slow) vs Gaussian Splatting (explicit, 60fps+, 90% less memory, Zillow/Esri adoption).
+- [[sources/flux-vs-stable-diffusion-2026]] -- FLUX (12B, flow matching, T5+CLIP, near-perfect typography) vs SD (1-8B, DDPM, CLIP, largest LoRA ecosystem).
+- [[sources/flow-matching-iclr-2025]] -- Flow matching: velocity field ODE transport, rectified flows, reflow distillation, optimal transport connection, 30+ NeurIPS 2025 papers.
+- [[sources/flux-architecture-demystified]] -- FLUX.1: 19 dual-stream MMDiT blocks + single-stream, T5+CLIP encoding, RoPE, rectified flow velocity prediction.
+- [[sources/consistency-models-fast-generation]] -- Consistency models (OpenAI): one-step noise-to-data mapping, FID 2.82 CIFAR-10, SANA-Sprint 0.1s latency on H100.
+- [[sources/autoregressive-vision-models-survey]] -- TMLR 2025 survey: 200+ papers, VQ-VAE to continuous tokens, VAR (NeurIPS 2024 Best Paper), NextStep-1 (ICLR 2026 Oral, 14B).
+
+## Concepts (Diffusion Models & Multimodal Generation)
+
+- [[concepts/diffusion-models]] -- Dominant generative framework (2020-2026): iterative noise reversal powering image, video, audio, 3D; evolving toward flow matching + DiT backbones.
+- [[concepts/diffusion-transformer]] -- DiT replacing U-Net: patchification + self-attention + adaLN, predictable scaling (FID 2.27), foundation for FLUX, SD3, Sora.
+- [[concepts/flow-matching]] -- Velocity field learning: deterministic ODE transport from noise to data along straight paths; 4-20 steps vs 20-50 for DDPM; standard in FLUX/SD3.
+- [[concepts/rectified-flow]] -- Straight-line trajectory optimization via reflow distillation, enabling few-step/one-step generation; underlies FLUX and SD3 training.
+- [[concepts/image-generation]] -- AI image synthesis: three generations (GAN, U-Net diffusion, DiT+flow matching) + emerging AR; FLUX.2 32B leads open-source.
+- [[concepts/video-generation]] -- AI video from text: $847M market in 2026, 34.2% CAGR; Sora shutdown; Runway/Kling/Veo four-tier competition.
+- [[concepts/audio-generation]] -- AI music/sound: Suno v5 (100M users, $2.4B), Udio, ElevenLabs; label settlements legitimizing the space.
+- [[concepts/audio-visual-generation]] -- Unified video+audio from text: Veo 3 native synchronized sound, Kling 3.0 dialogue with lip sync, eliminating post-production.
+- [[concepts/3d-generation]] -- AI 3D content: NeRF (implicit, ultra-high quality) vs Gaussian Splatting (explicit, 60fps+); Hunyuan3D-2 text-to-3D in <10 seconds.
+- [[concepts/consistency-models]] -- One-step generation: self-consistency along diffusion trajectories, FID 2.82 CIFAR-10 (1 step); SANA-Sprint 0.1s on H100.
+- [[concepts/autoregressive-image-generation]] -- Next-token prediction for images: VAR (NeurIPS 2024 Best Paper), NextStep-1 (ICLR 2026 Oral), now matching diffusion quality.
+- [[concepts/visual-tokenization]] -- Image-to-token conversion: VQ-VAE (2017) to VQGAN (2021) to continuous tokens (2025); "the tokenizer is the key."
+- [[concepts/gaussian-splatting]] -- Explicit 3D Gaussians: 60fps+ rendering, 90% less memory than NeRF; Zillow, Esri, DJI in production.
+- [[concepts/neural-radiance-fields]] -- Implicit neural 3D: 4K/8K quality, hours to train, seconds to render; being supplanted for real-time by Gaussian Splatting.
+
+## Entities (Diffusion Models & Multimodal Generation)
+
+- [[entities/flux]] -- Black Forest Labs' state-of-the-art open-weight image model: FLUX.2 32B MMDiT + flow matching, near-perfect typography.
+- [[entities/stable-diffusion]] -- Stability AI's model family (SD 1.x-3.5): democratized image generation, largest LoRA/fine-tuning ecosystem.
+- [[entities/black-forest-labs]] -- Founded by original SD creators; develops FLUX.
+- [[entities/comfyui]] -- Node-based visual workflow builder for image generation.
+- [[entities/runway]] -- Professional AI video: Gen-4 with character persistence, motion capture, $0.12/sec.
+- [[entities/kling]] -- ByteDance AI video: $0.07/sec, multi-shot sequences, native audio with lip sync.
+- [[entities/veo]] -- Google DeepMind video: Veo 3 with native synchronized audio, YouTube/Vertex AI integration.
+- [[entities/suno]] -- AI music leader: ~100M users, $2.4B valuation, 44.1kHz, 12-track stems, MIDI export.
+- [[entities/udio]] -- AI music by ex-DeepMind: "almost indistinguishable from real recordings," inpainting tool.
+- [[entities/elevenlabs]] -- $11B voice/audio AI: Eleven Music with "unsettlingly realistic" vocals.
+
+## Comparisons (Diffusion Models & Multimodal Generation)
+
+- [[comparisons/flux-vs-stable-diffusion]] -- FLUX wins on quality/typography/prompt adherence; SD wins on ecosystem/accessibility/LoRA library.
+- [[comparisons/nerf-vs-gaussian-splatting]] -- NeRF (ultra-high quality, slow) vs Gaussian Splatting (real-time 60fps, commercial adoption).
+- [[comparisons/diffusion-vs-autoregressive-image-generation]] -- Diffusion (dominant, iterative denoising) vs AR (resurgent, next-token, superior inference scaling).
+- [[comparisons/ai-video-platforms-2026]] -- Four tiers: Runway (quality), Kling (cost), Veo (audio/ecosystem), Pika (creative/viral).

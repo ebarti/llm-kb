@@ -986,3 +986,25 @@ Deep research pass on the world models paradigm: JEPA, video generation as world
 - **Comparison pages created** (2): comparisons/rt2-vs-pi0-vs-groot, comparisons/tesla-optimus-vs-figure-vs-atlas
 - **Total wiki pages touched**: 32 (9 sources + 11 concepts + 10 entities + 2 comparisons)
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+
+## [2026-04-05] research | Neuroscience-Inspired AI, Brain-Computer Interfaces & Biological Intelligence
+- **Scope**: Deep research pass on neuroscience-inspired AI, brain-computer interfaces, biological vs artificial intelligence, and what neuroscience tells us about building better AI
+- **Web searches conducted** (11): neuroscience inspired AI 2025-2026, brain-computer interface Neuralink 2026, biological vs artificial neural networks, predictive coding brain free energy principle AI, hippocampus memory AI systems, consciousness AI debate, neuromorphic computing chips Intel Loihi, attention mechanism neuroscience origin, sleep consolidation memory replay AI, sparse coding brain efficient AI, brain-inspired continual learning
+- **Sources fetched and ingested** (10):
+  1. raw/neuroai-catalyzing-next-gen-ai.md — NeuroAI consortium paper (Nature Communications)
+  2. raw/ai-consciousness-evidence-debate.md — Evidence for AI consciousness (AI Frontiers)
+  3. raw/neuralink-bci-2026-status.md — Neuralink BCI status (STAT News)
+  4. raw/free-energy-principle-unified-brain-theory.md — Free energy principle (Wikipedia/Friston)
+  5. raw/sleep-replay-catastrophic-forgetting.md — Sleep-like replay (Nature Communications)
+  6. raw/hippocampus-stability-plasticity-dilemma.md — Hippocampus-inspired approach (PMC)
+  7. raw/neuromorphic-computing-mainstream-2026.md — Neuromorphic computing mainstream (Chronicle Journal)
+  8. raw/biological-vs-artificial-neural-networks.md — Bio vs artificial comparison (Sophos)
+  9. raw/memory-systems-brain-to-ai-agents.md — Memory systems brain-to-AI survey (arXiv)
+  10. raw/neuro-inspired-dynamic-sparsity-efficiency.md — Dynamic sparsity (Nature Communications)
+- **Source summaries created** (10): sources/neuroai-catalyzing-next-gen-ai, sources/ai-consciousness-evidence-debate, sources/neuralink-bci-2026-status, sources/free-energy-principle-unified-brain-theory, sources/sleep-replay-catastrophic-forgetting, sources/hippocampus-stability-plasticity-dilemma, sources/neuromorphic-computing-mainstream-2026, sources/biological-vs-artificial-neural-networks, sources/memory-systems-brain-to-ai-agents, sources/neuro-inspired-dynamic-sparsity-efficiency
+- **Concept articles created** (15): concepts/neuroai, concepts/brain-inspired-ai, concepts/predictive-coding, concepts/free-energy-principle, concepts/active-inference, concepts/bayesian-brain, concepts/complementary-learning-systems, concepts/continual-learning, concepts/sleep-consolidation-ai, concepts/sparse-coding, concepts/efficient-coding-hypothesis, concepts/neuromorphic-computing, concepts/brain-computer-interfaces, concepts/ai-consciousness, concepts/computational-functionalism, concepts/neurotechnology
+- **Concept articles updated** (1): concepts/catastrophic-forgetting (added neuroscience-inspired solutions section)
+- **Entity pages created** (5): entities/karl-friston, entities/neuralink, entities/intel-loihi, entities/ibm-northpole, entities/david-chalmers
+- **Comparison pages created** (2): comparisons/biological-vs-artificial-neural-networks, comparisons/neuromorphic-vs-gpu-computing
+- **Total wiki pages touched**: 34 (10 sources + 16 concepts + 5 entities + 2 comparisons + metadata)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
