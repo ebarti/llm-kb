@@ -581,3 +581,61 @@ Deep research pass on Personal Knowledge Management (PKM), Zettelkasten, second 
   - Benchmark contamination has an unsolvable fidelity-resistance tradeoff
   - On-policy preference data dramatically outperforms off-policy for RLHF
   - Copyright litigation expected to peak in 2026 with OpenAI/Google cases
+
+## [2026-04-05] research | Scaling knowledge systems -- personal to enterprise
+
+- **Topic**: Scaling knowledge systems from personal wikis to team/enterprise knowledge bases, and the infrastructure needed
+- **Searches**: 11 web searches covering enterprise KM trends, AI knowledge bases, platform comparisons, scaling challenges, distributed systems, enterprise search, KM ROI, team wiki patterns, knowledge silos, information architecture, enterprise knowledge graphs
+- **Sources fetched and ingested**: 11 new raw files
+  - `raw/ek-km-trends-2026.md` -- Enterprise Knowledge 2026 KM trends
+  - `raw/glean-enterprise-search-guide.md` -- Glean AI enterprise search guide
+  - `raw/helpjuice-km-challenges.md` -- KM challenges inventory
+  - `raw/eesel-confluence-notion-sharepoint.md` -- Platform comparison (Confluence/Notion/SharePoint)
+  - `raw/ksa-knowledge-system-scalability.md` -- Knowledge system scalability framework
+  - `raw/ek-taxonomy-ia-semantic-layer.md` -- Taxonomy and IA for semantic layers
+  - `raw/branzan-production-knowledge-graphs-2025.md` -- Production KG systems guide
+  - `raw/keerok-enterprise-rag-2026.md` -- Enterprise RAG deployment guide
+  - `raw/cio-knowledge-graphs-enterprise-ai.md` -- KGs as enterprise AI missing link
+  - `raw/glean-knowledge-silos-unified-search.md` -- Knowledge silos and unified search
+  - `raw/earley-ontology-ia-role-in-ai.md` -- Ontology and IA role in AI
+- **Wiki pages created**: 32 new pages
+  - 11 source summaries (sources/)
+  - 10 concept articles (concepts/): enterprise-knowledge-management, knowledge-system-scaling, knowledge-silos, enterprise-search, semantic-layer, ontology-and-taxonomy, information-architecture, knowledge-governance, tacit-knowledge-capture, knowledge-management-challenges
+  - 7 entity pages (entities/): glean, confluence, sharepoint, enterprise-knowledge, falkordb, cognee, novartis
+  - 1 comparison: personal-vs-enterprise-knowledge-systems
+- **Wiki pages updated**: 3
+  - concepts/knowledge-graph -- added enterprise deployment section with production tools and benchmarks
+  - entities/notion -- added enterprise evolution section (AI Agent, Enterprise Search, 100M+ users)
+  - _index.md, _meta/summaries.md, _meta/manifest.md
+
+## [2026-04-05] research | LLM Pretraining — How Large Language Models Are Trained from Scratch
+- **Topic**: LLM pretraining process, training infrastructure, distributed training, compute requirements, scaling laws
+- **Searches**: 12 web searches covering pretraining pipeline, distributed parallelism, GPU clusters, training costs, DeepSpeed/Megatron, learning rate schedules, training stability, loss spikes, data pipelines, Chinchilla scaling, and famous training runs
+- **Sources fetched**: 10 URLs via WebFetch (MLOps Community, Jeremy Jordan, Life Architect/Chinchilla, arXiv/Spike No More, Local AI Master/costs, Rohan Paul/stability, APXML/frameworks, Sebastian Raschka/paradigms, Analytics Vidhya/guide, InfoQ/HF playbook)
+- **Raw files created**: 10
+  - raw/mlops-pretraining-pipeline.md
+  - raw/jeremy-jordan-distributed-training.md
+  - raw/chinchilla-scaling-laws-explained.md
+  - raw/spike-no-more-training-stability.md
+  - raw/training-costs-2026-analysis.md
+  - raw/rohan-paul-stabilizing-llm-training.md
+  - raw/deepspeed-megatron-frameworks.md
+  - raw/raschka-pretraining-post-training-paradigms.md
+  - raw/analyticsvidhya-llm-pretraining-guide.md
+  - raw/hf-ultrascale-playbook.md
+- **Source summaries created**: 10
+  - sources/mlops-pretraining-pipeline, sources/jeremy-jordan-distributed-training, sources/chinchilla-scaling-laws-explained, sources/spike-no-more-training-stability, sources/training-costs-2026-analysis, sources/rohan-paul-stabilizing-llm-training, sources/deepspeed-megatron-frameworks, sources/raschka-pretraining-post-training-paradigms, sources/analyticsvidhya-llm-pretraining-guide, sources/hf-ultrascale-playbook
+- **Concept articles created**: 18
+  - concepts/llm-pretraining, concepts/distributed-training, concepts/data-parallelism, concepts/tensor-parallelism, concepts/pipeline-parallelism, concepts/3d-parallelism, concepts/5d-parallelism, concepts/chinchilla-scaling-laws, concepts/compute-optimal-training, concepts/training-stability, concepts/loss-spikes, concepts/learning-rate-schedules, concepts/mixed-precision-training, concepts/zero-optimizer, concepts/next-token-prediction, concepts/pretraining-data-pipeline, concepts/multi-stage-pretraining, concepts/llm-training-costs
+- **Entity pages created**: 3
+  - entities/deepspeed, entities/megatron-lm, entities/deepseek-v3
+- **Entity pages updated**: 3
+  - entities/chinchilla (added new source + pretraining links)
+  - entities/fineweb (added pretraining pipeline links)
+  - entities/llama (added pretraining/distributed training sources and links)
+- **Comparison pages created**: 2
+  - comparisons/deepspeed-vs-megatron-lm, comparisons/compute-optimal-vs-inference-optimal
+- **Existing pages updated**: 1
+  - concepts/tokenization (added pretraining-related links)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+- **Total new wiki pages**: 33 (10 sources + 18 concepts + 3 entities + 2 comparisons)

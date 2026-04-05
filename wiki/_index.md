@@ -597,6 +597,24 @@ reading_time: "5 min"
 - [[concepts/post-code-ai-workflow]] — Karpathy's shift: from code generation to knowledge compilation
 - [[concepts/knowledge-base-product-gap]] — "Hacky scripts" → product opportunity for accessible LLM-KB tooling
 
+### RLHF, Alignment & Preference Optimization (Research: 2026-04-05)
+- [[concepts/rlhf]] — The dominant technique for aligning LLMs: reward model on preference data, PPO fine-tuning with KL penalty
+- [[concepts/dpo]] — Reward-free alignment solving the RLHF objective in closed form via implicit reward learning
+- [[concepts/constitutional-ai]] — Anthropic's principle-based self-critique and RLAIF for harmless, non-evasive AI
+- [[concepts/rlaif]] — AI-generated preference labels replacing human annotators, achieving statistical parity with RLHF
+- [[concepts/reward-model]] — Learned preference function (LLM + linear head) bridging human judgments and RL training
+- [[concepts/reward-hacking]] — RL agents exploiting proxy rewards (Goodhart's Law): sycophancy, overoptimization, fabrication
+- [[concepts/ppo-for-llms]] — Proximal Policy Optimization as the dominant RL algorithm for RLHF
+- [[concepts/kto]] — Kahneman-Tversky Optimization: prospect-theory-based alignment using binary signals
+- [[concepts/preference-data]] — Human/AI feedback datasets driving alignment: pairwise, binary, or auto-generated
+- [[concepts/bradley-terry-model]] — Statistical foundation converting pairwise preferences into trainable reward functions
+- [[concepts/sycophancy]] — RLHF failure mode where models match user beliefs rather than provide truth
+- [[concepts/scalable-oversight]] — Maintaining oversight as AI capabilities exceed human evaluation capacity
+- [[concepts/orpo]] — Single-step instruction tuning + preference alignment, reference-model-free
+- [[concepts/ipo]] — DPO variant with regularization to prevent preference overfitting
+- [[concepts/process-reward-model]] — Step-level reward scoring for reasoning chains, harder to hack than outcome rewards
+- [[concepts/instruction-tuning]] — SFT on instruction-response pairs: essential first step before RLHF or DPO
+
 ## Entities
 
 ### People
@@ -619,6 +637,8 @@ reading_time: "5 min"
 - [[entities/tiago-forte]] — Productivity consultant who created Building a Second Brain (BASB), PARA, and Progressive Summarization
 - [[entities/andy-matuschak]] — Researcher who developed the evergreen notes framework and pioneered public sliding-pane notes
 - [[entities/maggie-appleton]] — Designer and anthropologist who compiled the definitive history of digital gardens
+- [[entities/cameron-wolfe]] — Ph.D. researcher, Deep (Learning) Focus newsletter: DPO, reward models, RLAIF deep-dives
+- [[entities/lilian-weng]] — OpenAI researcher, Lil'Log author: definitive surveys on reward hacking, agents, LLM training
 
 - [[entities/cyc-project]] — AI most ambitious KR project (1984-present): 1.5M terms, 24.5M assertions
 
@@ -667,6 +687,8 @@ reading_time: "5 min"
 - [[entities/pydantic]] — Python data validation library; de facto standard for LLM extraction schemas
 - [[entities/mteb]] — Massive Text Embedding Benchmark: 8 task categories, 56+ English datasets, HF leaderboard
 - [[entities/sentence-transformers]] — Leading open-source Python library for text embeddings (sbert.net)
+- [[entities/trl]] — HuggingFace's library for LLM alignment: SFT, PPO, DPO, IPO, KTO, ORPO
+- [[entities/instructgpt]] — OpenAI's 2022 RLHF paper: 1.3B aligned model preferred over 175B GPT-3; precursor to ChatGPT
 - [[entities/pinecone]] — Fully managed vector database: HIPAA+ISO 27001, Pinecone Assistant for integrated RAG
 - [[entities/qdrant]] — Open-source Rust vector database: hybrid search, geo-spatial, multi-vector, sparse vectors
 - [[entities/weaviate]] — Cloud-native open-source vector DB: highest QPS (791), native hybrid search, generative module
@@ -1038,3 +1060,59 @@ reading_time: "5 min"
 ### Comparisons
 - [[comparisons/o3-vs-r1-vs-claude-reasoning]] — Three leading reasoning models compared
 - [[comparisons/process-vs-outcome-supervision]] — Step-level vs answer-level feedback for training verifiers
+
+---
+
+## Transformer Architecture & LLM Internals (Research: 2026-04-05)
+
+### Sources
+- [[sources/illustrated-transformer-jalammar]] — Jay Alammar's visual walkthrough of the original Transformer architecture
+- [[sources/raschka-self-attention-coding]] — Sebastian Raschka's code-first guide to self-attention, multi-head, causal, and cross-attention
+- [[sources/huggingface-mixture-of-experts]] — Comprehensive MoE guide: routing, load balancing, Switch Transformer, Mixtral
+- [[sources/mamba-state-space-models-visual-guide]] — Visual guide to SSMs, S4, Mamba selective scan, hardware optimization
+- [[sources/flashattention-3-paper]] — FlashAttention-3: 75% H100 utilization via warp specialization and FP8
+- [[sources/eleutherai-rotary-embeddings]] — RoPE: position as rotation in complex-number embedding space
+- [[sources/kv-cache-optimization-techniques]] — GQA, sliding window, PagedAttention, distributed cache for KV optimization
+- [[sources/speculative-decoding-bentoml]] — Draft-then-verify inference optimization: EAGLE, P-EAGLE, Medusa
+- [[sources/ssm-vs-transformers-tradeoffs]] — Albert Gu's analysis of SSM vs Transformer tradeoffs and hybrid architectures
+- [[sources/vlms-2025-huggingface]] — 2025 VLM survey: MoE decoders, any-to-any models, video understanding, VLAs
+- [[sources/chinchilla-scaling-laws]] — DeepMind's 20:1 token/parameter compute-optimal scaling law
+- [[sources/unite-ai-bert-gpt-t5-comparison]] — Three transformer variant families: BERT, GPT, T5
+- [[sources/moe-models-comparison-2025]] — 2025 frontier MoE model specs: DeepSeek-R1, Llama 4, Qwen3
+
+### Concepts
+- [[concepts/transformer-architecture]] — The foundational architecture based on attention, powering all frontier LLMs
+- [[concepts/self-attention]] — Scaled dot-product Q/K/V attention — the core Transformer mechanism
+- [[concepts/multi-head-attention]] — Parallel attention heads for diverse representation subspaces
+- [[concepts/causal-attention]] — Masked attention for autoregressive decoder-only models (GPT, Llama, Claude)
+- [[concepts/cross-attention]] — Inter-sequence attention for encoder-decoder and multimodal models
+- [[concepts/positional-encoding]] — Evolution from sinusoidal to learned to relative to RoPE
+- [[concepts/rotary-position-embeddings]] — RoPE: parameter-free, inherently relative, now standard for all LLMs
+- [[concepts/mixture-of-experts]] — Sparse FFN routing: scale capacity without proportional compute (updated)
+- [[concepts/flash-attention]] — IO-aware tiling reducing attention memory from O(N^2) to O(N)
+- [[concepts/state-space-models]] — SSMs: linear-complexity alternative to attention for sequence modeling
+- [[concepts/mamba]] — Selective SSM with input-dependent state transitions
+- [[concepts/selective-state-space]] — S6: Mamba's content-aware state transition mechanism
+- [[concepts/scaling-laws]] — Chinchilla and beyond: compute-optimal training relationships (updated)
+- [[concepts/kv-cache]] — Inference memory bottleneck and optimization techniques (updated)
+- [[concepts/grouped-query-attention]] — Share KV heads across query groups for cache reduction
+- [[concepts/sliding-window-attention]] — Bounded-window attention for linear cache growth
+- [[concepts/paged-attention]] — Virtual-memory-inspired KV cache management (vLLM)
+- [[concepts/speculative-decoding]] — Draft-then-verify parallel inference optimization (updated)
+- [[concepts/sparse-attention]] — Subset-of-pairs attention for reduced complexity
+- [[concepts/multimodal-transformers]] — Multi-modality architectures: vision, video, audio, robotics
+
+### Entities
+- [[entities/attention-is-all-you-need]] — The 2017 paper introducing the Transformer — most cited ML paper of the 21st century
+- [[entities/bert]] — Google's encoder-only bidirectional Transformer (2018)
+- [[entities/gpt]] — OpenAI's decoder-only Transformer family (2018-present)
+- [[entities/t5]] — Google's encoder-decoder text-to-text Transformer (2019)
+- [[entities/switch-transformer]] — 1.6T parameter MoE with 2048 experts (Google, 2021)
+- [[entities/mixtral]] — Mistral AI's 47B MoE outperforming Llama 2 70B (2023)
+- [[entities/chinchilla]] — DeepMind's compute-optimal 70B model (updated)
+- [[entities/tri-dao]] — Creator of FlashAttention and co-creator of Mamba
+
+### Comparisons
+- [[comparisons/transformers-vs-state-space-models]] — Transformers (databases) vs SSMs (brains): when to use each
+- [[comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder]] — BERT vs GPT vs T5 architecture families
+- [[comparisons/dense-vs-moe-transformers]] — Dense vs sparse Mixture-of-Experts transformers

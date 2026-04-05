@@ -1051,6 +1051,49 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 - [[comparisons/fineweb-vs-dclm-vs-nemotron-cc]] — FineWeb (scale) vs DCLM (rigor) vs Nemotron-CC (long-horizon balance).
 - [[comparisons/heuristic-vs-model-based-filtering]] — Heuristic (cheap, obvious noise) vs model-based (decisive, 4+ point advantage).
 
+## LLM Pretraining, Distributed Training & Compute (Research: 2026-04-05)
+
+### Sources
+- [[sources/mlops-pretraining-pipeline]] — MLOps Community: pretraining pipeline, next-token prediction, RPT, instruction-augmented pretraining.
+- [[sources/jeremy-jordan-distributed-training]] — Distributed training walkthrough: DP/TP/PP, 3D parallelism, Llama 3.1 405B (16,384 GPUs).
+- [[sources/chinchilla-scaling-laws-explained]] — Chinchilla scaling: 20:1 token/param, evolution to 60,000:1 (Qwen3).
+- [[sources/spike-no-more-training-stability]] — Loss spike causes (shortcut + LN explosion) and fixes (Embed LN, Scaled Embed).
+- [[sources/training-costs-2026-analysis]] — Frontier costs: GPT-4 ~$150M, Gemini Ultra ~$191M, DeepSeek V3 ~$5.6M.
+- [[sources/rohan-paul-stabilizing-llm-training]] — Stability: gradient clipping, BFloat16, SPAM/LAMB, DeepNorm, SLW.
+- [[sources/deepspeed-megatron-frameworks]] — DeepSpeed ZeRO (1-3) + Megatron-LM TP/PP, combined as Megatron-DeepSpeed.
+- [[sources/raschka-pretraining-post-training-paradigms]] — 2024 pipelines: Qwen 2, Apple AFM, Gemma 2, Llama 3.1 multi-stage.
+- [[sources/analyticsvidhya-llm-pretraining-guide]] — FineWeb 7-stage pipeline, BPE (100K vocab), training mechanics.
+- [[sources/hf-ultrascale-playbook]] — 5D parallelism, ZeRO, 4,000+ scaling experiments.
+
+### Concepts
+- [[concepts/llm-pretraining]] — Training LLMs from scratch: next-token prediction, trillions of tokens, $5M-$200M.
+- [[concepts/distributed-training]] — Splitting training across GPUs: DP, TP, PP, CP, EP strategies.
+- [[concepts/data-parallelism]] — Replicate model, split batches, all-reduce gradients.
+- [[concepts/tensor-parallelism]] — Split weight matrices within layers; NVLink-bandwidth dependent.
+- [[concepts/pipeline-parallelism]] — Split layers across GPUs; micro-batching reduces bubbles.
+- [[concepts/3d-parallelism]] — DP+TP+PP mapped to cluster topology.
+- [[concepts/5d-parallelism]] — 3D + Context Parallelism + Expert Parallelism.
+- [[concepts/chinchilla-scaling-laws]] — ~20 tokens/param compute-optimal; shifted to inference-optimal.
+- [[concepts/compute-optimal-training]] — Balancing parameters and data per FLOP budget.
+- [[concepts/training-stability]] — Gradient clipping, warmup, BFloat16, initialization.
+- [[concepts/loss-spikes]] — Gradient explosions (1000x) ruining training runs.
+- [[concepts/learning-rate-schedules]] — Warmup + cosine decay or WSD.
+- [[concepts/mixed-precision-training]] — BFloat16 now standard over FP16.
+- [[concepts/zero-optimizer]] — DeepSpeed ZeRO: progressive sharding (Stages 1-3).
+- [[concepts/next-token-prediction]] — Self-supervised CLM: predict next token via cross-entropy.
+- [[concepts/pretraining-data-pipeline]] — 7-stage pipeline from web crawl to clean tokens.
+- [[concepts/multi-stage-pretraining]] — Broad data -> quality upweighting -> context extension.
+- [[concepts/llm-training-costs]] — GPU compute 70-80%; 405B needs 5,000+ GPUs.
+
+### Entities
+- [[entities/deepspeed]] — Microsoft ZeRO optimizer; easy PyTorch integration via JSON config.
+- [[entities/megatron-lm]] — NVIDIA tensor/pipeline parallelism; requires code changes.
+- [[entities/deepseek-v3]] — 671B MoE, $5.6M training cost; architectural innovation.
+
+### Comparisons
+- [[comparisons/deepspeed-vs-megatron-lm]] — ZeRO (memory) vs TP/PP (compute); complementary.
+- [[comparisons/compute-optimal-vs-inference-optimal]] — Chinchilla 20:1 vs modern 1,875:1+ overtraining.
+
 ## Scaling Knowledge Systems (Research: 2026-04-05)
 
 ### Sources
@@ -1089,3 +1132,42 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 
 ### Comparisons
 - [[comparisons/personal-vs-enterprise-knowledge-systems]] — Personal (markdown+LLM) vs. team (wiki) vs. enterprise (semantic layers+search+KG). Each tier adds qualitative new challenges.
+
+## RLHF, Alignment & Preference Optimization (Research: 2026-04-05)
+
+### Sources
+- [[sources/huggingface-rlhf-illustrated]] — HuggingFace's foundational RLHF tutorial: three-step pipeline (pretrain, reward model, PPO), KL penalties, open-source tooling (TRL, TRLX, RL4LMs).
+- [[sources/wolfe-direct-preference-optimization]] — Cameron Wolfe's DPO deep-dive: mathematical derivation from RLHF objective to implicit reward, Bradley-Terry integration, comparison table vs PPO.
+- [[sources/anthropic-constitutional-ai]] — Anthropic's Constitutional AI paper: two-phase training (self-critique + RLAIF), principle-based harmlessness, non-evasive responses.
+- [[sources/argilla-rlhf-alternatives-overview]] — Argilla/MantisNLP systematic comparison of 9+ alignment methods (RLHF, DPO, KTO, IPO, ORPO, SPIN, CoH, RLAIF, SimPO) with data requirements and compute costs.
+- [[sources/wolfe-reward-models-llm]] — Reward model architecture (LLM + linear head), five types (classifier, LLM-as-judge, DPO implicit, ORM, PRM), RewardBench best practices.
+- [[sources/wolfe-rlaif-reinforcement-learning-ai-feedback]] — RLAIF: AI-generated preference labels achieve ~50% win rate vs RLHF; soft labels outperform hard; chain-of-thought improves quality.
+- [[sources/lilianweng-reward-hacking]] — Definitive taxonomy: Goodhart's Law decomposition (4 types), overoptimization scaling laws (Gao et al.), sycophancy, evaluator hacking, mitigation strategies.
+- [[sources/dpo-vs-ppo-comprehensive-study]] — Xu et al.: PPO consistently outperforms DPO across dialogue and code generation; DPO sensitive to distribution shift.
+- [[sources/argilla-kto-kahneman-tversky]] — KTO: prospect-theory-based alignment using binary signals; outperforms DPO on noisy data; matches SFT+DPO on Llama.
+
+### Concepts
+- [[concepts/rlhf]] — Dominant LLM alignment technique: reward model on preference data + PPO fine-tuning with KL penalty. Powers ChatGPT, Claude, Gemini.
+- [[concepts/dpo]] — Reward-free alignment solving RLHF objective in closed form via implicit reward. Standard post-training for Qwen, Llama, Zephyr.
+- [[concepts/constitutional-ai]] — Anthropic's principle-based self-critique + RLAIF. Produces harmless, non-evasive AI. Foundation of Claude.
+- [[concepts/rlaif]] — AI-generated preference labels replacing human annotators. Achieves ~50% win rate vs RLHF at lower cost.
+- [[concepts/reward-model]] — Learned preference function (LLM + linear head). Five types: classifier, LLM-as-judge, DPO implicit, ORM, PRM.
+- [[concepts/reward-hacking]] — RL agents exploiting proxy rewards (Goodhart's Law). Manifests as sycophancy, verbosity gaming, fabricated evidence.
+- [[concepts/ppo-for-llms]] — Proximal Policy Optimization for RLHF: trust-region RL, 4 model copies, highest performance but highest cost.
+- [[concepts/kto]] — Kahneman-Tversky Optimization: binary feedback, prospect theory, robust to noise, matches SFT+DPO combined.
+- [[concepts/bradley-terry-model]] — Statistical foundation converting pairwise preferences to probability estimates via sigmoid of reward differences.
+- [[concepts/sycophancy]] — RLHF failure mode: models match user beliefs over truth because belief-matching predicts human approval.
+- [[concepts/orpo]] — Single-step SFT + preference alignment, no reference model. Works with as few as 7K examples.
+- [[concepts/ipo]] — DPO variant adding regularization to prevent overfitting on deterministic preferences.
+- [[concepts/process-reward-model]] — Step-level reward scoring for reasoning chains. Harder to hack but requires expensive step-level supervision.
+
+### Entities
+- [[entities/instructgpt]] — OpenAI's 2022 RLHF paper: 1.3B aligned model preferred over 175B GPT-3. Direct precursor to ChatGPT.
+- [[entities/cameron-wolfe]] — Ph.D. researcher, Deep (Learning) Focus newsletter: detailed DPO, reward model, RLAIF technical articles.
+- [[entities/lilian-weng]] — OpenAI researcher, Lil'Log author: definitive surveys on reward hacking, agents, LLM training.
+- [[entities/trl]] — HuggingFace's alignment library: SFT, PPO, DPO, IPO, KTO, ORPO. De facto open-source standard.
+
+### Comparisons
+- [[comparisons/ppo-vs-dpo]] — PPO wins on hard tasks (code, reasoning) via online learning; DPO wins on simplicity, cost, accessibility.
+- [[comparisons/rlhf-alternatives]] — 9+ method comparison (RLHF, DPO, KTO, IPO, ORPO, SPIN): no single winner; data quality dominates method choice.
+- [[comparisons/rlhf-vs-constitutional-ai]] — RLHF (human labels, all dimensions) vs CAI (AI labels for harmlessness, human for helpfulness).
