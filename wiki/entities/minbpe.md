@@ -2,8 +2,8 @@
 title: "minbpe"
 type: entity
 entity_type: tool
-sources: ["[[sources/karpathy-minbpe-lecture]]"]
-related: ["[[concepts/byte-pair-encoding]]", "[[concepts/tokenization]]", "[[entities/andrej-karpathy]]"]
+sources: ["[[sources/karpathy-minbpe-lecture]]", "[[sources/karpathy-educational-projects]]"]
+related: ["[[concepts/byte-pair-encoding]]", "[[concepts/tokenization]]", "[[entities/andrej-karpathy]]", "[[entities/nanogpt]]", "[[entities/micrograd]]", "[[concepts/context-windows]]"]
 last_compiled: 2026-04-05
 summary: "Karpathy's minimal, clean reference implementation of BPE tokenization — the most widely-cited educational codebase for understanding LLM tokenization."
 ---

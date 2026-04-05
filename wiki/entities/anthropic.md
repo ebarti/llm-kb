@@ -2,15 +2,17 @@
 title: "Anthropic"
 type: entity
 entity_type: org
-sources: ["[[sources/anthropic-claude-prompting-best-practices]]", "[[sources/lakera-prompt-injection-guide]]", "[[sources/claude-code-agentic-coding]]", "[[sources/mcp-model-context-protocol]]", "[[sources/fli-ai-safety-index-2025]]", "[[sources/anthropic-safety-research-directions-2025]]", "[[sources/ai-safety-alignment-progress-2025]]", "[[sources/cip-whitepaper-collective-intelligence]]", "[[sources/anthropic-mcp-announcement]]", "[[sources/anthropic-mcp-linux-foundation]]", "[[sources/anthropic-building-effective-agents]]", "[[sources/anthropic-code-execution-mcp]]", "[[sources/anthropic-extended-thinking]]"]
-related: ["[[entities/claude]]", "[[concepts/prompt-engineering]]", "[[concepts/system-prompt-design]]", "[[entities/claude-code]]", "[[concepts/model-context-protocol]]", "[[concepts/agentic-coding]]", "[[concepts/constitutional-ai]]", "[[concepts/ai-alignment]]", "[[concepts/ai-safety]]", "[[concepts/scalable-oversight]]", "[[concepts/ai-alignment-democratic]]", "[[entities/collective-intelligence-project]]", "[[concepts/reasoning-models]]", "[[concepts/test-time-compute]]"]
+sources: ["[[sources/anthropic-claude-prompting-best-practices]]", "[[sources/lakera-prompt-injection-guide]]", "[[sources/claude-code-agentic-coding]]", "[[sources/mcp-model-context-protocol]]", "[[sources/fli-ai-safety-index-2025]]", "[[sources/anthropic-safety-research-directions-2025]]", "[[sources/ai-safety-alignment-progress-2025]]", "[[sources/cip-whitepaper-collective-intelligence]]", "[[sources/anthropic-mcp-announcement]]", "[[sources/anthropic-mcp-linux-foundation]]", "[[sources/anthropic-building-effective-agents]]", "[[sources/anthropic-code-execution-mcp]]", "[[sources/anthropic-extended-thinking]]", "[[sources/wikipedia-anthropic]]", "[[sources/anthropic-rsp-v3]]", "[[sources/dario-amodei-machines-of-loving-grace]]"]
+related: ["[[entities/claude]]", "[[entities/dario-amodei]]", "[[entities/daniela-amodei]]", "[[concepts/prompt-engineering]]", "[[concepts/system-prompt-design]]", "[[entities/claude-code]]", "[[concepts/model-context-protocol]]", "[[concepts/agentic-coding]]", "[[concepts/constitutional-ai]]", "[[concepts/ai-alignment]]", "[[concepts/ai-safety]]", "[[concepts/scalable-oversight]]", "[[concepts/ai-alignment-democratic]]", "[[entities/collective-intelligence-project]]", "[[concepts/reasoning-models]]", "[[concepts/test-time-compute]]", "[[concepts/responsible-scaling-policy]]", "[[concepts/claude-model-family-evolution]]"]
 last_compiled: 2026-04-05
-summary: "AI safety company behind Claude models, Claude Code ($2.5B revenue), and the Model Context Protocol — leading in prompt engineering and agentic AI infrastructure."
+summary: "AI safety PBC founded 2021 by 7 ex-OpenAI researchers (Dario & Daniela Amodei + 5); $380B valuation; builds Claude models, Claude Code ($2.5B ARR), and MCP; ranked #1 in FLI AI Safety Index."
 ---
 
 ## Overview
 
-Anthropic is an AI safety company that develops the [[entities/claude]] family of large language models. Founded in 2021, Anthropic has become one of the leading frontier AI labs alongside OpenAI and Google DeepMind.
+Anthropic is an AI safety company that develops the [[entities/claude]] family of large language models. Founded in 2021 by [[entities/dario-amodei]] (CEO), [[entities/daniela-amodei]] (President), and five other former OpenAI researchers -- Jared Kaplan, Jack Clark, Chris Olah, Ben Mann, Sam McCandlish, and Tom Brown -- who left over concerns about OpenAI's commitment to safety. Structured as a **public benefit corporation** (PBC) headquartered in San Francisco, with a Long-Term Benefit Trust enabling the board to legally prioritize safety over shareholder profits.
+
+As of February 2026, Anthropic has a **$380 billion valuation**, ~2,500 employees, and has raised over $60B in funding from Amazon ($8B), Google ($2B), Microsoft/Nvidia ($15B), and others.
 
 ## Key Contributions to Prompt Engineering
 
