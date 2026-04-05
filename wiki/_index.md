@@ -1515,3 +1515,54 @@ reading_time: "5 min"
 ### Comparisons
 - [[comparisons/amodei-vs-aschenbrenner-vs-sutskever]] — Three visions of AGI: optimism (Amodei) vs urgency (Aschenbrenner) vs research pivot (Sutskever)
 - [[comparisons/scaling-vs-research-path-to-agi]] — Compute scaling vs novel research vs test-time compute as paths to AGI
+
+## Sources (Diffusion Models & Multimodal Generation)
+
+- [[sources/bentoml-open-source-image-generation-2026]] — 2026 open-source image generation landscape: FLUX.2 (32B), SD 3.5, GLM-Image, HunyuanImage-3.0 (80B MoE)
+- [[sources/dit-diffusion-transformer-architecture]] — DiT architecture guide: patchification, adaLN conditioning, FID 2.27, scalability properties
+- [[sources/ai-video-market-2026]] — AI video market after Sora's $15M/day shutdown: Runway Gen-4, Kling 3.0, Veo 3
+- [[sources/ai-music-generation-2026]] — AI music in 2026: Suno v5 (100M users), Udio, ElevenLabs, label settlements
+- [[sources/nerf-vs-gaussian-splatting-2025]] — NeRF vs Gaussian Splatting: implicit neural vs explicit primitives for 3D
+- [[sources/flux-vs-stable-diffusion-2026]] — FLUX (flow matching, 12B) vs Stable Diffusion (DDPM, 1-8B) technical comparison
+- [[sources/flow-matching-iclr-2025]] — Flow matching explained: velocity fields, rectified flows, optimal transport connection
+- [[sources/flux-architecture-demystified]] — FLUX.1 architecture: dual-stream MMDiT, T5+CLIP encoding, RoPE, rectified flow
+- [[sources/consistency-models-fast-generation]] — Consistency models: one-step generation via self-consistency, FID 2.82 on CIFAR-10
+- [[sources/autoregressive-vision-models-survey]] — TMLR 2025 survey: AR vision models from VQ-VAE to NextStep-1, matching diffusion quality
+
+## Concepts (Diffusion Models & Multimodal Generation)
+
+- [[concepts/diffusion-models]] — The dominant generative framework (2020-2026): iterative denoising from noise to data, powering image, video, audio, and 3D generation
+- [[concepts/diffusion-transformer]] — DiT architecture replacing U-Net: patchification + self-attention + adaLN, FID 2.27, foundation for FLUX/SD3/Sora
+- [[concepts/flow-matching]] — Velocity field learning for generative modeling: deterministic ODE transport, straight-line trajectories, 4-20 steps vs 20-50 for DDPM
+- [[concepts/rectified-flow]] — Straight-line trajectory optimization within flow matching, enabling few-step and one-step generation via reflow distillation
+- [[concepts/image-generation]] — AI image synthesis from text/image inputs: three architectural generations (GAN, U-Net diffusion, DiT+flow matching) plus emerging AR
+- [[concepts/video-generation]] — AI video from text/image: $847M market in 2026, shaped by Sora's shutdown, Runway/Kling/Veo competition
+- [[concepts/audio-generation]] — AI music and sound synthesis: Suno v5 (100M users), Udio, ElevenLabs, major label settlements
+- [[concepts/audio-visual-generation]] — Unified video+audio generation: Veo 3's native synchronized sound, Kling 3.0's dialogue with lip sync
+- [[concepts/3d-generation]] — AI 3D content from text/images: NeRF vs Gaussian Splatting, score distillation, Hunyuan3D-2
+- [[concepts/consistency-models]] — One-step generation via self-consistency along diffusion trajectories, FID 2.82 on CIFAR-10
+- [[concepts/autoregressive-image-generation]] — Next-token prediction for images: VAR (NeurIPS 2024 Best Paper), NextStep-1 (ICLR 2026 Oral), matching diffusion
+- [[concepts/visual-tokenization]] — Converting images to token sequences: VQ-VAE to VQGAN to continuous tokens, the key to AR image generation
+- [[concepts/gaussian-splatting]] — Explicit 3D Gaussian primitives: 60fps+ real-time rendering, 90% less memory than NeRF, commercial adoption
+- [[concepts/neural-radiance-fields]] — Implicit neural 3D representation: ultra-high 4K/8K quality but slow rendering, being supplanted by Gaussian Splatting
+
+## Entities (Diffusion Models & Multimodal Generation)
+
+- [[entities/flux]] — Black Forest Labs' image generation family: FLUX.2 (32B MMDiT + flow matching), state-of-the-art open-weight
+- [[entities/stable-diffusion]] — Stability AI's model family: SD 1.x to 3.5, largest fine-tuning ecosystem, LoRA library
+- [[entities/black-forest-labs]] — Founded by original SD creators; develops FLUX
+- [[entities/comfyui]] — Node-based visual workflow builder for image generation pipelines
+- [[entities/sora]] — (Updated) OpenAI video model: cinema quality but $15M/day economics caused March 2026 shutdown
+- [[entities/runway]] — Professional AI video: Gen-4 with character persistence, motion capture, post-production integration
+- [[entities/kling]] — ByteDance video: Kling 3.0 at $0.07/sec, multi-shot sequences, native audio with lip sync
+- [[entities/veo]] — Google DeepMind video: Veo 3 with native synchronized audio generation, YouTube integration
+- [[entities/suno]] — AI music leader: ~100M users, $2.4B valuation, Suno v5 with 12-track stems at 44.1kHz
+- [[entities/udio]] — AI music by ex-DeepMind: audio fidelity "almost indistinguishable from real," inpainting tool
+- [[entities/elevenlabs]] — $11B voice/audio AI company: Eleven Music with "unsettlingly realistic" vocals
+
+## Comparisons (Diffusion Models & Multimodal Generation)
+
+- [[comparisons/flux-vs-stable-diffusion]] — FLUX (quality, typography, prompt adherence) vs SD (ecosystem, accessibility, LoRA library)
+- [[comparisons/nerf-vs-gaussian-splatting]] — Implicit neural (ultra-high quality, slow) vs explicit Gaussian (real-time 60fps, commercial adoption)
+- [[comparisons/diffusion-vs-autoregressive-image-generation]] — Iterative denoising vs next-token prediction: AR now matches diffusion with superior inference scaling
+- [[comparisons/ai-video-platforms-2026]] — Runway ($0.12/sec quality) vs Kling ($0.07/sec volume) vs Veo ($0.05/sec audio) vs Pika (viral)

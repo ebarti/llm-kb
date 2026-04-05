@@ -2981,3 +2981,110 @@ Pages with no incoming links:
 
 ### comparisons/training-time-vs-inference-time-scaling
 → [[concepts/scaling-laws]], [[concepts/test-time-compute]], [[concepts/training-vs-inference-compute]], [[concepts/inference-scaling-laws]], [[concepts/reasoning-models]]
+
+## AGI, AI Economics, Compute Scaling & the Future of AI
+
+### sources/amodei-machines-of-loving-grace
+- → [[concepts/path-to-agi]], [[concepts/ai-optimism-and-abundance]], [[concepts/intelligence-explosion]], [[concepts/ai-economics]], [[concepts/ai-governance]], [[concepts/ai-alignment]], [[entities/dario-amodei]], [[entities/anthropic]]
+
+### sources/aschenbrenner-situational-awareness
+- → [[concepts/path-to-agi]], [[concepts/intelligence-explosion]], [[concepts/compute-scaling]], [[concepts/ai-economics]], [[concepts/superalignment]], [[concepts/ai-governance]], [[entities/leopold-aschenbrenner]]
+
+### sources/sutskever-ssi-safe-superintelligence
+- → [[concepts/compute-scaling]], [[concepts/path-to-agi]], [[concepts/superalignment]], [[concepts/intelligence-explosion]], [[entities/ilya-sutskever]], [[entities/safe-superintelligence-inc]]
+
+### sources/epoch-ai-scaling-limits-2030
+- → [[concepts/compute-scaling]], [[concepts/ai-economics]], [[concepts/ai-energy-and-infrastructure]], [[concepts/data-wall]], [[entities/epoch-ai]]
+
+### sources/agi-timeline-predictions-2026
+- → [[concepts/path-to-agi]], [[concepts/intelligence-explosion]], [[concepts/compute-scaling]], [[entities/dario-amodei]], [[entities/leopold-aschenbrenner]], [[entities/ilya-sutskever]]
+
+### sources/ai-economics-investment-2026
+- → [[concepts/ai-economics]], [[concepts/ai-energy-and-infrastructure]], [[concepts/compute-scaling]]
+
+### sources/ai-scaling-paradigm-shift-2026
+- → [[concepts/compute-scaling]], [[concepts/test-time-compute]], [[concepts/path-to-agi]], [[concepts/data-wall]], [[concepts/model-collapse]], [[entities/ilya-sutskever]]
+
+### concepts/path-to-agi
+- → [[concepts/intelligence-explosion]], [[concepts/compute-scaling]], [[concepts/superalignment]], [[concepts/ai-optimism-and-abundance]], [[concepts/test-time-compute]], [[concepts/data-wall]], [[entities/leopold-aschenbrenner]], [[entities/dario-amodei]], [[entities/ilya-sutskever]]
+
+### concepts/intelligence-explosion
+- → [[concepts/path-to-agi]], [[concepts/superalignment]], [[concepts/compute-scaling]], [[concepts/ai-optimism-and-abundance]], [[concepts/ai-economics]], [[concepts/ai-governance]], [[entities/leopold-aschenbrenner]], [[entities/dario-amodei]], [[entities/ilya-sutskever]]
+
+### concepts/compute-scaling
+- → [[concepts/path-to-agi]], [[concepts/test-time-compute]], [[concepts/ai-energy-and-infrastructure]], [[concepts/data-wall]], [[concepts/ai-economics]], [[concepts/intelligence-explosion]]
+
+### concepts/ai-optimism-and-abundance
+- → [[concepts/path-to-agi]], [[concepts/intelligence-explosion]], [[concepts/superalignment]], [[concepts/ai-economics]], [[concepts/ai-governance]], [[entities/dario-amodei]]
+
+### concepts/superalignment
+- → [[concepts/ai-alignment]], [[concepts/intelligence-explosion]], [[concepts/path-to-agi]], [[concepts/scalable-oversight]], [[concepts/ai-governance]], [[entities/safe-superintelligence-inc]], [[entities/ilya-sutskever]], [[entities/anthropic]], [[entities/yoshua-bengio]]
+
+### concepts/ai-economics
+- → [[concepts/compute-scaling]], [[concepts/ai-energy-and-infrastructure]], [[concepts/path-to-agi]], [[concepts/ai-optimism-and-abundance]], [[concepts/ai-productivity-paradox]], [[entities/leopold-aschenbrenner]]
+
+### concepts/ai-energy-and-infrastructure
+- → [[concepts/compute-scaling]], [[concepts/ai-economics]], [[concepts/path-to-agi]], [[concepts/intelligence-explosion]], [[entities/leopold-aschenbrenner]]
+
+### concepts/data-wall
+- → [[concepts/compute-scaling]], [[concepts/synthetic-data-generation]], [[concepts/model-collapse]], [[concepts/path-to-agi]]
+
+### entities/leopold-aschenbrenner
+- → [[concepts/path-to-agi]], [[concepts/intelligence-explosion]], [[concepts/compute-scaling]], [[concepts/superalignment]], [[entities/dario-amodei]], [[entities/ilya-sutskever]]
+
+### entities/ilya-sutskever
+- → [[entities/safe-superintelligence-inc]], [[concepts/compute-scaling]], [[concepts/path-to-agi]], [[concepts/superalignment]], [[entities/dario-amodei]], [[entities/leopold-aschenbrenner]]
+
+### entities/safe-superintelligence-inc
+- → [[entities/ilya-sutskever]], [[concepts/superalignment]], [[concepts/path-to-agi]], [[concepts/intelligence-explosion]]
+
+### entities/epoch-ai
+- → [[concepts/compute-scaling]], [[concepts/data-wall]], [[concepts/ai-energy-and-infrastructure]]
+
+### comparisons/amodei-vs-aschenbrenner-vs-sutskever
+- → [[entities/dario-amodei]], [[entities/leopold-aschenbrenner]], [[entities/ilya-sutskever]], [[concepts/path-to-agi]], [[concepts/intelligence-explosion]], [[concepts/compute-scaling]], [[concepts/superalignment]]
+
+### comparisons/scaling-vs-research-path-to-agi
+- → [[concepts/compute-scaling]], [[concepts/path-to-agi]], [[concepts/test-time-compute]], [[concepts/data-wall]], [[concepts/intelligence-explosion]]
+
+## AI for Scientific Discovery (2026-04-05 addition)
+
+### concepts/ai-for-scientific-discovery
+← [[sources/alphafold-five-years-impact]], [[sources/ai-drug-discovery-phase-iii-2026]], [[sources/gnome-materials-discovery]], [[sources/funsearch-mathematical-discovery]], [[sources/gencast-weather-prediction]], [[sources/alphagenome-genomics]], [[sources/alphaevolve-algorithm-discovery]], [[sources/gemini-deep-think-scientific-discovery]], [[sources/nobel-prizes-ai-2024]], [[sources/self-driving-labs-revolution]], [[sources/rfdiffusion3-protein-design]], [[sources/ucsd-nine-ai-breakthroughs]], [[concepts/ai-drug-discovery]], [[concepts/ai-materials-science]], [[concepts/ai-mathematical-reasoning]], [[concepts/ai-protein-structure-prediction]], [[concepts/ai-protein-design]], [[concepts/ai-genomics]], [[concepts/ai-weather-climate]], [[concepts/self-driving-labs]], [[concepts/nobel-prizes-ai-2024]], [[concepts/llm-as-search-operator]], [[concepts/generative-chemistry]]
+→ [[concepts/ai-drug-discovery]], [[concepts/ai-materials-science]], [[concepts/ai-mathematical-reasoning]], [[concepts/ai-protein-structure-prediction]], [[concepts/ai-protein-design]], [[concepts/ai-genomics]], [[concepts/ai-weather-climate]], [[concepts/self-driving-labs]], [[concepts/nobel-prizes-ai-2024]], [[entities/alphafold]], [[entities/gnome]], [[entities/funsearch]], [[entities/alphaevolve]], [[entities/gencast]], [[entities/alphagenome]], [[entities/rfdiffusion]], [[entities/demis-hassabis]], [[entities/david-baker]], [[entities/geoffrey-hinton]], [[entities/insilico-medicine]], [[entities/recursion-pharmaceuticals]], [[entities/isomorphic-labs]], [[entities/google-deepmind]]
+
+### entities/alphafold
+← [[concepts/ai-for-scientific-discovery]], [[concepts/ai-protein-structure-prediction]], [[concepts/ai-drug-discovery]], [[concepts/ai-protein-design]], [[concepts/nobel-prizes-ai-2024]], [[sources/alphafold-five-years-impact]], [[sources/nobel-prizes-ai-2024]], [[entities/alphagenome]], [[entities/isomorphic-labs]], [[comparisons/alphafold-vs-rfdiffusion]]
+→ [[concepts/ai-protein-structure-prediction]], [[concepts/ai-for-scientific-discovery]], [[concepts/ai-drug-discovery]], [[entities/demis-hassabis]], [[entities/google-deepmind]], [[entities/alphagenome]], [[entities/isomorphic-labs]], [[concepts/nobel-prizes-ai-2024]]
+
+### entities/gnome
+← [[concepts/ai-for-scientific-discovery]], [[concepts/ai-materials-science]], [[concepts/self-driving-labs]], [[sources/gnome-materials-discovery]], [[sources/self-driving-labs-revolution]]
+→ [[concepts/ai-materials-science]], [[concepts/ai-for-scientific-discovery]], [[concepts/self-driving-labs]], [[entities/google-deepmind]]
+
+### entities/alphaevolve
+← [[concepts/ai-for-scientific-discovery]], [[concepts/ai-mathematical-reasoning]], [[concepts/llm-as-search-operator]], [[sources/alphaevolve-algorithm-discovery]]
+→ [[concepts/ai-mathematical-reasoning]], [[concepts/llm-as-search-operator]], [[entities/funsearch]], [[entities/google-deepmind]]
+
+### entities/gencast
+← [[concepts/ai-for-scientific-discovery]], [[concepts/ai-weather-climate]], [[sources/gencast-weather-prediction]]
+→ [[concepts/ai-weather-climate]], [[concepts/ai-for-scientific-discovery]], [[entities/google-deepmind]]
+
+### entities/rfdiffusion
+← [[concepts/ai-for-scientific-discovery]], [[concepts/ai-protein-design]], [[sources/rfdiffusion3-protein-design]], [[sources/nobel-prizes-ai-2024]], [[comparisons/alphafold-vs-rfdiffusion]]
+→ [[concepts/ai-protein-design]], [[concepts/ai-drug-discovery]], [[entities/david-baker]]
+
+### entities/demis-hassabis
+← [[concepts/ai-for-scientific-discovery]], [[concepts/nobel-prizes-ai-2024]], [[entities/alphafold]], [[entities/isomorphic-labs]]
+→ [[entities/alphafold]], [[entities/google-deepmind]], [[concepts/ai-for-scientific-discovery]], [[concepts/nobel-prizes-ai-2024]], [[entities/isomorphic-labs]]
+
+### entities/geoffrey-hinton
+← [[concepts/nobel-prizes-ai-2024]], [[sources/nobel-prizes-ai-2024]]
+→ [[concepts/nobel-prizes-ai-2024]], [[concepts/ai-for-scientific-discovery]], [[concepts/ai-safety]]
+
+### comparisons/alphafold-vs-rfdiffusion
+← (none)
+→ [[entities/alphafold]], [[entities/rfdiffusion]], [[concepts/ai-drug-discovery]], [[concepts/nobel-prizes-ai-2024]], [[sources/alphafold-five-years-impact]], [[sources/rfdiffusion3-protein-design]]
+
+### comparisons/ai-scientific-domains-comparison
+← (none)
+→ [[concepts/ai-protein-structure-prediction]], [[concepts/ai-materials-science]], [[concepts/ai-mathematical-reasoning]], [[concepts/ai-weather-climate]], [[concepts/ai-drug-discovery]], [[concepts/ai-genomics]], [[entities/alphafold]], [[entities/gnome]], [[entities/alphaevolve]], [[entities/gencast]], [[entities/insilico-medicine]], [[entities/alphagenome]]

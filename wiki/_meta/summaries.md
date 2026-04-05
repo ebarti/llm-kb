@@ -1507,3 +1507,130 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 - [[comparisons/us-vs-china-vs-eu-ai-regulation]] -- Three-way: EU (comprehensive, slow), US (fragmented, innovation-first), China (agile, state-controlled); no global standard has emerged.
 - [[comparisons/us-vs-china-ai-military]] -- US has operational combat experience and integrated AI stack; China has efficiency advantage, domestic chips, and fully autonomous doctrine but zero combat testing.
 - [[comparisons/nvidia-vs-huawei-ai-chips]] -- 5x current performance gap (widening to 17x by 2027), 20:1 production ratio; TSMC vs SMIC manufacturing constraint is binding.
+
+## Sources (AGI, AI Economics, Compute Scaling & the Future of AI)
+
+- [[sources/amodei-machines-of-loving-grace]] — Anthropic CEO's optimistic vision: powerful AI could compress a century of progress into 5-10 years across biology, mental health, economic development, and governance — if risks are managed.
+- [[sources/aschenbrenner-situational-awareness]] — Former OpenAI researcher's influential essay arguing AGI by 2027 is "strikingly plausible," followed by rapid intelligence explosion to superintelligence, requiring trillion-dollar infrastructure and defense-grade security.
+- [[sources/sutskever-ssi-safe-superintelligence]] — Ilya Sutskever declares the "age of scaling" over, pivots to research-driven breakthroughs at SSI — a $30B-valued company with 50 people, no products, and a singular mission to build safe superintelligence.
+- [[sources/epoch-ai-scaling-limits-2030]] — Epoch AI projects 2e29 FLOP training runs feasible by 2030 — equivalent to another GPT-2→GPT-4 jump — with power as the binding constraint, followed by chip manufacturing capacity.
+- [[sources/agi-timeline-predictions-2026]] — Comprehensive survey of AGI timeline predictions showing dramatic compression: median expert estimate moved from 2060-2070 (2020) to 2028-2033 (2026), with AI leaders predicting 2026-2027.
+- [[sources/ai-economics-investment-2026]] — AI spending hits $2.52T in 2026 (Gartner); Big Tech CapEx at $700B; GDP contribution surpasses dot-com boom; but revenue gap and energy costs remain key risks.
+- [[sources/ai-scaling-paradigm-shift-2026]] — The meaning of "scaling" has fundamentally shifted: from pre-training scale (2018-2023) to post-training (2023-2025) to test-time compute (2024+), with DeepSeek-R1 proving RL alone produces reasoning.
+
+## Concepts (AGI, AI Economics, Compute Scaling & the Future of AI)
+
+- [[concepts/path-to-agi]] — The convergence of scaling, algorithmic efficiency, and unhobbling gains suggests AGI between 2027-2033, with AI leaders predicting the earlier end and researchers the later — but definitions remain deeply contested.
+- [[concepts/intelligence-explosion]] — The hypothesis that AGI could automate AI research itself, compressing decades of progress into months — producing superintelligence rapidly and creating the most consequential event in human history.
+- [[concepts/compute-scaling]] — The multi-dimensional landscape of AI scaling: pre-training scaling shows diminishing returns, but test-time compute and algorithmic efficiency open new dimensions — constrained by power, chips, data, and capital.
+- [[concepts/ai-optimism-and-abundance]] — The thesis that powerful AI could compress a century of human progress into 5-10 years — transforming biology, mental health, economics, and governance — articulated most fully by Dario Amodei.
+- [[concepts/superalignment]] — The challenge of aligning AI systems that exceed human intelligence — requiring new approaches beyond RLHF, including scalable oversight, interpretability, and adversarial testing — with potentially civilization-level stakes.
+- [[concepts/ai-economics]] — The trillion-dollar economics of AI: $2.52T global spending in 2026, $700B+ Big Tech CapEx, GDP impact surpassing the dot-com boom — but the revenue gap between investment and returns remains the central risk.
+- [[concepts/ai-energy-and-infrastructure]] — Data centers consume 415 TWh (1.5% of global electricity) in 2024, doubling to 945 TWh by 2030 — with AI-driven servers growing at 30% annually, making power the binding constraint on AI scaling.
+- [[concepts/data-wall]] — The looming exhaustion of high-quality training data — estimated by 2026-2028 — forcing the industry toward synthetic data, multimodal sources, and new learning paradigms.
+
+## Entities (AGI, AI Economics, Compute Scaling & the Future of AI)
+
+- [[entities/leopold-aschenbrenner]] — Former OpenAI superalignment researcher; author of "Situational Awareness" predicting AGI by 2027; founder of $1.5B+ hedge fund; one of the most influential voices shaping AI policy and investment discourse.
+- [[entities/ilya-sutskever]] — Co-founder of OpenAI, architect of the scaling paradigm (AlexNet, GPT series); departed to found SSI in 2024; declared "the age of scaling is ending" in 2025, pivoting to research-driven breakthroughs for safe superintelligence.
+- [[entities/safe-superintelligence-inc]] — Ilya Sutskever's AI lab: $30B valuation, ~50 employees, zero revenue, zero products — focused exclusively on building safe superintelligence with no commercial distractions.
+- [[entities/epoch-ai]] — Research institute tracking AI compute trends, training data, and scaling limits — authors of the definitive analysis of whether AI scaling can continue through 2030.
+
+## Comparisons (AGI, AI Economics, Compute Scaling & the Future of AI)
+
+- [[comparisons/amodei-vs-aschenbrenner-vs-sutskever]] — Three influential AI thinkers offer divergent visions: Amodei (optimistic transformation), Aschenbrenner (urgent national security race), Sutskever (end of scaling, research-driven path).
+- [[comparisons/scaling-vs-research-path-to-agi]] — The central debate: whether AGI comes from continued compute scaling (Aschenbrenner) or novel research breakthroughs (Sutskever) — with test-time compute as a possible third path.
+
+## Sources (AI for Scientific Discovery)
+
+- [[sources/alphafold-five-years-impact]] -- AlphaFold five-year retrospective: 3M+ researchers, 200M+ structures, 35K+ citations, Nobel Prize, AlphaFold 3 extends to all biomolecular interactions.
+- [[sources/ai-drug-discovery-phase-iii-2026]] -- 173+ AI drug programs in clinical development; Insilico's 30-month timeline (vs 6-8yr); Phase I success 80-90% vs 52% historical; first approval projected 2026-2027.
+- [[sources/gnome-materials-discovery]] -- GNoME: 2.2M crystals via graph neural networks, 380K stable, 52K graphene-like, 528 lithium conductors (25x). Berkeley A-Lab synthesized 41+ new materials.
+- [[sources/funsearch-mathematical-discovery]] -- FunSearch: PaLM 2 + evaluator evolutionary loop solves cap set problem (largest advance in 20 years); interpretable code outputs.
+- [[sources/gencast-weather-prediction]] -- GenCast: diffusion model outperforms ECMWF ENS on 97.2% of metrics; 15-day forecasts in 8 minutes on single TPU; used for humanitarian Anticipatory Action.
+- [[sources/alphagenome-genomics]] -- AlphaGenome: 1M base-pair DNA input, predicts thousands of molecular properties, outperforms on 22/24 evaluations, covers non-coding 98% of genome.
+- [[sources/alphaevolve-algorithm-discovery]] -- AlphaEvolve: Gemini-powered evolutionary agent; broke Strassen's 56-year matrix multiplication record; 0.7% Google compute savings; 20% improvement on 50+ open problems.
+- [[sources/gemini-deep-think-scientific-discovery]] -- Gemini Deep Think: IMO gold (35/42), 4 Erdos conjectures solved, Aletheia agent, Vibe-Proving human-AI collaboration paradigm.
+- [[sources/nobel-prizes-ai-2024]] -- 2024 Nobel Prizes: Physics (Hopfield, Hinton -- neural networks) and Chemistry (Baker -- protein design; Hassabis, Jumper -- AlphaFold). Both AI.
+- [[sources/self-driving-labs-revolution]] -- Self-driving labs: AI + robotics automate entire scientific method; A-Lab (Berkeley), Periodic Labs (2025); cloud labs from $50K/month.
+- [[sources/rfdiffusion3-protein-design]] -- RFdiffusion3 (Dec 2025): de novo protein design at atomic level; 10x faster than v2; atomically accurate antibodies; open-source.
+- [[sources/ucsd-nine-ai-breakthroughs]] -- Nine AI breakthroughs: Alzheimer's gene causation, TB drug discovery, 25x faster climate modeling, AI wildfire detection.
+
+## Concepts (AI for Scientific Discovery)
+
+- [[concepts/ai-for-scientific-discovery]] -- AI's most transformative real-world impact: AlphaFold, GNoME, GenCast, AlphaEvolve, self-driving labs. Both 2024 Nobel Prizes went to AI researchers.
+- [[concepts/ai-drug-discovery]] -- 173+ programs, 80-90% Phase I success (vs 52%), 30-month timelines (vs 6-8yr). 2026 Phase III results are the decisive test.
+- [[concepts/ai-materials-science]] -- GNoME's 2.2M crystals (800yr equivalent); A-Lab autonomous synthesis; 528 lithium conductors, 52K graphene-like compounds.
+- [[concepts/ai-mathematical-reasoning]] -- From struggling with arithmetic to IMO gold in 2 years; FunSearch cap sets, AlphaEvolve Strassen record, Deep Think Erdos conjectures.
+- [[concepts/ai-protein-structure-prediction]] -- AlphaFold solved the 50-year protein folding problem; AF3 extends to all biomolecular interactions with 76% ligand accuracy.
+- [[concepts/ai-protein-design]] -- De novo protein creation using diffusion models (RFdiffusion3); custom antibodies, enzymes, biosensors. David Baker Nobel 2024.
+- [[concepts/ai-genomics]] -- AlphaGenome (non-coding 98%), AlphaMissense (coding 2%), Evo2 (128K+ genomes); from reading to designing genomes.
+- [[concepts/ai-weather-climate]] -- GenCast outperforms ECMWF on 97%+; 8 min vs hours; operational at NOAA; Spherical DYffusion for 100-year climate projections.
+- [[concepts/self-driving-labs]] -- AI + robotics autonomously design and execute experiments; A-Lab, Periodic Labs, Argonne; 10x throughput, months to days.
+- [[concepts/nobel-prizes-ai-2024]] -- 2024 watershed: Physics (Hopfield, Hinton) and Chemistry (Baker, Hassabis/Jumper) both AI. Validates AI as fundamental scientific tool.
+- [[concepts/llm-as-search-operator]] -- LLMs as creative candidate generators in evolutionary loops with automated verification; FunSearch and AlphaEvolve paradigm.
+- [[concepts/generative-chemistry]] -- AI designs novel molecules from scratch; generative, physics-based, and retrosynthetic approaches; Insilico's 30-month timeline.
+
+## Entities (AI for Scientific Discovery)
+
+- [[entities/alphafold]] -- DeepMind's protein structure prediction: CASP14, 200M+ structures, 3M+ researchers, Nobel Prize, AF3 (76% ligand accuracy).
+- [[entities/gnome]] -- Graph Networks for Materials Exploration: 2.2M crystals, 380K stable, 52K graphene-like, A-Lab integration.
+- [[entities/funsearch]] -- DeepMind's LLM + evaluator for math discovery; cap set problem, bin packing; established LLM-as-search paradigm.
+- [[entities/alphaevolve]] -- Gemini-powered evolutionary agent; Strassen record, 0.7% Google compute, kissing number, 50+ open problems.
+- [[entities/gencast]] -- Diffusion weather model; 97.2% vs ECMWF ENS; 15-day in 8 minutes; tropical cyclones, wind energy.
+- [[entities/alphagenome]] -- Non-coding genome AI (98%); 1M base-pair input; 22/24 evaluations superior; splicing, gene regulation.
+- [[entities/rfdiffusion]] -- Baker Lab diffusion protein design; v3 (Dec 2025) all-atom, any molecule, 10x faster; atomically accurate antibodies.
+- [[entities/demis-hassabis]] -- CEO Google DeepMind; 2024 Nobel Chemistry; founded Isomorphic Labs; AlphaFold architect.
+- [[entities/david-baker]] -- UW Institute for Protein Design; 2024 Nobel Chemistry; Rosetta, RFdiffusion lineage.
+- [[entities/geoffrey-hinton]] -- "Godfather of AI"; 2024 Nobel Physics; Boltzmann machines, backpropagation; AI safety advocate.
+- [[entities/insilico-medicine]] -- Generative chemistry; rentosertib (IPF) 30-month target-to-Phase-I; Phase IIa positive.
+- [[entities/recursion-pharmaceuticals]] -- Phenomics (2.2M experiments/week); merged with Exscientia (Jul 2025); 10+ programs.
+- [[entities/isomorphic-labs]] -- Hassabis-founded (2021) drug discovery using AlphaFold; Alphabet subsidiary.
+
+## Comparisons (AI for Scientific Discovery)
+
+- [[comparisons/alphafold-vs-rfdiffusion]] -- Prediction vs design: AlphaFold tells you what exists; RFdiffusion creates what doesn't. Complementary Nobel Prize-winning approaches.
+- [[comparisons/ai-scientific-domains-comparison]] -- Six domains compared on maturity: protein structure (Nobel) > weather (operational) > materials > genomics > math > drug approval.
+
+## Sources (AI Robotics & Embodied Intelligence)
+
+- [[sources/deloitte-physical-ai-humanoid-robots-2026]] -- Deloitte Tech Trends 2026: physical AI definition, VLA models, humanoid market ($30-50B by 2035), Waymo (10M+ rides), Amazon (1M robots), six deployment barriers.
+- [[sources/google-deepmind-rt2-vla-model]] -- RT-2: pioneering VLA model (July 2023); PaLM-E/PaLI-X backbone; actions as text tokens; 62% novel scenario success (vs 32% RT-1); emergent reasoning from web pre-training.
+- [[sources/physical-intelligence-pi0-foundation-model]] -- π0: 3B-param VLA with flow matching at 50Hz; trained on 8 robots, 68 tasks; 1.0 success on laundry folding where prior models score 0; open-sourced via Hugging Face.
+- [[sources/llms-for-robotics-survey-2025]] -- Comprehensive 2025 survey: 4-pillar taxonomy (perception/decision/control/interaction); VLA evolution RT-1 to RT-2 to OpenVLA to π0 to GR00T; hallucination in planning and sub-300ms latency as key challenges.
+- [[sources/saycan-grounding-language-robotic-affordances]] -- SayCan (Google 2022): LLM semantic scores x affordance functions; 84% plan success, 74% execution on 101 kitchen tasks; foundational for language-grounded robotics.
+- [[sources/figure-ai-humanoid-robots]] -- Figure AI: $70M seed to $39B valuation in 3 years; three robot generations; OpenAI partnership ended for proprietary Helix VLA; BotQ factory targeting 12K units/year.
+- [[sources/tesla-optimus-humanoid-robot]] -- Tesla Optimus: Gen 3 (22 DOF hands), FSD AI, summer 2026 production start; Rodney Brooks calls it "pure fantasy"; teleoperation-dependent demos criticized.
+- [[sources/nvidia-isaac-groot-n1-foundation-model]] -- NVIDIA GR00T N1: first open humanoid foundation model; dual System 1/2 architecture; 780K synthetic trajectories in 11h (= 9 months human demo); adopted by Boston Dynamics, 1X, Agility.
+- [[sources/nvidia-automate-sim-to-real-assembly]] -- AutoMate: sim-to-real assembly with only 4.2% gap; specialist 86.5% real success; generalist 84.5% (exceeded sim); assembly-by-disassembly trick.
+
+## Concepts (AI Robotics & Embodied Intelligence)
+
+- [[concepts/embodied-intelligence]] -- AI systems that perceive, reason, and physically act in the real world; three waves: classical, LLM-as-planner, end-to-end VLA; "the future of intelligent systems."
+- [[concepts/vision-language-action-models]] -- Neural architectures unifying vision, language, and motor control; evolution from RT-2 (55B, text tokens) through π0 (3B, flow matching) to GR00T (dual system).
+- [[concepts/foundation-models-for-robotics]] -- Pre-train broadly on internet + robot data, fine-tune with 1-20h demonstrations; π0, RT-2, GR00T, OpenVLA; VC investment $7.2B in 2025.
+- [[concepts/humanoid-robots]] -- Human-shaped robots for infrastructure compatibility; UBS: 2M units by 2035, $30-50B TAM; Tesla ($20-30K), Figure ($39B valuation), Boston Dynamics ($140-150K).
+- [[concepts/language-grounding-for-robots]] -- Connecting language to physical capabilities: affordance grounding (SayCan), scene graphs (SayPlan), closed-loop feedback, end-to-end VLAs.
+- [[concepts/sim-to-real-transfer]] -- Training in simulation, deploying in reality; domain randomization, digital twins, massive synthetic data (780K trajectories in 11h); AutoMate at 4.2% gap.
+- [[concepts/dexterous-manipulation]] -- Human-level hand skills for robots; π0 first to fold laundry (1.0 success); hardware frontier: 22 DOF hands, 3-gram tactile sensors.
+- [[concepts/cross-embodiment-transfer]] -- One model controlling diverse robot morphologies; π0 spans 7-8 robot types; Open X-Embodiment pools 800K trajectories.
+- [[concepts/robot-learning-from-demonstration]] -- Teaching via teleoperation, motion capture, human video, synthetic demos; π0 needs 1-20h per task; growing gig economy of remote teleoperators.
+- [[concepts/autonomous-driving]] -- Most mature physical AI domain; end-to-end transition; Waymo (10M+ rides), NVIDIA Alpamayo-R1, DeepRoute 40B VLA.
+
+## Entities (AI Robotics & Embodied Intelligence)
+
+- [[entities/rt-2]] -- Google DeepMind's pioneering VLA (July 2023, 55B params); encodes actions as text tokens; emergent web knowledge transfer; chain-of-thought for robot planning.
+- [[entities/pi0]] -- Physical Intelligence's 3B VLA with flow matching at 50Hz; trained on 8 robots, 68 tasks; first to fold laundry and assemble boxes; open-sourced via Hugging Face.
+- [[entities/physical-intelligence]] -- SF robotics startup; raised $400M+; built π0, the first robot foundation model achieving complex dexterous tasks.
+- [[entities/figure-ai]] -- Humanoid robot company ($39B valuation); three robot generations; pivoted from OpenAI to Helix VLA; BotQ targeting 12K units/year.
+- [[entities/tesla-optimus]] -- Tesla's humanoid robot; Gen 3 (22 DOF hands), 125 lb; shares AI with FSD; production summer 2026; faces sustained skepticism.
+- [[entities/nvidia-groot]] -- NVIDIA's open humanoid foundation model; dual System 1/2 architecture; adopted by Boston Dynamics, 1X, Agility, NEURA, Franka.
+- [[entities/saycan]] -- Google's foundational language-to-affordance grounding (2022); 84% plan success; precursor to RT-2 and VLA paradigm.
+- [[entities/helix-vla]] -- Figure AI's proprietary VLA replacing OpenAI partnership; full-body autonomy (Jan 2026); "high rate robot control" over language understanding.
+- [[entities/boston-dynamics]] -- Pioneer robotics company; Electric Atlas for enterprise ($140-150K); DeepMind Gemini + NVIDIA GR00T partnerships.
+- [[entities/waymo]] -- Alphabet's autonomous driving subsidiary; 10M+ paid robotaxi rides; most commercially advanced AV service.
+
+## Comparisons (AI Robotics & Embodied Intelligence)
+
+- [[comparisons/rt2-vs-pi0-vs-groot]] -- Three robot foundation models: RT-2 (pioneer, emergent reasoning), π0 (dexterous, open-source), GR00T (open platform, synthetic data ecosystem).
+- [[comparisons/tesla-optimus-vs-figure-vs-atlas]] -- Three humanoid programs: Tesla (mass-market, FSD AI), Figure (fastest iteration, Helix VLA), Boston Dynamics (engineering depth, $140-150K).

@@ -922,3 +922,54 @@ Deep research pass on the expanding frontier of LLM applications beyond code gen
 - **Comparison pages created** (2): comparisons/parallel-vs-sequential-test-time-scaling, comparisons/training-time-vs-inference-time-scaling
 - **Total wiki pages touched**: 26 (13 sources + 8 new concepts + 2 updated concepts + 3 entities + 2 comparisons)
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
+
+## [2026-04-05] research | AI for Scientific Discovery — AlphaFold, materials, drugs, math, weather, genomics
+- **Topic**: AI for scientific discovery — AlphaFold, AI-driven materials science, drug discovery, mathematical theorem proving, and AI as a research tool
+- **Searches performed** (12): AI scientific discovery breakthroughs 2025 2026, AlphaFold 3 protein structure prediction, AI drug discovery pharmaceutical, AI materials science GNoME, AI mathematics theorem proving FunSearch, AI weather prediction GenCast, AI genomics biology research, Nobel Prize AI 2024, AI chemistry molecular design retrosynthesis, AI laboratory automation self-driving labs, large language models scientific research, AI protein design RFdiffusion, AlphaEvolve matrix multiplication
+- **Sources fetched and ingested** (12):
+  - raw/alphafold-five-years-impact.md (DeepMind blog)
+  - raw/ai-drug-discovery-phase-iii-2026.md (HumAI Blog)
+  - raw/gnome-materials-discovery-deepmind.md (DeepMind blog)
+  - raw/funsearch-deepmind-mathematical-discovery.md (DeepMind blog)
+  - raw/gencast-weather-prediction.md (DeepMind blog)
+  - raw/alphagenome-genomics-deepmind.md (DeepMind blog)
+  - raw/alphaevolve-algorithm-discovery.md (DeepMind blog)
+  - raw/nobel-prizes-ai-2024.md (Nature Machine Intelligence)
+  - raw/self-driving-labs-revolution.md (Nature)
+  - raw/rfdiffusion3-protein-design.md (UW Institute for Protein Design)
+  - raw/gemini-deep-think-scientific-discovery.md (DeepMind blog)
+  - raw/ucsd-nine-ai-breakthroughs.md (UC San Diego)
+- **Source summaries created** (12): sources/alphafold-five-years-impact, sources/ai-drug-discovery-phase-iii-2026, sources/gnome-materials-discovery, sources/funsearch-mathematical-discovery, sources/gencast-weather-prediction, sources/alphagenome-genomics, sources/alphaevolve-algorithm-discovery, sources/gemini-deep-think-scientific-discovery, sources/nobel-prizes-ai-2024, sources/self-driving-labs-revolution, sources/rfdiffusion3-protein-design, sources/ucsd-nine-ai-breakthroughs
+- **Concept articles created** (12): concepts/ai-for-scientific-discovery (umbrella), concepts/ai-drug-discovery, concepts/ai-materials-science, concepts/ai-mathematical-reasoning, concepts/ai-protein-structure-prediction, concepts/ai-protein-design, concepts/ai-genomics, concepts/ai-weather-climate, concepts/self-driving-labs, concepts/nobel-prizes-ai-2024, concepts/llm-as-search-operator, concepts/generative-chemistry
+- **Entity pages created** (12): entities/gnome, entities/funsearch, entities/alphaevolve, entities/gencast, entities/alphagenome, entities/rfdiffusion, entities/demis-hassabis, entities/david-baker, entities/geoffrey-hinton, entities/insilico-medicine, entities/recursion-pharmaceuticals, entities/isomorphic-labs
+- **Entity pages updated** (1): entities/alphafold (expanded with AF3 details, ecosystem, impact metrics)
+- **Comparison pages created** (2): comparisons/alphafold-vs-rfdiffusion, comparisons/ai-scientific-domains-comparison
+- **Total wiki pages touched**: 39 (12 sources + 12 concepts + 13 entities + 2 comparisons)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+
+## [2026-04-05] research | World Models, Simulation, and AI Systems That Learn Internal Representations of Reality
+
+Deep research pass on the world models paradigm: JEPA, video generation as world simulation, Sora, DreamerV3, Genie, NVIDIA Cosmos, and the frontier of AI understanding physical reality.
+
+- **Web searches performed**: 14 (world models, JEPA, Sora, Genie, Cosmos, V-JEPA, embodied AI, physical AI, latent world models, foundation world models, self-supervised learning, LLM world understanding, DreamerV3, NVIDIA Cosmos)
+- **Sources fetched and ingested**: 14 (Introl world models race, HowAIWorks LeWorldModel, OpenAI Sora report, Meta V-JEPA 2, DeepMind Genie 2, Scientific American, Ha & Schmidhuber 2018, Bandaru JEPA deep dive, Graison reading list, AgentWiki, Mitchell LLMs and world models, NVIDIA Cosmos paper, Wayve GAIA, Frontiers embodied intelligence)
+- **Raw files created**: 14 in raw/
+- **Source summaries created** (8): sources/ha-schmidhuber-world-models, sources/openai-video-world-simulators, sources/deepmind-genie-2, sources/meta-v-jepa-2, sources/jepa-deep-dive, sources/nvidia-cosmos-world-foundation, sources/world-models-race-2026, sources/llms-and-world-models-mitchell
+- **Concept articles created** (9): concepts/world-models, concepts/jepa, concepts/video-generation-as-world-simulation, concepts/latent-world-models, concepts/physical-ai (updated), concepts/embodied-ai, concepts/self-supervised-learning, concepts/model-based-reinforcement-learning, concepts/llm-world-understanding
+- **Entity pages created** (10): entities/yann-lecun, entities/ami-labs, entities/sora, entities/genie, entities/nvidia-cosmos, entities/dreamerv3, entities/world-labs, entities/david-ha, entities/jurgen-schmidhuber, entities/melanie-mitchell
+- **Entity pages updated** (1): entities/fei-fei-li (added World Labs info)
+- **Comparison pages created** (3): comparisons/world-models-vs-llms, comparisons/jepa-vs-generative-vs-contrastive, comparisons/world-model-platforms-comparison
+- **Total wiki pages touched**: 31 (8 sources + 9 concepts + 11 entities + 3 comparisons)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+
+## [2026-04-05] research | Path to AGI, AI economics, compute scaling limits, and the trillion-dollar question of where AI is heading
+- **Searched 12 queries**: Dario Amodei Machines of Loving Grace essay, Leopold Aschenbrenner Situational Awareness, Ilya Sutskever Safe Superintelligence SSI, path to AGI 2025 2026 predictions, AI compute scaling limits wall, AI economics market size investment 2026, AGI timeline predictions researchers, AI chip shortage NVIDIA GPU scaling, data wall AI training limits, post-training paradigm scaling, AI energy consumption data centers, superintelligence alignment challenge, AI economic impact GDP productivity
+- **Fetched 11 sources** (9 successful): darioamodei.com (Machines of Loving Grace), situational-awareness.ai (intro + EA Forum summary), 80000hours.org (expert AGI forecasts), epoch.ai (scaling limits 2030), the-ai-corner.com (Sutskever SSI), iea.org (energy demand), nevo.systems (AGI timeline predictions), en.wikipedia.org (Aschenbrenner bio, SSI), hec.edu (beyond scaling laws)
+- **Raw files created** (7): raw/amodei-machines-of-loving-grace.md, raw/aschenbrenner-situational-awareness.md, raw/sutskever-ssi-safe-superintelligence.md, raw/epoch-ai-scaling-limits-2030.md, raw/agi-timeline-predictions-2026.md, raw/ai-economics-investment-2026.md, raw/ai-scaling-paradigm-shift-2026.md
+- **Source summaries created** (7): sources/amodei-machines-of-loving-grace, sources/aschenbrenner-situational-awareness, sources/sutskever-ssi-safe-superintelligence, sources/epoch-ai-scaling-limits-2030, sources/agi-timeline-predictions-2026, sources/ai-economics-investment-2026, sources/ai-scaling-paradigm-shift-2026
+- **Concept articles created** (7): concepts/path-to-agi, concepts/intelligence-explosion, concepts/compute-scaling, concepts/ai-optimism-and-abundance, concepts/superalignment, concepts/ai-economics, concepts/ai-energy-and-infrastructure, concepts/data-wall
+- **Entity pages created** (4): entities/leopold-aschenbrenner, entities/ilya-sutskever, entities/safe-superintelligence-inc, entities/epoch-ai
+- **Entity pages updated** (1): entities/dario-amodei (added AGI timeline section, new cross-references)
+- **Comparison pages created** (2): comparisons/amodei-vs-aschenbrenner-vs-sutskever, comparisons/scaling-vs-research-path-to-agi
+- **Total wiki pages touched**: 22 (7 sources + 8 concepts + 5 entities + 2 comparisons)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
