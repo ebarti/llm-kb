@@ -864,3 +864,25 @@ Deep research pass on the expanding frontier of LLM applications beyond code gen
 - **Existing articles updated** (1): concepts/post-code-ai-workflow (added link to llm-applications-beyond-code)
 - **Total wiki pages touched**: 27 (10 sources + 9 concepts + 6 entities + 1 comparison + 1 updated)
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
+
+## [2026-04-05] research | Attention mechanisms, memory in neural networks, and how models store and retrieve information
+- **Topic**: Deep research on attention mechanisms (history, variants, efficiency), memory-augmented neural networks (NTMs, DNCs, RETRO), and how transformers store and retrieve factual knowledge (knowledge circuits, MLP-as-memory)
+- **Searches performed** (13): attention mechanism neural networks explained, multi-head attention transformer detail, flash attention 2 3 efficient attention, linear attention alternatives, memory augmented neural networks, neural turing machine differentiable memory, retrieval augmented transformers RETRO, attention sink window attention, grouped query attention GQA MQA, cross attention self attention comparison, how transformers store knowledge MLP layers, KV cache optimization paged attention, mamba state space model alternative
+- **Sources fetched and ingested** (9):
+  - raw/attention-mechanisms-comprehensive-survey.md (arXiv 2601.03329 survey)
+  - raw/flashattention-3-tri-dao-blog.md (Tri Dao's FA-3 blog)
+  - raw/streamingllm-attention-sinks.md (MIT HAN Lab ICLR 2024)
+  - raw/retro-illustrated-retrieval-transformer.md (Jay Alammar illustrated guide)
+  - raw/differentiable-neural-computers-deepmind.md (DeepMind DNC blog)
+  - raw/mamba-visual-guide-grootendorst.md (Grootendorst visual SSM guide)
+  - raw/knowledge-circuits-transformers-research.md (NeurIPS 2024 knowledge circuits)
+  - raw/kv-caching-huggingface-explained.md (Hugging Face KV cache tutorial)
+  - raw/gqa-grouped-query-attention-overview.md (IBM GQA overview)
+- **Source summaries created** (9): sources/attention-mechanisms-comprehensive-survey, sources/flashattention-3-tri-dao-blog, sources/streamingllm-attention-sinks, sources/retro-illustrated-retrieval-transformer, sources/differentiable-neural-computers-deepmind, sources/mamba-visual-guide-grootendorst, sources/knowledge-circuits-transformers-research, sources/kv-caching-huggingface-explained, sources/gqa-grouped-query-attention-overview
+- **Concept articles created** (5): concepts/attention-mechanisms (umbrella), concepts/attention-sinks, concepts/linear-attention, concepts/memory-augmented-neural-networks, concepts/knowledge-storage-in-transformers
+- **Concept articles updated** (8): concepts/self-attention, concepts/cross-attention, concepts/multi-head-attention, concepts/flash-attention, concepts/grouped-query-attention, concepts/kv-cache, concepts/mamba, concepts/sparse-attention (+new source refs and related links)
+- **Entity pages created** (4): entities/flashattention, entities/retro, entities/neural-turing-machine, entities/streamingllm
+- **Entity pages updated** (2): entities/tri-dao, concepts/paged-attention (+new source refs)
+- **Comparison pages created** (3): comparisons/softmax-vs-linear-attention, comparisons/mha-vs-gqa-vs-mqa, comparisons/self-attention-vs-cross-attention
+- **Total wiki pages touched**: 31 (9 sources + 13 concepts + 6 entities + 3 comparisons)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
