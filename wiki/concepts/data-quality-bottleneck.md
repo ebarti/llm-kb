@@ -1,10 +1,11 @@
 ---
 title: "Data Quality Bottleneck"
 type: concept
-sources: ["[[sources/pebblous-cheap-ontology]]", "[[sources/decodingai-second-brain-rag]]"]
-related: ["[[concepts/llm-knowledge-base]]", "[[concepts/hallucination-contamination]]", "[[concepts/wiki-compilation]]"]
+sources: ["[[sources/pebblous-cheap-ontology]]", "[[sources/decodingai-second-brain-rag]]", "[[sources/textbooks-are-all-you-need-phi]]", "[[sources/ai-training-2026-synthetic-human-data]]", "[[sources/scaling-laws-data-quality]]", "[[sources/dclm-datacomp-language-models]]"]
+related: ["[[concepts/llm-knowledge-base]]", "[[concepts/hallucination-contamination]]", "[[concepts/wiki-compilation]]", "[[concepts/synthetic-data-generation]]", "[[concepts/model-collapse]]", "[[concepts/document-processing-pipeline]]", "[[concepts/ocr-document-extraction]]", "[[concepts/pdf-parsing-tools]]"]
 last_compiled: 2026-04-05
 summary: "In LLM knowledge base pipelines, data quality at the raw input stage — not model capability — is the decisive factor: low-quality ingestion cascades into contaminated wiki content and flawed fine-tuning."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -34,9 +35,19 @@ Unlike traditional databases where bad data is contained, in LLM-maintained wiki
 ## Sources
 - [[sources/pebblous-cheap-ontology]] — identifies data quality as the decisive bottleneck; cites phi-1, Gretel, Amazon Science studies
 - [[sources/decodingai-second-brain-rag]] — implements quality scoring via LLMs during ETL as practical mitigation
+- [[sources/scaling-laws-data-quality]] — formalizes quality as L(N,D,Q) = A/N^α + B/(D^β·Q^γ) + E; proves quality modulates effective dataset size
+- [[sources/dclm-datacomp-language-models]] — empirically demonstrates 7B model matching larger ones through data quality alone
 
 ## Related Concepts
 - [[concepts/hallucination-contamination]] — the downstream consequence
 - [[concepts/wiki-compilation]] — where quality determines output
 - [[concepts/llm-knowledge-base]] — the system affected
 - [[concepts/linting-and-health-checks]] — detection mechanism
+- [[concepts/synthetic-data-generation]] — quality filtering is critical for synthetic data pipelines
+- [[concepts/model-collapse]] — consequence of low-quality synthetic data at scale
+- [[entities/microsoft-phi]] — canonical proof that data quality > model scale
+
+## Related Entities
+
+- [[entities/llama]] — fine-tuned in Decoding AI pipeline where quality scoring is applied
+- [[entities/zenml]] — orchestration framework managing the quality-scored ETL pipeline

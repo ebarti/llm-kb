@@ -5,6 +5,7 @@ source: "[[raw/gallagher-second-brain-knowledge-graphs]]"
 related: ["[[concepts/second-brain]]", "[[concepts/knowledge-graph]]", "[[concepts/llm-knowledge-base]]", "[[concepts/personal-knowledge-management]]"]
 last_compiled: 2026-04-05
 summary: "Practitioner account of building the Knowledge Graph Kit (MCP server): SQLite + ChromaDB graph with four node types, contrasting structure-first (graph) vs. text-first (markdown) approaches to personal knowledge management."
+reading_time: "2 min"
 ---
 
 ## Key Points

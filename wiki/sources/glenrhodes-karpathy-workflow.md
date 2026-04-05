@@ -5,6 +5,7 @@ source: "[[raw/glenrhodes-karpathy-workflow]]"
 related: ["[[concepts/llm-knowledge-base]]", "[[concepts/wiki-compilation]]", "[[concepts/llm-qa-over-documents]]", "[[concepts/hallucination-contamination]]"]
 last_compiled: 2026-04-05
 summary: "Technical walkthrough of Karpathy's workflow emphasizing the 'filing loop' where query results compound the knowledge base, and the product gap for non-technical users."
+reading_time: "2 min"
 ---
 
 ## Key Points

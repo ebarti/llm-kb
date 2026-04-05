@@ -5,6 +5,7 @@ source: "[[raw/hn-vector-database-debate]]"
 related: ["[[concepts/rag-vs-index-based-retrieval]]", "[[concepts/vector-databases]]"]
 last_compiled: 2026-04-05
 summary: "Hacker News practitioner debate: pgvector and Elasticsearch handle most cases; specialized vector DBs only justified at billion-vector scale; FAISS/Vespa.ai as middle ground; real question is 'do you need ANN search?'"
+reading_time: "2 min"
 ---
 
 ## Key Points

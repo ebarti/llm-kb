@@ -1,0 +1,32 @@
+{
+  "topics": [
+    {
+      "name": "LLM Knowledge Bases",
+      "queries": ["LLM knowledge base wiki", "AI personal wiki", "LLM wiki compilation"],
+      "frequency": "daily"
+    },
+    {
+      "name": "RAG Systems",
+      "queries": ["RAG retrieval augmented generation new", "advanced RAG techniques"],
+      "frequency": "weekly"
+    },
+    {
+      "name": "Knowledge Graphs + AI",
+      "queries": ["knowledge graph LLM", "GraphRAG"],
+      "frequency": "weekly"
+    },
+    {
+      "name": "Personal Knowledge Management",
+      "queries": ["PKM AI tools", "Obsidian AI integration"],
+      "frequency": "weekly"
+    },
+    {
+      "name": "LLM Agents",
+      "queries": ["LLM agent framework new", "agentic AI tools"],
+      "frequency": "weekly"
+    }
+  ],
+  "max_results_per_query": 5,
+  "exclude_domains": ["pinterest.com", "facebook.com", "instagram.com"],
+  "prefer_domains": ["arxiv.org", "github.com", "huggingface.co", "lilianweng.github.io"]
+}

@@ -5,6 +5,7 @@ source: "[[raw/pebblous-cheap-ontology]]"
 related: ["[[concepts/llm-knowledge-base]]", "[[concepts/cheap-ontology]]", "[[concepts/rag-vs-index-based-retrieval]]", "[[concepts/hallucination-contamination]]", "[[concepts/data-quality-bottleneck]]"]
 last_compiled: 2026-04-05
 summary: "Deep analysis placing Karpathy's markdown wiki within 50 years of ontology history, quantifying the RAG vs. fine-tuning vs. LLM-KB tradeoffs, and identifying data quality as the decisive bottleneck."
+reading_time: "2 min"
 ---
 
 ## Key Points

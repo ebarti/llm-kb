@@ -1,0 +1,594 @@
+/* ==========================================================================
+   LLM Knowledge Base — Custom Marp Theme
+   ==========================================================================
+
+   Usage in slide frontmatter:
+     ---
+     marp: true
+     theme: kb-theme
+     ---
+
+   Color Palette:
+     Deep Blue (bg):    #1a1b26
+     Surface:           #24283b
+     Surface Bright:    #414868
+     Accent Green:      #9ece6a
+     Accent Blue:       #7aa2f7
+     Accent Cyan:       #7dcfff
+     Accent Orange:     #ff9e64
+     Accent Magenta:    #bb9af7
+     Text Primary:      #c0caf5
+     Text Secondary:    #565f89
+     Text Muted:        #3b4261
+     Border:            #292e42
+
+   ========================================================================== */
+
+/* --- @theme kb-theme --- */
+
+@import 'default';
+
+/* ==========================================================================
+   Root / Variables
+   ========================================================================== */
+
+:root {
+  --kb-deep-blue:      #1a1b26;
+  --kb-surface:        #24283b;
+  --kb-surface-bright: #414868;
+  --kb-green:          #9ece6a;
+  --kb-blue:           #7aa2f7;
+  --kb-cyan:           #7dcfff;
+  --kb-orange:         #ff9e64;
+  --kb-magenta:        #bb9af7;
+  --kb-text:           #c0caf5;
+  --kb-text-secondary: #565f89;
+  --kb-text-muted:     #3b4261;
+  --kb-border:         #292e42;
+  --kb-white:          #ffffff;
+  --kb-red:            #f7768e;
+
+  /* Light variant overrides */
+  --kb-light-bg:       #f0f0f5;
+  --kb-light-surface:  #ffffff;
+  --kb-light-text:     #1a1b26;
+  --kb-light-secondary:#565f89;
+  --kb-light-border:   #d0d0dd;
+}
+
+/* ==========================================================================
+   Section (Slide) — Dark Variant (default)
+   ========================================================================== */
+
+section {
+  background-color: var(--kb-deep-blue);
+  color: var(--kb-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 28px;
+  line-height: 1.6;
+  padding: 60px 70px 80px 70px;
+  justify-content: flex-start;
+}
+
+/* ==========================================================================
+   Light Variant
+   ========================================================================== */
+
+section.light {
+  background-color: var(--kb-light-bg);
+  color: var(--kb-light-text);
+}
+
+section.light h1,
+section.light h2,
+section.light h3 {
+  color: var(--kb-deep-blue);
+}
+
+section.light h1 {
+  border-bottom-color: var(--kb-light-border);
+}
+
+section.light a {
+  color: #2563eb;
+}
+
+section.light code {
+  background-color: #e8e8f0;
+  color: var(--kb-deep-blue);
+}
+
+section.light pre {
+  background-color: #e8e8f0;
+  border-color: var(--kb-light-border);
+}
+
+section.light blockquote {
+  background-color: var(--kb-light-surface);
+  border-left-color: var(--kb-green);
+  color: var(--kb-light-secondary);
+}
+
+section.light table th {
+  background-color: var(--kb-deep-blue);
+  color: var(--kb-text);
+}
+
+section.light table td {
+  border-color: var(--kb-light-border);
+  color: var(--kb-light-text);
+}
+
+section.light header,
+section.light footer {
+  color: var(--kb-light-secondary);
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+h1 {
+  color: var(--kb-green);
+  font-size: 2.0em;
+  font-weight: 700;
+  margin-bottom: 0.3em;
+  border-bottom: 2px solid var(--kb-border);
+  padding-bottom: 0.2em;
+  line-height: 1.2;
+}
+
+h2 {
+  color: var(--kb-blue);
+  font-size: 1.5em;
+  font-weight: 600;
+  margin-top: 0.6em;
+  margin-bottom: 0.3em;
+  line-height: 1.3;
+}
+
+h3 {
+  color: var(--kb-cyan);
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-top: 0.4em;
+  margin-bottom: 0.2em;
+}
+
+p {
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+}
+
+strong {
+  color: var(--kb-green);
+  font-weight: 700;
+}
+
+em {
+  color: var(--kb-magenta);
+  font-style: italic;
+}
+
+a {
+  color: var(--kb-cyan);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--kb-cyan);
+}
+
+a:hover {
+  color: var(--kb-green);
+}
+
+/* ==========================================================================
+   Lists
+   ========================================================================== */
+
+ul, ol {
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  padding-left: 1.5em;
+}
+
+li {
+  margin-bottom: 0.25em;
+  line-height: 1.5;
+}
+
+li::marker {
+  color: var(--kb-green);
+}
+
+/* ==========================================================================
+   Code & Syntax Highlighting
+   ========================================================================== */
+
+code {
+  background-color: var(--kb-surface);
+  color: var(--kb-orange);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.85em;
+}
+
+pre {
+  background-color: var(--kb-surface);
+  border: 1px solid var(--kb-border);
+  border-radius: 8px;
+  padding: 1em 1.2em;
+  margin: 0.6em 0;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  color: var(--kb-text);
+  padding: 0;
+  font-size: 0.75em;
+}
+
+/* Syntax token colors (works with Marp's built-in Prism) */
+pre .keyword   { color: var(--kb-magenta); }
+pre .string    { color: var(--kb-green);   }
+pre .comment   { color: var(--kb-text-secondary); font-style: italic; }
+pre .function  { color: var(--kb-blue);    }
+pre .number    { color: var(--kb-orange);  }
+pre .operator  { color: var(--kb-cyan);    }
+pre .class-name { color: var(--kb-cyan);   }
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 0.8em 0;
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.85em;
+}
+
+th {
+  background-color: var(--kb-surface);
+  color: var(--kb-green);
+  font-weight: 600;
+  padding: 0.6em 1em;
+  text-align: left;
+  border-bottom: 2px solid var(--kb-green);
+}
+
+td {
+  padding: 0.5em 1em;
+  border-bottom: 1px solid var(--kb-border);
+  color: var(--kb-text);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:nth-child(even) td {
+  background-color: rgba(36, 40, 59, 0.5);
+}
+
+/* ==========================================================================
+   Blockquotes
+   ========================================================================== */
+
+blockquote {
+  background-color: var(--kb-surface);
+  border-left: 4px solid var(--kb-magenta);
+  border-radius: 0 8px 8px 0;
+  padding: 0.8em 1.2em;
+  margin: 0.6em 0;
+  font-style: italic;
+  color: var(--kb-text-secondary);
+}
+
+blockquote p {
+  margin: 0.2em 0;
+}
+
+blockquote strong {
+  color: var(--kb-magenta);
+}
+
+/* ==========================================================================
+   Header & Footer (Branding)
+   ========================================================================== */
+
+header {
+  color: var(--kb-text-secondary);
+  font-size: 0.55em;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  top: 20px;
+  left: 70px;
+  right: auto;
+  width: auto;
+}
+
+footer {
+  color: var(--kb-text-muted);
+  font-size: 0.5em;
+  bottom: 20px;
+  left: 70px;
+  right: auto;
+  width: auto;
+}
+
+/* Page number styling */
+section::after {
+  color: var(--kb-text-muted);
+  font-size: 0.55em;
+  bottom: 20px;
+  right: 70px;
+}
+
+/* ==========================================================================
+   Title Slide Layout
+   ========================================================================== */
+
+section.title {
+  justify-content: center;
+  text-align: center;
+  padding: 80px;
+}
+
+section.title h1 {
+  font-size: 2.6em;
+  border-bottom: none;
+  margin-bottom: 0.2em;
+  background: linear-gradient(135deg, var(--kb-green), var(--kb-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+section.title h2 {
+  color: var(--kb-text-secondary);
+  font-size: 1.3em;
+  font-weight: 400;
+  margin-top: 0;
+}
+
+section.title p {
+  color: var(--kb-text-muted);
+  font-size: 0.85em;
+  margin-top: 1.5em;
+}
+
+/* ==========================================================================
+   Section Divider Layout
+   ========================================================================== */
+
+section.divider {
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(135deg, var(--kb-deep-blue) 0%, var(--kb-surface) 100%);
+}
+
+section.divider h1 {
+  font-size: 2.4em;
+  border-bottom: none;
+  margin-bottom: 0.1em;
+}
+
+section.divider h2 {
+  color: var(--kb-text-secondary);
+  font-weight: 400;
+  font-size: 1.1em;
+}
+
+section.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(158, 206, 106, 0.06) 0%, transparent 70%);
+  z-index: 0;
+}
+
+/* ==========================================================================
+   Two-Column Layouts
+   ========================================================================== */
+
+/* Usage: <div class="columns"> <div> Left </div> <div> Right </div> </div> */
+
+section .columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2em;
+  margin-top: 0.5em;
+}
+
+/* Uneven split: 2/3 + 1/3 */
+section .columns-wide-left {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2em;
+  margin-top: 0.5em;
+}
+
+/* Uneven split: 1/3 + 2/3 */
+section .columns-wide-right {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2em;
+  margin-top: 0.5em;
+}
+
+/* Three columns */
+section .columns-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5em;
+  margin-top: 0.5em;
+}
+
+/* ==========================================================================
+   Image Styling
+   ========================================================================== */
+
+img {
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  max-width: 100%;
+  height: auto;
+}
+
+/* Centered image with caption */
+section .img-caption {
+  text-align: center;
+  margin: 0.8em 0;
+}
+
+section .img-caption img {
+  max-width: 80%;
+}
+
+section .img-caption p {
+  color: var(--kb-text-secondary);
+  font-size: 0.7em;
+  font-style: italic;
+  margin-top: 0.4em;
+}
+
+/* No shadow variant */
+section .img-flat img {
+  box-shadow: none;
+  border: 1px solid var(--kb-border);
+}
+
+/* ==========================================================================
+   Special Components
+   ========================================================================== */
+
+/* Key metric / stat callout */
+section .stat {
+  text-align: center;
+  padding: 0.5em;
+}
+
+section .stat .number {
+  font-size: 3em;
+  font-weight: 700;
+  color: var(--kb-green);
+  line-height: 1.1;
+}
+
+section .stat .label {
+  font-size: 0.8em;
+  color: var(--kb-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Badge / tag */
+section .badge {
+  display: inline-block;
+  background-color: var(--kb-surface);
+  color: var(--kb-green);
+  padding: 0.15em 0.6em;
+  border-radius: 12px;
+  font-size: 0.7em;
+  font-weight: 600;
+  border: 1px solid var(--kb-green);
+  margin: 0.1em;
+}
+
+section .badge.blue {
+  color: var(--kb-blue);
+  border-color: var(--kb-blue);
+}
+
+section .badge.orange {
+  color: var(--kb-orange);
+  border-color: var(--kb-orange);
+}
+
+section .badge.magenta {
+  color: var(--kb-magenta);
+  border-color: var(--kb-magenta);
+}
+
+section .badge.red {
+  color: var(--kb-red);
+  border-color: var(--kb-red);
+}
+
+/* Alert / callout box */
+section .callout {
+  background-color: var(--kb-surface);
+  border: 1px solid var(--kb-green);
+  border-radius: 8px;
+  padding: 0.8em 1em;
+  margin: 0.5em 0;
+}
+
+section .callout.warning {
+  border-color: var(--kb-orange);
+}
+
+section .callout.danger {
+  border-color: var(--kb-red);
+}
+
+section .callout.info {
+  border-color: var(--kb-blue);
+}
+
+/* ==========================================================================
+   End Slide
+   ========================================================================== */
+
+section.end {
+  justify-content: center;
+  text-align: center;
+}
+
+section.end h1 {
+  border-bottom: none;
+  font-size: 2.2em;
+}
+
+section.end p {
+  color: var(--kb-text-secondary);
+  font-size: 0.9em;
+}
+
+/* ==========================================================================
+   Horizontal Rule (slide internal)
+   ========================================================================== */
+
+hr {
+  border: none;
+  border-top: 1px solid var(--kb-border);
+  margin: 1em 0;
+}
+
+/* ==========================================================================
+   Scrollbar (for code blocks)
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--kb-deep-blue);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--kb-surface-bright);
+  border-radius: 3px;
+}

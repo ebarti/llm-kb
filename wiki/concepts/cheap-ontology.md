@@ -5,6 +5,7 @@ sources: ["[[sources/pebblous-cheap-ontology]]"]
 related: ["[[concepts/llm-knowledge-base]]", "[[concepts/knowledge-graph]]", "[[concepts/markdown-as-universal-interface]]"]
 last_compiled: 2026-04-05
 summary: "Pebblous framing: LLM wikis replace $10M–$20M enterprise knowledge graphs using only markdown files, LLM APIs, and natural-language schema instructions — democratizing what was once exclusive ontology engineering expertise."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -47,3 +48,13 @@ Cheap Ontology trades rigor for accessibility:
 - [[concepts/knowledge-graph]] — the expensive alternative
 - [[concepts/markdown-as-universal-interface]] — the substrate
 - [[concepts/rag-vs-index-based-retrieval]] — retrieval implications
+
+## Related Entities
+
+- [[entities/vannevar-bush]] — historical starting point (Memex, 1945)
+- [[entities/memex]] — the original vision of personal associative knowledge
+- [[entities/andrej-karpathy]] — modern implementer of cheap ontology
+
+## Related Comparisons
+
+- [[comparisons/knowledge-graph-vs-wiki]] — formal (expensive) vs. markdown (cheap) ontology

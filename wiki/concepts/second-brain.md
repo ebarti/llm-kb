@@ -1,10 +1,11 @@
 ---
 title: "Second Brain"
 type: concept
-sources: ["[[sources/gallagher-second-brain-knowledge-graphs]]", "[[sources/decodingai-second-brain-rag]]"]
-related: ["[[concepts/llm-knowledge-base]]", "[[concepts/personal-knowledge-management]]", "[[concepts/knowledge-graph]]"]
+sources: ["[[sources/gallagher-second-brain-knowledge-graphs]]", "[[sources/decodingai-second-brain-rag]]", "[[sources/forte-building-second-brain]]"]
+related: ["[[concepts/llm-knowledge-base]]", "[[concepts/personal-knowledge-management]]", "[[concepts/knowledge-graph]]", "[[concepts/para-method]]", "[[concepts/progressive-summarization]]", "[[concepts/agentic-knowledge-management]]", "[[entities/tiago-forte]]"]
 last_compiled: 2026-04-05
 summary: "A personal AI system that stores, organizes, and retrieves the user's own knowledge — implemented either as a markdown wiki (Karpathy), a graph database (Gallagher), or a RAG pipeline (Decoding AI), all using LLMs as the intelligence layer."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -53,3 +54,10 @@ What distinguishes the LLM-KB from static note-taking: query outputs get filed b
 - [[concepts/personal-knowledge-management]] — the broader domain
 - [[concepts/knowledge-graph]] — graph-based representations
 - [[concepts/rag-vs-index-based-retrieval]] — retrieval comparison
+
+## Related Entities
+
+- [[entities/andrej-karpathy]] — markdown wiki approach
+- [[entities/sam-gallagher]] — graph database approach
+- [[entities/google-notebooklm]] — closest commercial product
+- [[entities/llama]] — fine-tuned in Decoding AI pipeline

@@ -1,7 +1,8 @@
 ---
 title: "Knowledge Base Index"
 type: index
-last_updated: 2026-04-05
+last_updated: 2026-04-06
+reading_time: "5 min"
 ---
 
 # Knowledge Base Index
@@ -20,24 +21,385 @@ last_updated: 2026-04-05
 - [[sources/hn-vector-database-debate]] — HN debate: pgvector/FAISS suffice for most cases; vector DBs only justified at billion-vector scale
 - [[sources/graphiti-temporal-knowledge-graphs]] — Graphiti (Zep): temporal context graph framework with time-windowed facts for AI agents
 
+### PKM Methodologies, Tools & AI Transformation (Research: 2026-04-05)
+- [[sources/forte-building-second-brain]] — Tiago Forte BASB: CODE workflow, PARA organization, Progressive Summarization
+- [[sources/matuschak-evergreen-notes]] — Andy Matuschak: five principles for durable, evolving knowledge work
+- [[sources/zettelkasten-de-introduction]] — Canonical Zettelkasten guide: three traits, connection mechanism, structure notes
+- [[sources/luhmann-original-zettelkasten]] — Luhmann's actual system: two slip boxes, Folgezettel, communication partner
+- [[sources/appleton-digital-garden-history]] — Digital garden history: Bernstein 1998 through Caufield 2015 to the 2020 movement
+- [[sources/memex-vannevar-bush]] — Bush's 1945 memex: associative trails, influence on Engelbart, Nelson, Berners-Lee
+- [[sources/sebastien-agentic-knowledge-management]] — Agentic KM: AI agents proactively monitoring and acting on knowledge bases
+- [[sources/pkm-tools-comparison-2026]] — Obsidian vs Logseq vs Notion 2026: architecture, benchmarks, AI features
+- [[sources/llms-for-knowledge-work-arxiv]] — LLM adoption by knowledge workers: 24.5% to 34.6%, trust barriers
+- [[sources/spaced-repetition-knowledge-management]] — Spaced repetition: forgetting curve, Anki FSRS, PKM integration
+
+### Obsidian as Knowledge Platform (Research: 2026-04-05)
+- [[sources/dsebastien-obsidian-plugins-2026]] — Comprehensive 75+ plugin guide: Dataview, Templater, QuickAdd as foundational trio
+- [[sources/stephango-file-over-app]] — Steph Ango's "file over app" manifesto: files outlast apps, plain text for digital longevity
+- [[sources/stephango-vault-organization]] — Ango's personal vault: flat folders, profuse links, fractal journaling, 7-point ratings
+- [[sources/stephango-dialectic-interview]] — Obsidian CEO interview: five company principles, design as care, constraints as creativity
+- [[sources/nxcode-obsidian-ai-second-brain-2026]] — AI-powered Obsidian second brain: Smart Connections, Copilot, Claude Code + MCP
+- [[sources/systemsculpt-obsidian-ai-plugins-2026]] — AI plugin selection framework: retrieval, organization, governance, agent autonomy
+- [[sources/obsidian-copilot-overview]] — Copilot for Obsidian: 100K+ users, model-agnostic, vault RAG, all data as markdown
+- [[sources/pkm-comparison-obsidian-notion-logseq]] — Three-way 2026 comparison: Obsidian (local/free), Notion (cloud/teams), Logseq (open-source)
+
+- [[sources/sivers-plain-text-files]] — Derek Sivers: 35 years of writing in plain text, longevity argument
+- [[sources/ango-file-over-app]] — Steph Ango (Obsidian CEO): "file over app" philosophy for digital longevity
+- [[sources/mdx-markdown-components]] — MDX: markdown + JSX components for interactive content
+- [[sources/microsoft-markitdown]] — Microsoft MarkItDown: convert any document to markdown for LLM pipelines
+- [[sources/markdown-agent-task-format]] — Markdown + YAML frontmatter as AI agent task format
+- [[sources/llms-love-markdown]] — Quantitative evidence: 25-75% token savings, 89% RAG accuracy with markdown
+- [[sources/pandoc-universal-converter]] — Pandoc: universal document converter with markdown as hub format
+- [[sources/marp-markdown-presentations]] — Marp: markdown presentation ecosystem
+- [[sources/markdowndb-queryable-markdown]] — MarkdownDB: indexing markdown files into SQLite for querying
+- [[sources/mit-digital-preservation-formats]] — MIT Libraries: plain text as recommended preservation format
+- [[sources/synthetic-data-generation-llms]] — Five-step pipeline for LLM-driven synthetic data generation with quality filtering
+- [[sources/raft-retrieval-augmented-fine-tuning]] — RAFT: hybrid RAG + fine-tuning achieving up to 76% improvement on domain benchmarks
+- [[sources/lora-qlora-efficient-fine-tuning]] — LoRA (90-95% quality) and QLoRA (80-90% quality) parameter-efficient fine-tuning comparison
+- [[sources/textbooks-are-all-you-need-phi]] — Microsoft Phi: "textbook quality" synthetic data enables small models to rival 10x larger
+- [[sources/domain-adaptive-pretraining-dapt]] — DAPT: intermediate domain-specific pretraining on unlabeled text
+- [[sources/rome-memit-knowledge-editing]] — ROME/MEMIT: surgical fact editing in transformer weights via causal tracing
+- [[sources/ai-training-2026-synthetic-human-data]] — 2026 perspective: human-synthetic data flywheels and model collapse prevention
+- [[sources/llm-knowledge-distillation-survey]] — LLM distillation: teacher-student paradigm, white/black-box methods
+- [[sources/willison-llm-schemas-structured-extraction]] — Simon Willison: LLM schemas for structured extraction, FSM-guaranteed JSON output
+- [[sources/gpt-ner-named-entity-recognition]] — GPT-NER: transforming NER from sequence labeling to generation, self-verification
+- [[sources/instructor-library-structured-extraction]] — Instructor: most popular Python library for Pydantic-based structured LLM extraction
+- [[sources/claimify-claim-extraction]] — Claimify (Microsoft, ACL 2025): 4-stage atomic claim extraction with 99% entailment
+- [[sources/ontogpt-ontology-extraction]] — OntoGPT: SPIRES zero-shot ontology-grounded information extraction
+- [[sources/wolfe-llm-summarization-evolution]] — Cameron Wolfe: summarization evolution, extractive vs abstractive, RLHF origins
+- [[sources/promptingguide-chain-of-thought]] — DAIR.AI: CoT prompting — intermediate reasoning steps, Zero-Shot CoT, Auto-CoT
+- [[sources/promptingguide-tree-of-thoughts]] — DAIR.AI: ToT prompting — tree-structured exploration with BFS/DFS search
+- [[sources/promptingguide-self-consistency]] — DAIR.AI: self-consistency — multiple CoT paths + majority voting
+- [[sources/promptingguide-few-shot]] — DAIR.AI: few-shot prompting — in-context learning via demonstration examples
+- [[sources/promptingguide-prompt-chaining]] — DAIR.AI: prompt chaining — sequential LLM calls for complex tasks
+- [[sources/promptingguide-rag-prompting]] — DAIR.AI: RAG prompting — query rewriting, context integration, generation
+- [[sources/anthropic-claude-prompting-best-practices]] — Anthropic official guide: XML tags, adaptive thinking, agentic patterns
+- [[sources/lakera-prompt-engineering-guide]] — Lakera 2026 guide: 9 techniques, model-specific tips, security
+- [[sources/lakera-prompt-injection-guide]] — Lakera: prompt injection types, real-world incidents, multi-layered defense
+- [[sources/prompthub-role-prompting-research]] — PromptHub: role prompting research — helps style, unreliable for accuracy
+- [[sources/intuitionlabs-meta-prompting]] — IntuitionLabs: meta-prompting, DSPy, TextGrad, Self-Refine
+
+
+### Scaling Knowledge Systems (Research: 2026-04-05)
+- [[sources/ek-km-trends-2026]] — Enterprise Knowledge: 8 KM trends for 2026 -- semantic layers, built vs. boxed AI, tacit knowledge capture
+- [[sources/glean-enterprise-search-guide]] — Glean: AI enterprise search guide -- Enterprise Graph, 100+ integrations, agentic workflows
+- [[sources/helpjuice-km-challenges]] — Helpjuice: 8+ enterprise KM challenges -- silos, buy-in, scaling, ROI measurement
+- [[sources/eesel-confluence-notion-sharepoint]] — eesel AI: Confluence vs Notion vs SharePoint 2026 -- AI features, pricing, best fits
+- [[sources/ksa-knowledge-system-scalability]] — Knowledge Systems Authority: 4-phase scaling architecture, 3V complexity model, governance thresholds
+- [[sources/ek-taxonomy-ia-semantic-layer]] — Enterprise Knowledge: taxonomy and IA as semantic layer building blocks
+- [[sources/branzan-production-knowledge-graphs-2025]] — Claudiu Branzan: 5 production KG tools, decision matrix, real-world benchmarks (300-320% ROI)
+- [[sources/keerok-enterprise-rag-2026]] — Keerok: enterprise RAG deployment guide -- $1.2B to $11B market, 4 architectures, 3-phase roadmap
+- [[sources/cio-knowledge-graphs-enterprise-ai]] — CIO: knowledge graphs as enterprise AI missing link -- LinkedIn 78% accuracy gain, Novartis drug discovery
+- [[sources/glean-knowledge-silos-unified-search]] — Glean: knowledge silos cost ~3.7h/day per employee, unified search as solution
+- [[sources/earley-ontology-ia-role-in-ai]] — Earley: ontology as "master data management for AI" -- knowledge model hierarchy, Cleveland Museum case study
+### AI Safety, Alignment & Trust (Research: 2026-04-05)
+- [[sources/fli-ai-safety-index-2025]] — FLI Safety Index: evaluates 7 AI companies across 33 indicators; Anthropic leads at C+
+- [[sources/llm-hallucination-comprehensive-survey]] — Alansari & Luqman 2025: exhaustive hallucination taxonomy, detection, and mitigation survey
+- [[sources/lakera-llm-hallucinations-2026]] — Lakera 2026 guide: incentive-driven guessing, CLAP detection, calibrated uncertainty shift
+- [[sources/international-ai-safety-report-2026]] — 100+ expert global report led by Yoshua Bengio; capabilities outpacing safety measures
+- [[sources/red-teaming-llm-safety-guide]] — Confident AI: LLM red teaming methodology, PAIR algorithm, DeepTeam framework
+- [[sources/anthropic-safety-research-directions-2025]] — Anthropic alignment team: 10 priority research areas for AI safety
+- [[sources/hitl-ai-agent-oversight]] — Galileo AI + Holistic AI: HITL patterns and evolution to AI-governing-AI
+- [[sources/ai-governance-frameworks-comparison]] — EC-Council: EU AI Act vs NIST AI RMF vs ISO/IEC 42001 comparison
+- [[sources/ai-safety-alignment-progress-2025]] — AI 2 Work: extended reasoning, visible thought processes, safety as competitive advantage
+
+### Data Pipelines & Document Processing (Research: 2026-04-05)
+- [[sources/alan-llm-document-pipeline-production]] — Alan (healthcare): production LLM document pipeline with OCR+VLM hybrid, Pydantic validation, 70% automation
+- [[sources/rag-chunking-strategies-dasroot]] — Benchmark of five chunking strategies with metrics: fixed-size (92% recall), semantic (95% coherence), hybrid (94%)
+- [[sources/stackoverflow-chunking-rag]] — Stack Overflow Blog: five-level chunking taxonomy from fixed to adaptive ML-based
+- [[sources/huggingface-vlms-2025]] — Hugging Face VLM landscape: ColPali multimodal retrieval, document understanding models, 2025 trends
+- [[sources/unstructured-io-document-etl]] — Unstructured.io: open-source document ETL, partition() for 30+ formats, typed semantic elements
+- [[sources/firecrawl-web-data-api]] — Firecrawl: AI-focused web scraping API, markdown output, six modes, MCP Server integration
+- [[sources/llamaindex-ingestion-pipeline]] — LlamaIndex ingestion pipeline: composable loaders, node parsers, cache-optimized deduplication
+- [[sources/airflow-mlops-orchestration]] — Apache Airflow MLOps: three orchestration patterns, event-driven scheduling (3.0), 35% enterprise adoption
+- [[sources/pdf-parser-comparison-2026]] — PDF parser comparison: PyMuPDF4LLM (fastest), Docling (best enterprise), Nougat (best scientific), IDP $10.57B market
+
+### Embeddings, Vector Search & Retrieval Infrastructure (Research: 2026-04-05)
+- [[sources/pinecone-embedding-models-rundown]] — Pinecone: practical guide comparing OpenAI, Cohere, and E5 embedding models
+- [[sources/huggingface-matryoshka-embeddings]] — Hugging Face: Matryoshka embeddings tutorial, 98.37% performance at 8.3% dimensions
+- [[sources/weaviate-hybrid-search-explained]] — Weaviate: hybrid search via BM25 + vector + RRF, alpha parameter
+- [[sources/pinecone-hnsw-explained]] — Pinecone: HNSW algorithm deep dive, parameters, Sift1M benchmarks
+- [[sources/jina-colbert-late-interaction]] — Jina AI: ColBERT late interaction, MaxSim scoring, 180-23,000x faster than BERT
+- [[sources/pinecone-rerankers-two-stage]] — Pinecone: cross-encoder reranking, two-stage retrieval architecture
+- [[sources/xenoss-vector-db-comparison]] — Xenoss: Pinecone vs Qdrant vs Weaviate feature/performance/pricing comparison
+- [[sources/redis-semantic-vs-keyword-search]] — Redis: semantic vs keyword search failure modes and hybrid architecture
+- [[sources/superlinked-hybrid-search-reranking]] — VectorHub: full RAG pipeline with hybrid search + reranking
+- [[sources/modal-mteb-leaderboard]] — Modal: MTEB benchmark analysis, top open-weight models, domain specialization
+- [[sources/weaviate-chunking-strategies]] — Weaviate: chunking strategies from fixed-size to semantic to agentic
+
+### Multimodal AI & Vision (Research: 2026-04-05)
+- [[sources/bentoml-vision-language-models-2026]] — BentoML: comprehensive survey of open-source VLMs in 2026 (GLM-4.6V, Qwen3-VL, Gemma 3, DeepSeek-OCR, Molmo, Pixtral)
+- [[sources/nvidia-multimodal-rag-intro]] — NVIDIA: three multimodal RAG architectures (unified embeddings, text grounding, separate stores)
+- [[sources/viso-visual-question-answering-2025]] — Viso.ai: VQA overview — architecture, datasets, applications, state-of-the-art models
+- [[sources/ocr-technology-evolution-2026]] — Pixno: OCR evolution from 85% pattern matching to 99%+ VLM-powered document intelligence
+- [[sources/claude-vision-capabilities]] — Anthropic: Claude vision API — formats, tokens, costs, limitations, best practices
+- [[sources/pinecone-clip-multimodal-embeddings]] — Pinecone: CLIP architecture, contrastive learning, zero-shot capabilities
+- [[sources/multimodal-rag-images-text-guide]] — Ryan Siegler: practical multimodal RAG implementation with two embedding strategies
+- [[sources/image-captioning-survey-transformers-mllms]] — ScienceDirect survey: image captioning evolution from CNN+LSTM to multimodal LLMs
+
+### Knowledge Graphs & Graph Databases (Research: 2026-04-05)
+- [[sources/graphrag-microsoft-research]] — Microsoft Research: GraphRAG documentation, Leiden community detection, query modes
+- [[sources/llm-kg-construction-survey]] — arXiv survey: LLM-empowered KG construction across ontology, extraction, and fusion
+- [[sources/kggen-knowledge-graph-extraction]] — KGGen: 3-stage LLM pipeline for KG extraction, 66% MINE benchmark
+- [[sources/kg-llm-link-prediction]] — KG-LLM: LLM fine-tuning for multi-hop link prediction outperforming KGE methods
+- [[sources/temporal-knowledge-graphs-survey]] — arXiv survey: 10 categories of temporal KG representation learning methods
+- [[sources/knowledge-graph-embeddings-overview]] — KGE models: TransE, ComplEx, RotatE, training methodology, benchmarks
+- [[sources/kg-vs-vector-db-glean]] — Glean: knowledge graphs vs vector databases, hybrid architecture recommendation
+- [[sources/rag-vs-kg-enterprise-phyvant]] — Phyvant: RAG vs KG enterprise failure modes, hybrid architecture
+- [[sources/rdf-vs-property-graph-comparison]] — RDF vs property graph: data models, reasoning, LLM integration
+- [[sources/allemang-llms-kg-property-graphs]] — Dean Allemang: LLMs + OWL ontologies + property graphs as complementary
+
+### Context Windows, Memory & Long-Context (Research: 2026-04-05)
+- [[sources/epoch-context-window-growth]] — Epoch AI: context windows growing ~30x/year, effective usage ~250x in 9 months
+- [[sources/redis-rag-vs-long-context]] — RAG vs long-context tradeoffs: 1s vs 30-60s latency, cost/accuracy comparison
+- [[sources/logrocket-llm-context-problem]] — Four context failure modes and six engineering techniques for 2026
+- [[sources/lost-in-the-middle-paper]] — Liu et al. (TACL 2023): U-shaped performance curve, >30% middle degradation
+- [[sources/memgpt-llm-operating-system]] — MemGPT: OS-inspired virtual context management with self-directed memory
+- [[sources/prompt-caching-providers]] — Prompt caching comparison: Anthropic (90%), OpenAI (50%), Google (75%) savings
+- [[sources/magic-ltm-100m-context]] — Magic LTM-2-Mini: 100M tokens via 1,000x cheaper sequence-dimension algorithm
+- [[sources/infinite-context-approaches]] — StreamingLLM, Infini-attention, Ring Attention, InfLLM compared
+- [[sources/context-compression-techniques]] — Compression survey: LLMLingua (20x), soft prompts (480x), Provence (95%)
+- [[sources/hierarchical-memory-llm-agents]] — H-MEM, multi-layer memory frameworks, sleep-time compute
+- [[sources/context-engineering-2026]] — Context engineering as successor to prompt engineering (2025-2026)
+
+### Open-Source LLMs, Local Inference & Local KB (Research: 2026-04-05)
+- [[sources/bentoml-open-source-llms-2026]] — BentoML: comprehensive 2026 open-source LLM rankings (Qwen3.5, DeepSeek V3.2, GLM-5, Kimi, MiniMax)
+- [[sources/deepseek-revolution-2026]] — DeepSeek V3.2 revolution: 685B MIT, surpassed GPT-5-High on math, catalyzed 1,500+ Chinese open LLMs
+- [[sources/meta-llama-4-multimodal]] — Llama 4: first MoE Llama (Scout 10M context, Maverick multimodal, Behemoth 2T)
+- [[sources/ollama-complete-guide]] — Complete Ollama guide: architecture, Modelfiles, OpenAI API, cross-platform GPU support
+- [[sources/ollama-vs-vllm-benchmarks]] — Red Hat: vLLM 793 TPS vs Ollama 41 TPS on A100; dev vs production tradeoff
+- [[sources/mlx-vs-llamacpp-apple-silicon]] — MLX vs llama.cpp on Apple Silicon: MLX +21-87% for <14B; llama.cpp for large models
+- [[sources/apple-silicon-llm-inference-study]] — ArXiv: five-framework Apple Silicon benchmark (MLX leads throughput at ~230 tok/s)
+- [[sources/small-language-models-guide-2026]] — SLMs: Phi-4, Gemma 3, Qwen 3 4B run on 4GB RAM; 10-30x cheaper than LLMs
+- [[sources/freecodecamp-local-rag-ollama]] — Local RAG tutorial: Ollama + Qwen 3 + ChromaDB + LangChain, zero cloud dependency
+- [[sources/open-source-vs-closed-llms-enterprise]] — Enterprise tradeoffs: open ~10x cheaper per token; 41% plan to increase open-source usage
+- [[sources/local-llm-hosting-tools-comparison]] — 15+ local LLM tools compared: Ollama, vLLM, LocalAI, LM Studio, Jan
+- [[sources/coding-models-comparison-2026]] — Coding models: Qwen Coder 88.4% HumanEval, Codestral 95.3% FIM, DeepSeek 338 languages
+
+### Agentic AI & Tool Use (Research: 2026-04-05)
+- [[sources/superannotate-llm-agents-guide]] — Comprehensive LLM agent architecture guide: four components, frameworks, challenges
+- [[sources/martinfowler-function-calling-llm]] — Function calling architecture, security, MCP, rules-engine comparison
+- [[sources/ng-agentic-design-patterns]] — Andrew Ng's four agentic design patterns and enterprise strategy
+- [[sources/react-prompting-framework]] — ReAct: interleaving reasoning and acting in language models (Yao et al. 2022)
+- [[sources/mcp-model-context-protocol]] — MCP specification, adoption timeline, Linux Foundation donation
+- [[sources/claude-code-agentic-coding]] — Eight 2026 software development trends, Claude Code $2.5B revenue
+- [[sources/pebblous-agentic-framework-explosion]] — Three paths in autonomous AI: RL, self-improvement, TDD frameworks
+- [[sources/multi-agent-collaboration-survey]] — 2025 survey: five-dimension taxonomy of multi-agent collaboration
+- [[sources/agentic-memory-unified-framework]] — AgeMem: unified LTM/STM as tool-based actions via RL
+- [[sources/databricks-agent-design-patterns]] — Design pattern spectrum: LLM+Prompt to multi-agent orchestration
+- [[sources/devin-ai-software-engineer]] — Devin: first autonomous AI software engineer, SWE-bench progression
+
+### MCP, Tool Ecosystems & Agent Protocols (Research: 2026-04-05)
+- [[sources/wikipedia-model-context-protocol]] — Wikipedia: MCP history, architecture (JSON-RPC 2.0), adoption timeline, SDKs in 11 languages
+- [[sources/anthropic-mcp-announcement]] — Anthropic's original Nov 2024 MCP announcement: motivation, architecture, early partners
+- [[sources/pento-year-of-mcp-review]] — Year-in-review: 97M SDK downloads, 10K+ servers, security landscape, 2026 predictions
+- [[sources/anthropic-mcp-linux-foundation]] — MCP donation to AAIF (Linux Foundation), Dec 2025; co-founded by Anthropic, Block, OpenAI
+- [[sources/descope-mcp-vs-function-calling]] — Deep comparison: MCP vs function calling across architecture, security, portability
+- [[sources/zilliz-function-calling-vs-mcp-vs-a2a]] — Three-way comparison: function calling vs MCP vs A2A at different architectural layers
+- [[sources/google-ai-agent-protocols]] — Google's six-protocol agent stack: MCP, A2A, UCP, AP2, A2UI, AG-UI
+- [[sources/composio-api-integration-patterns]] — Five AI agent integration patterns: direct API → function calling → MCP → unified API → A2A
+- [[sources/anthropic-building-effective-agents]] — Anthropic's guide: augmented LLM, five workflow patterns, tool engineering principles
+- [[sources/anthropic-code-execution-mcp]] — Code execution pattern: 98.7% token savings, PII filtering, persistent state
+
+### Developer Tools & AI-Assisted Workflows (Research: 2026-04-05)
+- [[sources/metr-ai-developer-productivity-study]] — METR RCT: experienced developers 19% slower with AI tools, despite believing 20% faster
+- [[sources/osmani-llm-coding-workflow-2026]] — Addy Osmani's 10-step LLM coding workflow: spec-first, small iterations, model rotation
+- [[sources/faros-ai-coding-agents-2026]] — Comprehensive 2026 AI coding agent review: Cursor, Claude Code, Copilot, 10+ others
+- [[sources/faros-ai-productivity-paradox]] — AI productivity paradox: 21% more tasks but 9% more bugs, 91% longer reviews, no org-level gain
+- [[sources/dextralabs-claude-cursor-copilot-30day]] — 30-day practitioner comparison: Cursor (balanced), Claude Code (reasoning), Copilot (friction-free)
+- [[sources/redmonk-agentic-ides-2025]] — RedMonk: 10 things developers want from agentic IDEs (background agents, MCP, specs, skills)
+- [[sources/graphite-ai-code-review-tools]] — AI code review tools: Graphite (55% action rate), CodeRabbit (2M repos), Qodo, 4 others
+- [[sources/index-dev-ai-pair-programming-statistics]] — AI pair programming stats: 84% adoption, 41% code AI-generated, 55% faster tasks
+- [[sources/qodo-ai-coding-assistants-2026]] — Five-tier taxonomy of 15 AI coding tools: review, IDE, cloud, agents, low-code
+- [[sources/panto-ai-coding-productivity-stats]] — AI coding productivity: perception-reality gap, DORA metrics recommended over output volume
+
+### RAG & Retrieval Deep-Dive (Research: 2026-04-05)
+- [[sources/ragflow-rag-review-2025]] — RAGFlow 2025 year-end review: RAG → Context Engine evolution
+- [[sources/rag-vs-finetuning-agriculture]] — ArXiv: RAG + fine-tuning complementary (+11pp cumulative accuracy)
+- [[sources/cache-augmented-generation]] — ArXiv: CAG as RAG alternative, 10x faster on small KBs
+- [[sources/microsoft-graphrag]] — Microsoft Research: GraphRAG with KG construction and community summaries
+- [[sources/raptor-tree-retrieval]] — ICLR 2024: RAPTOR recursive tree retrieval, +20% on QuALITY
+- [[sources/colbert-late-interaction]] — Weaviate: ColBERT/ColPali/ColQwen late interaction models
+- [[sources/hybrid-search-rag-optimization]] — VectorHub: hybrid search + reranking optimization
+- [[sources/hybrid-search-bm25-splade-vector]] — PremAI: BM25 vs SPLADE vs vector with fusion strategies
+- [[sources/rag-hallucinations-explained]] — Mindee: RAG hallucination causes (17-33% in legal tools)
+- [[sources/self-reflective-rag-langgraph]] — LangChain: Self-RAG and CRAG with LangGraph
+- [[sources/rag-evaluation-metrics-benchmarks]] — RAG evaluation metrics, benchmarks, and frameworks
+- [[sources/agentic-rag-survey]] — ArXiv: agentic RAG taxonomy and classification survey
+
+### LLM Evaluation, Benchmarks & Quality Assessment (Research: 2026-04-05)
+- [[sources/confident-ai-llm-evaluation-metrics]] — Confident AI: comprehensive taxonomy of LLM evaluation metrics (statistical, model-based, LLM-as-Judge)
+- [[sources/eugeneyan-llm-evaluators]] — Eugene Yan: data-rich analysis of LLM-as-Judge effectiveness, biases, and mitigation strategies
+- [[sources/cameron-wolfe-llm-as-judge]] — Cameron Wolfe: LLM-as-a-Judge methodology, three scoring approaches, bias quantification
+- [[sources/datadog-hallucination-detection]] — Datadog: production hallucination detection via rubric-based LLM-as-Judge (0.81-0.84 F1)
+- [[sources/evidentlyai-llm-evaluation-guide]] — Evidently AI: practical evaluation workflow, six scenarios, five-phase implementation
+- [[sources/raschka-state-of-llms-2025]] — Sebastian Raschka: benchmaxxing crisis, benchmark saturation, contamination
+- [[sources/openfactcheck-factuality-framework]] — OpenFactCheck: unified factuality evaluation with FactQA and FactBench datasets
+- [[sources/deepset-rag-groundedness]] — deepset: production groundedness monitoring, cost optimization, statement-level citations
+- [[sources/responsible-ai-labs-benchmarks-2025]] — Responsible AI Labs: 7 evaluation dimensions, safety datasets (HEx-PHI, RAIL-HH-10K)
+- [[sources/chatbot-arena-methodology]] — Chatbot Arena / Arena AI: crowdsourced Elo-based LLM evaluation with 300+ models
+
+### Collective Intelligence & Collaborative Knowledge (Research: 2026-04-05)
+- [[sources/brookings-ai-collective-intelligence]] — Brookings: AI as translation engine bridging collaborative rooms and computational models
+- [[sources/cip-whitepaper-collective-intelligence]] — CIP whitepaper: collective intelligence mechanisms for AI governance (quadratic voting, citizens' assemblies)
+- [[sources/wikiedu-ai-wikipedia-editing-2025]] — Wiki Education: 5.8% of articles AI-generated; two-thirds failed verification
+- [[sources/ai-in-wikimedia-projects]] — Full history of AI in Wikipedia: from rambot (2002) to March 2026 content prohibition
+- [[sources/cip-generative-ai-digital-commons]] — CIP: seven risks AI poses to digital commons, three governance proposals
+- [[sources/cohumain-collective-intelligence-human-ai]] — COHUMAIN framework: transactive memory/attention/reasoning in human-AI teams
+- [[sources/reeves-automated-wikipedia-content-review]] — Systematic review of 51 papers on automated Wikipedia content generation
+- [[sources/federated-wiki-cunningham]] — Ward Cunningham's Federated Wiki: forking-based "chorus of voices"
+- [[sources/wisdom-of-the-crowd]] — Wisdom of crowds: Galton, Surowiecki, Page's diversity prediction theorem
+- [[sources/knowledge-commons-overview]] — Knowledge commons: Hess/Ostrom governance, copyleft licensing, AI-era challenges
+
+## Comparisons
+
+### PKM Comparisons (Research: 2026-04-05)
+- [[comparisons/zettelkasten-vs-basb]] — Zettelkasten (insight generation) vs BASB (creative output): organizing principles, note structure, and workflows
+- [[comparisons/obsidian-vs-logseq-vs-notion]] — 2026 tool comparison: local-first vs cloud-first, performance benchmarks, AI features
+- [[comparisons/manual-vs-ai-pkm]] — Four stages of PKM evolution: manual, AI-assisted, AI-maintained, and agentic
+
+- [[comparisons/text-rag-vs-multimodal-rag]] — Text-only RAG vs multimodal RAG: when visual content justifies added complexity
+- [[comparisons/rlhf-vs-constitutional-ai]] — RLHF (human labels) vs Constitutional AI (principle-guided self-critique): scalability, consistency, transparency
+- [[comparisons/markdown-vs-proprietary-formats]] — Markdown vs Word/Notion/Evernote/Google Docs across longevity, AI-readability, portability
+- [[comparisons/rag-vs-fine-tuning]] — RAG (dynamic, traceable) vs fine-tuning (persistent, fast) with hybrid RAFT approach
+- [[comparisons/lora-vs-qlora]] — LoRA (16-bit, 90-95% quality) vs QLoRA (4-bit, 80-90% quality) memory and quality tradeoffs
+- [[comparisons/knowledge-editing-vs-fine-tuning]] — Surgical fact editing vs broad domain adaptation: granularity, cost, and scalability
+- [[comparisons/semantic-vs-keyword-search]] — Semantic (meaning-based) vs keyword (exact-term) search: complementary failure modes
+- [[comparisons/pinecone-vs-qdrant-vs-weaviate]] — Three leading vector databases: managed vs open-source, features, QPS, pricing
+- [[comparisons/bi-encoder-vs-cross-encoder-vs-colbert]] — Three neural retrieval architectures: speed, accuracy, and storage tradeoffs
+- [[comparisons/rdf-vs-property-graph]] — RDF (W3C, reasoning) vs property graph (performance, developer-friendly) for knowledge graphs
+- [[comparisons/knowledge-graph-vs-vector-database]] — KGs (explainability, multi-hop) vs vector DBs (semantic search); hybrid recommended
+- [[comparisons/kge-vs-llm-for-knowledge-graphs]] — KGE (TransE, ComplEx) vs LLMs for link prediction: LLMs dominate multi-hop (F1 0.98 vs 0.61)
+- [[comparisons/schema-guided-vs-schema-free-extraction]] — Schema-guided (OntoGPT, KARMA) vs. schema-free (KGGen, OpenIE) extraction tradeoffs
+- [[comparisons/cot-vs-tot-vs-self-consistency]] — CoT (cheap, single path) vs Self-Consistency (multi-path voting) vs ToT (tree search)
+- [[comparisons/few-shot-vs-zero-shot]] — Zero-shot (simpler, try first) vs few-shot (better format control, 3-5 examples)
+- [[comparisons/manual-vs-automated-prompt-optimization]] — Manual prompting vs DSPy/TextGrad/Self-Refine automated optimization
+- [[comparisons/rag-vs-cag]] — RAG vs Cache-Augmented Generation: when to preload all docs vs selective retrieval
+- [[comparisons/bm25-vs-vector-search]] — BM25 (exact match) vs vector search (semantic): complementary strengths, use both
+- [[comparisons/naive-vs-advanced-vs-agentic-rag]] — Three RAG evolution phases: naive (fixed pipeline) → advanced (optimized) → agentic (self-correcting)
+
 ## Concepts
 
 ### Core System
 - [[concepts/llm-knowledge-base]] — Core system: LLM authors and maintains all wiki content from raw ingested sources
 - [[concepts/wiki-compilation]] — Pipeline: raw ingested documents → structured cross-linked markdown wiki
 - [[concepts/obsidian-as-ide]] — Using Obsidian as a read-only viewing frontend for LLM-written wikis
+- [[concepts/obsidian-plugin-ecosystem]] — 2,700+ community plugins transforming Obsidian into a programmable knowledge platform
+- [[concepts/obsidian-ai-integration]] — Two paradigms: plugin-based AI (Copilot, Smart Connections) and external-agent AI (Claude Code + MCP)
+- [[concepts/obsidian-graph-view]] — Graph visualization of vault link structure for pattern discovery and orphan detection
+- [[concepts/obsidian-canvas]] — Infinite spatial boards for mapping notes, media, and ideas
+- [[concepts/obsidian-frontmatter-properties]] — YAML frontmatter properties enabling Dataview queries, AI retrieval, and database views
+- [[concepts/vault-organization]] — Strategies for organizing vaults: flat+links (Ango), PARA, MOCs, AI-optimized architectures
+- [[concepts/file-over-app]] — Steph Ango's philosophy: files in open formats outlast any application
 - [[concepts/llm-qa-over-documents]] — Answering complex questions over a compiled wiki via index navigation, no vector DB
 - [[concepts/linting-and-health-checks]] — LLM-driven wiki health checks: inconsistencies, broken links, orphans, new article suggestions
+
+
+### Context Windows & Memory
+- [[concepts/context-windows]] — The fixed-size token buffer an LLM processes; growing ~30x/year but effective utilization lags
+- [[concepts/long-context-models]] — Models pushing context boundaries: Gemini (1-2M), Claude (1M), Llama 4 Scout (10M), Magic LTM (100M)
+- [[concepts/lost-in-the-middle]] — U-shaped performance curve: >30% degradation for middle-positioned content
+- [[concepts/context-engineering]] — Systems discipline managing everything the model sees during inference
+- [[concepts/context-compression]] — Token reduction techniques: LLMLingua (20x), soft prompts (480x), Provence (95%)
+- [[concepts/needle-in-a-haystack]] — Standard long-context evaluation: embed a fact at varying depths and test retrieval
+- [[concepts/prompt-caching]] — Provider-level optimization: Anthropic (90%), OpenAI (50%), Google (75%) cost savings
+- [[concepts/virtual-context-management]] — OS-inspired paging between in-context memory and external storage
+- [[concepts/hierarchical-memory]] — Multi-tier agent memory: working, episodic, semantic, and archival layers
+- [[concepts/infinite-context]] — Architectural approaches: StreamingLLM, Infini-attention, Ring Attention, InfLLM
+
+### Data Pipelines & Document Processing
+- [[concepts/document-processing-pipeline]] — Multi-stage system: acquire → parse → chunk → enrich → embed → store, with quality validation
+- [[concepts/document-chunking-strategies]] — Eight strategies from fixed-size to adaptive ML-based, with 18-40% accuracy improvement from semantic chunking
+- [[concepts/ocr-document-extraction]] — Modern OCR: traditional engines (99%+ printed) and LLM-powered models for complex layouts and handwriting
+- [[concepts/pdf-parsing-tools]] — Tool landscape: PyMuPDF4LLM (fastest), Docling (enterprise), Nougat (scientific), two parsing paradigms
+- [[concepts/web-scraping-at-scale]] — Async concurrency, anti-bot evasion, headless browsers, API-based services (Firecrawl) for LLM data
+- [[concepts/pipeline-orchestration]] — Scheduling and managing multi-stage pipelines: Airflow dominates (35% enterprise), event-driven 3.0
+- [[concepts/incremental-etl]] — Processing only new/changed data: watermarking, CDC, docstore dedup, 10-100x compute reduction
 
 ### Retrieval & Infrastructure
 - [[concepts/rag-vs-index-based-retrieval]] — Why simple index-based retrieval beats RAG at small-to-medium scale
 - [[concepts/vector-databases]] — When vector DBs are actually needed vs. pgvector/FAISS/index-based navigation
 - [[concepts/temporal-knowledge]] — Graphiti's temporal validity windows for facts that change over time
+- [[concepts/retrieval-augmented-generation]] — The dominant paradigm for grounding LLM outputs in external knowledge (85% of production apps)
+- [[concepts/cache-augmented-generation]] — RAG alternative: preload all docs into KV cache, 10x faster on small KBs
+- [[concepts/hierarchical-retrieval]] — Multi-level abstraction retrieval via RAPTOR (trees), GraphRAG (graphs), TreeRAG
+- [[concepts/raptor]] — ICLR 2024: recursive clustering + summarization tree, +20% on QuALITY benchmark
+- [[concepts/agentic-rag]] — Agent-orchestrated RAG with reflection, planning, and self-correction loops
+- [[concepts/self-rag]] — Self-Reflective RAG: four reflection tokens (Retrieve, ISREL, ISSUP, ISUSE)
+- [[concepts/corrective-rag]] — CRAG: retrieval evaluation + web search fallback + knowledge refinement
+- [[concepts/rag-hallucinations]] — RAG-specific hallucination causes and mitigation (17-33% in legal tools)
+- [[concepts/late-interaction-retrieval]] — Per-token embeddings with MaxSim scoring: ColBERT paradigm
+- [[concepts/colbert]] — ColBERT: 100x faster than cross-encoders, strong zero-shot generalization
+- [[concepts/splade]] — Learned sparse retrieval with vocabulary expansion, outperforms BM25 on BEIR
+
+### Embeddings, Similarity & Search Infrastructure
+- [[concepts/text-embeddings]] — Dense vector representations of text capturing semantic meaning; foundation of semantic search and RAG
+- [[concepts/vector-search]] — Finding similar items by computing distance between dense vectors, using ANN algorithms like HNSW
+- [[concepts/semantic-search]] — Meaning-based search via transformer embeddings; handles synonyms but misses exact codes
+- [[concepts/keyword-search]] — Lexical search via inverted indexes and BM25; fast and deterministic but blind to synonyms
+- [[concepts/bm25]] — Standard probabilistic ranking for keyword search with term frequency saturation
+- [[concepts/hybrid-search]] — Combining BM25 keyword + dense vector search via RRF for best of both worlds
+- [[concepts/hnsw]] — Hierarchical Navigable Small World: dominant ANN algorithm, O(log n) search, 80-99% recall
+- [[concepts/approximate-nearest-neighbor-search]] — Trading small accuracy for dramatic speed: the foundation of vector database indexing
+- [[concepts/bi-encoder-vs-cross-encoder]] — Fast-but-lossy single-vector encoding vs accurate-but-slow pairwise scoring
+- [[concepts/reranking]] — Cross-encoder refinement of retrieval results, 30-50% precision improvement
+- [[concepts/two-stage-retrieval]] — Standard RAG architecture: fast bi-encoder retrieval → accurate cross-encoder reranking
+- [[concepts/colbert-late-interaction]] — Per-token embeddings with MaxSim scoring: near-cross-encoder accuracy at bi-encoder speed
+- [[concepts/matryoshka-representation-learning]] — Training embeddings usable at any dimension; 98.37% performance at 8.3% of full size
+- [[concepts/chunking-strategies]] — How text is split for embedding: fixed-size, recursive, semantic, late chunking, agentic
+
+### AI Safety, Alignment & Trust (Research: 2026-04-05)
+- [[concepts/ai-safety]] — Ensuring AI systems do not cause unintended harm: technical robustness, alignment, evaluation, governance
+- [[concepts/ai-alignment]] — Making AI pursue intended goals: RLHF, Constitutional AI, scalable oversight, deceptive alignment detection
+- [[concepts/llm-hallucination]] — When LLMs generate fluent but factually incorrect text: taxonomy, causes, detection, mitigation
+- [[concepts/constitutional-ai]] — Anthropic's principle-based alignment via AI self-critique (RLAIF), replacing reliance on human labelers
+- [[concepts/red-teaming]] — Adversarial testing of LLMs: prompt injection, jailbreaking, multi-turn attacks, automated frameworks
+- [[concepts/scalable-oversight]] — Maintaining meaningful human oversight as AI surpasses human capability in specific domains
+- [[concepts/human-in-the-loop]] — Design patterns for embedding human judgment in AI workflows: synchronous approval, async audit
+- [[concepts/ai-governance]] — Regulatory frameworks: EU AI Act (binding), NIST AI RMF (voluntary), ISO/IEC 42001 (certifiable)
+- [[concepts/ai-safety-benchmarks]] — Standardized safety evaluations: HarmBench, TruthfulQA, HELM Safety, FLI Safety Index
+- [[concepts/ai-content-verification]] — Verifying AI-generated content: source attribution, span-level checking, multi-model peer review
+- [[concepts/grounding-and-faithfulness]] — Anchoring LLM outputs to source material via RAG, knowledge graphs, span-level attribution
+- [[concepts/calibrated-uncertainty]] — Strategic shift from zero hallucinations to systems that transparently signal doubt
+
+### LLM Evaluation & Quality Assessment (Research: 2026-04-05)
+- [[concepts/llm-evaluation-metrics]] — Taxonomy: statistical scorers (BLEU, ROUGE, BERTScore), LLM-as-Judge (G-Eval, QAG), domain-specific
+- [[concepts/llm-as-judge]] — Using powerful LLMs to evaluate other LLMs; 80-85% human agreement but systematic biases
+- [[concepts/evaluation-bias]] — Position bias (2.5%-82.5% swing), verbosity bias (>90%), self-enhancement (87.76%)
+- [[concepts/hallucination-detection]] — White-box (semantic entropy), black-box (LLM-judge, SelfCheckGPT), rubric-based methods
+- [[concepts/faithfulness-and-groundedness]] — Whether LLM outputs are supported by source material; opposite of hallucination
+- [[concepts/llm-benchmarks]] — Standardized datasets: MMLU, HELM, TruthfulQA, HumanEval, MT-Bench, Chatbot Arena
+- [[concepts/benchmark-saturation]] — Benchmaxxing crisis: contamination, saturation (MMLU >90%), only 4 of 15 predict production
+- [[concepts/automated-fact-checking]] — Claim decomposition, evidence retrieval, verdict generation for factual verification
+- [[concepts/evaluation-workflow]] — Five-phase evaluation: foundation, development, pre-launch, production, iteration
 
 ### Risks & Quality
 - [[concepts/hallucination-contamination]] — LLM-generated errors that propagate through wiki and fine-tuning pipelines
 - [[concepts/data-quality-bottleneck]] — Data quality > model scale; low-quality raw input cascades into contaminated KB
 - [[concepts/vault-separation]] — Steph Ango's recommendation: separate AI-generated from human-curated Obsidian vaults
+- [[concepts/catastrophic-forgetting]] — Models losing prior knowledge during fine-tuning; mitigated by PEFT, EWC, replay
+- [[concepts/model-collapse]] — Degenerative loop from training on synthetic data without human anchoring
+
+### Information Extraction
+- [[concepts/information-extraction]] — Extracting structured knowledge (entities, relations, claims) from unstructured text with LLMs
+- [[concepts/named-entity-recognition]] — NER with LLMs: task reformulation, self-verification, few-shot superiority
+- [[concepts/relation-extraction]] — Extracting subject-predicate-object triples for knowledge graphs
+- [[concepts/structured-output-extraction]] — FSM-guaranteed JSON/Pydantic output from LLMs
+- [[concepts/claim-extraction]] — Atomic claim decomposition for fact-checking and quality assurance
+- [[concepts/llm-summarization]] — Extractive vs. abstractive summarization; hybrid extract-then-abstract
+- [[concepts/entity-linking]] — Mapping entity mentions to canonical KB entries; disambiguation and resolution
+- [[concepts/zero-shot-information-extraction]] — IE without labeled training data via LLM prompting
+- [[concepts/schema-guided-extraction]] — Ontology-driven extraction: static, dynamic, and schema-free approaches
+
+### Multimodal AI & Vision
+- [[concepts/multimodal-ai]] — AI systems processing multiple data modalities (text, images, audio, video)
+- [[concepts/vision-language-models]] — Models jointly processing images and text; open-source rivals proprietary by 2026
+- [[concepts/multimodal-rag]] — Extending RAG to retrieve images alongside text; three architectural approaches
+- [[concepts/multimodal-embeddings]] — Shared vector spaces (CLIP etc) for cross-modal similarity search
+- [[concepts/image-understanding]] — AI capability hierarchy: perception to comprehension to reasoning
+- [[concepts/visual-question-answering]] — Answering questions about images; considered AI-complete
+- [[concepts/document-ai-ocr]] — From 85% character recognition to 99%+ document intelligence via VLMs
+- [[concepts/image-captioning]] — Generating text descriptions of images; critical for making visual content searchable
 
 ### Knowledge Representation
 - [[concepts/knowledge-graph]] — Formal node/edge knowledge graphs: KARMA, Graphiti, and Gallagher's Kit compared
@@ -45,15 +407,455 @@ last_updated: 2026-04-05
 - [[concepts/automated-wiki-creation]] — STORM's single-shot multi-perspective Wikipedia article generation
 - [[concepts/cheap-ontology]] — LLM wikis as $10M→API-cost ontology democratization
 
+### Knowledge Graphs, Embeddings & Graph Databases (Research: 2026-04-05)
+- [[concepts/graphrag]] — Graph-based RAG: LLM-extracted KGs with community detection and hierarchical summarization
+- [[concepts/knowledge-graph-construction]] — End-to-end KG building from unstructured data, now LLM-driven
+- [[concepts/knowledge-extraction]] — LLM-driven entity and relation extraction from text
+- [[concepts/knowledge-fusion]] — Merging, deduplicating, and reconciling extracted knowledge
+- [[concepts/ontology-engineering]] — Automated schema design with LLMs approaching junior-expert quality
+- [[concepts/knowledge-graph-embeddings]] — TransE, ComplEx, RotatE: vector representations of KG structure
+- [[concepts/knowledge-graph-completion]] — Predicting missing facts via link prediction, now dominated by LLMs
+- [[concepts/temporal-knowledge-graphs]] — KGs with explicit temporal information for evolving facts
+
+### Embeddings, Similarity & Search Infrastructure
+- [[concepts/text-embeddings]] — Dense vector representations of text capturing semantic meaning; foundation of semantic search and RAG
+- [[concepts/vector-search]] — Finding similar items by computing distance between dense vectors, using ANN algorithms like HNSW
+- [[concepts/semantic-search]] — Meaning-based search via transformer embeddings; handles synonyms but misses exact codes
+- [[concepts/keyword-search]] — Lexical search via inverted indexes and BM25; fast and deterministic but blind to synonyms
+- [[concepts/bm25]] — Standard probabilistic ranking for keyword search with term frequency saturation
+- [[concepts/hybrid-search]] — Combining BM25 keyword + dense vector search via RRF for best of both worlds
+- [[concepts/hnsw]] — Hierarchical Navigable Small World: dominant ANN algorithm, O(log n) search, 80-99% recall
+- [[concepts/approximate-nearest-neighbor-search]] — Trading small accuracy for dramatic speed: the foundation of vector database indexing
+- [[concepts/bi-encoder-vs-cross-encoder]] — Fast-but-lossy single-vector encoding vs accurate-but-slow pairwise scoring
+- [[concepts/reranking]] — Cross-encoder refinement of retrieval results, 30-50% precision improvement
+- [[concepts/two-stage-retrieval]] — Standard RAG architecture: fast bi-encoder retrieval → accurate cross-encoder reranking
+- [[concepts/colbert-late-interaction]] — Per-token embeddings with MaxSim scoring: near-cross-encoder accuracy at bi-encoder speed
+- [[concepts/matryoshka-representation-learning]] — Training embeddings usable at any dimension; 98.37% performance at 8.3% of full size
+- [[concepts/chunking-strategies]] — How text is split for embedding: fixed-size, recursive, semantic, late chunking, agentic
+- [[concepts/rdf-knowledge-representation]] — W3C RDF/OWL: formal reasoning-capable knowledge representation
+- [[concepts/property-graphs]] — Node-centric graph model optimized for traversal and developer experience
+- [[concepts/hybrid-retrieval]] — Combining knowledge graphs and vector databases for optimal AI retrieval
+
+### Markdown & Plain Text
+- [[concepts/markdown-as-universal-interface]] — Why markdown is the optimal knowledge substrate (expanded with 9 sources)
+- [[concepts/plain-text-longevity]] — Plain text as the only future-proof digital format, validated by practitioners and institutions
+- [[concepts/file-over-app]] — Steph Ango's philosophy: files must outlast apps
+- [[concepts/markdown-ecosystem]] — The constellation of tools making markdown universal: Pandoc, MDX, Marp, MarkdownDB, MarkItDown, SSGs
+- [[concepts/markdown-for-ai-agents]] — LLMs natively comprehend markdown: 25-75% token savings, 89% RAG accuracy
+- [[concepts/yaml-frontmatter]] — Structured metadata standard for markdown files
+- [[concepts/mdx]] — Markdown + JSX components for interactive content
+- [[concepts/static-site-generators]] — Hugo, Jekyll, Astro: markdown as default web content format
+
+### Fine-Tuning & Model Adaptation
+- [[concepts/fine-tuning]] — Adapting pretrained LLMs to domains via full, PEFT, instruction, or hybrid (RAFT) methods
+- [[concepts/parameter-efficient-fine-tuning]] — LoRA/QLoRA: 0.5-5% of parameters, 80-95% quality, 4-16GB VRAM for 7B
+- [[concepts/domain-adaptive-pretraining]] — Intermediate pretraining on unlabeled domain text before task fine-tuning
+- [[concepts/continued-pretraining]] — Extending pretraining on new corpora (domain, task, synthetic)
+- [[concepts/synthetic-data-generation]] — LLM-generated training data with quality filtering as critical success factor
+- [[concepts/knowledge-distillation]] — Teacher-student paradigm: compressing large models into small deployable ones
+- [[concepts/knowledge-editing]] — Surgical fact modification in weights via ROME/MEMIT without retraining
+- [[concepts/raft]] — RAFT: hybrid RAG + fine-tuning training recipe with distractor documents
+- [[concepts/weights-vs-context]] — Fundamental architecture question: which knowledge goes in weights vs context vs tools
+
+### Prompt Engineering
+- [[concepts/prompt-engineering]] — The discipline of designing LLM inputs for high-quality, accurate, structured outputs
+- [[concepts/chain-of-thought-prompting]] — Wei et al. (2022): intermediate reasoning steps for complex problem-solving
+- [[concepts/few-shot-prompting]] — In-context learning via demonstration examples (highest-ROI technique)
+- [[concepts/zero-shot-prompting]] — Direct instruction without examples; try first before adding complexity
+- [[concepts/tree-of-thoughts-prompting]] — Yao et al. (2023): tree-structured reasoning with BFS/DFS search
+- [[concepts/self-consistency-prompting]] — Wang et al. (2022): multiple CoT paths + majority voting
+- [[concepts/role-prompting]] — Persona assignment: effective for style, unreliable for factual accuracy
+- [[concepts/prompt-chaining]] — Sequential multi-step LLM pipelines for complex tasks
+- [[concepts/meta-prompting]] — Self-improving prompts: DSPy, TextGrad, Self-Refine
+- [[concepts/structured-output-prompting]] — Format control (JSON, XML, tables) for production systems
+- [[concepts/system-prompt-design]] — Architecture-level prompt patterns for consistent LLM behavior
+- [[concepts/prompt-injection]] — #1 AI security risk (OWASP 2025): attacks and multi-layered defenses
+- [[concepts/rag-prompting]] — Prompt techniques within RAG pipelines: query rewriting, grounding
+
+### Agentic AI & Tool Use
+- [[concepts/llm-agent-architecture]] — Four-component agent architecture (brain, memory, planning, tools) and design pattern spectrum
+- [[concepts/agentic-workflows]] — Iterative multi-step LLM workflows: reflection, tool use, planning, multi-agent collaboration
+- [[concepts/react-pattern]] — Thought-Action-Observation loop for interleaving reasoning with real-world actions
+- [[concepts/reflection-pattern]] — Automated self-critique and iterative improvement of LLM outputs
+- [[concepts/tool-use]] — Function calling and tool integration enabling LLMs to interact with external systems
+- [[concepts/agent-memory]] — Short-term and long-term memory systems for contextual continuity in agents
+- [[concepts/agent-planning]] — Task decomposition via CoT, ToT, and hierarchical planning with feedback loops
+- [[concepts/model-context-protocol]] — Open standard (JSON-RPC 2.0) for LLM-to-tool integration: "USB-C for AI", 97M SDK downloads, 12K+ servers
+- [[concepts/function-calling]] — Provider-specific tool invocation: simple for prototyping, creates vendor lock-in at scale
+- [[concepts/tool-use-standards]] — Evolution from vendor-specific function calling (2023) to universal MCP (2024) to six-protocol agent stack (2026)
+- [[concepts/mcp-ecosystem]] — 12K+ MCP servers across PulseMCP, mcp.so, MCPMarket directories; shift from stdio to HTTP transport
+- [[concepts/mcp-security]] — MCP security challenges: prompt injection, tool spoofing, OAuth vulnerabilities, toxic agent workflows
+- [[concepts/mcp-code-execution-pattern]] — Agents write code to interact with MCP tools: 98.7% token savings, PII filtering
+- [[concepts/agent-to-agent-protocol]] — Google's A2A protocol for inter-agent collaboration via Agent Cards discovery
+- [[concepts/augmented-llm]] — Foundational building block: LLM + retrieval + tools + memory
+- [[concepts/agentic-workflow-patterns]] — Five canonical patterns: prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer
+- [[concepts/ai-agent-integration-patterns]] — Five patterns from direct API calls to A2A, with decision matrix
+- [[concepts/agentic-coding]] — AI agents that autonomously write, test, debug, and ship code
+- [[concepts/agent-orchestration]] — Coordination patterns for multi-agent systems: orchestrator-worker, supervisor, router
+- [[concepts/agent-frameworks]] — LangChain, AutoGen, CrewAI, and 2025 autonomous framework wave
+- [[concepts/swe-bench]] — Primary benchmark for evaluating LLM software engineering agents
+
+### Developer Tools & AI-Assisted Workflows
+- [[concepts/ai-coding-assistants]] — The landscape of LLM-powered developer tools in five tiers: review, IDE, cloud, agents, low-code
+- [[concepts/ai-pair-programming]] — Collaborating with AI as a programming partner: the navigator-driver model
+- [[concepts/ai-productivity-paradox]] — The disconnect between perceived (20% faster) and measured (19% slower) AI productivity
+- [[concepts/ai-code-review]] — AI-powered PR review tools achieving 55% action rates, exceeding human reviewers at 49%
+- [[concepts/spec-driven-development]] — Writing spec.md before AI code generation: "waterfall in 15 minutes," eliminates 80% of AI confusion
+- [[concepts/developer-experience-ai]] — How AI tools reshape daily developer workflow, role transformation, and the perception-reality gap
+
+### Open-Source LLMs & Local Inference
+- [[concepts/open-source-llms]] — Open-weight LLMs from DeepSeek, Qwen, Meta, Mistral closing gap to ~3 months behind proprietary
+- [[concepts/local-llm-inference]] — Running LLM inference on local hardware: Ollama, vLLM, llama.cpp, MLX — privacy, offline, zero cost
+- [[concepts/mixture-of-experts]] — MoE architecture activating subset of params per token; dominant in 2025-2026 frontier open models
+- [[concepts/quantization]] — Reducing weight precision (FP16 to 4-bit) for 4x memory reduction with minimal quality loss
+- [[concepts/apple-silicon-inference]] — Unified memory Macs for local inference; MLX vs llama.cpp runtimes
+- [[concepts/small-language-models]] — Sub-10B models (Phi-4, Gemma 3, Qwen 3 4B) running on 4GB RAM; 10-30x cheaper
+- [[concepts/local-knowledge-base]] — LLM-powered KB running entirely local: Ollama + open models + ChromaDB/FAISS
+- [[concepts/open-source-coding-models]] — Code LLMs: Qwen Coder 88.4% HumanEval, Codestral 95.3% FIM, DeepSeek 338 languages
+
+### Collective Intelligence & Collaborative Knowledge (Research: 2026-04-05)
+- [[concepts/collective-intelligence]] — Group capacity exceeding individuals, sustained by diversity/independence/aggregation, reshaped by AI
+- [[concepts/wisdom-of-crowds]] — Aggregated independent judgments outperform experts; Page's diversity prediction theorem
+- [[concepts/wikipedia-knowledge-model]] — Wikipedia's collaborative editorial model: consensus, verifiability, NPOV — under AI stress
+- [[concepts/collaborative-knowledge-building]] — Three paradigms: consensus (Wikipedia), plurality (Federated Wiki), accumulation (LLM-KB)
+- [[concepts/knowledge-commons]] — Collectively owned non-subtractible knowledge resources; Hess/Ostrom governance; AI parasitism crisis
+- [[concepts/human-ai-collaboration]] — Human-AI teams for knowledge creation; COHUMAIN framework; human-only teams still outperform
+- [[concepts/federated-knowledge]] — Distributed knowledge architectures: Cunningham's Federated Wiki, Wikibase federation
+- [[concepts/ai-generated-content-risks]] — Subtle misattribution, content homogenization, verification overwhelm, contribution displacement
+- [[concepts/ai-alignment-democratic]] — Citizens' assemblies, quadratic voting, liquid democracy for AI alignment (CIP, Anthropic)
+- [[concepts/transactive-memory-systems]] — Distributed cognition: who knows what, coordinated attention and reasoning (COHUMAIN)
+- [[concepts/digital-commons-governance]] — Ostrom's principles applied to digital knowledge; AI-era governance gap and proposals
+
+### PKM Methodologies & History (Research: 2026-04-05)
+- [[concepts/zettelkasten]] — Luhmann's slip-box method: atomic, hypertextually linked notes as a "communication partner"
+- [[concepts/evergreen-notes]] — Matuschak's framework: durable, evolving notes that accumulate insight over time
+- [[concepts/networked-thought]] — The paradigm of knowledge as interconnected networks, from Bush (1945) to modern tools
+- [[concepts/digital-garden]] — Public, continuously evolving knowledge sharing with epistemic status markers
+- [[concepts/progressive-summarization]] — Forte's layered distillation: bold, highlight, executive summary
+- [[concepts/para-method]] — Forte's organizational framework: Projects, Areas, Resources, Archive
+- [[concepts/memex-and-tools-for-thought]] — 80-year lineage from Bush's memex through Engelbart, Nelson, the Web to modern PKM
+- [[concepts/spaced-repetition]] — Adaptive review scheduling to combat the forgetting curve (Anki, FSRS)
+- [[concepts/learning-in-public]] — Publishing half-finished thoughts with epistemic markers; core digital garden practice
+- [[concepts/agentic-knowledge-management]] — AI agents proactively monitoring, proposing, and acting on knowledge bases
+
+
+### Enterprise & Scaling (Research: 2026-04-05)
+- [[concepts/enterprise-knowledge-management]] — The organizational discipline of capturing, organizing, and governing knowledge at scale; $13.7B market (2025)
+- [[concepts/knowledge-system-scaling]] — Three complexity dimensions (Volume, Velocity, Variety), four-phase architecture, governance maturity thresholds
+- [[concepts/knowledge-silos]] — Critical knowledge trapped in teams/systems; 79% of employees confirm; ~3.7h/day lost; up to 30% revenue impact
+- [[concepts/enterprise-search]] — AI-powered unified search across all enterprise apps; $6.83B market; evolving from search to agentic workflows
+- [[concepts/semantic-layer]] — Standardized abstraction between data repositories and front-end apps; key enabling technology for enterprise AI in 2026
+- [[concepts/ontology-and-taxonomy]] — Knowledge model hierarchy from controlled vocabulary to knowledge graph; ontology as "master data management for AI"
+- [[concepts/information-architecture]] — Structural design of shared information environments; determines how knowledge is organized, labeled, searched, and navigated
+- [[concepts/knowledge-governance]] — Policies, processes, roles, and standards governing knowledge lifecycle; prerequisite (not afterthought) to scaling
+- [[concepts/tacit-knowledge-capture]] — Capturing undocumented experiential knowledge; AI note-taking and transcription make enterprise-scale programs feasible
+- [[concepts/knowledge-management-challenges]] — Eight interconnected enterprise KM obstacles; well-implemented KM generates 200-400% ROI but fewer than 40% can measure it
 ### Human & Workflow
 - [[concepts/second-brain]] — Personal AI knowledge assistant: markdown wiki, graph DB, or production RAG
 - [[concepts/personal-knowledge-management]] — PKM evolution from manual notes to AI-maintained wikis
-- [[concepts/markdown-as-universal-interface]] — Why markdown is the optimal knowledge substrate
 - [[concepts/post-code-ai-workflow]] — Karpathy's shift: from code generation to knowledge compilation
 - [[concepts/knowledge-base-product-gap]] — "Hacky scripts" → product opportunity for accessible LLM-KB tooling
 
+## Entities
+
+### People
+- [[entities/andrej-karpathy]] — AI researcher who pioneered the LLM-maintained knowledge base workflow
+- [[entities/steph-ango]] — Obsidian CEO who recommended vault separation; articulated "file over app" philosophy
+- [[entities/elvis-saravia]] — DAIR.AI founder who formalized the four-phase operational cycle
+- [[entities/vannevar-bush]] — Engineer who envisioned the Memex in 1945
+- [[entities/sam-gallagher]] — Developer of the Knowledge Graph Kit (SQLite + ChromaDB)
+- [[entities/derek-sivers]] — Plain text advocate since 1990; author of "Write Plain Text Files"
+- [[entities/simon-willison]] — Creator of Datasette and LLM CLI tool; structured extraction advocate
+- [[entities/andrew-ng]] — AI researcher who popularized four agentic design patterns; architecture > model size
+- [[entities/dean-allemang]] — KG expert who demonstrated OWL + property graph + LLM complementarity
+- [[entities/niklas-luhmann]] — German sociologist (1927-1998) who created the Zettelkasten method with 90,000 index cards
+- [[entities/tiago-forte]] — Productivity consultant who created Building a Second Brain (BASB), PARA, and Progressive Summarization
+- [[entities/andy-matuschak]] — Researcher who developed the evergreen notes framework and pioneered public sliding-pane notes
+- [[entities/maggie-appleton]] — Designer and anthropologist who compiled the definitive history of digital gardens
+
+### Tools
+- [[entities/claude]] — Anthropic's frontier LLM family; Claude 4.6 features adaptive thinking and XML preference
+- [[entities/dspy]] — Declarative Self-improving Python: compiler for prompt optimization (46%→64% accuracy)
+- [[entities/textgrad]] — Gradient-based prompt optimization via natural language feedback (Nature 2025)
+- [[entities/prompt-engineering-guide]] — DAIR.AI's comprehensive open-source prompting reference (promptingguide.ai)
+- [[entities/obsidian]] — Markdown knowledge management app used as the LLM-KB frontend IDE
+- [[entities/obsidian-web-clipper]] — Browser extension for converting web pages to markdown
+- [[entities/marp]] — Markdown presentation framework for LLM-generated slide decks
+- [[entities/matplotlib]] — Python plotting library for LLM-generated visualizations
+- [[entities/dataview]] — Obsidian plugin for database-like queries over frontmatter
+- [[entities/templater]] — Obsidian advanced templating plugin: JS execution, dynamic variables, 230K+ installs
+- [[entities/excalidraw]] — Most-downloaded Obsidian plugin: freehand drawing and diagramming
+- [[entities/obsidian-copilot]] — #1 AI plugin for Obsidian: model-agnostic chat, vault RAG, 100K+ users
+- [[entities/smart-connections]] — Leading RAG-based Obsidian AI plugin for vault-wide conversational queries
+- [[entities/graphiti]] — Open-source temporal context graph framework by Zep
+- [[entities/chromadb]] — Open-source embedding database for semantic search
+- [[entities/faiss]] — Meta's open-source vector similarity search library
+- [[entities/pgvector]] — PostgreSQL extension for vector similarity search
+- [[entities/sqlite]] — Lightweight serverless database used in Knowledge Graph Kit
+- [[entities/neo4j]] — Native graph database used as Graphiti backend
+- [[entities/mongodb]] — Document database with vector search for production RAG
+- [[entities/llama]] — Meta's open-source LLM family, fine-tuned in Decoding AI pipeline
+- [[entities/zenml]] — MLOps pipeline orchestration framework
+- [[entities/vespa]] — Yahoo's hybrid search engine (vector + keyword + metadata)
+- [[entities/notion]] — Cloud-based knowledge management tool (traditional PKM baseline)
+- [[entities/roam-research]] — Pioneered bidirectional linking for networked thought (2020); graph database for ideas
+- [[entities/logseq]] — Open-source, local-first outliner with block-based architecture and advanced querying
+- [[entities/anki]] — Open-source spaced repetition software using FSRS algorithm; standard SRS tool
+- [[entities/google-notebooklm]] — Google's AI notebook, closest product to Karpathy's vision
+- [[entities/pandoc]] — Universal document converter (40+ formats, markdown-centric AST)
+- [[entities/markitdown]] — Microsoft's document-to-markdown converter for LLM pipelines
+- [[entities/mdx]] — Markdown + JSX component format
+- [[entities/markdowndb]] — Markdown-to-SQLite indexing tool
+- [[entities/instructor]] — Most popular Python library for structured LLM extraction (Pydantic + retry)
+- [[entities/ontogpt]] — Ontology-grounded information extraction using SPIRES zero-shot method
+- [[entities/claimify]] — Microsoft's 4-stage atomic claim extraction system (ACL 2025)
+- [[entities/kggen]] — Open-source knowledge graph extraction with generate-aggregate-cluster pipeline
+- [[entities/pydantic]] — Python data validation library; de facto standard for LLM extraction schemas
+- [[entities/mteb]] — Massive Text Embedding Benchmark: 8 task categories, 56+ English datasets, HF leaderboard
+- [[entities/sentence-transformers]] — Leading open-source Python library for text embeddings (sbert.net)
+- [[entities/pinecone]] — Fully managed vector database: HIPAA+ISO 27001, Pinecone Assistant for integrated RAG
+- [[entities/qdrant]] — Open-source Rust vector database: hybrid search, geo-spatial, multi-vector, sparse vectors
+- [[entities/weaviate]] — Cloud-native open-source vector DB: highest QPS (791), native hybrid search, generative module
+- [[entities/openai-embeddings]] — OpenAI embedding API: ada-002 (1536d), text-embedding-3-large (3072d, Matryoshka)
+- [[entities/claude-code]] — Anthropic's agentic coding tool: $2.5B revenue, 80.9% SWE-bench Verified
+- [[entities/cursor]] — AI-native IDE (VS Code fork): $2B+ ARR, $29.3B valuation, market-leading balanced coding experience
+- [[entities/github-copilot]] — Industry-standard AI coding assistant: $10/mo, 90% Fortune 100, universal IDE support
+- [[entities/aider]] — Open-source CLI coding agent: Git-native, model-flexible, transparent diffs
+- [[entities/devin]] — First autonomous AI software engineer by Cognition Labs (2024), $20/mo Core plan
+- [[entities/coderabbit]] — Most installed AI code review app: 2M+ repos, 13M+ PRs, free for open source
+- [[entities/graphite]] — AI code review with 96% positive rate: 55% developer action rate exceeds human reviewers
+- [[entities/addy-osmani]] — Google Chrome lead who published influential 10-step LLM coding workflow
+- [[entities/metr]] — AI safety org behind landmark RCT finding 19% developer slowdown with AI tools
+- [[entities/devin-ai]] — First autonomous AI software engineer by Cognition Labs (2024)
+- [[entities/microsoft-graphrag]] — Open-source graph-based RAG system from Microsoft Research
+- [[entities/ragas]] — Leading open-source framework for reference-free RAG evaluation
+- [[entities/langgraph]] — LangChain's state machine framework for agentic RAG and multi-step LLM apps
+- [[entities/raptor-paper]] — ICLR 2024 paper: recursive tree retrieval with +20% improvement on QuALITY
+- [[entities/microsoft-research]] — Developed GraphRAG and LazyGraphRAG for knowledge-graph-based retrieval
+- [[entities/karma-framework]] — NeurIPS 2025: 9-agent KG enrichment framework (83.1% accuracy)
+- [[entities/unstructured-io]] — Open-source document ETL library: 30+ formats, typed elements, 15M pages/hour enterprise
+- [[entities/firecrawl]] — AI web scraping API: markdown/JSON output, JS rendering, anti-bot, MCP Server
+- [[entities/apache-airflow]] — Dominant pipeline orchestrator (35% enterprise): DAGs, event-driven 3.0, ML integrations
+- [[entities/pymupdf]] — Fastest PDF parser (0.12s markdown): PyMuPDF4LLM variant for LLM pipelines
+- [[entities/docling]] — IBM document parsing toolkit (MIT): DocLayNet + TableFormer, 9/10 performance
+- [[entities/surya-ocr]] — Multilingual OCR toolkit: 90+ languages, Transformer recognition, 15-20% table improvement
+- [[entities/llamaparse]] — LlamaIndex managed PDF API: best-in-class for complex tables and figures
+- [[entities/llamaindex]] — Leading RAG framework: composable ingestion pipeline, node parsers, LlamaHub
+- [[entities/langchain]] — LLM application framework: document loaders, text splitters, chains, provider integrations
+- [[entities/colpali]] — ColBERT-like multimodal retrieval: direct visual document search without OCR
+
+### Open-Source LLMs & Local Inference Tools
+- [[entities/deepseek]] — Chinese AI lab; R1 triggered the "DeepSeek moment"; V3.2 (685B, MIT) surpassed GPT-5-High on math
+- [[entities/qwen]] — Alibaba's LLM family; Qwen 3.5 (397B MoE) leads reasoning; Coder 88.4% HumanEval beats GPT-4
+- [[entities/meta-llama]] — Meta's Llama family; Llama 4 introduced MoE (Scout 10M context, Maverick multimodal, Behemoth 2T)
+- [[entities/ollama]] — Most popular local LLM tool (150K+ stars); abstracts llama.cpp with Docker-like Modelfiles
+- [[entities/vllm]] — Production-grade inference engine; PagedAttention achieves 793 TPS on A100
+- [[entities/llama-cpp]] — C/C++ LLM inference engine; GGUF format, 1.5-8 bit quantization, cross-platform
+- [[entities/mlx]] — Apple's ML framework for Apple Silicon; zero-copy unified memory, leads throughput on <14B models
+- [[entities/lm-studio]] — Desktop GUI for local LLMs; best entry point for non-technical users
+- [[entities/phi]] — Microsoft's SLM family; Phi-4 (14B) beats GPT-4o on MATH; Phi-4-mini (3.8B) runs on 3GB
+- [[entities/gemma]] — Google's SLM family; 4B multimodal in 3GB; 270M runs 25 chats on 0.75% battery
+
+### Organizations
+- [[entities/eu-ai-act]] — World's first comprehensive AI regulation; risk-tiered, penalties up to EUR 35M, enforcement Aug 2026
+- [[entities/nist-ai-rmf]] — Voluntary U.S. AI risk management framework; Govern/Map/Measure/Manage functions
+- [[entities/future-of-life-institute]] — Research org publishing the AI Safety Index evaluating AI companies
+- [[entities/yoshua-bengio]] — Turing Award winner; chaired the 2026 International AI Safety Report
+- [[entities/anthropic]] — AI safety company behind Claude; leading in prompt engineering and agentic AI
+- [[entities/owasp]] — Ranked prompt injection as #1 AI security risk in 2025 Top 10 for LLMs
+- [[entities/zep]] — Company behind Graphiti, open-source temporal knowledge graphs
+- [[entities/dairai]] — AI education org that published the LLM-KB system architecture analysis
+
+- [[entities/memgpt-letta]] — MemGPT/Letta: OS-inspired virtual context management platform for stateful agents
+- [[entities/magic-ltm]] — Magic LTM-2-Mini: 100M token context via novel sequence-dimension algorithm
+- [[entities/lost-in-the-middle-paper]] — Liu et al. (TACL 2023): landmark paper on U-shaped performance curve
+
+### LLM Evaluation Tools & Benchmarks (Research: 2026-04-05)
+- [[entities/deepeval]] — Open-source LLM evaluation framework: 14+ metrics, Pytest-like API, CI/CD integration
+- [[entities/g-eval]] — LLM-as-Judge scoring with chain-of-thought reasoning and probability normalization
+- [[entities/mt-bench]] — Fixed 80-question multi-turn benchmark across 8 categories (LMSYS)
+- [[entities/chatbot-arena]] — Crowdsourced LLM evaluation: 300+ models, 1.5M+ preferences, Elo/Bradley-Terry scoring
+- [[entities/openfactcheck]] — Unified factuality evaluation: ResponseEvaluator + FactQA + FactBench
+- [[entities/mmlu]] — 15,908 questions across 57 subjects; saturated above 90% for frontier models
+- [[entities/helm]] — Most comprehensive academic evaluation: 42 scenarios, 7 metrics
+- [[entities/truthfulqa]] — 817 questions testing misconception propagation; state-of-the-art models score surprisingly low
+- [[entities/prometheus]] — Open-source LLM evaluator fine-tuned on 100K GPT-4 samples; 0.897 Pearson correlation
+
+### Papers, Systems & Models
+- [[entities/storm]] — Automated Wikipedia article creation via multi-perspective research
+- [[entities/karma]] — NeurIPS 2025 Spotlight: 9-agent knowledge graph enrichment
+- [[entities/freshwiki]] — Evaluation dataset of post-cutoff Wikipedia articles (STORM project)
+- [[entities/microsoft-phi]] — Phi model series: "textbook quality" synthetic data enables small models to rival 10-25x larger
+- [[entities/rome-memit]] — ROME/MEMIT: pioneering knowledge editing via causal tracing and rank-one MLP modifications
+
+### Multimodal AI
+- [[entities/clip]] — OpenAI CLIP: contrastive language-image pretraining; foundational for multimodal embeddings
+- [[entities/qwen3-vl]] — Alibaba 235B open-source VLM rivaling GPT-5 and Gemini
+- [[entities/deplot]] — Google chart-to-text conversion tool for multimodal RAG pipelines
+
+### Collective Intelligence & Collaborative Knowledge
+- [[entities/collective-intelligence-project]] — CIP: nonprofit R&D lab for CI mechanisms in AI governance (Siddarth, Huang)
+- [[entities/ward-cunningham]] — Inventor of the wiki (1995) and Federated Wiki (2011)
+- [[entities/wikipedia]] — World's largest collaboratively edited encyclopedia (60M+ articles)
+- [[entities/wikidata]] — Wikimedia's structured knowledge base (100M+ items, SPARQL endpoint)
+- [[entities/elinor-ostrom]] — Nobel Prize-winning commons governance theorist
+
+### Standards & Governance
+- [[entities/agentic-ai-foundation]] — Linux Foundation body governing MCP, co-founded by Anthropic, Block, OpenAI (Dec 2025)
+- [[entities/google-adk]] — Google Agent Development Kit: framework integrating six agent protocols
+
+### Historical
+- [[entities/memex]] — Vannevar Bush's 1945 vision of a personal knowledge device
+
+## Comparisons
+
+- [[comparisons/rag-vs-index-based-retrieval]] — RAG pipelines vs. simple index-based LLM navigation
+- [[comparisons/vector-db-vs-bm25-search]] — Dense vector search vs. sparse keyword-based BM25 retrieval
+- [[comparisons/storm-vs-karpathy-workflow]] — STORM's single-shot automation vs. Karpathy's accumulating KB
+- [[comparisons/knowledge-graph-vs-wiki]] — Formal knowledge graphs (nodes/edges) vs. flat markdown wikis
+- [[comparisons/manual-pkm-vs-llm-pkm]] — Traditional manual PKM vs. LLM-maintained knowledge bases
+- [[comparisons/cursor-vs-claude-code-vs-copilot]] — The three dominant AI coding tools: Cursor (balanced IDE), Claude Code (deepest reasoning), Copilot (lowest friction)
+- [[comparisons/fine-tuning-vs-context-window]] — Encoding knowledge in weights vs. loading in context
+- [[comparisons/single-agent-vs-multi-agent]] — Single-LLM vs. multi-agent knowledge pipelines
+- [[comparisons/obsidian-vs-graph-database]] — File-based markdown storage vs. graph database storage
+### PKM Comparisons (Research: 2026-04-05)
+- [[comparisons/zettelkasten-vs-basb]] — Zettelkasten (insight generation) vs BASB (creative output): organizing principles, note structure, and workflows
+- [[comparisons/obsidian-vs-logseq-vs-notion]] — 2026 tool comparison: local-first vs cloud-first, performance benchmarks, AI features
+- [[comparisons/manual-vs-ai-pkm]] — Four stages of PKM evolution: manual, AI-assisted, AI-maintained, and agentic
+
+- [[comparisons/text-rag-vs-multimodal-rag]] — Text-only RAG vs multimodal RAG: when visual content justifies added complexity
+- [[comparisons/markdown-vs-proprietary-formats]] — Markdown vs Word/Notion/Evernote/Google Docs across longevity, AI-readability, portability
+- [[comparisons/rag-vs-fine-tuning]] — RAG (dynamic, traceable) vs fine-tuning (persistent, fast) with hybrid RAFT approach
+- [[comparisons/lora-vs-qlora]] — LoRA (16-bit, 90-95% quality) vs QLoRA (4-bit, 80-90% quality) memory and quality tradeoffs
+- [[comparisons/knowledge-editing-vs-fine-tuning]] — Surgical fact editing vs broad domain adaptation: granularity, cost, and scalability
+- [[comparisons/semantic-vs-keyword-search]] — Semantic (meaning-based) vs keyword (exact-term) search: complementary failure modes
+- [[comparisons/pinecone-vs-qdrant-vs-weaviate]] — Three leading vector databases: managed vs open-source, features, QPS, pricing
+- [[comparisons/bi-encoder-vs-cross-encoder-vs-colbert]] — Three neural retrieval architectures: speed, accuracy, and storage tradeoffs
+- [[comparisons/rdf-vs-property-graph]] — RDF (W3C, reasoning) vs property graph (performance, developer-friendly) for knowledge graphs
+- [[comparisons/knowledge-graph-vs-vector-database]] — KGs (explainability, multi-hop) vs vector DBs (semantic search); hybrid recommended
+- [[comparisons/kge-vs-llm-for-knowledge-graphs]] — KGE (TransE, ComplEx) vs LLMs for link prediction: LLMs dominate multi-hop (F1 0.98 vs 0.61)
+- [[comparisons/claude-code-vs-devin]] — Two leading agentic coding tools: terminal-first vs sandboxed environment
+- [[comparisons/react-vs-reflection-vs-planning]] — Three complementary agent reasoning patterns compared
+- [[comparisons/rag-vs-long-context]] — RAG (fast, cheap, precise) vs long context (full reasoning, simple); hybrid standard
+- [[comparisons/context-management-approaches]] — Compression vs virtual context vs infinite context vs context engineering
+- [[comparisons/consensus-vs-federated-vs-ai-knowledge]] — Wikipedia consensus vs Federated Wiki plurality vs AI-compiled knowledge systems
+
+
+- [[comparisons/open-source-vs-closed-llms]] — Performance gap near zero by 2026; open ~10x cheaper but requires -190K/year infrastructure
+- [[comparisons/ollama-vs-vllm]] — Ollama (dev, 41 TPS) vs vLLM (production, 793 TPS); fundamentally different use cases
+- [[comparisons/local-vs-cloud-knowledge-base]] — Cloud KB superior reasoning vs local KB privacy/offline/zero-cost; hybrid recommended
+- [[comparisons/mlx-vs-llamacpp]] — MLX +21-87% for <14B on Apple Silicon; llama.cpp for large models and cross-platform
+- [[comparisons/pdf-parsers-comparison]] — PyMuPDF vs Docling vs Unstructured vs Nougat vs LlamaParse: speed, accuracy, deployment
+- [[comparisons/unstructured-vs-langchain]] — Unstructured (document ETL) vs LangChain (LLM orchestration): complementary tools
+- [[comparisons/static-vs-dynamic-benchmarks]] — Static (MMLU, fixed) vs dynamic (Arena, LiveCodeBench) benchmarks: contamination resistance vs reproducibility
+- [[comparisons/llm-judge-vs-human-evaluation]] — LLM-as-Judge (sub-, sub-minute) vs human evaluation (gold standard for factuality and safety)
+- [[comparisons/ragas-vs-deepeval]] — RAGAS (RAG-specialized, reference-free) vs DeepEval (general LLM eval, 14+ metrics, Pytest API)
+- [[comparisons/ocr-vs-vlm-document-processing]]
+- [[comparisons/mcp-vs-function-calling]] — MCP (provider-agnostic, secure, scalable) vs function calling (simple, fast setup); MCP for production — Traditional OCR vs VLMs vs hybrid: speed, accuracy, cost tradeoffs for document processing
+
+- [[comparisons/gptq-vs-awq-vs-gguf]] — GPTQ (GPU default) vs AWQ (best speed-quality) vs GGUF (CPU/Apple)
+- [[comparisons/vllm-vs-sglang]] — vLLM (safe default, broad hardware) vs SGLang (throughput leader, multi-turn)
+
+### LLM Inference Optimization & Cost Management (Research: 2026-04-05)
+- [[sources/premai-llm-cost-optimization-guide]] — 8 strategies cutting API spend by 80%
+- [[sources/anthropic-prompt-caching]] — Prompt caching: 90% cost, 79% latency reduction
+- [[sources/bentoml-speculative-decoding]] — Speculative decoding: 2-3x lossless speedup
+- [[sources/bentoml-batching-strategies]] — Batching evolution, 23x throughput
+- [[sources/premai-inference-servers-compared]] — vLLM vs SGLang vs TGI vs Triton 2026
+- [[sources/redis-token-optimization]] — Token optimization, semantic caching 73%
+- [[sources/kv-cache-optimization-techniques]] — GQA, SWA, PagedAttention
+- [[sources/quantization-gptq-gguf-awq]] — GPTQ vs AWQ vs GGUF
+- [[sources/ibm-llm-routing]] — IBM predictive routing, GPT-4 at lower cost
+- [[sources/on-device-llms-2026]] — On-device LLMs 2026, ExecuTorch, sub-3B
+- [[concepts/llm-inference-optimization]] — KV cache, batching, quantization, speculative decoding
+- [[concepts/llm-cost-optimization]] — 8-strategy framework for 50-85% reduction
+- [[concepts/kv-cache]] — PagedAttention, GQA, SWA, distributed caching
+- [[concepts/speculative-decoding]] — Draft-then-verify, 2-3x lossless speedup
+- [[concepts/continuous-batching]] — 23x throughput, 90%+ GPU utilization
+- [[concepts/model-routing]] — Intelligent dispatch, 40-85% savings
+- [[concepts/semantic-caching]] — Vector caching, 61-73% reduction
+- [[concepts/token-optimization]] — Prompt compression, output constraints
+- [[concepts/edge-inference]] — Sub-3B on-device, <20ms/token
+- [[concepts/llm-serving-frameworks]] — vLLM, SGLang, Triton landscape
+- [[concepts/llm-api-pricing]] — 2026 pricing, 80% drop since 2025
+- [[concepts/batch-inference]] — Batch endpoints 50% discount
+- [[entities/sglang]] — Throughput leader, RadixAttention
+- [[entities/executorch]] — Meta ExecuTorch 1.0, 50KB, 12+ backends
+- [[entities/redis]] — Semantic caching platform
+- [[entities/ibm-research]] — Predictive routing, RouterBench
+
+
+### Tokenization & Text Processing (Sources)
+- [[sources/raschka-bpe-from-scratch]] — BPE tokenizer implementation from scratch (Sebastian Raschka)
+- [[sources/huggingface-tokenization-algorithms]] — Canonical comparison of BPE, WordPiece, Unigram, SentencePiece
+- [[sources/kamali-tokenization-killing-multilingual]] — Multilingual tokenization as structural barrier for low-resource languages
+- [[sources/trott-tokenization-llms]] — Tokenization in LLMs: subwords, morphemes, and performance impact
+- [[sources/karpathy-minbpe-lecture]] — Karpathy's 2h13m lecture building a GPT tokenizer from scratch
+- [[sources/rohan-paul-vocabulary-size-tradeoffs]] — Vocabulary size trade-offs: GPT-4 (100k), LLaMA 3 (128k), Mistral (131k)
+- [[sources/evabyte-tokenization-free-model]] — EvaByte: 6.5B tokenization-free byte-level language model
+- [[sources/ali-tokenizer-choice-negligible-crucial]] — Research paper: tokenizer choice is crucial, not negligible (24 models, 41 tasks)
+- [[sources/winder-token-count-practical-guide]] — Practical guide to token counting for LLM APIs
+- [[sources/github-faster-bpe-tokenizer]] — GitHub's 4x-faster BPE tokenizer with linear time complexity
+
+### Tokenization Concepts
+- [[concepts/tokenization]] — The fundamental process of converting raw text into discrete integer tokens for LLMs
+- [[concepts/byte-pair-encoding]] — The most popular tokenization algorithm (GPT, Llama, Gemma, Qwen)
+- [[concepts/subword-tokenization]] — The dominant paradigm: splitting text between words and characters
+- [[concepts/wordpiece]] — BERT-family algorithm: likelihood-based merging
+- [[concepts/unigram-tokenization]] — Top-down probabilistic pruning (T5, BigBird, Pegasus)
+- [[concepts/sentencepiece]] — Language-agnostic tokenization library for raw text streams
+- [[concepts/vocabulary-size-tradeoffs]] — Vocabulary size vs. sequence length vs. embedding overhead
+- [[concepts/multilingual-tokenization]] — Tokenization inequality across languages (2-15x overhead)
+- [[concepts/byte-level-models]] — Tokenization-free models processing raw UTF-8 bytes
+- [[concepts/token-counting]] — Practical token management for API cost and context budgeting
+
+### Tokenization Entities
+- [[entities/tiktoken]] — OpenAI's fast BPE tokenizer library
+- [[entities/minbpe]] — Karpathy's minimal BPE reference implementation
+- [[entities/evabyte]] — 6.5B open-source tokenization-free language model
+- [[entities/sebastian-raschka]] — ML researcher, author of BPE implementation tutorials
+- [[entities/philip-gage]] — Inventor of Byte Pair Encoding (1994)
+
+### Tokenization Comparisons
+- [[comparisons/bpe-vs-wordpiece-vs-unigram]] — Three dominant subword tokenization algorithms compared
+
 ## Statistics
 
-- Total sources: 11
-- Total concepts: 20
-- Total raw files: 9
+### LLM Training Data, Dataset Curation & Data Quality (Research: 2026-04-05)
+- [[sources/dclm-datacomp-language-models]] — DCLM: 240T-token testbed; fastText filtering; 7B→64% MMLU
+- [[sources/fineweb-dataset-huggingface]] — FineWeb: 15T tokens; per-dump dedup; Edu + multilingual variants
+- [[sources/nemotron-cc-nvidia]] — Nemotron-CC: 6.3T tokens; classifier ensembling + synthesis
+- [[sources/scaling-laws-data-quality]] — Quality-aware scaling law L(N,D,Q) extending Chinchilla
+- [[sources/synthetic-data-llm-pretraining-study]] — 30% synthetic + 70% natural optimal; textbook collapse
+- [[sources/data-deduplication-trillion-scale]] — MinHash LSH at trillion scale
+- [[sources/rlhf-preference-data-collection]] — Preference data: on-policy, operational complexity
+- [[sources/benchmark-data-contamination]] — Fidelity-resistance tradeoff in contamination
+- [[sources/multilingual-llm-training-data]] — English dominance, NMT solutions
+- [[sources/copyright-ai-training-data-2025]] — 2025 fair use rulings, 2026 outlook
+- [[sources/nebius-llm-data-preparation]] — End-to-end data prep pipeline
+- [[concepts/training-data-curation]] — Raw web crawls → high-quality training datasets
+- [[concepts/model-based-filtering]] — Most impactful curation technique
+- [[concepts/data-deduplication]] — Dedup at trillion-token scale
+- [[concepts/synthetic-data-in-pretraining]] — 30/70 synthetic/natural optimal
+- [[concepts/benchmark-contamination]] — Evaluation data leaking into training
+- [[concepts/preference-data]] — Human/AI judgments for RLHF
+- [[concepts/multilingual-training-data]] — Equitable training data across languages
+- [[concepts/copyright-and-training-data]] — Legal landscape for AI training
+- [[concepts/instruction-tuning]] — Bridge between pretraining and RLHF
+- [[entities/common-crawl]] — Foundational web crawl archive
+- [[entities/fineweb]] — HuggingFace 15T-token dataset
+- [[entities/dclm]] — Apple/UW benchmark + dataset
+- [[entities/nemotron-cc]] — NVIDIA 6.3T-token dataset
+- [[entities/chinchilla]] — Compute-optimal scaling laws
+- [[entities/minhash-lsh]] — Standard dedup algorithm
+- [[entities/anthropic-hh-rlhf]] — 170K preference dataset
+- [[entities/nathan-lambert]] — RLHF Book author
+- [[comparisons/fineweb-vs-dclm-vs-nemotron-cc]] — Three leading pretraining datasets
+- [[comparisons/heuristic-vs-model-based-filtering]] — Rule-based vs classifier filtering
+
+- Total sources: 128
+- Total concepts: 137
+- Total entities: 93
+- Total comparisons: 33
+- Total raw files: 128
+

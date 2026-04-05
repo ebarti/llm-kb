@@ -5,6 +5,7 @@ sources: ["[[sources/antigravity-post-code-ai-workflow]]"]
 related: ["[[concepts/llm-knowledge-base]]", "[[concepts/wiki-compilation]]"]
 last_compiled: 2026-04-05
 summary: "Karpathy's framing of a shift in AI-augmented developer work: from code generation as the primary token use, to knowledge compilation and orchestration — 'manipulating knowledge, not code.'"
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -39,3 +40,7 @@ The developers who thrive will be those who build strong knowledge systems — s
 ## Related Concepts
 - [[concepts/llm-knowledge-base]] — the tool for the post-code workflow
 - [[concepts/wiki-compilation]] — the maintenance activity
+
+## Related Entities
+
+- [[entities/andrej-karpathy]] — articulated the trajectory from vibe coding to knowledge orchestration

@@ -5,6 +5,7 @@ source: "[[raw/antigravity-post-code-ai-workflow]]"
 related: ["[[concepts/llm-knowledge-base]]", "[[concepts/wiki-compilation]]", "[[concepts/post-code-ai-workflow]]", "[[concepts/hallucination-contamination]]", "[[concepts/markdown-as-universal-interface]]"]
 last_compiled: 2026-04-05
 summary: "Broadest analysis of Karpathy's LLM KB shift: the 6-step workflow, developer role transformation, real-world applications across 7 domains, hallucination contamination risk, and minimum viable setup."
+reading_time: "2 min"
 ---
 
 ## Key Points

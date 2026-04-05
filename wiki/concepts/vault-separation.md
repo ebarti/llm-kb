@@ -5,6 +5,7 @@ sources: ["[[sources/antigravity-post-code-ai-workflow]]"]
 related: ["[[concepts/hallucination-contamination]]", "[[concepts/obsidian-as-ide]]", "[[concepts/llm-knowledge-base]]"]
 last_compiled: 2026-04-05
 summary: "Steph Ango's (Obsidian CEO) recommendation to maintain a clean human-curated Obsidian vault separately from agent-generated content, preventing hallucination contamination of personal knowledge."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -37,3 +38,8 @@ For users who fully understand the hallucination risk and want unified search ac
 - [[concepts/hallucination-contamination]] — the risk being mitigated
 - [[concepts/obsidian-as-ide]] — Obsidian as the vault viewer
 - [[concepts/linting-and-health-checks]] — complementary mitigation
+
+## Related Entities
+
+- [[entities/steph-ango]] — recommended the two-vault pattern
+- [[entities/obsidian]] — the application whose vault system enables this

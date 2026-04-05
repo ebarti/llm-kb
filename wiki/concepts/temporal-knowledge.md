@@ -1,10 +1,11 @@
 ---
 title: "Temporal Knowledge"
 type: concept
-sources: ["[[sources/graphiti-temporal-knowledge-graphs]]"]
-related: ["[[concepts/knowledge-graph]]", "[[concepts/llm-knowledge-base]]"]
+sources: ["[[sources/graphiti-temporal-knowledge-graphs]]", "[[sources/temporal-knowledge-graphs-survey]]"]
+related: ["[[concepts/knowledge-graph]]", "[[concepts/llm-knowledge-base]]", "[[concepts/temporal-knowledge-graphs]]"]
 last_compiled: 2026-04-05
 summary: "Graphiti's core contribution: representing knowledge with temporal validity windows (when a fact became true and when it was superseded) rather than treating facts as eternally true or false — critical for AI agents in dynamic environments."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -46,3 +47,9 @@ This is sufficient for research knowledge (papers don't change) but insufficient
 ## Related Concepts
 - [[concepts/knowledge-graph]] — the broader representation
 - [[concepts/llm-knowledge-base]] — handles temporality implicitly via linting
+
+## Related Entities
+
+- [[entities/graphiti]] — framework implementing temporal validity windows
+- [[entities/zep]] — organization behind Graphiti
+- [[entities/neo4j]] — graph database backend

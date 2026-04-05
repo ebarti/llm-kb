@@ -1,10 +1,11 @@
 ---
 title: "Vector Databases"
 type: concept
-sources: ["[[sources/hn-vector-database-debate]]", "[[sources/decodingai-second-brain-rag]]", "[[sources/pebblous-cheap-ontology]]"]
-related: ["[[concepts/rag-vs-index-based-retrieval]]", "[[concepts/llm-knowledge-base]]", "[[concepts/knowledge-graph]]"]
+sources: ["[[sources/hn-vector-database-debate]]", "[[sources/decodingai-second-brain-rag]]", "[[sources/pebblous-cheap-ontology]]", "[[sources/xenoss-vector-db-comparison]]"]
+related: ["[[concepts/rag-vs-index-based-retrieval]]", "[[concepts/llm-knowledge-base]]", "[[concepts/knowledge-graph]]", "[[concepts/vector-search]]", "[[concepts/hnsw]]", "[[concepts/hybrid-search]]", "[[comparisons/pinecone-vs-qdrant-vs-weaviate]]"]
 last_compiled: 2026-04-05
 summary: "Specialized databases for approximate nearest-neighbor (ANN) search over embedding vectors, necessary at billion-vector scale but often overkill for personal or team-scale LLM knowledge bases where pgvector, FAISS, or index-based LLM navigation suffice."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -47,3 +48,16 @@ This "index-based navigation" approach:
 - [[concepts/rag-vs-index-based-retrieval]] — the comparison with index-based navigation
 - [[concepts/llm-knowledge-base]] — the system that avoids vector DBs
 - [[concepts/knowledge-graph]] — alternative structured retrieval approach
+
+## Related Entities
+
+- [[entities/pgvector]] — PostgreSQL extension for vector search
+- [[entities/faiss]] — Meta's open-source vector similarity library
+- [[entities/chromadb]] — lightweight embedding database
+- [[entities/vespa]] — hybrid search engine (vector + keyword + metadata)
+- [[entities/mongodb]] — document DB with vector search for production RAG
+
+## Related Comparisons
+
+- [[comparisons/rag-vs-index-based-retrieval]] — when vector DBs are needed vs. index navigation
+- [[comparisons/vector-db-vs-bm25-search]] — dense vector vs. sparse keyword search

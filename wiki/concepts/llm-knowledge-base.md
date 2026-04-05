@@ -5,6 +5,7 @@ sources: ["[[sources/karpathy-llm-knowledge-bases]]"]
 related: ["[[concepts/wiki-compilation]]", "[[concepts/obsidian-as-ide]]", "[[concepts/llm-qa-over-documents]]", "[[concepts/linting-and-health-checks]]", "[[concepts/rag-vs-index-based-retrieval]]"]
 last_compiled: 2026-04-05
 summary: "A personal knowledge base where an LLM authors and maintains all wiki content from raw ingested sources, with humans interacting only via natural language."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -43,3 +44,17 @@ output/       ← reports, slides, images (filed back into wiki)
 - [[concepts/llm-qa-over-documents]] — Q&A over the compiled wiki
 - [[concepts/linting-and-health-checks]] — maintaining wiki integrity
 - [[concepts/rag-vs-index-based-retrieval]] — why simple indexing can beat RAG
+
+## Related Entities
+
+- [[entities/andrej-karpathy]] — originator of this methodology
+- [[entities/obsidian]] — the IDE/viewer
+- [[entities/marp]], [[entities/matplotlib]] — multi-format output tools
+- [[entities/obsidian-web-clipper]] — primary ingestion tool
+
+## Related Comparisons
+
+- [[comparisons/storm-vs-karpathy-workflow]] — single-shot vs. accumulating KB
+- [[comparisons/knowledge-graph-vs-wiki]] — graphs vs. markdown
+- [[comparisons/manual-pkm-vs-llm-pkm]] — manual vs. AI-maintained PKM
+- [[comparisons/fine-tuning-vs-context-window]] — weights vs. context

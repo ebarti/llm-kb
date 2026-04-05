@@ -1,0 +1,126 @@
+#!/bin/bash
+# discover — Monitor CLI wrapper
+#
+# Usage:
+#   ./tools/monitor/discover                 Check all topics for new content
+#   ./tools/monitor/discover --ingest        Check and auto-ingest new content
+#   ./tools/monitor/discover --report        Generate discovery suggestions
+#   ./tools/monitor/discover --feeds         Check RSS feeds
+#   ./tools/monitor/discover --all           Run everything
+#   ./tools/monitor/discover --help          Show this help
+#
+# Options are combinable:
+#   ./tools/monitor/discover --feeds --report
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+KB_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Defaults
+DO_TOPICS=false
+DO_INGEST=false
+DO_REPORT=false
+DO_FEEDS=false
+DO_ALL=false
+EXTRA_ARGS=()
+
+# Parse arguments
+if [[ $# -eq 0 ]]; then
+    DO_TOPICS=true
+fi
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --ingest)
+            DO_TOPICS=true
+            DO_INGEST=true
+            shift
+            ;;
+        --report)
+            DO_REPORT=true
+            shift
+            ;;
+        --feeds)
+            DO_FEEDS=true
+            shift
+            ;;
+        --all)
+            DO_ALL=true
+            shift
+            ;;
+        --help|-h)
+            echo -e "${GREEN}discover${NC} — Auto-discovery and topic monitoring"
+            echo ""
+            echo "Usage:"
+            echo "  ./tools/monitor/discover                 Check all topics for new content"
+            echo "  ./tools/monitor/discover --ingest        Check and auto-ingest new content"
+            echo "  ./tools/monitor/discover --report        Generate discovery suggestions"
+            echo "  ./tools/monitor/discover --feeds         Check RSS feeds"
+            echo "  ./tools/monitor/discover --all           Run everything"
+            echo ""
+            echo "Extra arguments are passed through to the underlying scripts."
+            echo "  ./tools/monitor/discover --topic 'RAG'   Only check RAG topics"
+            echo "  ./tools/monitor/discover --days 7        Look back 7 days"
+            echo "  ./tools/monitor/discover --feeds --all   Show all feed entries"
+            exit 0
+            ;;
+        *)
+            EXTRA_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+if $DO_ALL; then
+    DO_TOPICS=true
+    DO_INGEST=true
+    DO_REPORT=true
+    DO_FEEDS=true
+fi
+
+echo -e "${BLUE}========================================${NC}"
+echo -e "${BLUE}  KB Auto-Discovery & Monitoring${NC}"
+echo -e "${BLUE}========================================${NC}"
+echo ""
+
+EXIT_CODE=0
+
+# --- Topic monitoring ---
+if $DO_TOPICS; then
+    echo -e "${GREEN}[1/3] Topic Monitor${NC}"
+    echo "---"
+    MONITOR_ARGS=("${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}")
+    if $DO_INGEST; then
+        MONITOR_ARGS+=("--ingest")
+    fi
+    python3 "$SCRIPT_DIR/monitor.py" "${MONITOR_ARGS[@]}" || EXIT_CODE=$?
+    echo ""
+fi
+
+# --- RSS feeds ---
+if $DO_FEEDS; then
+    echo -e "${GREEN}[2/3] RSS Feed Watcher${NC}"
+    echo "---"
+    python3 "$SCRIPT_DIR/rss.py" "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}" || EXIT_CODE=$?
+    echo ""
+fi
+
+# --- Report ---
+if $DO_REPORT; then
+    echo -e "${GREEN}[3/3] Discovery Report${NC}"
+    echo "---"
+    python3 "$SCRIPT_DIR/report.py" "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}" || EXIT_CODE=$?
+    echo ""
+fi
+
+echo -e "${BLUE}========================================${NC}"
+echo -e "${BLUE}  Done.${NC}"
+echo -e "${BLUE}========================================${NC}"
+
+exit $EXIT_CODE

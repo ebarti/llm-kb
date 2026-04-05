@@ -7,5 +7,9 @@
   "foldIndent": true,
   "newFileLocation": "folder",
   "newFileFolderPath": "wiki/concepts",
-  "attachmentFolderPath": "raw"
+  "attachmentFolderPath": "raw",
+  "strictLineBreaks": false,
+  "readableLineLength": true,
+  "showLineNumber": true,
+  "templateFolderPath": "templates"
 }

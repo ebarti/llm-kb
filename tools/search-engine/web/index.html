@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki Search</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header / Stats bar -->
+        <header id="header">
+            <div class="header-left">
+                <h1 class="logo" onclick="showSearch()">&#x1F50D; Wiki Search</h1>
+            </div>
+            <div class="header-stats" id="stats-bar">
+                <span class="stat" id="stat-total">--</span>
+                <span class="stat" id="stat-concepts">--</span>
+                <span class="stat" id="stat-sources">--</span>
+                <span class="stat" id="stat-entities">--</span>
+            </div>
+            <div class="header-right">
+                <button class="btn-icon" id="graph-btn" onclick="toggleGraph()" title="Knowledge Graph">&#x1F578;</button>
+            </div>
+        </header>
+
+        <!-- Search panel -->
+        <div id="search-panel">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search the knowledge base..."
+                       autocomplete="off" autofocus>
+            </div>
+            <div class="filters">
+                <select id="filter-type">
+                    <option value="all">All types</option>
+                    <option value="concept">Concepts</option>
+                    <option value="source">Sources</option>
+                    <option value="entity">Entities</option>
+                    <option value="comparison">Comparisons</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div id="main-content">
+            <!-- Results list -->
+            <div id="results-panel">
+                <div id="results-info"></div>
+                <div id="results-list"></div>
+            </div>
+
+            <!-- Article view -->
+            <div id="article-panel" class="hidden">
+                <button class="back-btn" onclick="showSearch()">&#x2190; Back to results</button>
+                <div id="article-content"></div>
+                <div id="article-sidebar">
+                    <div id="sidebar-related"></div>
+                    <div id="sidebar-backlinks"></div>
+                </div>
+            </div>
+
+            <!-- Graph view -->
+            <div id="graph-panel" class="hidden">
+                <button class="back-btn" onclick="showSearch()">&#x2190; Back to search</button>
+                <svg id="graph-svg"></svg>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

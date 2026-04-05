@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Source: LLMs That Compile Knowledge: The Karpathy Methodology and the Democratization of Ontology - LLM Knowledge Base</title>
+<style>
+:root {
+  --bg: #1e1e2e;
+  --bg-secondary: #181825;
+  --bg-tertiary: #11111b;
+  --text: #cdd6f4;
+  --text-muted: #a6adc8;
+  --text-faint: #6c7086;
+  --accent: #89b4fa;
+  --accent-hover: #74c7ec;
+  --border: #313244;
+  --code-bg: #181825;
+  --link: #89b4fa;
+  --link-hover: #74c7ec;
+  --tag-bg: #313244;
+  --tag-text: #cba6f7;
+  --blockquote-border: #cba6f7;
+  --sidebar-bg: #181825;
+  --sidebar-width: 280px;
+  --header-height: 56px;
+  --success: #a6e3a1;
+  --warning: #f9e2af;
+  --error: #f38ba8;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+[data-theme="light"] {
+  --bg: #eff1f5;
+  --bg-secondary: #e6e9ef;
+  --bg-tertiary: #dce0e8;
+  --text: #4c4f69;
+  --text-muted: #6c6f85;
+  --text-faint: #9ca0b0;
+  --accent: #1e66f5;
+  --accent-hover: #2a6ef5;
+  --border: #ccd0da;
+  --code-bg: #e6e9ef;
+  --link: #1e66f5;
+  --link-hover: #2a6ef5;
+  --tag-bg: #dce0e8;
+  --tag-text: #8839ef;
+  --blockquote-border: #8839ef;
+  --sidebar-bg: #e6e9ef;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  display: flex;
+  min-height: 100vh;
+}
+
+a { color: var(--link); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--link-hover); text-decoration: underline; }
+
+/* Header / Topbar */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--header-height);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  box-shadow: var(--shadow);
+}
+.topbar .logo {
+  font-weight: 700; font-size: 1.1rem;
+  color: var(--accent); white-space: nowrap;
+}
+.topbar .search-box {
+  flex: 1; max-width: 480px; position: relative;
+}
+.topbar .search-box input {
+  width: 100%; padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg); color: var(--text);
+  font-size: 0.9rem; outline: none;
+}
+.topbar .search-box input:focus { border-color: var(--accent); }
+.search-results {
+  display: none; position: absolute; top: 100%; left: 0; right: 0;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: 6px; max-height: 400px; overflow-y: auto;
+  box-shadow: var(--shadow); z-index: 200; margin-top: 4px;
+}
+.search-results.active { display: block; }
+.search-results a {
+  display: block; padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border); color: var(--text);
+}
+.search-results a:hover { background: var(--bg); text-decoration: none; }
+.search-results a small { color: var(--text-muted); }
+
+.theme-toggle {
+  background: none; border: 1px solid var(--border);
+  border-radius: 6px; padding: 0.4rem 0.7rem;
+  color: var(--text); cursor: pointer; font-size: 1rem;
+  transition: background 0.2s;
+}
+.theme-toggle:hover { background: var(--bg); }
+
+.sidebar-toggle {
+  display: none; background: none; border: none;
+  color: var(--text); font-size: 1.4rem; cursor: pointer;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed; top: var(--header-height); left: 0; bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 1rem 0;
+  z-index: 50;
+  transition: transform 0.3s;
+}
+.sidebar h3 {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-faint); padding: 0.6rem 1.2rem 0.3rem;
+  cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.sidebar h3::before {
+  content: "\25BE"; font-size: 0.7rem; transition: transform 0.2s;
+}
+.sidebar h3.collapsed::before { transform: rotate(-90deg); }
+.sidebar ul {
+  list-style: none; padding: 0 0 0.5rem;
+}
+.sidebar h3.collapsed + ul { display: none; }
+.sidebar li a {
+  display: block; padding: 0.3rem 1.2rem 0.3rem 1.6rem;
+  color: var(--text-muted); font-size: 0.88rem;
+  border-left: 2px solid transparent; transition: all 0.15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar li a:hover, .sidebar li a.active {
+  color: var(--accent); border-left-color: var(--accent);
+  background: var(--bg); text-decoration: none;
+}
+
+/* Main content */
+.main {
+  margin-left: var(--sidebar-width);
+  margin-top: var(--header-height);
+  flex: 1; padding: 2rem 3rem 4rem;
+  max-width: 900px;
+  min-height: calc(100vh - var(--header-height));
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  font-size: 0.85rem; color: var(--text-faint);
+  margin-bottom: 1.5rem;
+}
+.breadcrumbs a { color: var(--text-muted); }
+.breadcrumbs span { margin: 0 0.4rem; }
+
+/* Metadata header */
+.meta-header {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1rem 1.4rem; margin-bottom: 2rem;
+  font-size: 0.88rem;
+}
+.meta-header .meta-title { font-size: 0.75rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+.meta-header .meta-value { color: var(--text); margin-bottom: 0.3rem; }
+.meta-header .tag {
+  display: inline-block; background: var(--tag-bg); color: var(--tag-text);
+  padding: 0.15rem 0.55rem; border-radius: 4px; font-size: 0.8rem; margin: 0.1rem 0.2rem;
+}
+
+/* Article content */
+.content h1 { font-size: 2rem; margin: 0 0 1rem; font-weight: 700; color: var(--text); }
+.content h2 { font-size: 1.5rem; margin: 2rem 0 0.8rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); color: var(--text); }
+.content h3 { font-size: 1.2rem; margin: 1.5rem 0 0.6rem; color: var(--text); }
+.content h4, .content h5, .content h6 { font-size: 1rem; margin: 1.2rem 0 0.5rem; color: var(--text-muted); }
+.content p { margin: 0.6rem 0; }
+.content ul, .content ol { padding-left: 1.5rem; margin: 0.6rem 0; }
+.content li { margin: 0.25rem 0; }
+
+.content pre {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1rem 1.2rem;
+  overflow-x: auto; margin: 1rem 0;
+  font-size: 0.88rem; line-height: 1.5;
+}
+.content code {
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
+  background: var(--code-bg); padding: 0.15rem 0.4rem; border-radius: 3px;
+  font-size: 0.88em;
+}
+.content pre code { background: none; padding: 0; }
+
+.content blockquote {
+  border-left: 3px solid var(--blockquote-border);
+  padding: 0.5rem 1rem; margin: 1rem 0;
+  color: var(--text-muted); background: var(--bg-secondary);
+  border-radius: 0 6px 6px 0;
+}
+
+.content table {
+  width: 100%; border-collapse: collapse; margin: 1rem 0;
+}
+.content th, .content td {
+  padding: 0.6rem 0.8rem; border: 1px solid var(--border); text-align: left;
+}
+.content th { background: var(--bg-secondary); font-weight: 600; }
+
+.content hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+.content img { max-width: 100%; border-radius: 6px; margin: 1rem 0; }
+
+.table-wrap { overflow-x: auto; }
+
+.wikilink { color: var(--accent); border-bottom: 1px dashed var(--accent); }
+.wikilink:hover { border-bottom-style: solid; }
+.broken-link { color: var(--error); border-bottom: 1px dashed var(--error); cursor: help; }
+
+/* Backlinks */
+.backlinks {
+  margin-top: 3rem; padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.backlinks h3 { font-size: 0.9rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; border: none; }
+.backlinks ul { list-style: none; padding: 0; }
+.backlinks li { margin: 0.3rem 0; }
+.backlinks li a { color: var(--accent); font-size: 0.9rem; }
+
+/* Tag cloud */
+.tag-cloud { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+.tag-cloud a {
+  display: inline-block; background: var(--tag-bg); color: var(--tag-text);
+  padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.tag-cloud a:hover { background: var(--border); text-decoration: none; }
+
+/* Index page */
+.page-list { list-style: none; padding: 0; }
+.page-list li { margin: 0.3rem 0; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+.page-list li:last-child { border-bottom: none; }
+.page-list .summary { color: var(--text-muted); font-size: 0.88rem; margin-left: 0.5rem; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-toggle { display: block; }
+  .main { margin-left: 0; padding: 1.2rem 1rem 3rem; }
+  .topbar .logo { font-size: 0.95rem; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="sidebar-toggle" id="sidebar-toggle">&#9776;</button>
+  <a href="/index.html" class="logo">LLM Knowledge Base</a>
+  <div class="search-box">
+    <input type="text" id="search-input" placeholder="Search articles..." autocomplete="off">
+    <div class="search-results" id="search-results"></div>
+  </div>
+  <button class="theme-toggle" id="theme-toggle">&#9790;</button>
+</div>
+<nav class="sidebar" id="sidebar">
+  <h3>Sources</h3>
+  <ul>
+    <li><a href="/sources/glenrhodes-karpathy-workflow.html">Source: Andrej Karpathy&#x27;s LLM-Powered Knowledge Base Workflow</a></li>
+    <li><a href="/sources/decodingai-second-brain-rag.html">Source: Build Your Second Brain AI Assistant — LLMs and RAG</a></li>
+    <li><a href="/sources/pinecone-embedding-models-rundown.html">Source: Choosing an Embedding Model</a></li>
+    <li><a href="/sources/hn-vector-database-debate.html">Source: Do You Need a Vector Database? (HN Discussion)</a></li>
+    <li><a href="/sources/cache-augmented-generation.html">Source: Don&#x27;t Do RAG — When Cache-Augmented Generation is All You Need</a></li>
+    <li><a href="/sources/ragflow-rag-review-2025.html">Source: From RAG to Context — A 2025 Year-End Review</a></li>
+    <li><a href="/sources/graphiti-temporal-knowledge-graphs.html">Source: Graphiti — Temporal Context Graphs for AI Agents</a></li>
+    <li><a href="/sources/weaviate-hybrid-search-explained.html">Source: Hybrid Search Explained</a></li>
+    <li><a href="/sources/huggingface-matryoshka-embeddings.html">Source: Introduction to Matryoshka Embedding Models</a></li>
+    <li><a href="/sources/karma-multi-agent-knowledge-graph.html">Source: KARMA — Multi-Agent LLM Framework for Knowledge Graph Enrichment</a></li>
+    <li><a href="/sources/antigravity-post-code-ai-workflow.html">Source: Karpathy&#x27;s LLM Knowledge Bases: The Post-Code AI Workflow</a></li>
+    <li><a href="/sources/dairai-llm-knowledge-bases-architecture.html">Source: LLM Knowledge Bases: A System Architecture Overview</a></li>
+    <li><a href="/sources/pebblous-cheap-ontology.html">Source: LLMs That Compile Knowledge: The Karpathy Methodology and the Democratization of Ontology</a></li>
+    <li><a href="/sources/raft-retrieval-augmented-fine-tuning.html">Source: RAFT — Adapting Language Model to Domain Specific RAG</a></li>
+    <li><a href="/sources/rag-vs-finetuning-agriculture.html">Source: RAG vs Fine-tuning — Pipelines, Tradeoffs, and Agriculture Case Study</a></li>
+    <li><a href="/sources/storm-automated-wiki-creation.html">Source: STORM — Automating Wikipedia Article Creation with LLMs</a></li>
+    <li><a href="/sources/synthetic-data-generation-llms.html">Source: The Definitive Guide to Synthetic Data Generation Using LLMs</a></li>
+    <li><a href="/sources/karpathy-llm-knowledge-bases.html">Source: Thread by @karpathy — LLM Knowledge Bases</a></li>
+    <li><a href="/sources/gallagher-second-brain-knowledge-graphs.html">Source: Using LLMs as a Second Brain — From Notes to Knowledge Graphs</a></li>
+  </ul>
+  <h3>Concepts</h3>
+  <ul>
+    <li><a href="/concepts/automated-wiki-creation.html">Automated Wiki Creation</a></li>
+    <li><a href="/concepts/cheap-ontology.html">Cheap Ontology</a></li>
+    <li><a href="/concepts/data-quality-bottleneck.html">Data Quality Bottleneck</a></li>
+    <li><a href="/concepts/hallucination-contamination.html">Hallucination Contamination</a></li>
+    <li><a href="/concepts/knowledge-base-product-gap.html">Knowledge Base Product Gap</a></li>
+    <li><a href="/concepts/knowledge-graph.html">Knowledge Graph</a></li>
+    <li><a href="/concepts/llm-knowledge-base.html">LLM Knowledge Base</a></li>
+    <li><a href="/concepts/llm-qa-over-documents.html">LLM Q&amp;A Over Documents</a></li>
+    <li><a href="/concepts/linting-and-health-checks.html">Linting and Health Checks</a></li>
+    <li><a href="/concepts/markdown-as-universal-interface.html">Markdown as Universal Interface</a></li>
+    <li><a href="/concepts/multi-agent-systems.html">Multi-Agent Systems for Knowledge Management</a></li>
+    <li><a href="/concepts/obsidian-as-ide.html">Obsidian as IDE</a></li>
+    <li><a href="/concepts/personal-knowledge-management.html">Personal Knowledge Management (PKM)</a></li>
+    <li><a href="/concepts/post-code-ai-workflow.html">Post-Code AI Workflow</a></li>
+    <li><a href="/concepts/rag-vs-index-based-retrieval.html">RAG vs. Index-Based Retrieval</a></li>
+    <li><a href="/concepts/second-brain.html">Second Brain</a></li>
+    <li><a href="/concepts/temporal-knowledge.html">Temporal Knowledge</a></li>
+    <li><a href="/concepts/vault-separation.html">Vault Separation</a></li>
+    <li><a href="/concepts/vector-databases.html">Vector Databases</a></li>
+    <li><a href="/concepts/wiki-compilation.html">Wiki Compilation</a></li>
+  </ul>
+  <h3>Entities</h3>
+  <ul>
+    <li><a href="/entities/andrej-karpathy.html">Andrej Karpathy</a></li>
+    <li><a href="/entities/chromadb.html">ChromaDB</a></li>
+    <li><a href="/entities/dairai.html">DAIR.AI</a></li>
+    <li><a href="/entities/dataview.html">Dataview</a></li>
+    <li><a href="/entities/elvis-saravia.html">Elvis Saravia</a></li>
+    <li><a href="/entities/faiss.html">FAISS</a></li>
+    <li><a href="/entities/freshwiki.html">FreshWiki</a></li>
+    <li><a href="/entities/graphiti.html">Graphiti</a></li>
+    <li><a href="/entities/karma.html">KARMA</a></li>
+    <li><a href="/entities/marp.html">Marp</a></li>
+    <li><a href="/entities/matplotlib.html">Matplotlib</a></li>
+    <li><a href="/entities/memex.html">Memex</a></li>
+    <li><a href="/entities/obsidian.html">Obsidian</a></li>
+    <li><a href="/entities/sqlite.html">SQLite</a></li>
+    <li><a href="/entities/storm.html">STORM</a></li>
+    <li><a href="/entities/steph-ango.html">Steph Ango</a></li>
+    <li><a href="/entities/vannevar-bush.html">Vannevar Bush</a></li>
+    <li><a href="/entities/zep.html">Zep</a></li>
+    <li><a href="/entities/pgvector.html">pgvector</a></li>
+  </ul>
+  <h3>Other</h3>
+  <ul>
+    <li><a href="/log.html">Activity Log</a></li>
+    <li><a href="/Dashboard.html">Dashboard</a></li>
+    <li><a href="/Queries.html">Dataview Queries</a></li>
+    <li><a href="/Graph.html">Graph Analysis</a></li>
+    <li><a href="/_index.html">Knowledge Base Index</a></li>
+    <li><a href="/Tags.html">Tag Index</a></li>
+  </ul>
+</nav>
+<div class="main">
+  <div class="breadcrumbs"><a href="/index.html">Home</a> <span>/</span> <a href="/index.html">Sources</a> <span>/</span> <span>Source: LLMs That Compile Knowledge: The Karpathy Methodology and the Democratization of Ontology</span></div>
+  <div class="meta-header"><div><span class="meta-title">type</span><div class="meta-value">source-summary</div></div>
+<div><span class="meta-title">source</span><div class="meta-value">[[raw/pebblous-cheap-ontology]]</div></div>
+<div><span class="meta-title">related</span><div class="meta-value"><span class="tag">[[concepts/llm-knowledge-base]]</span> <span class="tag">[[concepts/cheap-ontology]]</span> <span class="tag">[[concepts/rag-vs-index-based-retrieval]]</span> <span class="tag">[[concepts/hallucination-contamination]]</span> <span class="tag">[[concepts/data-quality-bottleneck]]</span></div></div>
+<div><span class="meta-title">last_compiled</span><div class="meta-value">2026-04-05</div></div>
+<div><span class="meta-title">summary</span><div class="meta-value">Deep analysis placing Karpathy&#x27;s markdown wiki within 50 years of ontology history, quantifying the RAG vs. fine-tuning vs. LLM-KB tradeoffs, and identifying data quality as the decisive bottleneck.</div></div></div>
+  <div class="content">
+    <h1>Source: LLMs That Compile Knowledge: The Karpathy Methodology and the Democratization of Ontology</h1>
+<h2 id="key-points">Key Points</h2>
+<ul>
+  <li>Traditional enterprise knowledge graphs: $10M–$20M upfront, 27% reach production — Karpathy's approach is "Cheap Ontology"</li>
+  <li>Three-layer architecture: <strong>raw/</strong> (immutable) → <strong>wiki/</strong> (LLM-maintained) → <strong>schema</strong> (CLAUDE.md/AGENTS.md)</li>
+  <li>Context windows expanded 1,000-fold in 5 years (GPT-3 2K → Gemini 2.0 Pro 2M tokens) — enabling full-wiki loading</li>
+  <li>RAG accuracy: 87.5%; fine-tuning accuracy on new facts: only 50.4%; Karpathy = wiki-quality dependent</li>
+  <li>Data quality > model scale (Microsoft phi-1 study); low-quality raw → contaminated wiki → flawed fine-tuning</li>
+  <li>Knowledge graph market: $1.07B (2024) → $6.94B (2030) at 36.6% CAGR</li>
+  <li>McKinsey: employees spend 1.8 hours/day (25% of workday) searching for information</li>
+</ul>
+
+<h2 id="detailed-summary">Detailed Summary</h2>
+
+<p>Pebblous provides the most historically grounded analysis, tracing the lineage from 1970s formal ontologies through Semantic Web (RDF/OWL/SPARQL), to Google-scale knowledge graphs, to LLM wikis. The key insight: context windows expanding 1,000-fold in five years made it feasible to load an entire personal wiki into a single LLM prompt, eliminating the need for vector database retrieval at personal scale.</p>
+
+<p>The "Cheap Ontology" framing is particularly useful: what required $10–20M, specialized ontology engineers, and years of schema design now costs only API fees and takes days to prototype. The CLAUDE.md or AGENTS.md file replaces formal ontology axioms with natural-language rules.</p>
+
+<p>The comparative table (RAG vs. fine-tuning vs. Karpathy) is quantitative and valuable: fine-tuning achieves only 50.4% accuracy on new facts (vs. RAG's 87.5%), making it a poor choice for knowledge that changes. Karpathy's approach offers a unique advantage: compounding knowledge via the filing loop, which neither RAG nor fine-tuning supports.</p>
+
+<p>The article identifies data quality — not model capability — as the decisive bottleneck. Low-quality raw inputs cascade into contaminated wiki, then into polluted fine-tuning datasets.</p>
+
+<h2 id="notable-quotes">Notable Quotes</h2>
+<blockquote>"The bottleneck shifts from technical capability to data quality."
+"Every organization maintains raw directories of meeting notes, emails, and documents in uncompiled state."</blockquote>
+
+<h2 id="related-concepts">Related Concepts</h2>
+<ul>
+  <li><a href="/concepts/cheap-ontology.html" class="wikilink">cheap-ontology</a> — the core framing</li>
+  <li><a href="/concepts/data-quality-bottleneck.html" class="wikilink">data-quality-bottleneck</a> — critical vulnerability</li>
+  <li><a href="/concepts/rag-vs-index-based-retrieval.html" class="wikilink">rag-vs-index-based-retrieval</a> — quantitative comparison</li>
+  <li><a href="/concepts/hallucination-contamination.html" class="wikilink">hallucination-contamination</a> — cascading risk</li>
+  <li><a href="/concepts/llm-knowledge-base.html" class="wikilink">llm-knowledge-base</a> — the methodology</li>
+</ul>
+
+  </div>
+  <div class="backlinks"><h3>Backlinks</h3><ul><li><a href="/Graph.html">Graph Analysis</a></li><li><a href="/_index.html">Knowledge Base Index</a></li><li><a href="/concepts/cheap-ontology.html">Cheap Ontology</a></li><li><a href="/concepts/data-quality-bottleneck.html">Data Quality Bottleneck</a></li><li><a href="/concepts/hallucination-contamination.html">Hallucination Contamination</a></li><li><a href="/concepts/knowledge-base-product-gap.html">Knowledge Base Product Gap</a></li><li><a href="/concepts/knowledge-graph.html">Knowledge Graph</a></li><li><a href="/concepts/vector-databases.html">Vector Databases</a></li><li><a href="/entities/andrej-karpathy.html">Andrej Karpathy</a></li><li><a href="/entities/matplotlib.html">Matplotlib</a></li><li><a href="/entities/memex.html">Memex</a></li><li><a href="/entities/vannevar-bush.html">Vannevar Bush</a></li></ul></div>
+</div>
+<script>
+var searchData = [{"title": "Dashboard", "slug": "Dashboard", "category": "root", "body": "# LLM Knowledge Base Dashboard  ---  ## Quick Stats  | Metric | Count | |--------|-------| | Sources | 11 | | Concepts | 20 | | Entities | 0 | | Comparisons | 0 | | Total Articles | 31 | | Raw Files Compiled | 11 / 11 |  > Tip: Install the Dataview plugin for live stats. Then replace the table above with:  ```dataview TABLE length(rows) AS \"Count\" FROM \"wiki\" WHERE type GROUP BY type ```  ---  ## Recently Compiled  ```dataview TABLE summary, last_compiled FROM \"wiki/sources\" OR \"wiki/concepts\" S"}, {"title": "Graph Analysis", "slug": "Graph", "category": "root", "body": "# Graph Analysis  Static analysis of the wiki's internal link graph, computed from [[_meta/links]].  ---  ## Overview  | Metric | Value | |--------|-------| | Total nodes (articles) | 31 | | Source nodes | 11 | | Concept nodes | 20 | | Entity nodes | 0 | | Comparison nodes | 0 | | Total directed edges | ~130 | | Average connections per node | ~8.4 |  ---  ## Hub Nodes (Most Connected)  Articles with the highest combined incoming + outgoing link count. These are the \"load-bearing\" pages of the wi"}, {"title": "Dataview Queries", "slug": "Queries", "category": "root", "body": "# Dataview Queries Reference  Pre-built Dataview queries for exploring and maintaining the knowledge base. Copy any query into a note or use directly from this page (requires the Dataview plugin).  ---  ## All Concepts Sorted by Source Count  ```dataview TABLE length(sources) AS \"Source Count\", summary FROM \"wiki/concepts\" WHERE type = \"concept\" SORT length(sources) DESC ```  ---  ## All Sources with Related Concepts  ```dataview TABLE related AS \"Related Concepts\", last_compiled, summary FROM \""}, {"title": "Tag Index", "slug": "Tags", "category": "root", "body": "# Tag Index  Browse all tags used across the knowledge base. Tags are defined in article frontmatter (`tags:` field) and inline (`#tag`).  ---  ## All Tags (Dataview)  ```dataview LIST WITHOUT ID tag + \" (\" + length(rows) + \" articles)\" FROM \"wiki\" FLATTEN file.tags AS tag GROUP BY tag SORT tag ASC ```  ---  ## Suggested Tag Taxonomy  The following tags are recommended for consistent categorization. Add them to article frontmatter as needed.  ### A  - `#architecture` -- System design and structu"}, {"title": "Knowledge Base Index", "slug": "_index", "category": "root", "body": "# Knowledge Base Index  ## Sources  - [[sources/karpathy-llm-knowledge-bases]] \u2014 Karpathy's workflow for LLM-maintained personal knowledge bases (Twitter thread, 2026-04-02) - [[sources/dairai-llm-knowledge-bases-architecture]] \u2014 DAIR.AI Academy: four-phase operational cycle of Karpathy's LLM-KB system - [[sources/glenrhodes-karpathy-workflow]] \u2014 Glen Rhodes: technical walkthrough emphasizing the filing loop and product gap - [[sources/antigravity-post-code-ai-workflow]] \u2014 Antigravity Codes: bro"}, {"title": "Automated Wiki Creation", "slug": "concepts/automated-wiki-creation", "category": "concepts", "body": "## Overview  Automated wiki creation refers to systems that generate full structured articles from scratch, typically from web search or document corpora, without requiring human authoring. STORM is the primary research system; Karpathy's LLM-KB is the alternative persistent-KB model.  ## STORM's Approach  **Core innovation**: Rather than retrieving and summarizing, STORM simulates the pre-writing research phase: 1. **Perspective discovery**: Analyze related Wikipedia ToCs to identify N distinct"}, {"title": "Cheap Ontology", "slug": "concepts/cheap-ontology", "category": "concepts", "body": "## Overview  \"Cheap Ontology\" is the Pebblous framing for what Karpathy's LLM wiki approach represents historically: a 1000x cost reduction in building structured knowledge systems, achieved by replacing formal ontology engineering with LLM-maintained markdown files.  ## Key Ideas  **The cost disruption:** - Traditional enterprise knowledge graphs: $10M\u2013$20M upfront investment, ontology engineers at $107K\u2013$207K/year, only 27% reaching production - Karpathy's approach: API costs only, setup in da"}, {"title": "Data Quality Bottleneck", "slug": "concepts/data-quality-bottleneck", "category": "concepts", "body": "## Overview  As LLM capability has grown, the bottleneck in knowledge management systems has shifted from \"can the LLM understand this?\" to \"is the input data good enough for the LLM to build on?\" Data quality at the pipeline entry point determines everything downstream.  ## Key Ideas  **The cascade:** Low-quality raw data \u2192 contaminated wiki entries \u2192 polluted synthetic Q&A generation \u2192 permanently flawed fine-tuned models  **Research evidence:** - Microsoft phi-1 (2023): \"data quality matters "}, {"title": "Hallucination Contamination", "slug": "concepts/hallucination-contamination", "category": "concepts", "body": "## Overview  Hallucination contamination is the primary systemic risk in LLM-maintained knowledge bases. When an LLM generates an incorrect fact or fabricated connection and writes it into the wiki, that error becomes part of the knowledge substrate used to answer future queries \u2014 and, critically, to generate fine-tuning training data.  ## Key Ideas  **The contamination cascade:** 1. LLM hallucinates a connection or fact during compilation 2. The error is written into a wiki article 3. Future qu"}, {"title": "Knowledge Base Product Gap", "slug": "concepts/knowledge-base-product-gap", "category": "concepts", "body": "## Overview  Despite the conceptual elegance of Karpathy's LLM knowledge base approach, the current state is explicitly \"a hacky collection of scripts.\" This creates a significant product gap: the underlying idea is sound and desirable, but the UX is inaccessible to anyone without CLI/API/Obsidian expertise.  ## The Gap  **Current barriers:** - Requires CLI tooling and LLM API configuration - Directory structure setup is manual - Obsidian installation and Web Clipper configuration - No automated"}, {"title": "Knowledge Graph", "slug": "concepts/knowledge-graph", "category": "concepts", "body": "## Overview  A knowledge graph represents information as a network of entities (nodes) and relationships (edges), enabling structured querying and reasoning that flat text doesn't support. LLMs have dramatically changed how knowledge graphs are built and maintained \u2014 shifting from expensive manual ontology engineering to automated extraction and enrichment.  ## Three Modern LLM-Powered Approaches  ### KARMA (Research-Grade Automated Enrichment) - **Architecture**: 9 collaborative LLM agents (ent"}, {"title": "Linting and Health Checks", "slug": "concepts/linting-and-health-checks", "category": "concepts", "body": "## Overview  Wiki linting is the process of running LLM-powered health checks over the compiled wiki to maintain data integrity, surface inconsistencies, and suggest improvements. It is an incremental, ongoing process rather than a one-time step.  ## Key Ideas  - **Inconsistency detection**: The LLM compares claims across articles to find contradictions. - **Missing data imputation**: Gaps in knowledge can be filled using web search tools during a lint pass. - **Broken link detection**: Find `[["}, {"title": "LLM Knowledge Base", "slug": "concepts/llm-knowledge-base", "category": "concepts", "body": "## Overview  An LLM knowledge base is a system where source documents are ingested into a `raw/` directory and an LLM incrementally compiles them into a structured wiki of markdown files. The human owner interacts with the system only through natural language prompts \u2014 the LLM writes, updates, and maintains all wiki content directly.  ## Key Ideas  - **LLM as author**: The LLM owns the wiki directory and writes all content. Humans rarely edit wiki files manually. - **Incremental compilation**: N"}, {"title": "LLM Q&A Over Documents", "slug": "concepts/llm-qa-over-documents", "category": "concepts", "body": "## Overview  Once a wiki is compiled and large enough, an LLM agent can answer complex research questions by navigating the wiki's index and summary files to find relevant articles, reading them in full, and synthesizing answers.  ## Key Ideas  - **Index-first navigation**: The LLM reads `_meta/summaries.md` (one-line summaries of all articles) to identify relevant documents before reading full articles. - **No vector DB required**: At ~small scale (~100 articles, ~400K words), LLM-maintained su"}, {"title": "Markdown as Universal Interface", "slug": "concepts/markdown-as-universal-interface", "category": "concepts", "body": "## Overview  Karpathy's system and its derivatives rely entirely on markdown as the storage and interchange format. This isn't incidental \u2014 markdown uniquely satisfies all the competing requirements of a personal knowledge system.  ## Why Markdown Works  **Human-readable**: Anyone can open a `.md` file in any text editor and read it. No schema to understand, no database to query.  **LLM-friendly**: Markdown is heavily represented in training data. LLMs generate well-structured markdown natively."}, {"title": "Multi-Agent Systems for Knowledge Management", "slug": "concepts/multi-agent-systems", "category": "concepts", "body": "## Overview  Multi-agent approaches to knowledge management divide the pipeline into specialized roles, each handled by a distinct LLM agent. This improves quality through specialization and enables conflict resolution between agents.  ## KARMA's 9-Agent Architecture  Roles in KARMA's knowledge graph enrichment pipeline: 1. Document parser 2. Entity discoverer 3. Relation extractor 4. Schema aligner 5. Conflict detector 6. Conflict resolver 7. Knowledge integrator 8. Verifier 9. Schema validator"}, {"title": "Obsidian as IDE", "slug": "concepts/obsidian-as-ide", "category": "concepts", "body": "## Overview  In the LLM knowledge base workflow, Obsidian serves as the human-facing IDE: a viewer for raw data, the compiled wiki, and generated outputs. Crucially, the human uses Obsidian primarily to *read* \u2014 the LLM writes all content.  ## Key Ideas  - **Read-only for humans**: The LLM writes and maintains wiki content; humans rarely edit files directly in Obsidian. - **Web Clipper**: The Obsidian Web Clipper browser extension converts web articles to markdown for ingestion into `raw/`. - **"}, {"title": "Personal Knowledge Management (PKM)", "slug": "concepts/personal-knowledge-management", "category": "concepts", "body": "## Overview  Personal Knowledge Management (PKM) refers to systematic approaches for managing what you know. Traditional tools (Notion, Obsidian, Roam, Logseq) require humans to write, tag, and link notes manually. LLMs have fundamentally changed this: instead of human-authored notes, an LLM can compile raw sources into structured, interlinked knowledge \u2014 with humans acting as curators and questioners rather than authors.  ## Evolution: Manual \u2192 AI-Augmented \u2192 AI-Maintained  **Manual PKM (pre-20"}, {"title": "Post-Code AI Workflow", "slug": "concepts/post-code-ai-workflow", "category": "concepts", "body": "## Overview  The \"post-code\" framing describes Karpathy's observation that, as LLMs become capable at code generation, the remaining bottleneck for developers shifts from writing code to understanding the problem domain deeply. The answer: structured, queryable knowledge systems.  ## The Trajectory  | Period | Concept | Shift | |--------|---------|-------| | Feb 2025 | Vibe Coding | Accept all AI-generated code without review | | Dec 2025 | \"Never felt this behind\" | Recognition of the magnitude"}, {"title": "RAG vs. Index-Based Retrieval", "slug": "concepts/rag-vs-index-based-retrieval", "category": "concepts", "body": "## Overview  Retrieval-Augmented Generation (RAG) uses vector embeddings and similarity search to retrieve relevant document chunks for LLM Q&A. However, at small-to-medium scale, a simpler approach \u2014 LLM-maintained index files and concise summaries \u2014 can be equally or more effective.  ## Key Ideas  - **RAG**: Chunks documents, embeds them into a vector database, retrieves top-k chunks by semantic similarity at query time. Scales to very large corpora but adds infrastructure complexity. - **Inde"}, {"title": "Second Brain", "slug": "concepts/second-brain", "category": "concepts", "body": "## Overview  The \"second brain\" concept refers to an external system that augments human cognition by storing and organizing personal knowledge in a way that can be retrieved and synthesized on demand. LLMs have dramatically expanded what's possible here \u2014 moving from passive note storage to active knowledge compilation and Q&A.  ## Key Implementations  ### Markdown Wiki (Karpathy) - Storage: flat markdown files in a directory tree - Retrieval: LLM reads index files + full articles within contex"}, {"title": "Temporal Knowledge", "slug": "concepts/temporal-knowledge", "category": "concepts", "body": "## Overview  Most knowledge systems treat facts as atemporal: a fact is true or false, with no concept of \"true as of [date]\" or \"superseded by [new fact].\" For static domains (mathematics, history) this works. For dynamic domains (product roadmaps, personnel, competitive landscape, medical guidelines), it fails badly.  ## Graphiti's Solution  Graphiti models each fact (relationship edge) with a **validity window**: - `valid_from`: when this fact became true - `valid_until`: when this fact was s"}, {"title": "Vault Separation", "slug": "concepts/vault-separation", "category": "concepts", "body": "## Overview  Vault separation is the practice of keeping LLM-generated wiki content in a separate Obsidian vault from human-curated personal notes. Recommended by Steph Ango (Obsidian CEO) as a direct response to Karpathy's LLM knowledge base approach.  ## The Problem It Solves  LLMs occasionally hallucinate \u2014 generating plausible-sounding but incorrect connections or facts. In an LLM-maintained wiki, these errors get written into wiki articles and persist as part of the knowledge substrate. If "}, {"title": "Vector Databases", "slug": "concepts/vector-databases", "category": "concepts", "body": "## Overview  Vector databases store high-dimensional embedding vectors and support approximate nearest-neighbor (ANN) search \u2014 finding the most semantically similar documents to a query vector. They became popular as the retrieval backbone for RAG (Retrieval-Augmented Generation) systems.  ## When You Actually Need One  **Specialized vector DB justified at:** - Billion-vector scale (Wikipedia, social media, enterprise at scale) - Sub-millisecond latency requirements for semantic search - Multi-m"}, {"title": "Wiki Compilation", "slug": "concepts/wiki-compilation", "category": "concepts", "body": "## Overview  Wiki compilation is the process by which an LLM transforms a `raw/` directory of ingested source documents into a structured `wiki/` of markdown files. The process is incremental \u2014 only new or changed sources trigger updates to the wiki.  ## Key Ideas  - **Source summaries**: Each raw file gets a summary article in `wiki/sources/` covering key points, quotes, and related concepts. - **Concept articles**: The LLM identifies concepts that appear across multiple sources and synthesizes"}, {"title": "Andrej Karpathy", "slug": "entities/andrej-karpathy", "category": "entities", "body": "## Overview  Andrej Karpathy is a prominent AI researcher and educator known for his work at OpenAI and as the former head of AI at Tesla. In the context of this knowledge base, he is the originator of the LLM-maintained personal knowledge base methodology that serves as the central framework for the entire wiki. On April 2, 2026, Karpathy published a Twitter thread describing his workflow for using LLMs to build and maintain structured markdown wikis from raw ingested sources, sparking widespre"}, {"title": "ChromaDB", "slug": "entities/chromadb", "category": "entities", "body": "## Overview  ChromaDB is an open-source vector database (embedding database) designed for AI applications. It stores high-dimensional embedding vectors and supports semantic similarity search, making it possible to find conceptually related content even when exact keywords do not overlap. ChromaDB is notable for its developer-friendly API, lightweight footprint, and easy integration with Python-based LLM workflows.  In the context of this knowledge base, ChromaDB appears as a key component of Sa"}, {"title": "DAIR.AI", "slug": "entities/dairai", "category": "entities", "body": "## Overview  DAIR.AI (Democratizing Artificial Intelligence Research, Education, and Technologies) is an organization focused on making AI research and education accessible. Its Academy arm publishes technical deep-dives, tutorials, and analyses of cutting-edge AI methodologies. DAIR.AI is founded and led by [[entities/elvis-saravia]].  In the context of LLM knowledge bases, DAIR.AI Academy published what is arguably the most thorough technical analysis of Karpathy's workflow, formalizing it as "}, {"title": "Dataview", "slug": "entities/dataview", "category": "entities", "body": "## Overview  Dataview is one of the most popular community plugins for [[entities/obsidian]], providing a query language for treating a vault of markdown files as a lightweight database. It reads YAML frontmatter metadata from `.md` files and allows users to write inline queries that generate dynamic tables, lists, and task views based on file properties like `type`, `last_compiled`, `sources`, and `related`.  In an LLM-maintained knowledge base where every article has structured frontmatter (as"}, {"title": "Elvis Saravia", "slug": "entities/elvis-saravia", "category": "entities", "body": "## Overview  Elvis Saravia is the founder and primary author at DAIR.AI Academy, an educational platform focused on AI research and applied machine learning. In the context of this knowledge base, Saravia authored the most detailed system architecture analysis of Karpathy's LLM knowledge base methodology, formalizing it as a four-phase operational cycle: Ingestion, Compilation, Query & Enhancement, and Maintenance & Validation.  Saravia's analysis elevated Karpathy's Twitter thread from an infor"}, {"title": "FAISS", "slug": "entities/faiss", "category": "entities", "body": "## Overview  FAISS (Facebook AI Similarity Search) is an open-source library developed by Meta AI Research for efficient similarity search and clustering of dense vectors. It is widely used in the machine learning community as a foundational tool for approximate nearest-neighbor (ANN) search at scale, supporting billions of vectors through disk-based indexing strategies. FAISS provides a middle ground between simple brute-force search over small collections and fully managed vector database serv"}, {"title": "FreshWiki", "slug": "entities/freshwiki", "category": "entities", "body": "## Overview  FreshWiki is an evaluation dataset introduced alongside the [[entities/storm]] system for benchmarking automated Wikipedia article generation. It consists of Wikipedia articles that were created after the training data cutoff dates of the LLMs being evaluated, ensuring that the models cannot have memorized the target articles during pre-training. This addresses a critical evaluation challenge: if an LLM has seen the Wikipedia article it is supposed to \"generate\" during training, the"}, {"title": "Graphiti", "slug": "entities/graphiti", "category": "entities", "body": "## Overview  Graphiti is an open-source framework developed by [[entities/zep]] for building and querying temporal context graphs designed specifically for AI agents. Unlike traditional knowledge graphs that treat facts as eternally true or false, Graphiti represents facts with temporal validity windows -- tracking when information became true and when it was superseded. This temporal awareness makes it uniquely suited for AI agents that need to reason over changing information in dynamic enviro"}, {"title": "KARMA", "slug": "entities/karma", "category": "entities", "body": "## Overview  KARMA (Knowledge graph enrichment through Automated Retrieval and Multi-Agent systems) is a research framework published as a Spotlight paper at NeurIPS 2025. It automates the enrichment of knowledge graphs from unstructured text using nine collaborative LLM agents, each specialized for a distinct phase of the extraction pipeline. The system was evaluated on 1,200 PubMed articles across three scientific domains, discovering up to 38,230 new entities with 83.1% LLM-verified correctne"}, {"title": "Marp", "slug": "entities/marp", "category": "entities", "body": "## Overview  Marp (Markdown Presentation Ecosystem) is an open-source framework that converts markdown files into presentation slides. It supports a simple syntax where slide separators, themes, and layouts are defined within standard markdown, making it trivially easy for an LLM to generate presentation content without requiring proprietary formats like PowerPoint or Google Slides.  In Karpathy's LLM knowledge base workflow, Marp serves as one of the multi-format output channels. When a user as"}, {"title": "Matplotlib", "slug": "entities/matplotlib", "category": "entities", "body": "## Overview  Matplotlib is the foundational plotting library for the Python scientific computing ecosystem. It provides comprehensive tools for creating static, animated, and interactive visualizations including line plots, bar charts, scatter plots, histograms, heatmaps, and more. Matplotlib is one of the most widely used libraries in data science and machine learning.  In Karpathy's LLM knowledge base workflow, Matplotlib serves as one of the multi-format output channels alongside markdown rep"}, {"title": "Memex", "slug": "entities/memex", "category": "entities", "body": "## Overview  The Memex (a portmanteau of \"memory\" and \"index\") is a hypothetical device described by [[entities/vannevar-bush]] in his 1945 essay \"As We May Think.\" Bush envisioned a desk-sized machine that would store an individual's entire library of books, records, and communications on microfilm, with a mechanical system for creating \"associative trails\" -- user-defined cross-references linking related items across the collection. The user could then follow these trails to navigate their per"}, {"title": "Obsidian", "slug": "entities/obsidian", "category": "entities", "body": "## Overview  Obsidian is a desktop and mobile application for managing knowledge bases built on local markdown files. It supports `[[wikilinks]]` for cross-referencing, a graph view that visualizes link structures, and a rich plugin ecosystem. In the LLM knowledge base workflow, Obsidian serves as the human-facing IDE -- a viewer and navigator for the raw data, compiled wiki, and generated artifacts that the LLM produces. Crucially, the human uses Obsidian primarily to read, while the LLM perfor"}, {"title": "pgvector", "slug": "entities/pgvector", "category": "entities", "body": "## Overview  pgvector is an open-source extension for PostgreSQL that adds support for storing and searching vector embeddings directly within an existing Postgres database. It enables approximate nearest-neighbor (ANN) search alongside traditional relational queries, meaning teams can add semantic search capabilities to their applications without introducing a separate vector database into their infrastructure stack.  In the Hacker News debate documented in [[sources/hn-vector-database-debate]]"}, {"title": "SQLite", "slug": "entities/sqlite", "category": "entities", "body": "## Overview  SQLite is a self-contained, serverless, zero-configuration relational database engine that stores an entire database as a single file on disk. It is the most widely deployed database engine in the world, embedded in virtually every smartphone, web browser, and operating system. SQLite requires no separate server process -- applications read and write the database file directly, making it ideal for local, single-user applications.  In the LLM knowledge base domain, SQLite appears as "}, {"title": "Steph Ango", "slug": "entities/steph-ango", "category": "entities", "body": "## Overview  Steph Ango is the CEO of Obsidian, the markdown-based knowledge management application that serves as the viewing frontend in Karpathy's LLM knowledge base workflow. Ango's contribution to the LLM-KB discourse is his recommendation of vault separation: maintaining a clean human-curated Obsidian vault separate from an agent-generated vault for LLM-compiled content.  This recommendation directly addresses the [[concepts/hallucination-contamination]] risk. When LLMs compile wikis, they"}, {"title": "STORM", "slug": "entities/storm", "category": "entities", "body": "## Overview  STORM (Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking) is a research system that automates the creation of Wikipedia-style articles by focusing on the pre-writing stage -- research and outline generation -- rather than assuming these already exist. Developed as an academic research project, STORM represents the most rigorous automated approach to wiki article creation, standing in contrast to Karpathy's interactive, accumulating knowledge base me"}, {"title": "Vannevar Bush", "slug": "entities/vannevar-bush", "category": "entities", "body": "## Overview  Vannevar Bush (1890-1974) was an American engineer, inventor, and science administrator who served as the head of the U.S. Office of Scientific Research and Development during World War II. In the context of knowledge management history, he is best known for his landmark 1945 essay \"As We May Think\" published in The Atlantic, in which he described the [[entities/memex]] -- a hypothetical device that would allow individuals to store, organize, and retrieve all of their books, records"}, {"title": "Zep", "slug": "entities/zep", "category": "entities", "body": "## Overview  Zep (also known as Zep AI) is the company that developed and maintains [[entities/graphiti]], the open-source temporal context graph framework for AI agents. Zep operates on an open-core business model: Graphiti is released as the open-source engine for building temporal knowledge graphs, while Zep provides enterprise-grade managed infrastructure on top of it. This split allows developers to experiment freely with Graphiti while offering a production-ready, hosted option for teams t"}, {"title": "Activity Log", "slug": "log", "category": "root", "body": "# Activity Log  Append-only chronological record of all wiki operations.  ## [2026-04-05] ingest | Thread by @karpathy \u2014 LLM Knowledge Bases - Source: Clippings/Thread by @karpathy.md \u2192 raw/karpathy-llm-knowledge-bases.md - Created: sources/karpathy-llm-knowledge-bases, 6 concept articles - Compiled index, summaries, links, manifest  ## [2026-04-05] research | LLM knowledge bases and personal wikis - Searched: \"LLM knowledge bases\", \"personal wiki AI\", \"automated wiki creation\", \"knowledge graph"}, {"title": "Source: Karpathy's LLM Knowledge Bases: The Post-Code AI Workflow", "slug": "sources/antigravity-post-code-ai-workflow", "category": "sources", "body": "## Key Points - Karpathy framing: \"A large fraction of my recent token throughput is going less into manipulating code, and more into manipulating knowledge\" - The shift: Vibe Coding (Feb 2025) \u2192 Agentic Engineering (Jan 2026) \u2192 LLM Knowledge Bases (Apr 2026) - 6 steps: ingest \u2192 compile \u2192 scale \u2192 query \u2192 multi-format output \u2192 health checks - 7 real-world applications: competitive intelligence, due diligence, literature reviews, documentation, product research, compliance, personal learning - Ste"}, {"title": "Source: Don't Do RAG \u2014 When Cache-Augmented Generation is All You Need", "slug": "sources/cache-augmented-generation", "category": "sources", "body": "## Key Points  - CAG preloads all documents and caches KV parameters, eliminating retrieval entirely - Three-phase framework: Preloading \u2192 Inference \u2192 Cache Reset - 10x faster than RAG on HotPotQA-Small (0.85s vs 9.24s) - Higher BERTScores across most test configurations on SQuAD and HotPotQA - Limited to knowledge bases that fit within extended context windows (~128k tokens) - Eliminates retrieval ranking errors \u2014 deterministic behavior  ## Detailed Summary  This paper challenges the default as"}, {"title": "Source: LLM Knowledge Bases: A System Architecture Overview", "slug": "sources/dairai-llm-knowledge-bases-architecture", "category": "sources", "body": "## Key Points - System treats the LLM as a \"compiler\" that transforms raw documents into a structured, cross-referenced wiki - Four phases: **Ingestion** \u2192 **Compilation** \u2192 **Query & Enhancement** \u2192 **Maintenance & Validation** - Index files plus context windows replace vector databases at ~100-article scale - Every query result feeds back into the wiki (cumulative exploration) - The author's own extension uses Obsidian + qmd CLI for semantic indexing of research papers  ## Detailed Summary  Th"}, {"title": "Source: Build Your Second Brain AI Assistant \u2014 LLMs and RAG", "slug": "sources/decodingai-second-brain-rag", "category": "sources", "body": "## Key Points - FTI pattern: Feature stage \u2192 Training stage \u2192 Inference stage \u2014 clean separation of offline/online concerns - Five major pipelines: data ETL \u2192 feature engineering \u2192 model training \u2192 inference (RAG) \u2192 observability - Fine-tunes Llama 3.1 8B on summarization via distillation; deploys to Hugging Face Endpoints - Advanced RAG: Contextual Retrieval + hybrid search (semantic + keyword) in MongoDB - Tools: Crawl4AI, Unsloth, ZenML, Opik, smolagents - Contrast: production-grade scalabili"}, {"title": "Source: Using LLMs as a Second Brain \u2014 From Notes to Knowledge Graphs", "slug": "sources/gallagher-second-brain-knowledge-graphs", "category": "sources", "body": "## Key Points - Key insight: \"an intelligent knowledge system can't just manipulate text, it must understand structure\" - Knowledge Graph Kit: SQLite storage + ChromaDB vectorization + four node types (Task, Note, Person, Project) - Relationship labels: part_of, mentions, related_to - Semantic search surfaces connections even when keywords don't overlap - Data layer precedence: the underlying structure matters more than the interface - Open-source MCP server \u2014 same patterns as Karpathy but with "}, {"title": "Source: Andrej Karpathy's LLM-Powered Knowledge Base Workflow", "slug": "sources/glenrhodes-karpathy-workflow", "category": "sources", "body": "## Key Points - The **filing loop**: query results get written back into the wiki \u2014 \"his explorations accumulate, the knowledge base grows from use\" - At ~100 articles / 400K words, LLMs can maintain indexes and read comprehensively within context windows - Current implementation is \"a hacky collection of scripts\" \u2014 significant product opportunity for polished tooling - LLM health checks actively scan for inconsistencies and fill gaps via web search - Synthetic data generation / fine-tuning is t"}, {"title": "Source: Graphiti \u2014 Temporal Context Graphs for AI Agents", "slug": "sources/graphiti-temporal-knowledge-graphs", "category": "sources", "body": "## Key Points - Context graph = temporal graph: entities + relationships + facts with validity windows (when true \u2192 when superseded) - Four components: Entities (nodes), Facts/Relationships (edges with time windows), Episodes (raw provenance), Custom Types (Pydantic ontology) - Hybrid retrieval: semantic + keyword (BM25) + graph-based search - Incremental updates: no batch recomputation; old facts invalidated not deleted - Full provenance: every derived fact traces to Episodes (source documents)"}, {"title": "Source: Do You Need a Vector Database? (HN Discussion)", "slug": "sources/hn-vector-database-debate", "category": "sources", "body": "## Key Points - pgvector sufficient for most projects; Elasticsearch handles vector ops without new infrastructure - pgvector limitation: IVF algorithm, nprobes=3 default \u2192 ~50% recall; HNSW support being added - FAISS: billion-scale disk-based indexing, open-source, good middle ground - Vespa.ai: underrated hybrid engine (vector + metadata, multi-vector indexing) - Single vector per document loses nuance: \"like making a movie poster the average of all frames\" - Real question: \"do you actually n"}, {"title": "Source: Introduction to Matryoshka Embedding Models", "slug": "sources/huggingface-matryoshka-embeddings", "category": "sources", "body": "## Key Points  - Matryoshka models frontload important information in earlier dimensions, enabling truncation without retraining - Training applies the same loss function at multiple dimensions simultaneously (e.g., 768, 512, 256, 128, 64) with no notable training overhead - At 64 dimensions (8.3% of 768), Matryoshka model preserves 98.37% of full-size performance vs 96.46% for standard models - MRL consistently outperforms post-hoc PCA at equivalent compression ratios - Inference speed for embe"}, {"title": "Source: KARMA \u2014 Multi-Agent LLM Framework for Knowledge Graph Enrichment", "slug": "sources/karma-multi-agent-knowledge-graph", "category": "sources", "body": "## Key Points - Nine specialized collaborative LLM agents: entity discovery, relation extraction, schema alignment, conflict resolution - Tested on 1,200 PubMed articles across 3 domains - 38,230 new entities discovered; 83.1% LLM-verified correctness; 18.6% conflict edge reduction - NeurIPS 2025 Spotlight paper - Formal graph triplets (entity, relation, entity) vs. Karpathy's natural-language markdown  ## Detailed Summary  KARMA is the research-grade automated approach to building and enriching"}, {"title": "Source: Thread by @karpathy \u2014 LLM Knowledge Bases", "slug": "sources/karpathy-llm-knowledge-bases", "category": "sources", "body": "## Key Points  - LLMs are increasingly useful for **manipulating knowledge** (markdown/images), not just code - Architecture: `raw/` directory \u2192 LLM compiles \u2192 `wiki/` of `.md` files with summaries, backlinks, and concept articles - **Obsidian** serves as the frontend IDE to view raw data, the compiled wiki, and visualizations - The LLM writes and maintains the wiki; the human rarely edits it directly - **Q&A** works without fancy RAG at ~small scale (~100 articles, ~400K words): LLM auto-mainta"}, {"title": "Source: LLMs That Compile Knowledge: The Karpathy Methodology and the Democratization of Ontology", "slug": "sources/pebblous-cheap-ontology", "category": "sources", "body": "## Key Points - Traditional enterprise knowledge graphs: $10M\u2013$20M upfront, 27% reach production \u2014 Karpathy's approach is \"Cheap Ontology\" - Three-layer architecture: **raw/** (immutable) \u2192 **wiki/** (LLM-maintained) \u2192 **schema** (CLAUDE.md/AGENTS.md) - Context windows expanded 1,000-fold in 5 years (GPT-3 2K \u2192 Gemini 2.0 Pro 2M tokens) \u2014 enabling full-wiki loading - RAG accuracy: 87.5%; fine-tuning accuracy on new facts: only 50.4%; Karpathy = wiki-quality dependent - Data quality > model scale"}, {"title": "Source: Choosing an Embedding Model", "slug": "sources/pinecone-embedding-models-rundown", "category": "sources", "body": "## Key Points  - Embedding models compress text into vector representations that capture semantic meaning - OpenAI ada-002 (1536 dims) took 9:07 to embed ~42K chunks; E5-base-v2 (768 dims, GPU) took 3:53 \u2014 nearly 2.5x faster - Cohere embed-english-v3.0 (1024 dims) sits in between at 5:32 - Asymmetric search requires different treatment for queries vs documents: Cohere uses `input_type` parameter; E5 uses text prefixes (\"passage:\" / \"query:\") - Mean pooling converts token-level embeddings into si"}, {"title": "Source: RAFT \u2014 Adapting Language Model to Domain Specific RAG", "slug": "sources/raft-retrieval-augmented-fine-tuning", "category": "sources", "body": "## Key Points  - RAFT trains models to ignore irrelevant retrieved documents (distractors) while citing verbatim from relevant ones - Training mix: P% questions with oracle + distractor docs; (1-P)% with distractor-only docs (forces memorization) - Chain-of-thought answers with explicit quotation markers prevent hallucination - Results: +35.25% on HotpotQA, +76.35% on TorchHub, +31.41% on HuggingFace over baselines - Base model: Llama2-7B on 4 A100-40G GPUs; deploys on single GPU - Outperforms b"}, {"title": "Source: RAG vs Fine-tuning \u2014 Pipelines, Tradeoffs, and Agriculture Case Study", "slug": "sources/rag-vs-finetuning-agriculture", "category": "sources", "body": "## Key Points  - RAG augments the prompt with external data at runtime; fine-tuning incorporates knowledge into model parameters - Fine-tuning alone improved accuracy by 6+ percentage points on agricultural QA - RAG added a further 5 percentage points on top of fine-tuning - Geographic knowledge transfer improved from 47% to 72% answer similarity - Tested on Llama2-13B, GPT-3.5, and GPT-4  ## Detailed Summary  This research paper provides empirical evidence that [[concepts/retrieval-augmented-ge"}, {"title": "Source: From RAG to Context \u2014 A 2025 Year-End Review", "slug": "sources/ragflow-rag-review-2025", "category": "sources", "body": "## Key Points  - RAG solidified as \"a cornerstone of data infrastructure\" in enterprise AI during 2025, contrary to predictions of obsolescence - Long context windows do not replace RAG \u2014 they complement it via \"retrieval-first, long-context containment\" - TreeRAG decouples search and retrieval into different text granularities, addressing the \"Lost in the Middle\" problem - [[concepts/graphrag]] showed promise but revealed challenges: massive token consumption, quality gaps in extraction - RAG i"}, {"title": "Source: STORM \u2014 Automating Wikipedia Article Creation with LLMs", "slug": "sources/storm-automated-wiki-creation", "category": "sources", "body": "## Key Points - STORM = Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking - Three phases: perspective discovery (from related Wikipedia ToCs) \u2192 multi-turn expert conversations \u2192 outline synthesis - Introduced **FreshWiki** dataset: recent Wikipedia articles after LLM training cutoffs (prevents data leakage) - Metrics: heading/entity recall for outlines; ROUGE + entity recall for articles; expert Wikipedia editor rubrics - Remaining challenges: source bias, red h"}, {"title": "Source: The Definitive Guide to Synthetic Data Generation Using LLMs", "slug": "sources/synthetic-data-generation-llms", "category": "sources", "body": "## Key Points  - Synthetic data generation replaces weeks of manual annotation with minutes of LLM-driven generation - Two primary methods: **distillation** (strong model generates for weaker) and **self-improvement** (model iterates on own outputs) - Five-step pipeline: document chunking \u2192 context generation \u2192 query generation \u2192 query evolution \u2192 expected output generation - Query evolution uses three techniques: in-depth (complexity), in-breadth (diversity), elimination (pruning) - Quality fil"}, {"title": "Source: Hybrid Search Explained", "slug": "sources/weaviate-hybrid-search-explained", "category": "sources", "body": "## Key Points  - Hybrid search merges sparse (BM25) and dense (vector) results into a single ranked list - BM25 builds on TF-IDF with Binary Independence Model and document-length normalization - BM25F variant (Weaviate v1.17+) allows per-field weighting (e.g., title vs body) - Reciprocal Rank Fusion: score = sum(1/(k + r(d))) across both ranked lists - Alpha parameter: 0 = pure keyword, 0.5 = equal, 1 = pure vector; default 0.75 - Two fusion algorithms available: rankedFusion (default) and rela"}];
+
+(function() {
+  // Theme toggle
+  var theme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  var btn = document.getElementById('theme-toggle');
+  btn.textContent = theme === 'dark' ? '\u2600' : '\u263E';
+  btn.addEventListener('click', function() {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    btn.textContent = theme === 'dark' ? '\u2600' : '\u263E';
+  });
+
+  // Sidebar toggle (mobile)
+  var sidebarBtn = document.getElementById('sidebar-toggle');
+  var sidebar = document.getElementById('sidebar');
+  if (sidebarBtn) {
+    sidebarBtn.addEventListener('click', function() {
+      sidebar.classList.toggle('open');
+    });
+  }
+
+  // Collapsible sidebar sections
+  document.querySelectorAll('.sidebar h3').forEach(function(h3) {
+    h3.addEventListener('click', function() {
+      this.classList.toggle('collapsed');
+    });
+  });
+
+  // Search
+  var searchInput = document.getElementById('search-input');
+  var searchResults = document.getElementById('search-results');
+  searchInput.addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
+    if (q.length < 2) {
+      searchResults.classList.remove('active');
+      searchResults.innerHTML = '';
+      return;
+    }
+    var matches = [];
+    for (var i = 0; i < searchData.length; i++) {
+      var page = searchData[i];
+      var score = 0;
+      if (page.title.toLowerCase().indexOf(q) !== -1) score += 10;
+      if (page.body.toLowerCase().indexOf(q) !== -1) score += 1;
+      if (score > 0) matches.push({page: page, score: score});
+    }
+    matches.sort(function(a, b) { return b.score - a.score; });
+    matches = matches.slice(0, 15);
+    if (matches.length === 0) {
+      searchResults.innerHTML = '<div style="padding:0.8rem 1rem;color:var(--text-faint)">No results</div>';
+    } else {
+      searchResults.innerHTML = matches.map(function(m) {
+        return '<a href="/' + m.page.slug + '.html"><strong>' + m.page.title + '</strong><br><small>' + m.page.category + '</small></a>';
+      }).join('');
+    }
+    searchResults.classList.add('active');
+  });
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-box')) searchResults.classList.remove('active');
+  });
+})();
+</script>
+</body>
+</html>

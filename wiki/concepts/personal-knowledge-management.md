@@ -1,10 +1,11 @@
 ---
 title: "Personal Knowledge Management (PKM)"
 type: concept
-sources: ["[[sources/gallagher-second-brain-knowledge-graphs]]", "[[sources/glenrhodes-karpathy-workflow]]", "[[sources/antigravity-post-code-ai-workflow]]"]
-related: ["[[concepts/second-brain]]", "[[concepts/llm-knowledge-base]]", "[[concepts/obsidian-as-ide]]"]
+sources: ["[[sources/gallagher-second-brain-knowledge-graphs]]", "[[sources/glenrhodes-karpathy-workflow]]", "[[sources/antigravity-post-code-ai-workflow]]", "[[sources/forte-building-second-brain]]", "[[sources/zettelkasten-de-introduction]]", "[[sources/sebastien-agentic-knowledge-management]]", "[[sources/memex-vannevar-bush]]", "[[sources/llms-for-knowledge-work-arxiv]]"]
+related: ["[[concepts/second-brain]]", "[[concepts/llm-knowledge-base]]", "[[concepts/obsidian-as-ide]]", "[[concepts/zettelkasten]]", "[[concepts/evergreen-notes]]", "[[concepts/digital-garden]]", "[[concepts/para-method]]", "[[concepts/progressive-summarization]]", "[[concepts/spaced-repetition]]", "[[concepts/memex-and-tools-for-thought]]", "[[concepts/agentic-knowledge-management]]", "[[concepts/networked-thought]]"]
 last_compiled: 2026-04-05
 summary: "The practice of capturing, organizing, and retrieving personal knowledge — transformed by LLMs from manual note-taking (Notion/Obsidian) to AI-compiled, queryable wikis with automatic synthesis and gap-filling."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -41,13 +42,47 @@ Karpathy noted the current state is "a hacky collection of scripts." The PKM pro
 - Offer scheduled compilation, health checks, and alerts
 - Enable non-technical users to run LLM-maintained wikis
 
+## The Full PKM Methodology Landscape
+
+Beyond the AI evolution, PKM encompasses a rich ecosystem of pre-AI methodologies that remain influential:
+
+### Classical Methodologies
+- [[concepts/zettelkasten]] — Luhmann's atomic, hypertextually linked note system (1950s–1998)
+- [[concepts/para-method]] + [[concepts/progressive-summarization]] — Forte's BASB: organize by actionability, distill in layers (2017)
+- [[concepts/evergreen-notes]] — Matuschak's durable, concept-oriented notes that accumulate insight (2019)
+- [[concepts/digital-garden]] — public, continuously evolving knowledge sharing with epistemic status markers
+- [[concepts/spaced-repetition]] — complementary retention system ensuring knowledge is recallable ([[entities/anki]])
+
+### Historical Lineage
+- [[concepts/memex-and-tools-for-thought]] — from Bush's 1945 memex through Engelbart, Nelson, and Berners-Lee to modern PKM tools
+
+### AI Frontier
+- [[concepts/agentic-knowledge-management]] — AI agents proactively monitor and act on knowledge bases (2025–2026)
+
 ## Sources
 - [[sources/gallagher-second-brain-knowledge-graphs]] — practitioner journey from Notion/Obsidian to graph-based LLM KB
 - [[sources/glenrhodes-karpathy-workflow]] — Karpathy's system as PKM evolution
 - [[sources/antigravity-post-code-ai-workflow]] — identifies the product gap
+- [[sources/forte-building-second-brain]] — BASB: CODE + PARA methodology
+- [[sources/zettelkasten-de-introduction]] — canonical Zettelkasten method guide
+- [[sources/sebastien-agentic-knowledge-management]] — defines the agentic PKM frontier
+- [[sources/memex-vannevar-bush]] — historical lineage from 1945
+- [[sources/llms-for-knowledge-work-arxiv]] — empirical evidence of LLM adoption in knowledge work
 
 ## Related Concepts
 - [[concepts/second-brain]] — the LLM-powered version
 - [[concepts/llm-knowledge-base]] — Karpathy's specific approach
 - [[concepts/obsidian-as-ide]] — current tooling
 - [[concepts/knowledge-base-product-gap]] — the market opportunity
+
+## Related Entities
+
+- [[entities/andrej-karpathy]] — pioneer of LLM-maintained PKM
+- [[entities/sam-gallagher]] — graph-based PKM practitioner
+- [[entities/notion]] — traditional PKM tool
+- [[entities/vannevar-bush]] — historical vision (Memex)
+- [[entities/memex]] — 1945 proto-hypertext personal knowledge device
+
+## Related Comparisons
+
+- [[comparisons/manual-pkm-vs-llm-pkm]] — traditional vs. AI-maintained PKM

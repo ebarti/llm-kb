@@ -5,6 +5,7 @@ source: "[[raw/karpathy-llm-knowledge-bases]]"
 related: ["[[concepts/llm-knowledge-base]]", "[[concepts/wiki-compilation]]", "[[concepts/obsidian-as-ide]]", "[[concepts/llm-qa-over-documents]]", "[[concepts/linting-and-health-checks]]", "[[concepts/rag-vs-index-based-retrieval]]"]
 last_compiled: 2026-04-05
 summary: "Karpathy describes using LLMs to build and maintain personal markdown wikis from raw ingested sources, with Obsidian as the viewing IDE and LLM-driven Q&A, output generation, and linting."
+reading_time: "3 min"
 ---
 
 ## Key Points

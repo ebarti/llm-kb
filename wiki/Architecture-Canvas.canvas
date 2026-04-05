@@ -1,0 +1,479 @@
+{
+  "nodes": [
+    {
+      "id": "title",
+      "type": "text",
+      "text": "# LLM Knowledge Base — System Architecture\nHow raw sources flow through the LLM pipeline into a structured, queryable wiki.\nBuilt with Claude as the LLM engine and Obsidian as the viewing frontend.",
+      "x": -300,
+      "y": -700,
+      "width": 600,
+      "height": 120,
+      "color": "6"
+    },
+    {
+      "id": "raw-dir",
+      "type": "text",
+      "text": "# raw/\n**Raw Source Ingestion**\n\nUnprocessed inputs: PDFs, articles, transcripts, Twitter threads, HN discussions, research papers.\n\nThese are the ground-truth documents — never modified by the LLM.\n\n- 9+ raw files currently\n- Formats: .txt, .md, .pdf\n- Added manually by the human curator",
+      "x": -1400,
+      "y": -400,
+      "width": 450,
+      "height": 300,
+      "color": "1"
+    },
+    {
+      "id": "claude-md",
+      "type": "text",
+      "text": "# CLAUDE.md\n**System Instructions**\n\nThe master prompt file that defines:\n- Wiki structure and conventions\n- Article templates\n- Linking rules\n- Quality standards\n- Tool usage protocols\n\nThis is the \"constitution\" of the KB system.",
+      "x": -300,
+      "y": -400,
+      "width": 450,
+      "height": 300,
+      "color": "3"
+    },
+    {
+      "id": "claude-md-file",
+      "type": "file",
+      "file": "CLAUDE.md",
+      "x": -300,
+      "y": -50,
+      "width": 450,
+      "height": 200,
+      "color": "3"
+    },
+    {
+      "id": "wiki-dir",
+      "type": "text",
+      "text": "# wiki/\n**Compiled Wiki Output**\n\nLLM-authored structured knowledge:\n\n- **_index.md** — Master index of all articles\n- **_meta/** — summaries.md, links.md\n- **concepts/** — 20 concept articles\n- **sources/** — 40+ source summaries\n- **entities/** — 23 entity profiles\n\nAll content authored by Claude, cross-linked via wikilinks.",
+      "x": 500,
+      "y": -400,
+      "width": 500,
+      "height": 340,
+      "color": "4"
+    },
+    {
+      "id": "wiki-index",
+      "type": "file",
+      "file": "wiki/_index.md",
+      "x": 1100,
+      "y": -400,
+      "width": 400,
+      "height": 180,
+      "color": "4"
+    },
+    {
+      "id": "wiki-summaries",
+      "type": "file",
+      "file": "wiki/_meta/summaries.md",
+      "x": 1100,
+      "y": -170,
+      "width": 400,
+      "height": 180,
+      "color": "4"
+    },
+    {
+      "id": "wiki-links",
+      "type": "file",
+      "file": "wiki/_meta/links.md",
+      "x": 1100,
+      "y": 60,
+      "width": 400,
+      "height": 180,
+      "color": "4"
+    },
+    {
+      "id": "wiki-concepts",
+      "type": "text",
+      "text": "# wiki/concepts/\n20 concept articles covering:\n- Core system (LLM-KB, compilation, QA)\n- Retrieval (RAG vs index, vector DBs)\n- Quality (hallucination, data quality)\n- Knowledge rep (graphs, agents)\n- Human workflow (PKM, second brain)",
+      "x": 1100,
+      "y": 290,
+      "width": 400,
+      "height": 220,
+      "color": "4"
+    },
+    {
+      "id": "wiki-sources",
+      "type": "text",
+      "text": "# wiki/sources/\n40+ source summaries including:\n- Karpathy's original thread\n- DAIR.AI, Glen Rhodes analyses\n- KARMA, STORM papers\n- Embedding/RAG technique sources\n- Vector DB comparisons",
+      "x": 1100,
+      "y": 560,
+      "width": 400,
+      "height": 200,
+      "color": "4"
+    },
+    {
+      "id": "wiki-entities",
+      "type": "text",
+      "text": "# wiki/entities/\n23 entity profiles:\n- People: Karpathy, Steph Ango, etc.\n- Tools: Obsidian, ChromaDB, FAISS\n- Systems: STORM, KARMA, Graphiti\n- Orgs: DAIR.AI, Zep",
+      "x": 1100,
+      "y": 810,
+      "width": 400,
+      "height": 180,
+      "color": "4"
+    },
+    {
+      "id": "tools-dir",
+      "type": "text",
+      "text": "# tools/\n**Automation Scripts**\n\nHelper scripts for the KB pipeline:\n- Ingestion helpers\n- Wiki compilation triggers\n- Health check runners\n- Output generators\n\nThe \"hacky scripts\" Karpathy described — the glue between raw input and wiki output.",
+      "x": -1400,
+      "y": 200,
+      "width": 450,
+      "height": 280,
+      "color": "5"
+    },
+    {
+      "id": "output-dir",
+      "type": "text",
+      "text": "# output/\n**Generated Artifacts**\n\nDerivative products from the compiled wiki:\n- Presentations (Marp slides)\n- Canvas visualizations\n- Exported reports\n- Q&A session logs\n\nProves the KB is a productive asset, not just storage.",
+      "x": 500,
+      "y": 600,
+      "width": 450,
+      "height": 260,
+      "color": "2"
+    },
+    {
+      "id": "templates-dir",
+      "type": "text",
+      "text": "# templates/\n**Article Templates**\n\nStandardized templates for:\n- Source summaries\n- Concept articles\n- Entity profiles\n\nEnsures consistent structure across all wiki articles.",
+      "x": -1400,
+      "y": 540,
+      "width": 450,
+      "height": 220,
+      "color": "5"
+    },
+    {
+      "id": "kb-dir",
+      "type": "text",
+      "text": "# kb/\n**Knowledge Base Config**\n\nConfiguration and metadata for the KB system itself — schemas, settings, and operational parameters.",
+      "x": -300,
+      "y": 300,
+      "width": 450,
+      "height": 160,
+      "color": "3"
+    },
+    {
+      "id": "obsidian-node",
+      "type": "text",
+      "text": "# Obsidian (Frontend)\n**Read-Only Viewing IDE**\n\nHumans open the wiki/ folder in Obsidian to:\n- Browse articles via graph view\n- Follow wikilinks between concepts\n- View canvas visualizations\n- Read source summaries\n\nObsidian is the viewer — Claude is the author.",
+      "x": 500,
+      "y": 1000,
+      "width": 500,
+      "height": 260,
+      "color": "6"
+    },
+    {
+      "id": "llm-engine",
+      "type": "text",
+      "text": "# Claude (LLM Engine)\n**The Author**\n\nClaude performs ALL wiki operations:\n1. **Ingest** — reads raw/ files\n2. **Compile** — writes wiki/ articles\n3. **Query** — answers questions via index\n4. **Maintain** — lints, links, fills gaps\n5. **Generate** — creates output/ artifacts\n\nGoverned by CLAUDE.md instructions.",
+      "x": -300,
+      "y": 600,
+      "width": 500,
+      "height": 300,
+      "color": "6"
+    },
+    {
+      "id": "phase-ingest",
+      "type": "text",
+      "text": "## Phase 1: Ingest\nHuman drops files into raw/\nClaude reads and understands them",
+      "x": -1400,
+      "y": -650,
+      "width": 350,
+      "height": 100,
+      "color": "1"
+    },
+    {
+      "id": "phase-compile",
+      "type": "text",
+      "text": "## Phase 2: Compile\nClaude writes source summaries,\nconcept articles, entity profiles,\nupdates _index.md and _meta/",
+      "x": 200,
+      "y": -650,
+      "width": 350,
+      "height": 120,
+      "color": "4"
+    },
+    {
+      "id": "phase-query",
+      "type": "text",
+      "text": "## Phase 3: Query\nUser asks questions, Claude\nnavigates index → summaries → articles\nto synthesize answers",
+      "x": 1200,
+      "y": -650,
+      "width": 350,
+      "height": 120,
+      "color": "4"
+    },
+    {
+      "id": "phase-maintain",
+      "type": "text",
+      "text": "## Phase 4: Maintain\nClaude runs health checks:\nbroken links, orphans, gaps,\ninconsistencies, new suggestions",
+      "x": 1600,
+      "y": -400,
+      "width": 350,
+      "height": 120,
+      "color": "3"
+    },
+    {
+      "id": "phase-generate",
+      "type": "text",
+      "text": "## Phase 5: Generate\nClaude creates derivative\noutputs: slides, canvases,\nreports, exports",
+      "x": 200,
+      "y": 1050,
+      "width": 350,
+      "height": 100,
+      "color": "2"
+    },
+    {
+      "id": "human-node",
+      "type": "text",
+      "text": "# Human Curator\n- Adds raw sources\n- Asks questions\n- Reviews wiki in Obsidian\n- Directs Claude's work\n- Never edits wiki directly",
+      "x": -1400,
+      "y": 850,
+      "width": 400,
+      "height": 200,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "ae01",
+      "fromNode": "raw-dir",
+      "toNode": "llm-engine",
+      "fromSide": "bottom",
+      "toSide": "left",
+      "color": "1",
+      "label": "1. Claude reads raw sources"
+    },
+    {
+      "id": "ae02",
+      "fromNode": "claude-md",
+      "toNode": "llm-engine",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "3",
+      "label": "governs behavior"
+    },
+    {
+      "id": "ae03",
+      "fromNode": "llm-engine",
+      "toNode": "wiki-dir",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4",
+      "label": "2. Claude writes wiki articles"
+    },
+    {
+      "id": "ae04",
+      "fromNode": "llm-engine",
+      "toNode": "output-dir",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "2",
+      "label": "5. Claude generates outputs"
+    },
+    {
+      "id": "ae05",
+      "fromNode": "wiki-dir",
+      "toNode": "obsidian-node",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6",
+      "label": "viewed in Obsidian"
+    },
+    {
+      "id": "ae06",
+      "fromNode": "output-dir",
+      "toNode": "obsidian-node",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6",
+      "label": "viewed in Obsidian"
+    },
+    {
+      "id": "ae07",
+      "fromNode": "tools-dir",
+      "toNode": "llm-engine",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "5",
+      "label": "automation scripts"
+    },
+    {
+      "id": "ae08",
+      "fromNode": "templates-dir",
+      "toNode": "llm-engine",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "5",
+      "label": "article structure"
+    },
+    {
+      "id": "ae09",
+      "fromNode": "wiki-dir",
+      "toNode": "wiki-index",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4",
+      "label": "master index"
+    },
+    {
+      "id": "ae10",
+      "fromNode": "wiki-dir",
+      "toNode": "wiki-summaries",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4",
+      "label": "one-line summaries"
+    },
+    {
+      "id": "ae11",
+      "fromNode": "wiki-dir",
+      "toNode": "wiki-links",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4",
+      "label": "backlink map"
+    },
+    {
+      "id": "ae12",
+      "fromNode": "wiki-index",
+      "toNode": "wiki-summaries",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "4",
+      "label": "references"
+    },
+    {
+      "id": "ae13",
+      "fromNode": "wiki-summaries",
+      "toNode": "wiki-links",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "4",
+      "label": "cross-referenced"
+    },
+    {
+      "id": "ae14",
+      "fromNode": "phase-ingest",
+      "toNode": "phase-compile",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "6",
+      "label": "→"
+    },
+    {
+      "id": "ae15",
+      "fromNode": "phase-compile",
+      "toNode": "phase-query",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "6",
+      "label": "→"
+    },
+    {
+      "id": "ae16",
+      "fromNode": "phase-query",
+      "toNode": "phase-maintain",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "6",
+      "label": "→"
+    },
+    {
+      "id": "ae17",
+      "fromNode": "phase-maintain",
+      "toNode": "phase-ingest",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "6",
+      "label": "filing loop"
+    },
+    {
+      "id": "ae18",
+      "fromNode": "human-node",
+      "toNode": "raw-dir",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "color": "1",
+      "label": "adds sources"
+    },
+    {
+      "id": "ae19",
+      "fromNode": "human-node",
+      "toNode": "llm-engine",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "color": "1",
+      "label": "directs & queries"
+    },
+    {
+      "id": "ae20",
+      "fromNode": "obsidian-node",
+      "toNode": "human-node",
+      "fromSide": "left",
+      "toSide": "right",
+      "color": "6",
+      "label": "human reads wiki"
+    },
+    {
+      "id": "ae21",
+      "fromNode": "kb-dir",
+      "toNode": "llm-engine",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "3",
+      "label": "config & metadata"
+    },
+    {
+      "id": "ae22",
+      "fromNode": "claude-md",
+      "toNode": "claude-md-file",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "color": "3",
+      "label": "actual file"
+    },
+    {
+      "id": "ae23",
+      "fromNode": "wiki-dir",
+      "toNode": "wiki-concepts",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4",
+      "label": "concept articles"
+    },
+    {
+      "id": "ae24",
+      "fromNode": "wiki-dir",
+      "toNode": "wiki-sources",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4",
+      "label": "source summaries"
+    },
+    {
+      "id": "ae25",
+      "fromNode": "wiki-dir",
+      "toNode": "wiki-entities",
+      "fromSide": "right",
+      "toSide": "left",
+      "color": "4",
+      "label": "entity profiles"
+    },
+    {
+      "id": "ae26",
+      "fromNode": "phase-generate",
+      "toNode": "output-dir",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "color": "2",
+      "label": "produces"
+    },
+    {
+      "id": "ae27",
+      "fromNode": "phase-maintain",
+      "toNode": "wiki-dir",
+      "fromSide": "bottom",
+      "toSide": "right",
+      "color": "3",
+      "label": "updates wiki"
+    }
+  ]
+}

@@ -1,10 +1,11 @@
 ---
 title: "Automated Wiki Creation"
 type: concept
-sources: ["[[sources/storm-automated-wiki-creation]]"]
-related: ["[[concepts/wiki-compilation]]", "[[concepts/llm-knowledge-base]]", "[[concepts/multi-agent-systems]]"]
+sources: ["[[sources/storm-automated-wiki-creation]]", "[[sources/reeves-automated-wikipedia-content-review]]"]
+related: ["[[concepts/wiki-compilation]]", "[[concepts/llm-knowledge-base]]", "[[concepts/multi-agent-systems]]", "[[concepts/wikipedia-knowledge-model]]", "[[concepts/ai-generated-content-risks]]", "[[concepts/collaborative-knowledge-building]]"]
 last_compiled: 2026-04-05
 summary: "STORM's approach: single-shot, multi-perspective Wikipedia-style article generation from web search using simulated expert conversations and outline-first synthesis — contrasting with Karpathy's incremental, accumulating KB model."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -40,3 +41,13 @@ Automated wiki creation refers to systems that generate full structured articles
 - [[concepts/wiki-compilation]] — the persistent-KB counterpart
 - [[concepts/llm-knowledge-base]] — the accumulating approach
 - [[concepts/multi-agent-systems]] — multi-perspective agent architecture
+
+## Related Entities
+
+- [[entities/storm]] — the primary automated wiki creation system
+- [[entities/freshwiki]] — evaluation dataset for STORM
+
+## Related Comparisons
+
+- [[comparisons/storm-vs-karpathy-workflow]] — single-shot vs. accumulating KB
+- [[comparisons/single-agent-vs-multi-agent]] — agent architecture comparison

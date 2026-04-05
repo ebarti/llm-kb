@@ -5,6 +5,7 @@ source: "[[raw/dairai-llm-knowledge-bases-architecture]]"
 related: ["[[concepts/llm-knowledge-base]]", "[[concepts/wiki-compilation]]", "[[concepts/obsidian-as-ide]]", "[[concepts/rag-vs-index-based-retrieval]]"]
 last_compiled: 2026-04-05
 summary: "DAIR.AI Academy deep-dive on the four-phase operational cycle (ingest, compile, query, maintain) of Karpathy's LLM knowledge base system, emphasizing no vector infrastructure needed at personal scale."
+reading_time: "2 min"
 ---
 
 ## Key Points

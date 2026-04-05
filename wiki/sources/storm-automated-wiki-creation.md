@@ -5,6 +5,7 @@ source: "[[raw/storm-automated-wiki-creation]]"
 related: ["[[concepts/automated-wiki-creation]]", "[[concepts/llm-knowledge-base]]", "[[concepts/wiki-compilation]]"]
 last_compiled: 2026-04-05
 summary: "STORM system: multi-perspective question-asking + retrieval → automated Wikipedia-style article generation with FreshWiki evaluation dataset, contrasting single-shot creation vs. Karpathy's accumulating KB."
+reading_time: "2 min"
 ---
 
 ## Key Points

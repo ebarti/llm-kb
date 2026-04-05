@@ -1,0 +1,12 @@
+# Wiki Search Engine - Requirements
+#
+# No external dependencies required.
+# This project uses only Python 3.9+ standard library modules:
+#   - json, math, re, os, sys, time, pathlib
+#   - collections (Counter, defaultdict)
+#   - http.server, urllib.parse
+#   - argparse
+#
+# The web UI uses vanilla HTML/CSS/JS with D3.js loaded from CDN.
+#
+# BM25 Okapi ranking is implemented from scratch using only the math module.

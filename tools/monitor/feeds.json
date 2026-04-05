@@ -1,0 +1,11 @@
+{
+  "feeds": [
+    {"url": "https://lilianweng.github.io/index.xml", "name": "Lil'Log"},
+    {"url": "https://simonwillison.net/atom/everything/", "name": "Simon Willison"},
+    {"url": "https://www.interconnects.ai/feed", "name": "Interconnects"},
+    {"url": "http://export.arxiv.org/rss/cs.AI", "name": "arXiv cs.AI"},
+    {"url": "http://export.arxiv.org/rss/cs.CL", "name": "arXiv cs.CL"},
+    {"url": "http://export.arxiv.org/rss/cs.IR", "name": "arXiv cs.IR"}
+  ],
+  "keywords": ["knowledge base", "wiki", "RAG", "retrieval", "knowledge graph", "embedding", "agent", "PKM", "Obsidian"]
+}

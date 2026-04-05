@@ -5,6 +5,7 @@ sources: ["[[sources/karpathy-llm-knowledge-bases]]"]
 related: ["[[concepts/llm-knowledge-base]]", "[[concepts/rag-vs-index-based-retrieval]]", "[[concepts/wiki-compilation]]"]
 last_compiled: 2026-04-05
 summary: "Using an LLM agent to answer complex questions over a compiled wiki by reading index files and summaries to navigate to relevant full articles, without needing a vector database."
+reading_time: "2 min"
 ---
 
 ## Overview

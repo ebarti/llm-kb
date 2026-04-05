@@ -5,6 +5,7 @@ source: "[[raw/graphiti-temporal-knowledge-graphs]]"
 related: ["[[concepts/knowledge-graph]]", "[[concepts/temporal-knowledge]]", "[[concepts/rag-vs-index-based-retrieval]]"]
 last_compiled: 2026-04-05
 summary: "Graphiti: open-source temporal graph framework for AI agents with time-windowed facts, incremental updates, hybrid retrieval (semantic + BM25 + graph), and full provenance — the middle ground between markdown wikis and enterprise KGs."
+reading_time: "2 min"
 ---
 
 ## Key Points

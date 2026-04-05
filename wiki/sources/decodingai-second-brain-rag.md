@@ -5,6 +5,7 @@ source: "[[raw/decodingai-second-brain-rag]]"
 related: ["[[concepts/rag-vs-index-based-retrieval]]", "[[concepts/second-brain]]", "[[concepts/llm-knowledge-base]]", "[[concepts/data-quality-bottleneck]]"]
 last_compiled: 2026-04-05
 summary: "Production-grade second brain using the FTI (Feature/Training/Inference) architecture: Notion → ETL → MongoDB vector search + Llama 3.1 fine-tuning + ZenML orchestration — the enterprise-scale counterpart to Karpathy's personal approach."
+reading_time: "2 min"
 ---
 
 ## Key Points

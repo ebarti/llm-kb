@@ -5,6 +5,7 @@ source: "[[raw/karma-multi-agent-knowledge-graph]]"
 related: ["[[concepts/knowledge-graph]]", "[[concepts/multi-agent-systems]]", "[[concepts/llm-knowledge-base]]"]
 last_compiled: 2026-04-05
 summary: "NeurIPS 2025 Spotlight paper: nine-agent LLM framework for automated KG enrichment achieving 83.1% accuracy on 1,200 PubMed articles with 18.6% conflict reduction — the research-grade counterpart to markdown wikis."
+reading_time: "1 min"
 ---
 
 ## Key Points

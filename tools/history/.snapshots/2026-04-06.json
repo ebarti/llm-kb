@@ -1,0 +1,1080 @@
+{
+  "timestamp": "2026-04-06T00:55:06.432647",
+  "files": {
+    "total": 150,
+    "concepts": 26,
+    "sources": 86,
+    "entities": 28,
+    "comparisons": 0,
+    "meta": 3,
+    "other": 7
+  },
+  "words": {
+    "total": 51055,
+    "concepts": 10801,
+    "sources": 24423,
+    "entities": 11067,
+    "comparisons": 0,
+    "other": 3456
+  },
+  "lines": {
+    "total": 6167
+  },
+  "links": {
+    "total": 1878,
+    "unique_targets": 317
+  },
+  "tags": {},
+  "file_list": [
+    {
+      "path": "Changelog.md",
+      "category": "other",
+      "type": "unknown",
+      "words": 651,
+      "links": 36
+    },
+    {
+      "path": "Dashboard.md",
+      "category": "other",
+      "type": "dashboard",
+      "words": 512,
+      "links": 19
+    },
+    {
+      "path": "Graph.md",
+      "category": "other",
+      "type": "reference",
+      "words": 845,
+      "links": 64
+    },
+    {
+      "path": "Queries.md",
+      "category": "other",
+      "type": "reference",
+      "words": 438,
+      "links": 0
+    },
+    {
+      "path": "Tags.md",
+      "category": "other",
+      "type": "reference",
+      "words": 452,
+      "links": 2
+    },
+    {
+      "path": "_index.md",
+      "category": "other",
+      "type": "index",
+      "words": 455,
+      "links": 31
+    },
+    {
+      "path": "_meta/links.md",
+      "category": "meta",
+      "type": "meta",
+      "words": 386,
+      "links": 238
+    },
+    {
+      "path": "_meta/manifest.md",
+      "category": "meta",
+      "type": "meta",
+      "words": 109,
+      "links": 0
+    },
+    {
+      "path": "_meta/summaries.md",
+      "category": "meta",
+      "type": "meta",
+      "words": 813,
+      "links": 31
+    },
+    {
+      "path": "concepts/automated-wiki-creation.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 297,
+      "links": 8
+    },
+    {
+      "path": "concepts/cheap-ontology.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 333,
+      "links": 9
+    },
+    {
+      "path": "concepts/data-quality-bottleneck.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 336,
+      "links": 11
+    },
+    {
+      "path": "concepts/fine-tuning.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 683,
+      "links": 33
+    },
+    {
+      "path": "concepts/hallucination-contamination.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 398,
+      "links": 14
+    },
+    {
+      "path": "concepts/knowledge-base-product-gap.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 429,
+      "links": 12
+    },
+    {
+      "path": "concepts/knowledge-graph.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 436,
+      "links": 16
+    },
+    {
+      "path": "concepts/linting-and-health-checks.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 230,
+      "links": 7
+    },
+    {
+      "path": "concepts/llm-knowledge-base.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 318,
+      "links": 12
+    },
+    {
+      "path": "concepts/llm-qa-over-documents.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 290,
+      "links": 9
+    },
+    {
+      "path": "concepts/markdown-as-universal-interface.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 351,
+      "links": 13
+    },
+    {
+      "path": "concepts/multi-agent-systems.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 333,
+      "links": 10
+    },
+    {
+      "path": "concepts/obsidian-as-ide.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 244,
+      "links": 7
+    },
+    {
+      "path": "concepts/personal-knowledge-management.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 371,
+      "links": 13
+    },
+    {
+      "path": "concepts/plain-text-longevity.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 572,
+      "links": 18
+    },
+    {
+      "path": "concepts/post-code-ai-workflow.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 292,
+      "links": 6
+    },
+    {
+      "path": "concepts/rag-vs-index-based-retrieval.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 290,
+      "links": 6
+    },
+    {
+      "path": "concepts/retrieval-augmented-generation.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 847,
+      "links": 57
+    },
+    {
+      "path": "concepts/second-brain.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 394,
+      "links": 11
+    },
+    {
+      "path": "concepts/synthetic-data-generation.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 742,
+      "links": 29
+    },
+    {
+      "path": "concepts/temporal-knowledge.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 336,
+      "links": 6
+    },
+    {
+      "path": "concepts/text-embeddings.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 746,
+      "links": 32
+    },
+    {
+      "path": "concepts/vault-separation.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 270,
+      "links": 8
+    },
+    {
+      "path": "concepts/vector-databases.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 399,
+      "links": 12
+    },
+    {
+      "path": "concepts/vector-search.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 626,
+      "links": 31
+    },
+    {
+      "path": "concepts/wiki-compilation.md",
+      "category": "concepts",
+      "type": "concept",
+      "words": 238,
+      "links": 7
+    },
+    {
+      "path": "entities/andrej-karpathy.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 546,
+      "links": 21
+    },
+    {
+      "path": "entities/chromadb.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 384,
+      "links": 11
+    },
+    {
+      "path": "entities/dairai.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 283,
+      "links": 5
+    },
+    {
+      "path": "entities/dataview.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 411,
+      "links": 9
+    },
+    {
+      "path": "entities/elvis-saravia.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 368,
+      "links": 7
+    },
+    {
+      "path": "entities/faiss.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 408,
+      "links": 9
+    },
+    {
+      "path": "entities/freshwiki.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 310,
+      "links": 5
+    },
+    {
+      "path": "entities/google-notebooklm.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 416,
+      "links": 7
+    },
+    {
+      "path": "entities/graphiti.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 503,
+      "links": 8
+    },
+    {
+      "path": "entities/karma.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 407,
+      "links": 7
+    },
+    {
+      "path": "entities/llama.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 408,
+      "links": 6
+    },
+    {
+      "path": "entities/marp.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 372,
+      "links": 11
+    },
+    {
+      "path": "entities/matplotlib.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 408,
+      "links": 11
+    },
+    {
+      "path": "entities/memex.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 458,
+      "links": 8
+    },
+    {
+      "path": "entities/mongodb.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 360,
+      "links": 6
+    },
+    {
+      "path": "entities/neo4j.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 308,
+      "links": 7
+    },
+    {
+      "path": "entities/notion.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 432,
+      "links": 9
+    },
+    {
+      "path": "entities/obsidian-web-clipper.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 392,
+      "links": 13
+    },
+    {
+      "path": "entities/obsidian.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 489,
+      "links": 24
+    },
+    {
+      "path": "entities/pgvector.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 390,
+      "links": 9
+    },
+    {
+      "path": "entities/sam-gallagher.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 397,
+      "links": 10
+    },
+    {
+      "path": "entities/sqlite.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 418,
+      "links": 6
+    },
+    {
+      "path": "entities/steph-ango.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 323,
+      "links": 7
+    },
+    {
+      "path": "entities/storm.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 409,
+      "links": 9
+    },
+    {
+      "path": "entities/vannevar-bush.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 469,
+      "links": 8
+    },
+    {
+      "path": "entities/vespa.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 357,
+      "links": 6
+    },
+    {
+      "path": "entities/zenml.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 310,
+      "links": 6
+    },
+    {
+      "path": "entities/zep.md",
+      "category": "entities",
+      "type": "entity",
+      "words": 331,
+      "links": 7
+    },
+    {
+      "path": "log.md",
+      "category": "other",
+      "type": "log",
+      "words": 103,
+      "links": 0
+    },
+    {
+      "path": "sources/agentic-memory-unified-framework.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 232,
+      "links": 8
+    },
+    {
+      "path": "sources/agentic-rag-survey.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 217,
+      "links": 12
+    },
+    {
+      "path": "sources/ai-training-2026-synthetic-human-data.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 336,
+      "links": 8
+    },
+    {
+      "path": "sources/ango-file-over-app.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 371,
+      "links": 11
+    },
+    {
+      "path": "sources/antigravity-post-code-ai-workflow.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 355,
+      "links": 11
+    },
+    {
+      "path": "sources/appleton-digital-garden-history.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 436,
+      "links": 10
+    },
+    {
+      "path": "sources/cache-augmented-generation.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 241,
+      "links": 8
+    },
+    {
+      "path": "sources/claimify-claim-extraction.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 279,
+      "links": 12
+    },
+    {
+      "path": "sources/claude-code-agentic-coding.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 244,
+      "links": 8
+    },
+    {
+      "path": "sources/colbert-late-interaction.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 250,
+      "links": 11
+    },
+    {
+      "path": "sources/dairai-llm-knowledge-bases-architecture.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 340,
+      "links": 10
+    },
+    {
+      "path": "sources/databricks-agent-design-patterns.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 212,
+      "links": 8
+    },
+    {
+      "path": "sources/decodingai-second-brain-rag.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 308,
+      "links": 9
+    },
+    {
+      "path": "sources/devin-ai-software-engineer.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 234,
+      "links": 9
+    },
+    {
+      "path": "sources/domain-adaptive-pretraining-dapt.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 261,
+      "links": 8
+    },
+    {
+      "path": "sources/epoch-context-window-growth.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 343,
+      "links": 8
+    },
+    {
+      "path": "sources/forte-building-second-brain.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 544,
+      "links": 12
+    },
+    {
+      "path": "sources/gallagher-second-brain-knowledge-graphs.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 298,
+      "links": 9
+    },
+    {
+      "path": "sources/glenrhodes-karpathy-workflow.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 287,
+      "links": 10
+    },
+    {
+      "path": "sources/gpt-ner-named-entity-recognition.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 292,
+      "links": 11
+    },
+    {
+      "path": "sources/graphiti-temporal-knowledge-graphs.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 300,
+      "links": 8
+    },
+    {
+      "path": "sources/graphrag-microsoft-research.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 340,
+      "links": 9
+    },
+    {
+      "path": "sources/hn-vector-database-debate.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 257,
+      "links": 5
+    },
+    {
+      "path": "sources/huggingface-matryoshka-embeddings.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 289,
+      "links": 9
+    },
+    {
+      "path": "sources/hybrid-search-bm25-splade-vector.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 265,
+      "links": 11
+    },
+    {
+      "path": "sources/hybrid-search-rag-optimization.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 240,
+      "links": 13
+    },
+    {
+      "path": "sources/instructor-library-structured-extraction.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 247,
+      "links": 13
+    },
+    {
+      "path": "sources/jina-colbert-late-interaction.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 243,
+      "links": 8
+    },
+    {
+      "path": "sources/karma-multi-agent-knowledge-graph.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 249,
+      "links": 7
+    },
+    {
+      "path": "sources/karpathy-llm-knowledge-bases.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 536,
+      "links": 13
+    },
+    {
+      "path": "sources/kg-llm-link-prediction.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 241,
+      "links": 6
+    },
+    {
+      "path": "sources/kg-vs-vector-db-glean.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 238,
+      "links": 7
+    },
+    {
+      "path": "sources/kggen-knowledge-graph-extraction.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 307,
+      "links": 8
+    },
+    {
+      "path": "sources/knowledge-graph-embeddings-overview.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 284,
+      "links": 6
+    },
+    {
+      "path": "sources/llm-kg-construction-survey.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 340,
+      "links": 11
+    },
+    {
+      "path": "sources/llm-knowledge-distillation-survey.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 255,
+      "links": 8
+    },
+    {
+      "path": "sources/llms-love-markdown.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 300,
+      "links": 9
+    },
+    {
+      "path": "sources/lora-qlora-efficient-fine-tuning.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 300,
+      "links": 8
+    },
+    {
+      "path": "sources/markdown-agent-task-format.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 270,
+      "links": 8
+    },
+    {
+      "path": "sources/markdowndb-queryable-markdown.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 274,
+      "links": 9
+    },
+    {
+      "path": "sources/marp-markdown-presentations.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 247,
+      "links": 8
+    },
+    {
+      "path": "sources/martinfowler-function-calling-llm.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 307,
+      "links": 9
+    },
+    {
+      "path": "sources/matuschak-evergreen-notes.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 443,
+      "links": 12
+    },
+    {
+      "path": "sources/mcp-model-context-protocol.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 248,
+      "links": 7
+    },
+    {
+      "path": "sources/mdx-markdown-components.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 292,
+      "links": 7
+    },
+    {
+      "path": "sources/microsoft-graphrag.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 262,
+      "links": 11
+    },
+    {
+      "path": "sources/microsoft-markitdown.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 280,
+      "links": 9
+    },
+    {
+      "path": "sources/mit-digital-preservation-formats.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 256,
+      "links": 8
+    },
+    {
+      "path": "sources/modal-mteb-leaderboard.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 248,
+      "links": 9
+    },
+    {
+      "path": "sources/multi-agent-collaboration-survey.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 195,
+      "links": 8
+    },
+    {
+      "path": "sources/ng-agentic-design-patterns.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 305,
+      "links": 16
+    },
+    {
+      "path": "sources/ontogpt-ontology-extraction.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 249,
+      "links": 13
+    },
+    {
+      "path": "sources/pandoc-universal-converter.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 301,
+      "links": 8
+    },
+    {
+      "path": "sources/pebblous-agentic-framework-explosion.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 235,
+      "links": 8
+    },
+    {
+      "path": "sources/pebblous-cheap-ontology.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 398,
+      "links": 11
+    },
+    {
+      "path": "sources/pinecone-embedding-models-rundown.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 265,
+      "links": 9
+    },
+    {
+      "path": "sources/pinecone-hnsw-explained.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 269,
+      "links": 10
+    },
+    {
+      "path": "sources/pinecone-rerankers-two-stage.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 261,
+      "links": 9
+    },
+    {
+      "path": "sources/promptingguide-chain-of-thought.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 260,
+      "links": 9
+    },
+    {
+      "path": "sources/promptingguide-few-shot.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 206,
+      "links": 9
+    },
+    {
+      "path": "sources/promptingguide-prompt-chaining.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 186,
+      "links": 8
+    },
+    {
+      "path": "sources/promptingguide-self-consistency.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 177,
+      "links": 8
+    },
+    {
+      "path": "sources/promptingguide-tree-of-thoughts.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 220,
+      "links": 9
+    },
+    {
+      "path": "sources/raft-retrieval-augmented-fine-tuning.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 305,
+      "links": 8
+    },
+    {
+      "path": "sources/rag-evaluation-metrics-benchmarks.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 218,
+      "links": 9
+    },
+    {
+      "path": "sources/rag-hallucinations-explained.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 230,
+      "links": 9
+    },
+    {
+      "path": "sources/rag-vs-finetuning-agriculture.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 247,
+      "links": 9
+    },
+    {
+      "path": "sources/rag-vs-kg-enterprise-phyvant.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 260,
+      "links": 8
+    },
+    {
+      "path": "sources/ragflow-rag-review-2025.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 410,
+      "links": 16
+    },
+    {
+      "path": "sources/raptor-tree-retrieval.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 247,
+      "links": 8
+    },
+    {
+      "path": "sources/react-prompting-framework.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 216,
+      "links": 8
+    },
+    {
+      "path": "sources/redis-rag-vs-long-context.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 323,
+      "links": 12
+    },
+    {
+      "path": "sources/redis-semantic-vs-keyword-search.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 244,
+      "links": 12
+    },
+    {
+      "path": "sources/rome-memit-knowledge-editing.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 353,
+      "links": 8
+    },
+    {
+      "path": "sources/self-reflective-rag-langgraph.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 262,
+      "links": 13
+    },
+    {
+      "path": "sources/sivers-plain-text-files.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 362,
+      "links": 8
+    },
+    {
+      "path": "sources/storm-automated-wiki-creation.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 286,
+      "links": 7
+    },
+    {
+      "path": "sources/superannotate-llm-agents-guide.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 302,
+      "links": 12
+    },
+    {
+      "path": "sources/superlinked-hybrid-search-reranking.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 257,
+      "links": 12
+    },
+    {
+      "path": "sources/synthetic-data-generation-llms.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 302,
+      "links": 8
+    },
+    {
+      "path": "sources/temporal-knowledge-graphs-survey.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 280,
+      "links": 7
+    },
+    {
+      "path": "sources/textbooks-are-all-you-need-phi.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 299,
+      "links": 8
+    },
+    {
+      "path": "sources/weaviate-chunking-strategies.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 275,
+      "links": 8
+    },
+    {
+      "path": "sources/weaviate-hybrid-search-explained.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 222,
+      "links": 13
+    },
+    {
+      "path": "sources/willison-llm-schemas-structured-extraction.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 322,
+      "links": 10
+    },
+    {
+      "path": "sources/xenoss-vector-db-comparison.md",
+      "category": "sources",
+      "type": "source-summary",
+      "words": 236,
+      "links": 11
+    }
+  ]
+}

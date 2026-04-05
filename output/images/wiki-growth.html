@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wiki Growth Report</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; color: #333; }
+  h1 { color: #2c3e50; border-bottom: 2px solid #4A90D9; padding-bottom: 8px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 20px 0; }
+  .stat-card { background: #f8f9fa; border-radius: 8px; padding: 16px; text-align: center; border: 1px solid #e9ecef; }
+  .stat-card .number { font-size: 28px; font-weight: bold; color: #4A90D9; }
+  .stat-card .label { font-size: 13px; color: #666; margin-top: 4px; }
+  .chart-container { margin: 30px 0; overflow-x: auto; }
+  .breakdown { margin: 20px 0; padding: 16px; background: #f8f9fa; border-radius: 8px; }
+</style>
+</head>
+<body>
+<h1>Wiki Growth Report</h1>
+<p>Generated: 2026-04-06 00:55</p>
+
+<div class="stat-grid">
+  <div class="stat-card"><div class="number">154</div><div class="label">Total Files</div></div>
+  <div class="stat-card"><div class="number">61,378</div><div class="label">Total Words</div></div>
+  <div class="stat-card"><div class="number">28</div><div class="label">Concepts</div></div>
+  <div class="stat-card"><div class="number">86</div><div class="label">Sources</div></div>
+  <div class="stat-card"><div class="number">28</div><div class="label">Entities</div></div>
+  <div class="stat-card"><div class="number">0</div><div class="label">Comparisons</div></div>
+</div>
+
+<div class="chart-container">
+<svg width="600" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#fafafa" rx="8"/>
+  <text x="300" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">
+    Wiki Growth — Cumulative File Count
+  </text>
+  <rect x="40" y="30.0" width="60" height="240.0" fill="#4A90D9" rx="3" opacity="0.85"/><text x="70" y="25.0" text-anchor="middle" font-size="11" fill="#333">36</text>
+  <text x="70" y="290" text-anchor="middle" font-size="10" fill="#666">04-05</text>
+</svg>
+</div>
+
+<div class="breakdown">
+<strong>Composition (latest day):</strong><br>
+<div style="display:inline-block;margin:0 12px;"><span style="color:#4A90D9;font-size:20px;">&#9632;</span> Concepts: 20 (65%)</div><div style="display:inline-block;margin:0 12px;"><span style="color:#50C878;font-size:20px;">&#9632;</span> Sources: 11 (35%)</div>
+</div>
+
+</body>
+</html>

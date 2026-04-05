@@ -2,9 +2,10 @@
 title: "RAG vs. Index-Based Retrieval"
 type: concept
 sources: ["[[sources/karpathy-llm-knowledge-bases]]"]
-related: ["[[concepts/llm-qa-over-documents]]", "[[concepts/llm-knowledge-base]]"]
+related: ["[[concepts/llm-qa-over-documents]]", "[[concepts/llm-knowledge-base]]", "[[concepts/vector-search]]", "[[concepts/text-embeddings]]", "[[concepts/two-stage-retrieval]]"]
 last_compiled: 2026-04-05
 summary: "At small-to-medium scale (~100 articles, ~400K words), LLM-maintained index files and one-line summaries can replace vector database RAG for document Q&A."
+reading_time: "2 min"
 ---
 
 ## Overview
@@ -35,3 +36,14 @@ Retrieval-Augmented Generation (RAG) uses vector embeddings and similarity searc
 
 - [[concepts/llm-qa-over-documents]] — the Q&A system that uses this retrieval approach
 - [[concepts/llm-knowledge-base]] — the broader system
+
+## Related Entities
+
+- [[entities/pgvector]], [[entities/faiss]] — vector search tools discussed in the debate
+- [[entities/andrej-karpathy]] — demonstrated index-based approach works at personal scale
+
+## Related Comparisons
+
+- [[comparisons/rag-vs-index-based-retrieval]] — detailed comparison article
+- [[comparisons/vector-db-vs-bm25-search]] — related retrieval method comparison
+- [[comparisons/fine-tuning-vs-context-window]] — alternative to both RAG and index-based

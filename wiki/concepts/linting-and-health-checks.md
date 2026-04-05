@@ -5,6 +5,7 @@ sources: ["[[sources/karpathy-llm-knowledge-bases]]"]
 related: ["[[concepts/llm-knowledge-base]]", "[[concepts/wiki-compilation]]"]
 last_compiled: 2026-04-05
 summary: "LLM-driven health checks over the compiled wiki to find inconsistencies, fill data gaps, detect broken links, identify orphan articles, and suggest new content."
+reading_time: "1 min"
 ---
 
 ## Overview
