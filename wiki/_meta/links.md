@@ -3350,3 +3350,77 @@ Pages with no incoming links:
 ### comparisons/neuromorphic-vs-gpu-computing
 ← (none)
 → [[concepts/neuromorphic-computing]], [[entities/intel-loihi]], [[entities/ibm-northpole]], [[concepts/sparse-coding]], [[concepts/brain-inspired-ai]]
+
+## AI Hardware, Chips & Compute Infrastructure
+
+### concepts/ai-hardware-landscape
+← [[sources/ai-hardware-accelerators-2026-guide]], [[sources/cerebras-vs-sambanova-vs-groq-chips]], [[sources/google-tpu-architecture-gemini]], [[sources/ai-inference-accelerators-compared]], [[sources/nvidia-gpu-specs-ai-training-2026]], [[sources/ai-infrastructure-investment-2026]], [[sources/photonic-computing-ai-2026]], [[sources/hbm-memory-wall-roadmap]], [[sources/iea-ai-energy-demand-2026]], [[concepts/ai-accelerators]], [[concepts/memory-bandwidth-wall]], [[concepts/training-vs-inference-hardware]], [[concepts/custom-silicon]], [[concepts/ai-data-center-energy]], [[concepts/ai-infrastructure-investment]], [[concepts/photonic-computing]], [[concepts/quantum-machine-learning]], [[concepts/wafer-scale-computing]]
+→ [[entities/nvidia]], [[entities/amd]], [[entities/google-tpu]], [[entities/cerebras]], [[entities/groq]], [[entities/sambanova]], [[concepts/ai-accelerators]], [[concepts/memory-bandwidth-wall]], [[concepts/training-vs-inference-hardware]], [[concepts/custom-silicon]], [[concepts/ai-data-center-energy]], [[concepts/ai-infrastructure-investment]], [[concepts/photonic-computing]], [[concepts/quantum-machine-learning]]
+
+### concepts/ai-accelerators
+← [[concepts/ai-hardware-landscape]], [[sources/ai-hardware-accelerators-2026-guide]], [[sources/nvidia-gpu-specs-ai-training-2026]], [[sources/ai-inference-accelerators-compared]], [[sources/cerebras-vs-sambanova-vs-groq-chips]], [[concepts/memory-bandwidth-wall]], [[concepts/training-vs-inference-hardware]], [[concepts/custom-silicon]], [[concepts/ai-data-center-energy]], [[concepts/photonic-computing]], [[concepts/wafer-scale-computing]]
+→ [[entities/nvidia]], [[entities/amd]], [[entities/google-tpu]], [[entities/cerebras]], [[entities/groq]], [[entities/sambanova]], [[concepts/ai-hardware-landscape]], [[concepts/memory-bandwidth-wall]], [[concepts/training-vs-inference-hardware]]
+
+### concepts/memory-bandwidth-wall
+← [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[concepts/training-vs-inference-hardware]], [[concepts/wafer-scale-computing]], [[sources/hbm-memory-wall-roadmap]]
+→ [[entities/nvidia]], [[entities/cerebras]], [[concepts/ai-accelerators]], [[concepts/ai-hardware-landscape]], [[concepts/context-compression]]
+
+### concepts/training-vs-inference-hardware
+← [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[sources/ai-inference-accelerators-compared]], [[sources/iea-ai-energy-demand-2026]], [[concepts/ai-data-center-energy]]
+→ [[entities/nvidia]], [[entities/google-tpu]], [[entities/cerebras]], [[entities/groq]], [[entities/sambanova]], [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[concepts/memory-bandwidth-wall]], [[concepts/ai-data-center-energy]]
+
+### concepts/custom-silicon
+← [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[sources/google-tpu-architecture-gemini]]
+→ [[entities/google-tpu]], [[entities/nvidia]], [[entities/cerebras]], [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[concepts/ai-infrastructure-investment]]
+
+### concepts/ai-data-center-energy
+← [[concepts/ai-hardware-landscape]], [[concepts/training-vs-inference-hardware]], [[concepts/photonic-computing]], [[sources/iea-ai-energy-demand-2026]]
+→ [[concepts/ai-hardware-landscape]], [[concepts/ai-infrastructure-investment]], [[concepts/training-vs-inference-hardware]], [[entities/google-tpu]], [[concepts/photonic-computing]]
+
+### concepts/ai-infrastructure-investment
+← [[concepts/ai-hardware-landscape]], [[concepts/ai-data-center-energy]], [[concepts/custom-silicon]], [[sources/ai-infrastructure-investment-2026]]
+→ [[entities/nvidia]], [[entities/cerebras]], [[entities/anthropic]], [[entities/openai]], [[concepts/ai-hardware-landscape]], [[concepts/ai-data-center-energy]], [[concepts/ai-accelerators]], [[concepts/custom-silicon]]
+
+### concepts/photonic-computing
+← [[concepts/ai-hardware-landscape]], [[sources/photonic-computing-ai-2026]]
+→ [[concepts/ai-hardware-landscape]], [[concepts/ai-data-center-energy]], [[concepts/ai-accelerators]], [[entities/google-tpu]]
+
+### concepts/quantum-machine-learning
+← [[concepts/ai-hardware-landscape]], [[sources/quantum-machine-learning-2026]]
+→ [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]]
+
+### concepts/wafer-scale-computing
+← [[entities/cerebras]], [[concepts/ai-hardware-landscape]]
+→ [[entities/cerebras]], [[concepts/ai-accelerators]], [[concepts/memory-bandwidth-wall]]
+
+### entities/cerebras
+← [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[concepts/wafer-scale-computing]], [[concepts/training-vs-inference-hardware]], [[concepts/ai-infrastructure-investment]], [[sources/cerebras-vs-sambanova-vs-groq-chips]], [[sources/ai-inference-accelerators-compared]], [[comparisons/inference-asics-compared]]
+→ [[concepts/wafer-scale-computing]], [[concepts/ai-accelerators]], [[concepts/ai-hardware-landscape]], [[entities/nvidia]]
+
+### entities/groq
+← [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[concepts/training-vs-inference-hardware]], [[entities/nvidia]], [[sources/cerebras-vs-sambanova-vs-groq-chips]], [[sources/ai-inference-accelerators-compared]], [[comparisons/inference-asics-compared]]
+→ [[concepts/ai-accelerators]], [[concepts/training-vs-inference-hardware]], [[entities/nvidia]], [[entities/cerebras]]
+
+### entities/google-tpu
+← [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[concepts/custom-silicon]], [[concepts/ai-data-center-energy]], [[concepts/photonic-computing]], [[comparisons/nvidia-vs-google-tpu]]
+→ [[concepts/custom-silicon]], [[concepts/ai-accelerators]], [[concepts/ai-hardware-landscape]], [[entities/nvidia]]
+
+### entities/amd
+← [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[entities/nvidia]]
+→ [[concepts/ai-hardware-landscape]], [[concepts/ai-accelerators]], [[entities/nvidia]]
+
+### entities/sambanova
+← [[concepts/ai-accelerators]], [[concepts/training-vs-inference-hardware]], [[comparisons/inference-asics-compared]]
+→ [[concepts/ai-accelerators]], [[concepts/ai-hardware-landscape]], [[entities/cerebras]], [[entities/groq]]
+
+### comparisons/gpu-vs-custom-asic-vs-emerging
+← (none)
+→ [[concepts/ai-accelerators]], [[concepts/custom-silicon]], [[concepts/photonic-computing]], [[concepts/quantum-machine-learning]], [[entities/nvidia]], [[entities/amd]], [[entities/google-tpu]], [[entities/groq]], [[entities/cerebras]]
+
+### comparisons/nvidia-vs-google-tpu
+← (none)
+→ [[entities/nvidia]], [[entities/google-tpu]], [[concepts/ai-hardware-landscape]], [[concepts/custom-silicon]], [[concepts/ai-data-center-energy]]
+
+### comparisons/inference-asics-compared
+← (none)
+→ [[entities/cerebras]], [[entities/groq]], [[entities/sambanova]], [[concepts/training-vs-inference-hardware]], [[concepts/ai-accelerators]], [[concepts/memory-bandwidth-wall]]
