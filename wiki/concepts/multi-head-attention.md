@@ -1,8 +1,8 @@
 ---
 title: "Multi-Head Attention"
 type: concept
-sources: ["[[sources/illustrated-transformer-jalammar]]", "[[sources/raschka-self-attention-coding]]"]
-related: ["[[concepts/self-attention]]", "[[concepts/transformer-architecture]]", "[[concepts/grouped-query-attention]]"]
+sources: ["[[sources/illustrated-transformer-jalammar]]", "[[sources/raschka-self-attention-coding]]", "[[sources/attention-mechanisms-comprehensive-survey]]", "[[sources/gqa-grouped-query-attention-overview]]"]
+related: ["[[concepts/self-attention]]", "[[concepts/transformer-architecture]]", "[[concepts/grouped-query-attention]]", "[[concepts/attention-mechanisms]]", "[[comparisons/mha-vs-gqa-vs-mqa]]"]
 last_compiled: 2026-04-05
 summary: "Running multiple parallel self-attention heads with independent Q/K/V projections, then concatenating results — enabling the model to capture diverse relationship types simultaneously."
 ---

@@ -1,7 +1,7 @@
 ---
 title: "Context Engineering"
 type: concept
-sources: ["[[sources/context-engineering-2026]]", "[[sources/logrocket-llm-context-problem]]", "[[sources/redis-rag-vs-long-context]]", "[[sources/ragflow-rag-review-2025]]"]
+sources: ["[[sources/context-engineering-2026]]", "[[sources/logrocket-llm-context-problem]]", "[[sources/redis-rag-vs-long-context]]", "[[sources/ragflow-rag-review-2025]]", "[[sources/karpathy-2025-llm-year-review]]"]
 related: ["[[concepts/context-windows]]", "[[concepts/context-compression]]", "[[concepts/prompt-caching]]", "[[concepts/llm-knowledge-base]]", "[[concepts/lost-in-the-middle]]", "[[concepts/retrieval-augmented-generation]]", "[[concepts/agentic-rag]]"]
 last_compiled: 2026-04-05
 summary: "The systems discipline of managing everything an LLM encounters during inference — successor to prompt engineering, credited to Karpathy (2024-2025)."

@@ -707,3 +707,77 @@ Deep research pass on Personal Knowledge Management (PKM), Zettelkasten, second 
   - concepts/speculative-decoding — added new source and transformer architecture links
   - entities/chinchilla — added Chinchilla scaling laws source
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
+
+## [2026-04-05] research | Claude by Anthropic — architecture, capabilities, constitutional AI, safety, model family evolution
+- **Scope**: Deep research pass on Claude/Anthropic for the KB system's self-understanding
+- **Web searches**: 14 searches across model family, capabilities, safety, comparisons, founding, API
+- **Sources fetched and ingested** (9 raw files):
+  - raw/wikipedia-claude-language-model.md — Wikipedia article on Claude model family
+  - raw/wikipedia-anthropic.md — Wikipedia article on Anthropic company
+  - raw/anthropic-claude-models-overview.md — Official API model documentation
+  - raw/anthropic-rsp-v3.md — Responsible Scaling Policy v3.0
+  - raw/anthropic-extended-thinking-docs.md — Extended thinking API reference
+  - raw/anthropic-claude-3-family-announcement.md — Claude 3 launch announcement
+  - raw/anthropic-claude-4-announcement.md — Claude 4 launch announcement
+  - raw/dario-amodei-machines-of-loving-grace.md — Dario Amodei's vision essay
+  - raw/improvado-claude-vs-chatgpt-vs-gemini-2026.md — 2026 frontier model comparison
+- **Source summaries created** (9):
+  - sources/wikipedia-claude-language-model, sources/wikipedia-anthropic
+  - sources/anthropic-claude-models-overview, sources/anthropic-rsp-v3
+  - sources/anthropic-extended-thinking-docs, sources/anthropic-claude-3-family-announcement
+  - sources/anthropic-claude-4-announcement, sources/dario-amodei-machines-of-loving-grace
+  - sources/improvado-claude-vs-chatgpt-vs-gemini-2026
+- **Concept articles created** (3):
+  - concepts/claude-model-family-evolution — 17-release timeline, context/output/pricing trends
+  - concepts/extended-thinking — manual to adaptive thinking evolution, interleaved reasoning
+  - concepts/responsible-scaling-policy — ASL framework, defense-in-depth, industry impact
+- **Entity pages created** (2):
+  - entities/dario-amodei — CEO, "Machines of Loving Grace" essay
+  - entities/daniela-amodei — President, operational growth
+- **Entity pages updated** (2):
+  - entities/claude — expanded from prompting tips to full model family coverage with benchmarks, release history, pricing
+  - entities/anthropic — added founding details, RSP section, valuation history, Machines of Loving Grace
+- **Comparison articles created** (1):
+  - comparisons/claude-vs-gpt-vs-gemini — 2026 multi-model landscape
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+
+## [2026-04-05] research | Andrej Karpathy deep profile — career, philosophy, and influence
+- **Scope**: Deep research on Karpathy's full contributions, from Tesla Autopilot to AI education to the LLM wiki methodology
+- **Web searches**: 16 queries covering biography, Software 2.0, Tesla, OpenAI, YouTube education, minbpe, nanoGPT, micrograd, Eureka Labs, vibe coding, LLM OS, State of GPT, Recipe for Training NNs, llm.c, CS231n, context engineering
+- **Web fetches**: 10 pages fetched (Wikipedia biography, Software 2.0 essay, Recipe blog post, vibe coding Wikipedia, Zero to Hero page, llm.c README, 2025 Year in Review, Klover profile, LLM OS blog, Software 3.0 article)
+- **Raw files ingested** (8 new):
+  - raw/karpathy-wikipedia-biography.md
+  - raw/karpathy-recipe-training-neural-networks.md
+  - raw/karpathy-vibe-coding.md
+  - raw/karpathy-2025-llm-year-review.md
+  - raw/karpathy-llm-os-concept.md
+  - raw/karpathy-eureka-labs.md
+  - raw/karpathy-state-of-gpt.md
+  - raw/karpathy-educational-projects.md
+- **Source summaries created** (8 new):
+  - sources/karpathy-wikipedia-biography
+  - sources/karpathy-recipe-training-neural-networks
+  - sources/karpathy-vibe-coding
+  - sources/karpathy-2025-llm-year-review
+  - sources/karpathy-llm-os-concept
+  - sources/karpathy-eureka-labs
+  - sources/karpathy-state-of-gpt
+  - sources/karpathy-educational-projects
+- **Concept articles created** (2 new):
+  - concepts/llm-os — LLM as operating system kernel
+  - concepts/ai-native-education — Teacher + AI Teaching Assistant symbiosis
+- **Concept articles updated** (3):
+  - concepts/software-2-0 — added LLM OS and 2025 review sources
+  - concepts/vibe-coding — added Karpathy-specific sources
+  - concepts/context-engineering — added 2025 review source
+- **Entity pages created** (6 new):
+  - entities/eureka-labs — AI-native education company
+  - entities/micrograd — 100-line autograd engine
+  - entities/nanogpt — GPT training repository
+  - entities/llm-c — C/CUDA LLM training
+  - entities/fei-fei-li — Karpathy's PhD advisor
+  - entities/tesla — Karpathy's employer 2017-2022
+- **Entity pages updated** (2):
+  - entities/andrej-karpathy — MAJOR expansion: from 3-min to 12-min read, full biography, career timeline, intellectual contributions (Software 2.0, LLM OS, vibe coding, context engineering, Recipe for Training NNs, State of GPT, LLM KB), open-source projects table, educational arc, notable quotes, 15 source references
+  - entities/minbpe — added educational projects source and related links
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md

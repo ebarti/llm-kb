@@ -1,8 +1,8 @@
 ---
 title: "Agentic Coding"
 type: concept
-sources: ["[[sources/claude-code-agentic-coding]]", "[[sources/devin-ai-software-engineer]]", "[[sources/pebblous-agentic-framework-explosion]]", "[[sources/redmonk-agentic-ides-2025]]", "[[sources/faros-ai-coding-agents-2026]]", "[[sources/osmani-llm-coding-workflow-2026]]"]
-related: ["[[concepts/agentic-workflows]]", "[[concepts/swe-bench]]", "[[entities/claude-code]]", "[[entities/devin-ai]]", "[[concepts/post-code-ai-workflow]]", "[[concepts/ai-coding-assistants]]", "[[concepts/spec-driven-development]]", "[[concepts/ai-pair-programming]]", "[[concepts/developer-experience-ai]]"]
+sources: ["[[sources/claude-code-agentic-coding]]", "[[sources/devin-ai-software-engineer]]", "[[sources/pebblous-agentic-framework-explosion]]", "[[sources/redmonk-agentic-ides-2025]]", "[[sources/faros-ai-coding-agents-2026]]", "[[sources/osmani-llm-coding-workflow-2026]]", "[[sources/morphllm-codex-vs-claude-code]]", "[[sources/wikipedia-vibe-coding]]", "[[sources/greptile-state-of-ai-coding-2025]]"]
+related: ["[[concepts/agentic-workflows]]", "[[concepts/swe-bench]]", "[[entities/claude-code]]", "[[entities/devin-ai]]", "[[entities/openai-codex]]", "[[concepts/post-code-ai-workflow]]", "[[concepts/ai-coding-assistants]]", "[[concepts/spec-driven-development]]", "[[concepts/ai-pair-programming]]", "[[concepts/developer-experience-ai]]", "[[concepts/software-2-0]]", "[[concepts/vibe-coding]]", "[[concepts/ai-code-generation]]", "[[comparisons/codex-vs-claude-code]]", "[[comparisons/vibe-coding-vs-agentic-engineering]]"]
 last_compiled: 2026-04-05
 summary: "AI agents that autonomously write, test, debug, and ship code — from Devin's 2024 debut to Claude Code's $2.5B revenue, transforming developers from coders to coordinators."
 ---

@@ -1,8 +1,8 @@
 ---
 title: "Grouped-Query Attention (GQA)"
 type: concept
-sources: ["[[sources/kv-cache-optimization-techniques]]"]
-related: ["[[concepts/multi-head-attention]]", "[[concepts/kv-cache]]", "[[concepts/transformer-architecture]]"]
+sources: ["[[sources/kv-cache-optimization-techniques]]", "[[sources/gqa-grouped-query-attention-overview]]"]
+related: ["[[concepts/multi-head-attention]]", "[[concepts/kv-cache]]", "[[concepts/transformer-architecture]]", "[[concepts/attention-mechanisms]]", "[[comparisons/mha-vs-gqa-vs-mqa]]"]
 last_compiled: 2026-04-05
 summary: "Attention variant sharing KV heads across groups of query heads — interpolating between full multi-head attention (MHA) and multi-query attention (MQA) to reduce KV cache memory with minimal quality loss."
 ---

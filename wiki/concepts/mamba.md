@@ -1,7 +1,7 @@
 ---
 title: "Mamba (Selective State Space Model)"
 type: concept
-sources: ["[[sources/mamba-state-space-models-visual-guide]]", "[[sources/ssm-vs-transformers-tradeoffs]]"]
+sources: ["[[sources/mamba-state-space-models-visual-guide]]", "[[sources/ssm-vs-transformers-tradeoffs]]", "[[sources/mamba-visual-guide-grootendorst]]"]
 related: ["[[concepts/state-space-models]]", "[[concepts/transformer-architecture]]", "[[concepts/selective-state-space]]"]
 last_compiled: 2026-04-05
 summary: "The leading SSM architecture making state transitions input-dependent (selective), with hardware-aware kernel fusion and parallel scan — achieving transformer-competitive performance with linear-time inference."

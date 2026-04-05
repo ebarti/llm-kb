@@ -1,8 +1,8 @@
 ---
 title: "Sparse Attention"
 type: concept
-sources: ["[[sources/flashattention-3-paper]]", "[[sources/ssm-vs-transformers-tradeoffs]]"]
-related: ["[[concepts/self-attention]]", "[[concepts/flash-attention]]", "[[concepts/sliding-window-attention]]", "[[concepts/transformer-architecture]]"]
+sources: ["[[sources/flashattention-3-paper]]", "[[sources/ssm-vs-transformers-tradeoffs]]", "[[sources/attention-mechanisms-comprehensive-survey]]"]
+related: ["[[concepts/self-attention]]", "[[concepts/flash-attention]]", "[[concepts/sliding-window-attention]]", "[[concepts/transformer-architecture]]", "[[concepts/linear-attention]]", "[[concepts/attention-mechanisms]]", "[[concepts/attention-sinks]]"]
 last_compiled: 2026-04-05
 summary: "Attention mechanisms computing only a subset of the full N x N token interactions — via fixed patterns (Longformer), block routing, clustering, or periodic strides — reducing quadratic complexity toward linear."
 ---

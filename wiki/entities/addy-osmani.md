@@ -2,8 +2,8 @@
 title: "Addy Osmani"
 type: entity
 entity_type: person
-sources: ["[[sources/osmani-llm-coding-workflow-2026]]"]
-related: ["[[concepts/ai-pair-programming]]", "[[concepts/spec-driven-development]]", "[[concepts/developer-experience-ai]]"]
+sources: ["[[sources/osmani-llm-coding-workflow-2026]]", "[[sources/osmani-ai-productivity-reality]]", "[[sources/osmani-llm-coding-workflow-addendum]]"]
+related: ["[[concepts/ai-pair-programming]]", "[[concepts/spec-driven-development]]", "[[concepts/developer-experience-ai]]", "[[concepts/ai-productivity-paradox]]", "[[concepts/vibe-coding]]", "[[concepts/ai-code-generation]]"]
 last_compiled: 2026-04-05
 summary: "Google Chrome engineering lead who published an influential 10-step LLM coding workflow for 2026 — advocating spec-first planning, model rotation, and the human as 'director of the show.'"
 ---
@@ -22,4 +22,6 @@ Addy Osmani is an engineering lead at Google, known for his work on Chrome and w
 
 ## Mentioned In
 
-- [[sources/osmani-llm-coding-workflow-2026]] — Full workflow article
+- [[sources/osmani-llm-coding-workflow-2026]] -- Full workflow article
+- [[sources/osmani-ai-productivity-reality]] -- Meta-analysis: realistic 20-30% gains, DORA/Faros paradox, Sentry case study
+- [[sources/osmani-llm-coding-workflow-addendum]] -- Practical workflow details: spec.md, context packing, multi-model review

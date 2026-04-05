@@ -1,8 +1,8 @@
 ---
 title: "FlashAttention"
 type: concept
-sources: ["[[sources/flashattention-3-paper]]"]
-related: ["[[concepts/self-attention]]", "[[concepts/transformer-architecture]]", "[[concepts/kv-cache]]", "[[entities/tri-dao]]"]
+sources: ["[[sources/flashattention-3-paper]]", "[[sources/flashattention-3-tri-dao-blog]]", "[[sources/attention-mechanisms-comprehensive-survey]]"]
+related: ["[[concepts/self-attention]]", "[[concepts/transformer-architecture]]", "[[concepts/kv-cache]]", "[[entities/tri-dao]]", "[[entities/flashattention]]", "[[concepts/attention-mechanisms]]", "[[concepts/sparse-attention]]", "[[concepts/linear-attention]]"]
 last_compiled: 2026-04-05
 summary: "IO-aware attention algorithm using tiling to avoid materializing the N x N attention matrix in GPU HBM — reducing memory from O(N^2) to O(N) and achieving 2-4x speedup. FlashAttention-3 reaches 75% H100 utilization."
 ---

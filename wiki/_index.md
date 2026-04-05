@@ -225,6 +225,16 @@ reading_time: "5 min"
 - [[sources/qodo-ai-coding-assistants-2026]] — Five-tier taxonomy of 15 AI coding tools: review, IDE, cloud, agents, low-code
 - [[sources/panto-ai-coding-productivity-stats]] — AI coding productivity: perception-reality gap, DORA metrics recommended over output volume
 
+### AI Code Generation & the Code-to-Knowledge Shift (Research: 2026-04-05)
+- [[sources/karpathy-software-2-0]] -- Karpathy's foundational 2017 essay: neural networks as Software 2.0, datasets as source code
+- [[sources/wikipedia-vibe-coding]] -- Comprehensive history of vibe coding: origin, adoption, quality crisis, evolution to agentic engineering
+- [[sources/greptile-state-of-ai-coding-2025]] -- Greptile telemetry: PR size +93%, developer output tripled, CLAUDE.md in 75% of orgs
+- [[sources/morphllm-coding-models-comparison-2026]] -- March 2026 model rankings: Opus 4.6 80.8%, scaffold matters more than model weights (22-point swing)
+- [[sources/morphllm-codex-vs-claude-code]] -- Codex vs Claude Code: speed vs depth, sandbox vs multi-agent, 400K vs 1M context
+- [[sources/osmani-ai-productivity-reality]] -- Osmani's meta-analysis: realistic 20-30% gains, DORA paradox (91% longer reviews), Sentry failure case
+- [[sources/swe-bench-leaderboard-2026]] -- SWE-bench evolution: 48.5% (GPT-4, 2023) to 80.8% (Opus 4.6, 2026), 59% improvement in 2 years
+- [[sources/osmani-llm-coding-workflow-addendum]] -- Osmani's practical workflow: spec.md, context packing, multi-model review, CI/CD as safety net
+
 ### RAG & Retrieval Deep-Dive (Research: 2026-04-05)
 - [[sources/ragflow-rag-review-2025]] — RAGFlow 2025 year-end review: RAG → Context Engine evolution
 - [[sources/rag-vs-finetuning-agriculture]] — ArXiv: RAG + fine-tuning complementary (+11pp cumulative accuracy)
@@ -273,6 +283,17 @@ reading_time: "5 min"
 - [[sources/lilianweng-reward-hacking]] — Definitive taxonomy of reward hacking: Goodhart's Law, sycophancy, overoptimization scaling laws
 - [[sources/dpo-vs-ppo-comprehensive-study]] — Xu et al.: PPO consistently outperforms DPO across dialogue and code generation
 - [[sources/argilla-kto-kahneman-tversky]] — KTO: prospect-theory-based alignment using binary feedback signals
+
+### Claude & Anthropic Deep Dive (Research: 2026-04-05)
+- [[sources/wikipedia-claude-language-model]] — Complete Claude release history: Claude 1 (Mar 2023) through Claude 4.6 (Feb 2026), constitutional AI evolution
+- [[sources/wikipedia-anthropic]] — Anthropic founding, $380B valuation, PBC structure, funding rounds, partnerships
+- [[sources/anthropic-claude-models-overview]] — Official API docs: all models, context windows, pricing, capability flags
+- [[sources/anthropic-rsp-v3]] — Responsible Scaling Policy v3.0: ASL framework, defense-in-depth, industry impact
+- [[sources/anthropic-extended-thinking-docs]] — Extended thinking technical reference: adaptive vs manual, interleaved, caching
+- [[sources/anthropic-claude-3-family-announcement]] — Claude 3 launch: three-tier system, first to surpass GPT-4, >99% NIAH recall
+- [[sources/anthropic-claude-4-announcement]] — Claude 4 launch: extended thinking with tools, 72.5% SWE-bench, Claude Code GA
+- [[sources/dario-amodei-machines-of-loving-grace]] — Dario Amodei's 50-page essay: AI's transformative upside across 5 domains
+- [[sources/improvado-claude-vs-chatgpt-vs-gemini-2026]] — 2026 frontier model comparison: Claude leads coding/writing, GPT reasoning, Gemini math
 
 ## Comparisons
 
@@ -536,13 +557,20 @@ reading_time: "5 min"
 - [[concepts/agent-frameworks]] — LangChain, AutoGen, CrewAI, and 2025 autonomous framework wave
 - [[concepts/swe-bench]] — Primary benchmark for evaluating LLM software engineering agents
 
+### AI Code Generation & the Code-to-Knowledge Shift
+- [[concepts/software-2-0]] -- Karpathy's 2017 paradigm: neural networks as new programming model, datasets as source code, training as compilation
+- [[concepts/vibe-coding]] -- Natural-language-driven development with minimal code review (Collins Word of the Year 2025), evolved into agentic engineering
+- [[concepts/ai-code-generation]] -- LLMs generating source code: ~46% of committed code, SWE-bench at 80.8%, scaffold matters more than model weights
+- [[concepts/natural-language-programming]] -- Specifying software behavior in English rather than formal languages: from vibe coding to spec-driven development
+- [[concepts/automated-testing-for-ai-code]] -- Validating AI-generated code through agentic testing, self-healing suites, and AI-on-AI review
+
 ### Developer Tools & AI-Assisted Workflows
-- [[concepts/ai-coding-assistants]] — The landscape of LLM-powered developer tools in five tiers: review, IDE, cloud, agents, low-code
-- [[concepts/ai-pair-programming]] — Collaborating with AI as a programming partner: the navigator-driver model
-- [[concepts/ai-productivity-paradox]] — The disconnect between perceived (20% faster) and measured (19% slower) AI productivity
-- [[concepts/ai-code-review]] — AI-powered PR review tools achieving 55% action rates, exceeding human reviewers at 49%
-- [[concepts/spec-driven-development]] — Writing spec.md before AI code generation: "waterfall in 15 minutes," eliminates 80% of AI confusion
-- [[concepts/developer-experience-ai]] — How AI tools reshape daily developer workflow, role transformation, and the perception-reality gap
+- [[concepts/ai-coding-assistants]] -- The landscape of LLM-powered developer tools in five tiers: review, IDE, cloud, agents, low-code
+- [[concepts/ai-pair-programming]] -- Collaborating with AI as a programming partner: the navigator-driver model
+- [[concepts/ai-productivity-paradox]] -- The disconnect between perceived (20% faster) and measured (19% slower) AI productivity
+- [[concepts/ai-code-review]] -- AI-powered PR review tools achieving 55% action rates, exceeding human reviewers at 49%
+- [[concepts/spec-driven-development]] -- Writing spec.md before AI code generation: "waterfall in 15 minutes," eliminates 80% of AI confusion
+- [[concepts/developer-experience-ai]] -- How AI tools reshape daily developer workflow, role transformation, and the perception-reality gap
 
 ### Open-Source LLMs & Local Inference
 - [[concepts/open-source-llms]] — Open-weight LLMs from DeepSeek, Qwen, Meta, Mistral closing gap to ~3 months behind proprietary
@@ -615,6 +643,11 @@ reading_time: "5 min"
 - [[concepts/process-reward-model]] — Step-level reward scoring for reasoning chains, harder to hack than outcome rewards
 - [[concepts/instruction-tuning]] — SFT on instruction-response pairs: essential first step before RLHF or DPO
 
+### Claude & Anthropic Concepts (Research: 2026-04-05)
+- [[concepts/claude-model-family-evolution]] — Complete 17-release timeline from Claude 1 (9K context) to Claude 4.6 (1M context), pricing deflation, capability trends
+- [[concepts/extended-thinking]] — Claude's test-time compute: manual budgets (Claude 4) to adaptive thinking (Claude 4.6), interleaved reasoning with tools
+- [[concepts/responsible-scaling-policy]] — Anthropic's RSP with AI Safety Levels (ASL-1 through ASL-5), defense-in-depth, industry influence
+
 ## Entities
 
 ### People
@@ -639,11 +672,13 @@ reading_time: "5 min"
 - [[entities/maggie-appleton]] — Designer and anthropologist who compiled the definitive history of digital gardens
 - [[entities/cameron-wolfe]] — Ph.D. researcher, Deep (Learning) Focus newsletter: DPO, reward models, RLAIF deep-dives
 - [[entities/lilian-weng]] — OpenAI researcher, Lil'Log author: definitive surveys on reward hacking, agents, LLM training
+- [[entities/dario-amodei]] — CEO and co-founder of Anthropic; author of "Machines of Loving Grace" essay on AI's transformative upside
+- [[entities/daniela-amodei]] — President and co-founder of Anthropic; drives operational growth and partnerships
 
 - [[entities/cyc-project]] — AI most ambitious KR project (1984-present): 1.5M terms, 24.5M assertions
 
 ### Tools
-- [[entities/claude]] — Anthropic's frontier LLM family; Claude 4.6 features adaptive thinking and XML preference
+- [[entities/claude]] — Anthropic's frontier LLM family (Claude 1-4.6); Opus/Sonnet/Haiku tiers, 1M context, adaptive thinking
 - [[entities/dspy]] — Declarative Self-improving Python: compiler for prompt optimization (46%→64% accuracy)
 - [[entities/textgrad]] — Gradient-based prompt optimization via natural language feedback (Nature 2025)
 - [[entities/prompt-engineering-guide]] — DAIR.AI's comprehensive open-source prompting reference (promptingguide.ai)
@@ -702,8 +737,11 @@ reading_time: "5 min"
 - [[entities/graphite]] — AI code review with 96% positive rate: 55% developer action rate exceeds human reviewers
 - [[entities/addy-osmani]] — Google Chrome lead who published influential 10-step LLM coding workflow
 - [[entities/metr]] — AI safety org behind landmark RCT finding 19% developer slowdown with AI tools
-- [[entities/devin-ai]] — First autonomous AI software engineer by Cognition Labs (2024)
-- [[entities/microsoft-graphrag]] — Open-source graph-based RAG system from Microsoft Research
+- [[entities/devin-ai]] -- First autonomous AI software engineer by Cognition Labs (2024)
+- [[entities/openai-codex]] -- OpenAI's agentic coding tool: cloud sandbox, 1,000+ tok/s, 77.3% Terminal-Bench
+- [[entities/codestral]] -- Mistral AI's 22B open-weight coding model: fast local inference at 1.4s per response
+- [[entities/swe-bench]] -- Princeton benchmark for AI software engineering: 500 hand-reviewed GitHub issues from production repos
+- [[entities/microsoft-graphrag]] -- Open-source graph-based RAG system from Microsoft Research
 - [[entities/ragas]] — Leading open-source framework for reference-free RAG evaluation
 - [[entities/langgraph]] — LangChain's state machine framework for agentic RAG and multi-step LLM apps
 - [[entities/raptor-paper]] — ICLR 2024 paper: recursive tree retrieval with +20% improvement on QuALITY
@@ -796,7 +834,12 @@ reading_time: "5 min"
 - [[comparisons/personal-vs-enterprise-knowledge-systems]] — Personal (markdown+LLM) vs. team (wiki platforms) vs. enterprise (semantic layers+search+KG) knowledge systems
 - [[comparisons/fine-tuning-vs-context-window]] — Encoding knowledge in weights vs. loading in context
 - [[comparisons/single-agent-vs-multi-agent]] — Single-LLM vs. multi-agent knowledge pipelines
-- [[comparisons/obsidian-vs-graph-database]] — File-based markdown storage vs. graph database storage
+- [[comparisons/obsidian-vs-graph-database]] -- File-based markdown storage vs. graph database storage
+
+### AI Code Generation Comparisons (Research: 2026-04-05)
+- [[comparisons/codex-vs-claude-code]] -- Codex (speed, sandbox, terminal) vs Claude Code (depth, multi-agent, determinism): the two dominant AI coding agents
+- [[comparisons/vibe-coding-vs-agentic-engineering]] -- Karpathy's evolution: minimal-review natural-language coding vs disciplined agent orchestration
+
 ### Knowledge Representation Comparisons (Research: 2026-04-05)
 - [[comparisons/symbolic-vs-neural-knowledge-representation]] — Explicit symbolic KR vs. implicit neural KR: strengths, history, and hybrid resolution
 
@@ -821,6 +864,7 @@ reading_time: "5 min"
 - [[comparisons/rag-vs-long-context]] — RAG (fast, cheap, precise) vs long context (full reasoning, simple); hybrid standard
 - [[comparisons/context-management-approaches]] — Compression vs virtual context vs infinite context vs context engineering
 - [[comparisons/consensus-vs-federated-vs-ai-knowledge]] — Wikipedia consensus vs Federated Wiki plurality vs AI-compiled knowledge systems
+- [[comparisons/claude-vs-gpt-vs-gemini]] — 2026 frontier model comparison: Claude leads coding/writing, GPT reasoning, Gemini math; multi-model strategy recommended
 
 
 - [[comparisons/open-source-vs-closed-llms]] — Performance gap near zero by 2026; open ~10x cheaper but requires -190K/year infrastructure
@@ -1116,3 +1160,65 @@ reading_time: "5 min"
 - [[comparisons/transformers-vs-state-space-models]] — Transformers (databases) vs SSMs (brains): when to use each
 - [[comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder]] — BERT vs GPT vs T5 architecture families
 - [[comparisons/dense-vs-moe-transformers]] — Dense vs sparse Mixture-of-Experts transformers
+
+## Web Scraping, Content Extraction & Ingest Pipeline (Research: 2026-04-05)
+
+### Sources
+- [[sources/web-scraping-best-practices-2026]] — Comprehensive 2026 guide: IP rotation, request timing, headers, honeypots, caching, distributed architecture
+- [[sources/mozilla-readability-algorithm]] — Deep technical explanation of Mozilla's Readability.js 7-heuristic, 6-stage DOM scoring pipeline
+- [[sources/trafilatura-web-extraction]] — Trafilatura: most accurate open-source extraction library (jusText + Readability hybrid)
+- [[sources/jina-reader-lm-html-to-markdown]] — Jina Reader-LM: 1.5B model outperforming GPT-4o at HTML-to-markdown (ROUGE-L 0.86 vs 0.43)
+- [[sources/crawl4ai-llm-web-crawler]] — Crawl4AI: #1 open-source LLM crawler (63K GitHub stars), BM25-filtered markdown output
+- [[sources/web-scraping-legality-ethics-2025]] — Legal framework: hiQ v. LinkedIn, GDPR, EU AI Act, robots.txt compliance
+- [[sources/python-scraping-tools-comparison]] — BeautifulSoup vs Scrapy (2,500 pages/min) vs Playwright (800 pages/min) benchmarks
+- [[sources/schema-org-structured-data]] — Schema.org: 45M+ domains with pre-structured JSON-LD/Microdata for high-confidence extraction
+- [[sources/web-archiving-warc-tools]] — WARC (ISO 28500) format and preservation tools for source permanence
+
+### Concepts
+- [[concepts/content-extraction]] — The discipline of separating article content from web page noise — three generations: rule-based, heuristic, neural
+- [[concepts/boilerplate-removal]] — Removing navigation, ads, footers, and sidebars via DOM scoring, block classification, or neural filtering
+- [[concepts/html-to-markdown-conversion]] — Converting extracted HTML to clean markdown — from Turndown/Pandoc to Reader-LM (ROUGE-L 0.86)
+- [[concepts/web-scraping-ethics-and-law]] — Legal framework: public data generally legal, GDPR for PII, EU AI Act for training data, robots.txt compliance
+- [[concepts/anti-bot-evasion]] — Proxy rotation, header randomization, stealth browsers, behavior mimicry — balanced against ethical obligations
+- [[concepts/structured-data-extraction]] — Extracting pre-structured Schema.org data (JSON-LD, Microdata) from 45M+ domains
+- [[concepts/web-archiving]] — Preserving web content in WARC format for permanence and provenance
+- [[concepts/web-scraping-at-scale]] — (updated) Production scraping: Scrapy for throughput, Playwright for JS, Crawl4AI/Firecrawl for LLM output
+
+### Entities
+- [[entities/mozilla-readability]] — Mozilla's Readability.js: foundational DOM-scoring content extraction algorithm powering Firefox Reader View
+- [[entities/trafilatura]] — Most accurate open-source web text extraction library (ACL 2021), used by HuggingFace, IBM, Microsoft
+- [[entities/jina-reader]] — Jina Reader API: prefix any URL with r.jina.ai/ for clean LLM-ready markdown
+- [[entities/reader-lm]] — Jina's 1.5B model for HTML-to-markdown, outperforming GPT-4o on this specialized task
+- [[entities/crawl4ai]] — #1 open-source LLM web crawler (63K stars), Playwright-based, BM25-filtered output
+- [[entities/playwright]] — Microsoft's cross-browser automation framework for JavaScript-heavy scraping
+- [[entities/scrapy]] — Python's premier web crawling framework (2,500 pages/min throughput)
+- [[entities/beautiful-soup]] — Python's most popular HTML parsing library for simple extraction tasks
+
+### Comparisons
+- [[comparisons/heuristic-vs-neural-content-extraction]] — Heuristic (fast, free, 90%+ coverage) vs neural (ROUGE-L 0.86, needs GPU) content extraction
+- [[comparisons/crawl4ai-vs-firecrawl]] — Open-source Crawl4AI (free, BM25 filtering) vs SaaS Firecrawl (managed, integrated)
+
+## Karpathy Deep Profile (Research: 2026-04-05)
+
+### Sources
+- [[sources/karpathy-wikipedia-biography]] — Comprehensive biography of Andrej Karpathy
+- [[sources/karpathy-software-2-0]] — Software 2.0: neural networks as new programming paradigm (2017)
+- [[sources/karpathy-recipe-training-neural-networks]] — A Recipe for Training Neural Networks (2019)
+- [[sources/karpathy-vibe-coding]] — Vibe coding: origin, cultural impact, and criticisms
+- [[sources/karpathy-2025-llm-year-review]] — 2025 LLM Year in Review
+- [[sources/karpathy-llm-os-concept]] — LLM OS: LLMs as operating system kernels
+- [[sources/karpathy-eureka-labs]] — Eureka Labs: AI-native education company
+- [[sources/karpathy-state-of-gpt]] — State of GPT: Microsoft Build 2023 keynote
+- [[sources/karpathy-educational-projects]] — micrograd, nanoGPT, minbpe, llm.c, Zero to Hero
+
+### Concepts
+- [[concepts/llm-os]] — LLM as operating system kernel (Karpathy, 2023)
+- [[concepts/ai-native-education]] — Education redesigned around AI from the ground up
+
+### Entities
+- [[entities/eureka-labs]] — Karpathy's AI-native education company (2024)
+- [[entities/micrograd]] — Educational autograd engine (~100 lines)
+- [[entities/nanogpt]] — GPT training/fine-tuning repository
+- [[entities/llm-c]] — LLM training in pure C/CUDA
+- [[entities/fei-fei-li]] — Stanford professor, ImageNet creator, Karpathy's PhD advisor
+- [[entities/tesla]] — EV/AI company, Karpathy was Director of AI (2017-2022)

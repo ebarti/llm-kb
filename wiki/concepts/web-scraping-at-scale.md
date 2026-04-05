@@ -1,10 +1,10 @@
 ---
 title: "Web Scraping at Scale"
 type: concept
-sources: ["[[sources/firecrawl-web-data-api]]"]
-related: ["[[concepts/document-processing-pipeline]]", "[[concepts/markdown-as-universal-interface]]", "[[entities/firecrawl]]"]
+sources: ["[[sources/firecrawl-web-data-api]]", "[[sources/web-scraping-best-practices-2026]]", "[[sources/python-scraping-tools-comparison]]", "[[sources/crawl4ai-llm-web-crawler]]", "[[sources/web-scraping-legality-ethics-2025]]"]
+related: ["[[concepts/document-processing-pipeline]]", "[[concepts/markdown-as-universal-interface]]", "[[concepts/content-extraction]]", "[[concepts/anti-bot-evasion]]", "[[concepts/web-scraping-ethics-and-law]]", "[[concepts/html-to-markdown-conversion]]", "[[entities/firecrawl]]", "[[entities/crawl4ai]]", "[[entities/scrapy]]", "[[entities/playwright]]"]
 last_compiled: 2026-04-05
-summary: "Modern web scraping for AI pipelines: async concurrency, proxy rotation, headless browsers for JS, API-based services (Firecrawl) that output LLM-ready markdown, and scaling from scripts to microservice architectures."
+summary: "Modern web scraping for AI pipelines: async concurrency, proxy rotation, headless browsers for JS, API-based services (Firecrawl, Crawl4AI) that output LLM-ready markdown, and scaling from scripts to microservice architectures."
 ---
 
 ## Overview
@@ -65,10 +65,33 @@ This is a paradigm shift: instead of building scraping infrastructure, AI develo
 - Be aware of Terms of Service restrictions
 - Consider the Computer Fraud and Abuse Act (US) and similar legislation
 
+## Tool Selection Guide
+
+Based on benchmarks from [[sources/python-scraping-tools-comparison]]:
+
+| Tool | Best For | Throughput | JS Support |
+|------|----------|-----------|------------|
+| [[entities/scrapy]] | High-volume static crawling | 2,500 pages/min | No |
+| [[entities/playwright]] | JS-heavy sites, SPAs | 800 pages/min | Full |
+| [[entities/beautiful-soup]] | Simple parsing, prototyping | N/A (parser only) | No |
+| [[entities/crawl4ai]] | LLM-ready markdown output | Async parallel | Full |
+| [[entities/firecrawl]] | Managed API, no infrastructure | API-managed | Full |
+
 ## Sources
+
 - [[sources/firecrawl-web-data-api]] — AI-focused web scraping API
+- [[sources/web-scraping-best-practices-2026]] — comprehensive 2026 best practices
+- [[sources/python-scraping-tools-comparison]] — quantitative tool benchmarks
+- [[sources/crawl4ai-llm-web-crawler]] — open-source LLM-focused crawler
+- [[sources/web-scraping-legality-ethics-2025]] — legal framework
 
 ## Related Concepts
+
 - [[concepts/document-processing-pipeline]] — web scraping is stage 0
+- [[concepts/content-extraction]] — extracting clean content from fetched pages
+- [[concepts/html-to-markdown-conversion]] — converting extracted HTML to markdown
+- [[concepts/anti-bot-evasion]] — avoiding detection at scale
+- [[concepts/web-scraping-ethics-and-law]] — legal constraints
 - [[concepts/markdown-as-universal-interface]] — markdown as scraping output format
 - [[entities/firecrawl]] — leading AI-focused scraping service
+- [[entities/crawl4ai]] — leading open-source scraping tool

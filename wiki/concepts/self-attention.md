@@ -1,8 +1,8 @@
 ---
 title: "Self-Attention"
 type: concept
-sources: ["[[sources/illustrated-transformer-jalammar]]", "[[sources/raschka-self-attention-coding]]"]
-related: ["[[concepts/transformer-architecture]]", "[[concepts/multi-head-attention]]", "[[concepts/causal-attention]]", "[[concepts/cross-attention]]", "[[concepts/flash-attention]]", "[[concepts/sparse-attention]]"]
+sources: ["[[sources/illustrated-transformer-jalammar]]", "[[sources/raschka-self-attention-coding]]", "[[sources/attention-mechanisms-comprehensive-survey]]", "[[sources/streamingllm-attention-sinks]]", "[[sources/knowledge-circuits-transformers-research]]"]
+related: ["[[concepts/transformer-architecture]]", "[[concepts/multi-head-attention]]", "[[concepts/causal-attention]]", "[[concepts/cross-attention]]", "[[concepts/flash-attention]]", "[[concepts/sparse-attention]]", "[[concepts/attention-mechanisms]]", "[[concepts/attention-sinks]]", "[[concepts/linear-attention]]", "[[concepts/knowledge-storage-in-transformers]]"]
 last_compiled: 2026-04-05
 summary: "The mechanism allowing each position in a sequence to attend to all others by computing scaled dot products between learned Query, Key, and Value projections — the core innovation of the Transformer."
 ---

@@ -1,8 +1,8 @@
 ---
 title: "Cross-Attention"
 type: concept
-sources: ["[[sources/raschka-self-attention-coding]]", "[[sources/illustrated-transformer-jalammar]]"]
-related: ["[[concepts/self-attention]]", "[[concepts/transformer-architecture]]", "[[concepts/multimodal-transformers]]"]
+sources: ["[[sources/raschka-self-attention-coding]]", "[[sources/illustrated-transformer-jalammar]]", "[[sources/retro-illustrated-retrieval-transformer]]", "[[sources/attention-mechanisms-comprehensive-survey]]"]
+related: ["[[concepts/self-attention]]", "[[concepts/transformer-architecture]]", "[[concepts/multimodal-transformers]]", "[[concepts/attention-mechanisms]]", "[[concepts/memory-augmented-neural-networks]]", "[[entities/retro]]", "[[comparisons/self-attention-vs-cross-attention]]"]
 last_compiled: 2026-04-05
 summary: "Attention mechanism where queries come from one sequence and keys/values from another, enabling encoder-decoder models and multimodal fusion."
 ---

@@ -2,8 +2,8 @@
 title: "Tri Dao"
 type: entity
 entity_type: person
-sources: ["[[sources/flashattention-3-paper]]", "[[sources/mamba-state-space-models-visual-guide]]"]
-related: ["[[concepts/flash-attention]]", "[[concepts/mamba]]", "[[concepts/state-space-models]]"]
+sources: ["[[sources/flashattention-3-paper]]", "[[sources/mamba-state-space-models-visual-guide]]", "[[sources/flashattention-3-tri-dao-blog]]", "[[sources/mamba-visual-guide-grootendorst]]"]
+related: ["[[concepts/flash-attention]]", "[[concepts/mamba]]", "[[concepts/state-space-models]]", "[[entities/flashattention]]", "[[concepts/attention-mechanisms]]"]
 last_compiled: 2026-04-05
 summary: "Co-creator of FlashAttention (IO-aware attention optimization) and Mamba (selective state space models) — two of the most impactful systems contributions to modern LLM efficiency."
 ---

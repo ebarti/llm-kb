@@ -1,7 +1,7 @@
 ---
 title: "KV Cache"
 type: concept
-sources: ["[[sources/kv-cache-optimization-techniques]]", "[[sources/bentoml-batching-strategies]]", "[[sources/premai-inference-servers-compared]]"]
+sources: ["[[sources/kv-cache-optimization-techniques]]", "[[sources/bentoml-batching-strategies]]", "[[sources/premai-inference-servers-compared]]", "[[sources/kv-caching-huggingface-explained]]", "[[sources/streamingllm-attention-sinks]]"]
 related: ["[[concepts/transformer-architecture]]", "[[concepts/self-attention]]", "[[concepts/grouped-query-attention]]", "[[concepts/sliding-window-attention]]", "[[concepts/paged-attention]]", "[[concepts/speculative-decoding]]", "[[concepts/llm-inference-optimization]]", "[[concepts/continuous-batching]]", "[[concepts/prompt-caching]]", "[[entities/vllm]]", "[[entities/sglang]]"]
 last_compiled: 2026-04-05
 summary: "The key-value cache stores pre-computed attention vectors to avoid recalculation during autoregressive decoding; its management (PagedAttention, GQA, SWA) is the central bottleneck of LLM inference."

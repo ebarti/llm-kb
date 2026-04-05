@@ -1,8 +1,8 @@
 ---
 title: "PagedAttention"
 type: concept
-sources: ["[[sources/kv-cache-optimization-techniques]]"]
-related: ["[[concepts/kv-cache]]", "[[concepts/transformer-architecture]]"]
+sources: ["[[sources/kv-cache-optimization-techniques]]", "[[sources/kv-caching-huggingface-explained]]"]
+related: ["[[concepts/kv-cache]]", "[[concepts/transformer-architecture]]", "[[concepts/grouped-query-attention]]", "[[concepts/attention-sinks]]", "[[concepts/virtual-context-management]]"]
 last_compiled: 2026-04-05
 summary: "Virtual-memory-inspired KV cache management (vLLM) that allocates non-contiguous memory blocks with mapping tables — reducing waste from 60-80% to 4% and enabling prompt sharing."
 ---

@@ -219,6 +219,29 @@ The strict boundary between knowledge graphs and markdown wikis is dissolving. [
 
 The open-source LLM ecosystem ([[concepts/open-source-llms]], [[concepts/local-llm-inference]]) is making it feasible to run entire knowledge base pipelines locally. [[entities/ollama]] (150K+ GitHub stars) combined with models like Qwen 3.5 or DeepSeek V3.2 enables zero-cloud-dependency operation ([[concepts/local-knowledge-base]]). The tradeoff: reduced reasoning capability vs. complete privacy and zero per-token cost.
 
+Small language models ([[concepts/small-language-models]]) are particularly relevant: [[entities/phi]]-4 (14B parameters) beats GPT-4o on MATH benchmarks, [[entities/gemma]] 4B runs multimodal in 3GB of RAM, and Qwen 3 4B is viable for many knowledge compilation tasks at 10-30x lower cost than frontier APIs ([[sources/small-language-models-guide-2026]]). On Apple Silicon, [[entities/mlx]] outperforms [[entities/llama-cpp]] by 21-87% for models under 14B parameters ([[sources/mlx-vs-llamacpp-apple-silicon]]), making M-series Macs effective personal knowledge base servers.
+
+### 5.7 The Markdown Ecosystem as Knowledge Substrate
+
+The choice of markdown as the universal format for LLM knowledge bases is not incidental — it reflects deep structural advantages ([[concepts/markdown-as-universal-interface]]). Quantified benefits include 25-75% token reduction vs HTML and 89% vs 62% RAG retrieval accuracy when using markdown ([[sources/llms-love-markdown]]). The format satisfies five requirements simultaneously: human readability, LLM compatibility, version controllability, tool agnosticism, and archival durability ([[concepts/plain-text-longevity]]).
+
+The ecosystem supporting markdown continues to grow: [[entities/pandoc]] converts between 40+ formats via a markdown-centric AST ([[sources/pandoc-universal-converter]]), [[entities/markitdown]] from Microsoft converts Office documents and PDFs to markdown ([[sources/microsoft-markitdown]]), [[entities/marp]] converts markdown to presentations ([[sources/marp-markdown-presentations]]), and [[entities/markdowndb]] indexes markdown files into SQLite for SQL querying ([[sources/markdowndb-queryable-markdown]]). The [[concepts/file-over-app]] philosophy articulated by [[entities/steph-ango]] underpins this: files must outlast applications, and plain text is the only format guaranteed to be readable centuries from now ([[sources/sivers-plain-text-files]], [[sources/ango-file-over-app]], [[sources/mit-digital-preservation-formats]]).
+
+### 5.8 Information Extraction Advances
+
+The quality of wiki compilation depends directly on information extraction capabilities ([[concepts/information-extraction]]). Key advances relevant to LLM knowledge bases include:
+
+- **Structured extraction** ([[concepts/structured-output-extraction]]): Simon Willison's LLM 0.23 introduced FSM-guaranteed JSON output across all major providers ([[sources/willison-llm-schemas-structured-extraction]]). [[entities/instructor]] achieves 3M+ monthly downloads as the de facto Python library for Pydantic-based LLM extraction ([[sources/instructor-library-structured-extraction]]).
+- **Claim extraction** ([[concepts/claim-extraction]]): Microsoft's [[entities/claimify]] decomposes LLM outputs into atomic verifiable claims with 99% source entailment ([[sources/claimify-claim-extraction]]), enabling systematic quality assurance of wiki content.
+- **Named entity recognition**: GPT-NER achieves supervised-comparable NER performance through task reformulation ([[sources/gpt-ner-named-entity-recognition]]), with self-verification combating hallucinated entities.
+- **Knowledge graph extraction**: [[entities/kggen]] outperforms GraphRAG by 18% using a three-stage pipeline ([[sources/kggen-knowledge-graph-extraction]]), while KARMA's multi-agent approach achieves 83.1% accuracy ([[sources/karma-multi-agent-knowledge-graph]]).
+
+These capabilities directly improve the compilation phase of the LLM knowledge base cycle ([[concepts/wiki-compilation]]).
+
+### 5.9 The Agentic Future
+
+The convergence of agentic AI ([[concepts/agentic-workflows]]) and knowledge management suggests a future where knowledge bases are maintained by specialized agent teams rather than single LLM calls. [[entities/andrew-ng]]'s observation that "GPT-3.5 with agentic workflow beats GPT-4 zero-shot" ([[sources/ng-agentic-design-patterns]]) applies directly to knowledge compilation: an orchestrated pipeline of ingestion agents, compilation agents, quality assurance agents, and query agents could outperform a single frontier model. The Model Context Protocol ([[sources/mcp-model-context-protocol]]) — adopted by OpenAI and Google, donated to the Linux Foundation, with 97M monthly downloads — provides the standardized interface for this kind of agent-tool interoperability.
+
 ---
 
 ## 6. Recommendations
@@ -239,10 +262,19 @@ The open-source LLM ecosystem ([[concepts/open-source-llms]], [[concepts/local-l
 
 ### For Tool Builders
 
-1. **The product opportunity is real** ([[concepts/knowledge-base-product-gap]]): One-click setup, multi-source ingestion, automated compilation, proactive health checks, and accessible UI.
-2. **Design for trust** ([[concepts/trust-in-ai]]): Inline citations, confidence signals, progressive disclosure from answer to sources to raw material.
-3. **Use hybrid UI patterns**: Not chat-only. The [[concepts/copilot-pattern]] with full-screen knowledge canvas is the right interaction model.
-4. **Enable customer-as-trainer**: Every user correction should improve compilation quality.
+1. **The product opportunity is real** ([[concepts/knowledge-base-product-gap]]): One-click setup, multi-source ingestion, automated compilation, proactive health checks, and accessible UI. The first polished product that implements the full Karpathy pipeline — raw ingestion, LLM compilation, structured wiki, Q&A, output filing, and automated linting — will capture significant market share in a $62B enterprise knowledge management sector.
+2. **Design for trust** ([[concepts/trust-in-ai]]): Inline citations, confidence signals, progressive disclosure from answer to sources to raw material. If the system propagates errors into users' knowledge bases, it destroys its own value proposition.
+3. **Use hybrid UI patterns**: Not chat-only. Research shows chat achieves 70% but fails at refinement. The [[concepts/copilot-pattern]] with full-screen knowledge canvas is the right interaction model, enhanced with embedded inline AI on individual articles.
+4. **Enable customer-as-trainer**: Every user correction should improve compilation quality. The [[concepts/blank-page-problem]] is the first barrier for non-technical users — launch with templates, example queries, and gallery wikis to reduce adoption friction.
+5. **Build on open standards**: Use markdown as the knowledge substrate ([[concepts/markdown-as-universal-interface]]), MCP for tool interoperability ([[sources/mcp-model-context-protocol]]), and open file formats throughout. Users must be able to export and migrate — this is the [[concepts/file-over-app]] principle applied to knowledge products.
+
+### For Researchers
+
+1. **Knowledge base evaluation**: There is no standardized benchmark for LLM knowledge base quality — coverage, accuracy, freshness, coherence, and navigability all matter but lack agreed-upon metrics.
+2. **Hallucination propagation dynamics**: How do errors compound through the self-reinforcing cycle of compilation, querying, and fine-tuning? Quantitative studies of contamination rates over multiple compilation cycles would be valuable.
+3. **Scale transitions**: At what exact thresholds do different retrieval strategies become necessary? The ~400K word threshold is anecdotal — controlled experiments comparing index-based, RAG, and hybrid retrieval across corpus sizes would inform architecture decisions.
+4. **Multi-agent compilation quality**: Does a specialized multi-agent pipeline (KARMA-style) produce higher quality wiki content than a single frontier model? Comparative studies would guide architectural choices.
+5. **Temporal knowledge integration**: How should wikis handle fact decay, supersession, and temporal context? The Graphiti approach ([[sources/graphiti-temporal-knowledge-graphs]]) is promising but needs evaluation at wiki scale.
 
 ---
 

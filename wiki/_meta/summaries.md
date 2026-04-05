@@ -296,8 +296,10 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 
 ## Entities (Prompt Engineering)
 
-- [[entities/anthropic]] — AI safety company behind Claude; publishes authoritative prompting guide emphasizing XML tags, adaptive thinking, context engineering.
-- [[entities/claude]] — Anthropic's frontier LLM family; Claude 4.6 features adaptive thinking, subagent orchestration, and XML tag preference.
+- [[entities/anthropic]] — AI safety PBC founded 2021 by 7 ex-OpenAI researchers (Dario & Daniela Amodei + 5); $380B valuation; builds Claude, Claude Code ($2.5B ARR), MCP; #1 FLI Safety Index.
+- [[entities/claude]] — Anthropic's frontier LLM family named after Claude Shannon; 4 generations (Claude 1-4.6), Opus/Sonnet/Haiku tiers, 1M context, adaptive thinking, 80.9% SWE-bench.
+- [[entities/dario-amodei]] — CEO/co-founder of Anthropic; ex-VP Research at OpenAI; authored "Machines of Loving Grace" essay on AI's transformative upside.
+- [[entities/daniela-amodei]] — President/co-founder of Anthropic; ex-VP Operations at OpenAI; drives business growth and partnerships.
 - [[entities/dspy]] — Declarative Self-improving Python: compiler for prompt optimization that raised accuracy from 46.2% to 64.0%.
 - [[entities/textgrad]] — Gradient-based prompt optimization using natural language feedback instead of numeric scores — published in Nature (2025).
 - [[entities/owasp]] — Ranked prompt injection as #1 AI security risk in 2025 Top 10 for LLMs.
@@ -416,7 +418,7 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 
 ## Entities (LLM Knowledge Base Ecosystem)
 
-- [[entities/andrej-karpathy]] — AI researcher and former Tesla/OpenAI lead who pioneered the LLM-maintained personal knowledge base workflow using markdown wikis and Obsidian.
+- [[entities/andrej-karpathy]] — Slovak-Canadian AI researcher, educator, and entrepreneur: OpenAI co-founder, Tesla AI Director, creator of Software 2.0 and vibe coding, builder of micrograd/nanoGPT/llm.c, founder of Eureka Labs, and originator of the LLM knowledge base methodology that inspired this wiki.
 - [[entities/elvis-saravia]] — Founder of DAIR.AI Academy who provided the most thorough system architecture analysis of Karpathy's LLM knowledge base, coining the 'four-phase operational cycle' framework.
 - [[entities/sam-gallagher]] — Developer who built the Knowledge Graph Kit, an open-source MCP server using SQLite and ChromaDB, as a structure-first alternative to markdown-based personal knowledge management.
 - [[entities/vannevar-bush]] — American engineer and science administrator who envisioned the Memex in 1945 -- a proto-hypertext personal knowledge device that prefigured modern LLM knowledge bases by 80 years.
@@ -1222,3 +1224,81 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 - [[comparisons/transformers-vs-state-space-models]] — Databases vs brains: Transformers for tokenized text, SSMs for raw data, hybrids optimal.
 - [[comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder]] — BERT vs GPT vs T5: why decoder-only won.
 - [[comparisons/dense-vs-moe-transformers]] — Dense (all params per token) vs MoE (sparse routing): MoE now default for frontier.
+
+## Sources (Claude & Anthropic Deep Dive)
+
+- [[sources/wikipedia-claude-language-model]] — Complete Claude release history: Claude 1 (Mar 2023) through Claude 4.6 (Feb 2026), constitutional AI evolution from principles to 23K words.
+- [[sources/wikipedia-anthropic]] — Anthropic founding by 7 ex-OpenAI researchers, PBC structure, $380B valuation, Amazon/Google/Microsoft partnerships.
+- [[sources/anthropic-claude-models-overview]] — Official API docs: Opus 4.6 (1M/128K/$5/$25), Sonnet 4.6 (1M/64K/$3/$15), Haiku 4.5 (200K/64K/$1/$5).
+- [[sources/anthropic-rsp-v3]] — RSP v3.0 (Feb 2026): separated unilateral/industry commitments, ASL framework, 17 security controls, Frontier Safety Roadmaps.
+- [[sources/anthropic-extended-thinking-docs]] — Extended thinking API reference: adaptive vs manual modes, interleaved thinking, display options, caching behavior.
+- [[sources/anthropic-claude-3-family-announcement]] — Claude 3 (Mar 2024): three-tier Opus/Sonnet/Haiku, first to surpass GPT-4, >99% Needle-in-Haystack.
+- [[sources/anthropic-claude-4-announcement]] — Claude 4 (May 2025): extended thinking with tools, 72.5% SWE-bench, 65% fewer shortcuts, Claude Code GA.
+- [[sources/dario-amodei-machines-of-loving-grace]] — 50-page essay: AI's transformative upside across biology, neuroscience, governance, economics, work.
+- [[sources/improvado-claude-vs-chatgpt-vs-gemini-2026]] — 2026 comparison: Claude leads coding/writing, GPT leads reasoning, Gemini leads math; multi-model strategy.
+
+## Concepts (Claude & Anthropic Deep Dive)
+
+- [[concepts/claude-model-family-evolution]] — 17 releases from Claude 1 (9K context, Mar 2023) to Claude 4.6 (1M context, Feb 2026); context 111x, output 32x, Opus price 3x cheaper.
+- [[concepts/extended-thinking]] — Claude's test-time compute: manual budget_tokens (Claude 4) to adaptive thinking (Claude 4.6); interleaved thinking between tool calls.
+- [[concepts/responsible-scaling-policy]] — Anthropic's RSP with AI Safety Levels (ASL-1 to ASL-5); 6 versions since Sep 2023; influenced OpenAI, Google, EU AI Act.
+
+## Comparisons (Claude & Anthropic Deep Dive)
+
+- [[comparisons/claude-vs-gpt-vs-gemini]] — 2026: Claude Opus 4.6 leads coding/writing, GPT-5.4 leads general reasoning, Gemini 3.1 leads math; no single winner; multi-model recommended.
+
+## Sources (Karpathy Deep Profile)
+
+- [[sources/karpathy-wikipedia-biography]] — Comprehensive biography: Stanford PhD under Fei-Fei Li, OpenAI founding member, Tesla AI Director, Eureka Labs founder, AI education pioneer.
+- [[sources/karpathy-software-2-0]] — 2017 essay: neural networks as new programming paradigm (Software 2.0), eight advantages, interpretability crisis warning.
+- [[sources/karpathy-recipe-training-neural-networks]] — 2019 practical guide: six-stage recipe from data inspection to squeezing performance, "don't be a hero" philosophy.
+- [[sources/karpathy-vibe-coding]] — Vibe coding origin (Feb 2025): Collins Word of Year, 25% YC startups 95% AI-generated, 1.7x more bugs, 19% dev slowdown.
+- [[sources/karpathy-2025-llm-year-review]] — Year-end review: RLVR replaces RLHF, jagged intelligence, Cursor/Claude Code as app layer, benchmark skepticism.
+- [[sources/karpathy-llm-os-concept]] — LLM as OS kernel: CPU (reasoning), RAM (context window), filesystem (RAG), Software 3.0 (prompts as code).
+- [[sources/karpathy-eureka-labs]] — AI-native education company (July 2024): LLM101n course, Teacher + AI Teaching Assistant symbiosis.
+- [[sources/karpathy-state-of-gpt]] — Microsoft Build 2023 keynote: canonical introduction to GPT training pipeline (pretraining -> SFT -> RLHF).
+- [[sources/karpathy-educational-projects]] — micrograd (100-line autograd), nanoGPT (GPT-2 reproduction), minbpe (BPE tokenizer), llm.c (C/CUDA, 7% faster than PyTorch), Zero to Hero series.
+
+## Concepts (Karpathy Deep Profile)
+
+- [[concepts/llm-os]] — Karpathy's metaphor: LLMs as OS kernel (CPU=reasoning, RAM=context window, filesystem=RAG), with natural language as programming interface.
+- [[concepts/ai-native-education]] — Education redesigned around AI: human instructors create curriculum, AI teaching assistants guide at scale -- Karpathy's Eureka Labs vision.
+
+## Entities (Karpathy Deep Profile)
+
+- [[entities/eureka-labs]] — Karpathy's AI-native education company (July 2024) building LLM101n with AI teaching assistants.
+- [[entities/micrograd]] — Karpathy's 100-line autograd engine: scalar-level backpropagation for pedagogy, PyTorch-like API.
+- [[entities/nanogpt]] — Karpathy's GPT training repo: reproduces GPT-2 (124M) in ~4 days on 8xA100.
+- [[entities/llm-c]] — LLM training in pure C/CUDA: 3,000 lines, 7% faster than PyTorch, GPT-2 in 90 min for $20.
+- [[entities/fei-fei-li]] — Stanford professor, ImageNet creator, Karpathy's PhD advisor.
+- [[entities/tesla]] — EV/AI company where Karpathy served as Director of AI (2017-2022), leading Autopilot Vision.
+
+## Sources (AI Code Generation & Code-to-Knowledge Shift)
+
+- [[sources/karpathy-software-2-0]] -- Karpathy's foundational 2017 essay arguing neural networks are Software 2.0: datasets replace source code, training replaces compilation, data curation replaces instruction-writing.
+- [[sources/wikipedia-vibe-coding]] -- Comprehensive Wikipedia overview of vibe coding: Karpathy's February 2025 coinage, Collins Word of the Year, quality crisis (2.74x more security vulns), evolution to agentic engineering.
+- [[sources/greptile-state-of-ai-coding-2025]] -- Greptile telemetry data: PR size +93%, developer output tripled, CLAUDE.md in 75% of orgs, Anthropic SDK at 124M monthly downloads.
+- [[sources/morphllm-coding-models-comparison-2026]] -- March 2026 model ranking: Opus 4.6 (80.8%), Gemini 3.1 Pro (80.6%), scaffold matters more than model weights (22-point swing).
+- [[sources/morphllm-codex-vs-claude-code]] -- Head-to-head: Codex (speed, 77.3% Terminal-Bench, 1,000+ tok/s) vs Claude Code (depth, 80.8% SWE-bench, 1M context, Agent Teams).
+- [[sources/osmani-ai-productivity-reality]] -- Osmani's meta-analysis of AI coding productivity: realistic 20-30% gains, DORA paradox (91% longer reviews, 9% more bugs), Sentry failure case.
+- [[sources/swe-bench-leaderboard-2026]] -- SWE-bench evolution: 48.5% (GPT-4 Turbo, 2023) to 77.2% (Claude 4 Sonnet, 2025) -- 59% improvement in under 2 years, 70%+ considered production-ready.
+- [[sources/osmani-llm-coding-workflow-addendum]] -- Osmani's practical workflow: spec.md planning, context packing (gitingest/repo2txt), multi-model review, CI/CD as safety net.
+
+## Concepts (AI Code Generation & Code-to-Knowledge Shift)
+
+- [[concepts/software-2-0]] -- Karpathy's 2017 paradigm: neural networks as new programming model where datasets replace source code, training replaces compilation, data curation replaces instruction-writing -- intellectual foundation for vibe coding and code-to-knowledge shift.
+- [[concepts/vibe-coding]] -- Karpathy's February 2025 term for natural-language-driven development with minimal code review (Collins Word of the Year 2025), which followed a clear arc from excitement to "hangover" to Karpathy declaring it passe in favor of agentic engineering.
+- [[concepts/ai-code-generation]] -- LLMs generating source code from natural language or context: ~46% of committed code, SWE-bench at 80.8%, scaffold matters more than model weights (22-point swing), models within 1.2% of each other at frontier.
+- [[concepts/natural-language-programming]] -- Specifying software behavior in English rather than formal languages: from Karpathy's "English is the hottest programming language" to spec-driven development with LLM agents.
+- [[concepts/automated-testing-for-ai-code]] -- Validating AI-generated code through agentic test generation, self-healing suites, AI-on-AI review, and CI/CD safety nets -- critical because 60% of AI-generated code requires intervention.
+
+## Entities (AI Code Generation)
+
+- [[entities/openai-codex]] -- OpenAI's agentic coding tool: cloud sandbox-based, 1,000+ tok/s on Cerebras, 56.8% SWE-bench Pro, 77.3% Terminal-Bench, excels at rapid prototyping and terminal workflows.
+- [[entities/codestral]] -- Mistral AI's 22B open-weight coding model: fast local inference at 1.4s/response, scoring within 85-90% of frontier models on straightforward tasks.
+- [[entities/swe-bench]] -- Princeton benchmark for AI software engineering agents: real GitHub issues from production Python repos, 59% improvement in 2 years, dominant evaluation standard.
+
+## Comparisons (AI Code Generation)
+
+- [[comparisons/codex-vs-claude-code]] -- The two dominant AI coding agents: Codex (speed, sandbox, terminal) vs Claude Code (depth, multi-agent, determinism) with recommended hybrid approach.
+- [[comparisons/vibe-coding-vs-agentic-engineering]] -- Two successive AI programming philosophies by Karpathy: minimal-review natural-language coding (2025) vs disciplined agent orchestration (2026).

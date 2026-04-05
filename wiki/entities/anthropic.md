@@ -48,6 +48,12 @@ Introduced configurable "thinking budgets" in Claude 3.7 Sonnet and published ra
 ### Safety Research Directions
 Published 10 priority research areas: evaluating capabilities and alignment, understanding model cognition, CoT faithfulness, AI control strategies, [[concepts/scalable-oversight]], adversarial robustness, unlearning, and multi-agent governance ([[sources/anthropic-safety-research-directions-2025]]).
 
+### Responsible Scaling Policy (RSP)
+Created the [[concepts/responsible-scaling-policy]] (September 2023), the first major voluntary safety governance framework from a frontier AI lab. Uses AI Safety Levels (ASL-1 through ASL-5) modeled after biosafety levels, requiring escalating safeguards proportional to model capabilities. ASL-3 safeguards activated May 2025. RSP v3.0 (February 2026) separated unilateral commitments from industry-wide recommendations. Influenced OpenAI, Google DeepMind, California SB 53, and EU AI Act ([[sources/anthropic-rsp-v3]]).
+
+### "Machines of Loving Grace" Vision
+CEO [[entities/dario-amodei]] published a 50+ page essay (October 2024) articulating AI's transformative upside across biology, neuroscience, economic development, governance, and work. Defines powerful AI as "a country of geniuses in a datacenter" and argues Anthropic focuses on risks because they're the obstacles between us and a fundamentally positive future ([[sources/dario-amodei-machines-of-loving-grace]]).
+
 ### Safety Ranking
 Ranked **#1 in the FLI AI Safety Index** (Summer 2025) with C+ grade (2.64/4.0). Distinguished by human participant bio-risk trials and privacy protections ([[sources/fli-ai-safety-index-2025]]).
 
@@ -64,4 +70,7 @@ Ranked **#1 in the FLI AI Safety Index** (Summer 2025) with C+ grade (2.64/4.0).
 - [[sources/anthropic-mcp-linux-foundation]] — MCP donation to Linux Foundation, December 2025
 - [[sources/anthropic-building-effective-agents]] — canonical guide to agent design patterns
 - [[sources/anthropic-code-execution-mcp]] — MCP code execution optimization pattern
-- [[sources/anthropic-extended-thinking]] — Claude 3.7 Sonnet extended thinking announcement
+- [[sources/anthropic-extended-thinking]] -- Claude 3.7 Sonnet extended thinking announcement
+- [[sources/wikipedia-anthropic]] -- founding story, corporate structure, funding history
+- [[sources/anthropic-rsp-v3]] -- Responsible Scaling Policy v3.0 details
+- [[sources/dario-amodei-machines-of-loving-grace]] -- CEO's vision essay on AI's positive potential

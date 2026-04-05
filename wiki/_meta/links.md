@@ -2509,3 +2509,65 @@ Pages with no incoming links:
 ### comparisons/dense-vs-moe-transformers
 ← (none)
 → [[concepts/transformer-architecture]], [[concepts/mixture-of-experts]], [[entities/mixtral]]
+
+## Claude & Anthropic Deep Dive (Research: 2026-04-05)
+
+### sources/wikipedia-claude-language-model
+← (none)
+→ [[entities/claude]], [[entities/anthropic]], [[concepts/constitutional-ai]], [[concepts/extended-thinking]], [[concepts/claude-model-family-evolution]]
+
+### sources/wikipedia-anthropic
+← (none)
+→ [[entities/anthropic]], [[entities/dario-amodei]], [[entities/daniela-amodei]], [[concepts/constitutional-ai]], [[concepts/responsible-scaling-policy]]
+
+### sources/anthropic-claude-models-overview
+← (none)
+→ [[entities/claude]], [[concepts/claude-model-family-evolution]], [[concepts/extended-thinking]], [[concepts/llm-api-pricing]]
+
+### sources/anthropic-rsp-v3
+← (none)
+→ [[entities/anthropic]], [[concepts/responsible-scaling-policy]], [[concepts/ai-safety]], [[concepts/ai-safety-benchmarks]]
+
+### sources/anthropic-extended-thinking-docs
+← (none)
+→ [[entities/claude]], [[concepts/extended-thinking]], [[concepts/reasoning-models]], [[concepts/test-time-compute]]
+
+### sources/anthropic-claude-3-family-announcement
+← (none)
+→ [[entities/claude]], [[concepts/claude-model-family-evolution]], [[concepts/vision-language-models]], [[concepts/needle-in-a-haystack]]
+
+### sources/anthropic-claude-4-announcement
+← (none)
+→ [[entities/claude]], [[entities/claude-code]], [[concepts/claude-model-family-evolution]], [[concepts/extended-thinking]], [[concepts/agentic-coding]]
+
+### sources/dario-amodei-machines-of-loving-grace
+← (none)
+→ [[entities/dario-amodei]], [[entities/anthropic]], [[concepts/ai-safety]], [[concepts/ai-alignment]]
+
+### sources/improvado-claude-vs-chatgpt-vs-gemini-2026
+← (none)
+→ [[entities/claude]], [[comparisons/claude-vs-gpt-vs-gemini]], [[concepts/reasoning-models]]
+
+### concepts/claude-model-family-evolution
+← [[sources/wikipedia-claude-language-model]], [[sources/anthropic-claude-models-overview]], [[sources/anthropic-claude-3-family-announcement]], [[sources/anthropic-claude-4-announcement]], [[entities/claude]], [[entities/anthropic]]
+→ [[entities/claude]], [[entities/anthropic]], [[concepts/extended-thinking]], [[concepts/constitutional-ai]], [[concepts/reasoning-models]], [[concepts/long-context-models]], [[concepts/llm-api-pricing]], [[concepts/context-windows]], [[concepts/lost-in-the-middle]], [[concepts/llm-cost-optimization]]
+
+### concepts/extended-thinking
+← [[sources/anthropic-extended-thinking-docs]], [[sources/anthropic-claude-4-announcement]], [[entities/claude]], [[concepts/claude-model-family-evolution]]
+→ [[entities/claude]], [[concepts/reasoning-models]], [[concepts/test-time-compute]], [[concepts/chain-of-thought-prompting]], [[concepts/tool-use]], [[concepts/claude-model-family-evolution]]
+
+### concepts/responsible-scaling-policy
+← [[sources/anthropic-rsp-v3]], [[sources/wikipedia-anthropic]], [[entities/anthropic]]
+→ [[entities/anthropic]], [[concepts/ai-safety]], [[concepts/constitutional-ai]], [[concepts/ai-safety-benchmarks]], [[concepts/ai-governance]], [[concepts/scalable-oversight]]
+
+### entities/dario-amodei
+← [[sources/wikipedia-anthropic]], [[sources/dario-amodei-machines-of-loving-grace]], [[entities/anthropic]]
+→ [[entities/anthropic]], [[entities/daniela-amodei]], [[entities/claude]], [[concepts/ai-safety]], [[concepts/constitutional-ai]], [[concepts/responsible-scaling-policy]]
+
+### entities/daniela-amodei
+← [[sources/wikipedia-anthropic]], [[entities/anthropic]], [[entities/dario-amodei]]
+→ [[entities/anthropic]], [[entities/dario-amodei]], [[entities/claude]]
+
+### comparisons/claude-vs-gpt-vs-gemini
+← [[sources/improvado-claude-vs-chatgpt-vs-gemini-2026]], [[entities/claude]]
+→ [[entities/claude]], [[entities/anthropic]], [[concepts/reasoning-models]], [[concepts/llm-api-pricing]], [[concepts/long-context-models]], [[concepts/agentic-coding]], [[concepts/constitutional-ai]], [[concepts/responsible-scaling-policy]]
