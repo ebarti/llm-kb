@@ -1634,3 +1634,48 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 
 - [[comparisons/rt2-vs-pi0-vs-groot]] -- Three robot foundation models: RT-2 (pioneer, emergent reasoning), π0 (dexterous, open-source), GR00T (open platform, synthetic data ecosystem).
 - [[comparisons/tesla-optimus-vs-figure-vs-atlas]] -- Three humanoid programs: Tesla (mass-market, FSD AI), Figure (fastest iteration, Helix VLA), Boston Dynamics (engineering depth, $140-150K).
+
+## Sources (Neuroscience-Inspired AI & Biological Intelligence)
+
+- [[sources/neuroai-catalyzing-next-gen-ai]] — Landmark NeuroAI consortium paper: neuroscience should guide next-gen AI through sample efficiency, sparse coding, complementary learning systems, embodied cognition.
+- [[sources/ai-consciousness-evidence-debate]] — Assessment of AI consciousness evidence using 14 theory-derived indicators; 25-35% credence for frontier models; asymmetric risk in false negatives.
+- [[sources/neuralink-bci-2026-status]] — Neuralink 2026: 12 patients implanted, high-volume production planned, tension between medical device focus and transhumanist ambitions.
+- [[sources/free-energy-principle-unified-brain-theory]] — Karl Friston's free energy principle: unified brain theory connecting perception, action, learning to VAEs and generative AI via the ELBO.
+- [[sources/sleep-replay-catastrophic-forgetting]] — Sleep Replay Consolidation (SRC): offline Hebbian phases recover first-task accuracy from 5% to 63% on CUB-200.
+- [[sources/hippocampus-stability-plasticity-dilemma]] — Hippocampus-inspired approach to stability-plasticity: dual-process learning with SWR-BARR dynamics.
+- [[sources/neuromorphic-computing-mainstream-2026]] — Neuromorphic computing goes mainstream: Intel Loihi 3 (8M neurons, 1.2W) and IBM NorthPole (72.7x GPU efficiency) enter commercial production.
+- [[sources/biological-vs-artificial-neural-networks]] — Systematic comparison: biological (86B neurons, 20W, Hebbian) vs artificial (millions of params, kilowatts, backprop) across 10 dimensions.
+- [[sources/memory-systems-brain-to-ai-agents]] — Comprehensive survey mapping biological memory (episodic, semantic, procedural, working) to AI agent architectures.
+- [[sources/neuro-inspired-dynamic-sparsity-efficiency]] — Brain-inspired dynamic sparsity (spatial, temporal, activation, structural) for 10-1000x AI energy reduction.
+
+## Concepts (Neuroscience-Inspired AI & Biological Intelligence)
+
+- [[concepts/neuroai]] — The interdisciplinary field at the intersection of neuroscience and AI, arguing biological intelligence holds the key to next-gen AI.
+- [[concepts/brain-inspired-ai]] — AI systems designed using biological brain principles: sparse coding, complementary learning, predictive processing, sleep consolidation, spiking networks.
+- [[concepts/predictive-coding]] — The brain continuously generates top-down predictions and only processes bottom-up prediction errors — a hierarchical prediction machine that minimizes surprise.
+- [[concepts/free-energy-principle]] — Karl Friston's mathematical framework: all adaptive systems minimize variational free energy; negative FE = ELBO, bridging neuroscience and generative AI.
+- [[concepts/active-inference]] — Extension of the FEP to action: organisms minimize surprise by changing the world to match predictions, not just updating internal models.
+- [[concepts/bayesian-brain]] — The brain represents information as probability distributions and performs approximate Bayesian inference, combining priors with sensory evidence.
+- [[concepts/complementary-learning-systems]] — The brain's dual-system solution: fast hippocampus for rapid encoding, slow neocortex for long-term storage, sleep-mediated transfer between them.
+- [[concepts/continual-learning]] — Learning new tasks without forgetting old ones — natural for brains, challenging for neural networks; addressed by replay, regularization, architecture.
+- [[concepts/sleep-consolidation-ai]] — Implementing biological sleep-like offline phases in neural networks using Hebbian replay to consolidate memories and prevent catastrophic forgetting.
+- [[concepts/sparse-coding]] — Only a small fraction of neurons active at any time — the brain's energy-efficient coding strategy, now applied for 10-1000x AI efficiency gains.
+- [[concepts/efficient-coding-hypothesis]] — Barlow's 1961 principle: sensory neurons maximize information while minimizing redundancy and energy — the theoretical foundation for sparse and predictive coding.
+- [[concepts/neuromorphic-computing]] — Brain-inspired hardware using spiking neural networks and event-driven processing; Intel Loihi 3 and IBM NorthPole go commercial in 2026.
+- [[concepts/brain-computer-interfaces]] — Direct communication between brain and external devices; from medical restoration (paralysis) to potential cognitive enhancement.
+- [[concepts/ai-consciousness]] — The debate over whether AI can have subjective experience; 14 theory-derived indicators, no proof but mounting signals and asymmetric risk.
+- [[concepts/computational-functionalism]] — Consciousness depends on information-processing patterns, not substrate — if true, silicon AI could in principle be conscious.
+- [[concepts/neurotechnology]] — Technologies interfacing with the nervous system: BCIs, neuromorphic chips, neural decoding, brain stimulation, neurodiagnostics.
+
+## Entities (Neuroscience-Inspired AI & Biological Intelligence)
+
+- [[entities/karl-friston]] — British neuroscientist at UCL; originator of the free energy principle; most cited neuroscientist; mathematical bridge between brain theory and VAEs.
+- [[entities/neuralink]] — Elon Musk's BCI company: 12 patients, The Link implant, high-volume production planned 2026, medical vs transhumanist tension.
+- [[entities/intel-loihi]] — Intel's neuromorphic processor family: Loihi 1 (2018) → Loihi 3 (2025, 8M neurons, 1.2W, first commercial), 100-1000x GPU efficiency.
+- [[entities/ibm-northpole]] — IBM neuromorphic chip: 256 co-located memory-compute cores, 72.7x GPU efficiency for LLM inference, full production 2026.
+- [[entities/david-chalmers]] — Philosopher; "hard problem of consciousness"; co-author of 14-indicator AI consciousness framework with Butlin, Long, and Bengio.
+
+## Comparisons (Neuroscience-Inspired AI & Biological Intelligence)
+
+- [[comparisons/biological-vs-artificial-neural-networks]] — Brain (86B neurons, 20W, Hebbian, continuous adaptation) vs AI (millions of params, kilowatts, backprop, train/deploy) across 10 dimensions.
+- [[comparisons/neuromorphic-vs-gpu-computing]] — Neuromorphic (100-1000x efficiency, event-driven, edge) vs GPU (training, ecosystem, scale): complementary, not competitive.

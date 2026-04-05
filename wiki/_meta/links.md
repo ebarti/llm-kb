@@ -3088,3 +3088,131 @@ Pages with no incoming links:
 ### comparisons/ai-scientific-domains-comparison
 ← (none)
 → [[concepts/ai-protein-structure-prediction]], [[concepts/ai-materials-science]], [[concepts/ai-mathematical-reasoning]], [[concepts/ai-weather-climate]], [[concepts/ai-drug-discovery]], [[concepts/ai-genomics]], [[entities/alphafold]], [[entities/gnome]], [[entities/alphaevolve]], [[entities/gencast]], [[entities/insilico-medicine]], [[entities/alphagenome]]
+
+---
+
+## AI Robotics & Embodied Intelligence (Research: 2026-04-05)
+
+### sources/deloitte-physical-ai-humanoid-robots-2026
+← (none)
+→ [[concepts/physical-ai]], [[concepts/embodied-intelligence]], [[concepts/humanoid-robots]], [[concepts/vision-language-action-models]], [[concepts/sim-to-real-transfer]], [[entities/tesla-optimus]], [[entities/boston-dynamics]], [[entities/waymo]]
+
+### sources/google-deepmind-rt2-vla-model
+← (none)
+→ [[concepts/vision-language-action-models]], [[concepts/embodied-intelligence]], [[concepts/foundation-models-for-robotics]], [[entities/google-deepmind]], [[entities/rt-2]], [[entities/palm-e]]
+
+### sources/physical-intelligence-pi0-foundation-model
+← (none)
+→ [[concepts/vision-language-action-models]], [[concepts/foundation-models-for-robotics]], [[concepts/dexterous-manipulation]], [[concepts/flow-matching]], [[entities/physical-intelligence]], [[entities/pi0]]
+
+### sources/llms-for-robotics-survey-2025
+← (none)
+→ [[concepts/embodied-intelligence]], [[concepts/vision-language-action-models]], [[concepts/language-grounding-for-robots]], [[concepts/foundation-models-for-robotics]], [[concepts/sim-to-real-transfer]], [[entities/rt-2]], [[entities/pi0]], [[entities/nvidia-groot]], [[entities/saycan]]
+
+### sources/saycan-grounding-language-robotic-affordances
+← (none)
+→ [[concepts/language-grounding-for-robots]], [[concepts/embodied-intelligence]], [[concepts/foundation-models-for-robotics]], [[entities/saycan]], [[entities/google-deepmind]]
+
+### sources/figure-ai-humanoid-robots
+← (none)
+→ [[concepts/humanoid-robots]], [[concepts/vision-language-action-models]], [[entities/figure-ai]], [[entities/helix-vla]]
+
+### sources/tesla-optimus-humanoid-robot
+← (none)
+→ [[concepts/humanoid-robots]], [[concepts/physical-ai]], [[entities/tesla-optimus]], [[entities/tesla]]
+
+### sources/nvidia-isaac-groot-n1-foundation-model
+← (none)
+→ [[concepts/foundation-models-for-robotics]], [[concepts/sim-to-real-transfer]], [[concepts/humanoid-robots]], [[entities/nvidia-groot]], [[entities/nvidia]], [[entities/google-deepmind]], [[entities/boston-dynamics]]
+
+### sources/nvidia-automate-sim-to-real-assembly
+← (none)
+→ [[concepts/sim-to-real-transfer]], [[concepts/reinforcement-learning]], [[concepts/imitation-learning]], [[entities/nvidia]]
+
+### concepts/embodied-intelligence
+← [[sources/deloitte-physical-ai-humanoid-robots-2026]], [[sources/google-deepmind-rt2-vla-model]], [[sources/llms-for-robotics-survey-2025]], [[sources/physical-intelligence-pi0-foundation-model]], [[sources/saycan-grounding-language-robotic-affordances]], [[concepts/physical-ai]], [[concepts/vision-language-action-models]], [[concepts/language-grounding-for-robots]]
+→ [[concepts/physical-ai]], [[concepts/vision-language-action-models]], [[concepts/foundation-models-for-robotics]], [[concepts/language-grounding-for-robots]], [[concepts/humanoid-robots]], [[concepts/dexterous-manipulation]], [[entities/rt-2]], [[entities/pi0]], [[entities/saycan]]
+
+### concepts/vision-language-action-models
+← [[sources/deloitte-physical-ai-humanoid-robots-2026]], [[sources/google-deepmind-rt2-vla-model]], [[sources/physical-intelligence-pi0-foundation-model]], [[sources/llms-for-robotics-survey-2025]], [[concepts/embodied-intelligence]], [[concepts/foundation-models-for-robotics]], [[concepts/humanoid-robots]], [[concepts/dexterous-manipulation]]
+→ [[concepts/embodied-intelligence]], [[concepts/foundation-models-for-robotics]], [[concepts/flow-matching]], [[concepts/cross-embodiment-transfer]], [[concepts/language-grounding-for-robots]], [[entities/rt-2]], [[entities/pi0]], [[entities/nvidia-groot]], [[entities/helix-vla]]
+
+### concepts/foundation-models-for-robotics
+← [[sources/google-deepmind-rt2-vla-model]], [[sources/physical-intelligence-pi0-foundation-model]], [[sources/llms-for-robotics-survey-2025]], [[sources/nvidia-isaac-groot-n1-foundation-model]], [[concepts/embodied-intelligence]], [[concepts/vision-language-action-models]]
+→ [[concepts/vision-language-action-models]], [[concepts/embodied-intelligence]], [[concepts/cross-embodiment-transfer]], [[concepts/sim-to-real-transfer]], [[concepts/robot-learning-from-demonstration]], [[entities/rt-2]], [[entities/pi0]], [[entities/nvidia-groot]], [[entities/helix-vla]]
+
+### concepts/humanoid-robots
+← [[sources/deloitte-physical-ai-humanoid-robots-2026]], [[sources/tesla-optimus-humanoid-robot]], [[sources/figure-ai-humanoid-robots]], [[sources/nvidia-isaac-groot-n1-foundation-model]], [[concepts/embodied-intelligence]], [[concepts/physical-ai]]
+→ [[concepts/physical-ai]], [[concepts/dexterous-manipulation]], [[concepts/vision-language-action-models]], [[concepts/sim-to-real-transfer]], [[entities/tesla-optimus]], [[entities/figure-ai]], [[entities/boston-dynamics]]
+
+### concepts/language-grounding-for-robots
+← [[sources/saycan-grounding-language-robotic-affordances]], [[sources/llms-for-robotics-survey-2025]], [[concepts/embodied-intelligence]], [[concepts/vision-language-action-models]]
+→ [[concepts/embodied-intelligence]], [[concepts/vision-language-action-models]], [[concepts/foundation-models-for-robotics]], [[entities/saycan]], [[entities/rt-2]]
+
+### concepts/sim-to-real-transfer
+← [[sources/nvidia-automate-sim-to-real-assembly]], [[sources/deloitte-physical-ai-humanoid-robots-2026]], [[sources/nvidia-isaac-groot-n1-foundation-model]], [[concepts/foundation-models-for-robotics]], [[concepts/humanoid-robots]]
+→ [[concepts/foundation-models-for-robotics]], [[concepts/embodied-intelligence]], [[concepts/reinforcement-learning]], [[concepts/humanoid-robots]], [[entities/nvidia-groot]], [[entities/nvidia]]
+
+### concepts/dexterous-manipulation
+← [[sources/physical-intelligence-pi0-foundation-model]], [[concepts/embodied-intelligence]], [[concepts/humanoid-robots]], [[concepts/vision-language-action-models]]
+→ [[concepts/humanoid-robots]], [[concepts/vision-language-action-models]], [[concepts/flow-matching]], [[concepts/sim-to-real-transfer]], [[concepts/robot-learning-from-demonstration]], [[entities/pi0]], [[entities/figure-ai]], [[entities/tesla-optimus]]
+
+### concepts/cross-embodiment-transfer
+← [[concepts/vision-language-action-models]], [[concepts/foundation-models-for-robotics]]
+→ [[concepts/foundation-models-for-robotics]], [[concepts/vision-language-action-models]], [[concepts/sim-to-real-transfer]], [[entities/pi0]], [[entities/nvidia-groot]]
+
+### concepts/robot-learning-from-demonstration
+← [[concepts/foundation-models-for-robotics]], [[concepts/dexterous-manipulation]]
+→ [[concepts/imitation-learning]], [[concepts/foundation-models-for-robotics]], [[concepts/dexterous-manipulation]], [[concepts/humanoid-robots]], [[concepts/sim-to-real-transfer]], [[entities/pi0]], [[entities/nvidia-groot]], [[entities/figure-ai]]
+
+### concepts/autonomous-driving
+← [[concepts/physical-ai]]
+→ [[concepts/physical-ai]], [[concepts/vision-language-action-models]], [[concepts/foundation-models-for-robotics]], [[concepts/sim-to-real-transfer]], [[entities/waymo]], [[entities/tesla]]
+
+### entities/rt-2
+← [[sources/google-deepmind-rt2-vla-model]], [[sources/llms-for-robotics-survey-2025]], [[concepts/embodied-intelligence]], [[concepts/vision-language-action-models]], [[concepts/language-grounding-for-robots]]
+→ [[concepts/vision-language-action-models]], [[concepts/foundation-models-for-robotics]], [[entities/google-deepmind]], [[entities/palm-e]], [[entities/saycan]], [[entities/pi0]]
+
+### entities/pi0
+← [[sources/physical-intelligence-pi0-foundation-model]], [[sources/llms-for-robotics-survey-2025]], [[concepts/embodied-intelligence]], [[concepts/vision-language-action-models]], [[concepts/foundation-models-for-robotics]], [[concepts/dexterous-manipulation]], [[concepts/cross-embodiment-transfer]]
+→ [[concepts/vision-language-action-models]], [[concepts/flow-matching]], [[concepts/dexterous-manipulation]], [[concepts/cross-embodiment-transfer]], [[entities/physical-intelligence]], [[entities/rt-2]]
+
+### entities/physical-intelligence
+← [[sources/physical-intelligence-pi0-foundation-model]], [[entities/pi0]]
+→ [[entities/pi0]], [[concepts/foundation-models-for-robotics]], [[concepts/vision-language-action-models]]
+
+### entities/figure-ai
+← [[sources/figure-ai-humanoid-robots]], [[concepts/humanoid-robots]], [[concepts/dexterous-manipulation]], [[concepts/robot-learning-from-demonstration]]
+→ [[concepts/humanoid-robots]], [[concepts/vision-language-action-models]], [[entities/helix-vla]]
+
+### entities/tesla-optimus
+← [[sources/tesla-optimus-humanoid-robot]], [[sources/deloitte-physical-ai-humanoid-robots-2026]], [[concepts/humanoid-robots]], [[concepts/dexterous-manipulation]]
+→ [[concepts/humanoid-robots]], [[concepts/physical-ai]], [[concepts/autonomous-driving]], [[entities/tesla]]
+
+### entities/nvidia-groot
+← [[sources/nvidia-isaac-groot-n1-foundation-model]], [[sources/llms-for-robotics-survey-2025]], [[concepts/vision-language-action-models]], [[concepts/foundation-models-for-robotics]], [[concepts/sim-to-real-transfer]], [[concepts/cross-embodiment-transfer]]
+→ [[concepts/foundation-models-for-robotics]], [[concepts/humanoid-robots]], [[concepts/sim-to-real-transfer]], [[entities/nvidia]], [[entities/google-deepmind]]
+
+### entities/saycan
+← [[sources/saycan-grounding-language-robotic-affordances]], [[sources/llms-for-robotics-survey-2025]], [[concepts/language-grounding-for-robots]], [[concepts/embodied-intelligence]]
+→ [[concepts/language-grounding-for-robots]], [[concepts/embodied-intelligence]], [[entities/google-deepmind]], [[entities/rt-2]], [[entities/palm-e]]
+
+### entities/helix-vla
+← [[sources/figure-ai-humanoid-robots]], [[entities/figure-ai]], [[concepts/vision-language-action-models]]
+→ [[entities/figure-ai]], [[concepts/vision-language-action-models]], [[concepts/humanoid-robots]], [[concepts/dexterous-manipulation]]
+
+### entities/boston-dynamics
+← [[sources/deloitte-physical-ai-humanoid-robots-2026]], [[sources/nvidia-isaac-groot-n1-foundation-model]], [[concepts/humanoid-robots]]
+→ [[concepts/humanoid-robots]], [[concepts/physical-ai]], [[entities/nvidia-groot]], [[entities/google-deepmind]]
+
+### entities/waymo
+← [[sources/deloitte-physical-ai-humanoid-robots-2026]], [[concepts/autonomous-driving]]
+→ [[concepts/autonomous-driving]], [[concepts/physical-ai]], [[entities/google-deepmind]]
+
+### comparisons/rt2-vs-pi0-vs-groot
+← (none)
+→ [[entities/rt-2]], [[entities/pi0]], [[entities/nvidia-groot]], [[concepts/vision-language-action-models]], [[concepts/foundation-models-for-robotics]], [[concepts/cross-embodiment-transfer]]
+
+### comparisons/tesla-optimus-vs-figure-vs-atlas
+← (none)
+→ [[entities/tesla-optimus]], [[entities/figure-ai]], [[entities/boston-dynamics]], [[concepts/humanoid-robots]], [[concepts/dexterous-manipulation]], [[concepts/physical-ai]], [[entities/helix-vla]]
