@@ -2571,3 +2571,75 @@ Pages with no incoming links:
 ### comparisons/claude-vs-gpt-vs-gemini
 ← [[sources/improvado-claude-vs-chatgpt-vs-gemini-2026]], [[entities/claude]]
 → [[entities/claude]], [[entities/anthropic]], [[concepts/reasoning-models]], [[concepts/llm-api-pricing]], [[concepts/long-context-models]], [[concepts/agentic-coding]], [[concepts/constitutional-ai]], [[concepts/responsible-scaling-policy]]
+
+### sources/karpathy-software-2-0
+← (none)
+→ [[concepts/software-2-0]], [[concepts/ai-code-generation]], [[concepts/post-code-ai-workflow]], [[entities/andrej-karpathy]]
+
+### sources/wikipedia-vibe-coding
+← (none)
+→ [[concepts/vibe-coding]], [[concepts/agentic-coding]], [[concepts/ai-productivity-paradox]], [[entities/andrej-karpathy]]
+
+### sources/greptile-state-of-ai-coding-2025
+← (none)
+→ [[concepts/ai-coding-assistants]], [[concepts/ai-code-generation]], [[concepts/agentic-coding]], [[entities/claude-code]]
+
+### sources/morphllm-coding-models-comparison-2026
+← (none)
+→ [[concepts/ai-code-generation]], [[concepts/swe-bench]], [[entities/claude-code]], [[entities/openai-codex]], [[comparisons/codex-vs-claude-code]]
+
+### sources/morphllm-codex-vs-claude-code
+← (none)
+→ [[comparisons/codex-vs-claude-code]], [[entities/claude-code]], [[entities/openai-codex]], [[concepts/agentic-coding]]
+
+### sources/osmani-ai-productivity-reality
+← (none)
+→ [[concepts/ai-productivity-paradox]], [[concepts/ai-pair-programming]], [[concepts/ai-code-generation]], [[concepts/vibe-coding]]
+
+### sources/swe-bench-leaderboard-2026
+← (none)
+→ [[concepts/swe-bench]], [[concepts/ai-code-generation]], [[concepts/agentic-coding]]
+
+### sources/osmani-llm-coding-workflow-addendum
+← (none)
+→ [[concepts/ai-pair-programming]], [[concepts/ai-code-generation]], [[entities/addy-osmani]]
+
+### concepts/software-2-0
+← [[sources/karpathy-software-2-0]], [[concepts/vibe-coding]], [[concepts/ai-code-generation]], [[concepts/post-code-ai-workflow]], [[entities/andrej-karpathy]]
+→ [[concepts/vibe-coding]], [[concepts/ai-code-generation]], [[concepts/post-code-ai-workflow]], [[concepts/agentic-coding]], [[concepts/natural-language-programming]], [[concepts/data-quality-bottleneck]], [[entities/andrej-karpathy]]
+
+### concepts/vibe-coding
+← [[sources/wikipedia-vibe-coding]], [[concepts/software-2-0]], [[concepts/ai-code-generation]], [[concepts/post-code-ai-workflow]], [[comparisons/vibe-coding-vs-agentic-engineering]]
+→ [[concepts/software-2-0]], [[concepts/agentic-coding]], [[concepts/ai-code-generation]], [[concepts/ai-productivity-paradox]], [[concepts/natural-language-programming]], [[concepts/post-code-ai-workflow]], [[entities/andrej-karpathy]], [[entities/cursor]], [[entities/claude-code]], [[entities/github-copilot]], [[entities/simon-willison]]
+
+### concepts/ai-code-generation
+← [[sources/morphllm-coding-models-comparison-2026]], [[sources/greptile-state-of-ai-coding-2025]], [[concepts/software-2-0]], [[concepts/vibe-coding]], [[concepts/post-code-ai-workflow]]
+→ [[concepts/software-2-0]], [[concepts/vibe-coding]], [[concepts/agentic-coding]], [[concepts/ai-coding-assistants]], [[concepts/swe-bench]], [[concepts/natural-language-programming]], [[concepts/ai-productivity-paradox]], [[concepts/automated-testing-for-ai-code]], [[concepts/post-code-ai-workflow]], [[concepts/ai-code-review]], [[concepts/llm-knowledge-base]], [[entities/claude-code]], [[entities/openai-codex]]
+
+### concepts/natural-language-programming
+← [[concepts/software-2-0]], [[concepts/vibe-coding]], [[concepts/ai-code-generation]]
+→ [[concepts/software-2-0]], [[concepts/vibe-coding]], [[concepts/ai-code-generation]], [[concepts/prompt-engineering]], [[concepts/post-code-ai-workflow]], [[concepts/agentic-coding]], [[concepts/context-engineering]], [[concepts/llm-knowledge-base]]
+
+### concepts/automated-testing-for-ai-code
+← [[concepts/ai-code-generation]]
+→ [[concepts/ai-code-generation]], [[concepts/ai-code-review]], [[concepts/ai-productivity-paradox]], [[concepts/agentic-coding]], [[concepts/swe-bench]]
+
+### entities/openai-codex
+← [[sources/morphllm-codex-vs-claude-code]], [[sources/morphllm-coding-models-comparison-2026]], [[concepts/ai-code-generation]], [[comparisons/codex-vs-claude-code]]
+→ [[entities/claude-code]], [[concepts/agentic-coding]], [[concepts/ai-code-generation]], [[comparisons/codex-vs-claude-code]]
+
+### entities/codestral
+← (none)
+→ [[concepts/ai-code-generation]], [[entities/claude-code]], [[entities/openai-codex]]
+
+### entities/swe-bench
+← [[concepts/swe-bench]]
+→ [[concepts/swe-bench]], [[concepts/agentic-coding]], [[concepts/ai-code-generation]], [[entities/claude-code]], [[entities/openai-codex]]
+
+### comparisons/codex-vs-claude-code
+← [[sources/morphllm-codex-vs-claude-code]], [[entities/openai-codex]]
+→ [[entities/openai-codex]], [[entities/claude-code]], [[concepts/agentic-coding]], [[concepts/ai-code-generation]], [[concepts/swe-bench]]
+
+### comparisons/vibe-coding-vs-agentic-engineering
+← (none)
+→ [[concepts/vibe-coding]], [[concepts/agentic-coding]], [[concepts/software-2-0]], [[concepts/ai-code-generation]], [[concepts/post-code-ai-workflow]], [[concepts/ai-productivity-paradox]], [[entities/andrej-karpathy]]

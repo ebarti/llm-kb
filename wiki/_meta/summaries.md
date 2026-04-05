@@ -1302,3 +1302,42 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 
 - [[comparisons/codex-vs-claude-code]] -- The two dominant AI coding agents: Codex (speed, sandbox, terminal) vs Claude Code (depth, multi-agent, determinism) with recommended hybrid approach.
 - [[comparisons/vibe-coding-vs-agentic-engineering]] -- Two successive AI programming philosophies by Karpathy: minimal-review natural-language coding (2025) vs disciplined agent orchestration (2026).
+
+## Sources (Web Scraping, Content Extraction & Ingest Pipeline)
+
+- [[sources/web-scraping-best-practices-2026]] — Comprehensive 2026 guide to web scraping: IP rotation, request timing, headers, honeypots, caching, distributed architecture, and ethical compliance.
+- [[sources/mozilla-readability-algorithm]] — Deep technical explanation of Mozilla's Readability.js — the 7-heuristic, 6-stage pipeline that powers Firefox Reader View and underpins most modern content extraction tools.
+- [[sources/trafilatura-web-extraction]] — Trafilatura: the most accurate open-source web text extraction library — combines jusText and Readability algorithms, outputs to markdown/JSON/XML-TEI, used by HuggingFace, IBM, Microsoft Research.
+- [[sources/jina-reader-lm-html-to-markdown]] — Jina's Reader-LM (0.5B-1.5B params) outperforms GPT-4o at HTML-to-markdown conversion by treating it as a selective-copy task — a paradigm shift from heuristic to neural content extraction.
+- [[sources/crawl4ai-llm-web-crawler]] — Crawl4AI (63K+ GitHub stars): open-source Playwright-based crawler producing dual markdown output (raw + BM25-filtered), with LLM/CSS/XPath extraction and anti-bot detection.
+- [[sources/web-scraping-legality-ethics-2025]] — Web scraping legality: hiQ v. LinkedIn confirms public data access legal in US; GDPR EUR 20M fines for personal data; EU AI Act requires training data provenance.
+- [[sources/python-scraping-tools-comparison]] — BeautifulSoup (lightweight), Scrapy (2,500 pages/min), Playwright (JS rendering, 800 pages/min) — systematic benchmarks and selection criteria.
+- [[sources/schema-org-structured-data]] — Schema.org: 45M+ domains with pre-structured JSON-LD/Microdata enabling high-confidence extraction without heuristics.
+- [[sources/web-archiving-warc-tools]] — WARC (ISO 28500) preservation standard, tools from Heritrix to ArchiveBox, protecting KB source provenance.
+
+## Concepts (Web Scraping, Content Extraction & Ingest Pipeline)
+
+- [[concepts/content-extraction]] — Extracting meaningful content from messy web pages — three generations: rule-based, heuristic (Readability/Trafilatura), neural (Reader-LM) — critical first step in KB ingest.
+- [[concepts/boilerplate-removal]] — Removing navigation, ads, footers, sidebars via DOM scoring (Readability), block classification (jusText), or neural filtering (Reader-LM).
+- [[concepts/html-to-markdown-conversion]] — Converting HTML to markdown — from Turndown/Pandoc to Reader-LM v2 (ROUGE-L 0.86) — the format bridge between web and LLM knowledge.
+- [[concepts/web-scraping-ethics-and-law]] — Public data generally legal (hiQ v. LinkedIn); GDPR for PII; EU AI Act for training data; robots.txt compliance legally relevant.
+- [[concepts/anti-bot-evasion]] — IP rotation, header randomization, stealth browsers, behavior mimicry — balanced against ethical obligations.
+- [[concepts/structured-data-extraction]] — Pre-structured Schema.org data (JSON-LD, Microdata) from 45M+ domains — bypasses heuristic extraction for metadata and entities.
+- [[concepts/web-archiving]] — WARC (ISO 28500) preservation for source permanence and provenance — from Heritrix to ArchiveBox.
+- [[concepts/web-scraping-at-scale]] — (updated) Scrapy for throughput, Playwright for JS, Crawl4AI/Firecrawl for LLM-ready markdown.
+
+## Entities (Web Scraping, Content Extraction & Ingest Pipeline)
+
+- [[entities/mozilla-readability]] — Readability.js: 7-heuristic, 6-stage DOM scoring algorithm powering Firefox Reader View and Jina Reader API.
+- [[entities/trafilatura]] — Most accurate open-source extraction library (ACL 2021), hybrid jusText + Readability, used by HuggingFace/IBM/Microsoft.
+- [[entities/jina-reader]] — Jina Reader API: prefix r.jina.ai/ for clean markdown; Chrome + Readability + Turndown pipeline with optional ReaderLM v2.
+- [[entities/reader-lm]] — Jina's 1.5B model for HTML-to-markdown: ROUGE-L 0.86 vs GPT-4o's 0.43, selective-copy task, 512K context, 29 languages.
+- [[entities/crawl4ai]] — #1 open-source LLM crawler (63K stars), Playwright-based, BM25-filtered "fit markdown" output.
+- [[entities/playwright]] — Microsoft's cross-browser automation: Chromium/Firefox/WebKit, auto-waiting, stealth mode, 800 pages/min.
+- [[entities/scrapy]] — Python web crawling framework: 2,500 pages/min, 1,000 concurrent requests, Twisted async.
+- [[entities/beautiful-soup]] — Python HTML parser: lightweight, handles malformed markup, common in hybrid Playwright+BS4 workflows.
+
+## Comparisons (Web Scraping, Content Extraction & Ingest Pipeline)
+
+- [[comparisons/heuristic-vs-neural-content-extraction]] — Heuristic (fast, free, 90%+ pages) vs neural (ROUGE-L 0.86, needs GPU) content extraction — hybrid recommended.
+- [[comparisons/crawl4ai-vs-firecrawl]] — Open-source Crawl4AI (free, BM25 filtering) vs SaaS Firecrawl (managed, integrated).

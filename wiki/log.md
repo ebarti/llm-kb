@@ -781,3 +781,41 @@ Deep research pass on Personal Knowledge Management (PKM), Zettelkasten, second 
   - entities/andrej-karpathy — MAJOR expansion: from 3-min to 12-min read, full biography, career timeline, intellectual contributions (Software 2.0, LLM OS, vibe coding, context engineering, Recipe for Training NNs, State of GPT, LLM KB), open-source projects table, educational arc, notable quotes, 15 source references
   - entities/minbpe — added educational projects source and related links
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+
+## [2026-04-05] research | AI Code Generation & the Code-to-Knowledge Shift
+- **Topic**: Deep research pass on AI code generation, automated software engineering, and how LLMs are transforming programming — the Software 2.0 → vibe coding → agentic engineering arc Karpathy described
+- **Web searches**: 11 queries covering AI code generation state of art, LLM software engineering, SWE-bench benchmarks, vibe coding, code LLM model comparisons, AI pair programming productivity, automated testing, natural language to code, LLM debugging, future of programming, and Software 2.0
+- **Sources fetched and ingested** (8 raw files):
+  - raw/karpathy-software-2-0.md — foundational 2017 Software 2.0 essay
+  - raw/wikipedia-vibe-coding.md — comprehensive vibe coding history and evolution
+  - raw/greptile-state-of-ai-coding-2025.md — telemetry data on AI coding adoption
+  - raw/morphllm-coding-models-comparison-2026.md — March 2026 model benchmarks
+  - raw/morphllm-codex-vs-claude-code.md — Codex vs Claude Code comparison
+  - raw/osmani-ai-productivity-reality.md — meta-analysis of AI coding productivity research
+  - raw/swe-bench-leaderboard-2026.md — SWE-bench evolution and leaderboard
+  - raw/osmani-llm-coding-workflow-addendum.md — practical AI coding workflow guide
+- **Source summaries created** (8):
+  - sources/karpathy-software-2-0, sources/wikipedia-vibe-coding, sources/greptile-state-of-ai-coding-2025
+  - sources/morphllm-coding-models-comparison-2026, sources/morphllm-codex-vs-claude-code
+  - sources/osmani-ai-productivity-reality, sources/swe-bench-leaderboard-2026, sources/osmani-llm-coding-workflow-addendum
+- **Concept articles created** (5):
+  - concepts/software-2-0 — Karpathy's 2017 paradigm, three-stage arc, code-to-knowledge shift
+  - concepts/vibe-coding — February 2025 origin, quality evidence, evolution to agentic engineering
+  - concepts/ai-code-generation — comprehensive landscape, benchmark table, scaffold insight, productivity evidence
+  - concepts/natural-language-programming — spec-driven development, the specification spectrum
+  - concepts/automated-testing-for-ai-code — agentic testing, self-healing, AI-on-AI review
+- **Entity pages created** (3):
+  - entities/openai-codex — OpenAI's agentic coding tool with benchmarks
+  - entities/codestral — Mistral's open-weight coding model
+  - entities/swe-bench — benchmark entity page with timeline and variants
+- **Entity pages updated** (2):
+  - entities/andrej-karpathy — added links to new concepts and sources
+  - entities/addy-osmani — added productivity reality and workflow sources
+- **Comparison pages created** (2):
+  - comparisons/codex-vs-claude-code — speed vs depth, sandbox vs multi-agent
+  - comparisons/vibe-coding-vs-agentic-engineering — maturation arc from hype to production
+- **Existing concept articles updated** (3):
+  - concepts/post-code-ai-workflow — added Software 2.0 lineage, productivity evidence, cross-links
+  - concepts/swe-bench — added scaffold finding, open-source convergence, new sources
+  - concepts/agentic-coding — added new sources and cross-links to vibe coding, Software 2.0, comparisons
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md

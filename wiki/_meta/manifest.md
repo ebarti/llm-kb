@@ -349,3 +349,12 @@ Tracks which raw files have been compiled into the wiki.
 | `raw/microsoft-research-ai-2026-frontiers.md` | compiled | 2026-04-05 |
 | `raw/gavel-law-firm-llm-guide-2026.md` | compiled | 2026-04-05 |
 | `raw/science-advances-ai-creativity-diversity-paradox.md` | compiled | 2026-04-05 |
+| `raw/web-scraping-best-practices-2026.md` | compiled | 2026-04-05 |
+| `raw/mozilla-readability-algorithm.md` | compiled | 2026-04-05 |
+| `raw/trafilatura-web-extraction.md` | compiled | 2026-04-05 |
+| `raw/jina-reader-lm-html-to-markdown.md` | compiled | 2026-04-05 |
+| `raw/crawl4ai-llm-web-crawler.md` | compiled | 2026-04-05 |
+| `raw/web-scraping-legality-ethics-2025.md` | compiled | 2026-04-05 |
+| `raw/python-scraping-tools-comparison.md` | compiled | 2026-04-05 |
+| `raw/schema-org-structured-data.md` | compiled | 2026-04-05 |
+| `raw/web-archiving-warc-tools.md` | compiled | 2026-04-05 |

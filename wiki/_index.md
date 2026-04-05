@@ -1123,6 +1123,15 @@ reading_time: "5 min"
 - [[sources/chinchilla-scaling-laws]] — DeepMind's 20:1 token/parameter compute-optimal scaling law
 - [[sources/unite-ai-bert-gpt-t5-comparison]] — Three transformer variant families: BERT, GPT, T5
 - [[sources/moe-models-comparison-2025]] — 2025 frontier MoE model specs: DeepSeek-R1, Llama 4, Qwen3
+- [[sources/attention-mechanisms-comprehensive-survey]] — 2026 survey: attention history, scoring functions, self/cross/multi-head formulations, efficiency variants
+- [[sources/flashattention-3-tri-dao-blog]] — Tri Dao's FlashAttention-3 blog: async warp specialization, FP8 incoherent processing, 740 TFLOPS
+- [[sources/streamingllm-attention-sinks]] — MIT HAN Lab: attention sinks phenomenon, StreamingLLM for infinite-length generation
+- [[sources/retro-illustrated-retrieval-transformer]] — Jay Alammar: RETRO matches GPT-3 at 4% parameters via 2T-token retrieval database
+- [[sources/differentiable-neural-computers-deepmind]] — DeepMind: DNCs combining neural controllers with external memory via differentiable attention
+- [[sources/mamba-visual-guide-grootendorst]] — Grootendorst: visual guide to Mamba selective scan and SSM fundamentals
+- [[sources/knowledge-circuits-transformers-research]] — NeurIPS 2024: knowledge circuits tracing how MLPs store and attention routes factual knowledge
+- [[sources/kv-caching-huggingface-explained]] — Hugging Face: KV caching tutorial with 5.21x speedup benchmarks
+- [[sources/gqa-grouped-query-attention-overview]] — IBM: GQA generalizing MHA and MQA, 90% KV cache reduction, 5% uptrain compute
 
 ### Concepts
 - [[concepts/transformer-architecture]] — The foundational architecture based on attention, powering all frontier LLMs
@@ -1145,6 +1154,11 @@ reading_time: "5 min"
 - [[concepts/speculative-decoding]] — Draft-then-verify parallel inference optimization (updated)
 - [[concepts/sparse-attention]] — Subset-of-pairs attention for reduced complexity
 - [[concepts/multimodal-transformers]] — Multi-modality architectures: vision, video, audio, robotics
+- [[concepts/attention-mechanisms]] — Umbrella article: history, formula, family tree, attention as content-addressable memory
+- [[concepts/attention-sinks]] — Initial tokens receive disproportionate attention regardless of content (ICLR 2024)
+- [[concepts/linear-attention]] — Kernel-based approximation reducing O(N^2) to O(N*d^2) — expressiveness vs efficiency tradeoff
+- [[concepts/memory-augmented-neural-networks]] — NTMs, DNCs, RETRO: neural controllers with external differentiable memory
+- [[concepts/knowledge-storage-in-transformers]] — MLPs store facts as key-value memories; attention heads route queries to storage
 
 ### Entities
 - [[entities/attention-is-all-you-need]] — The 2017 paper introducing the Transformer — most cited ML paper of the 21st century
@@ -1155,11 +1169,18 @@ reading_time: "5 min"
 - [[entities/mixtral]] — Mistral AI's 47B MoE outperforming Llama 2 70B (2023)
 - [[entities/chinchilla]] — DeepMind's compute-optimal 70B model (updated)
 - [[entities/tri-dao]] — Creator of FlashAttention and co-creator of Mamba
+- [[entities/flashattention]] — IO-aware exact attention library, now default in PyTorch/JAX, v3 at 75% H100 utilization
+- [[entities/retro]] — DeepMind's 7.5B model matching GPT-3 via 2T-token retrieval database
+- [[entities/neural-turing-machine]] — Graves 2014: foundational architecture coupling neural nets with differentiable external memory
+- [[entities/streamingllm]] — MIT HAN Lab framework for infinite-length generation via attention sinks
 
 ### Comparisons
 - [[comparisons/transformers-vs-state-space-models]] — Transformers (databases) vs SSMs (brains): when to use each
 - [[comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder]] — BERT vs GPT vs T5 architecture families
 - [[comparisons/dense-vs-moe-transformers]] — Dense vs sparse Mixture-of-Experts transformers
+- [[comparisons/softmax-vs-linear-attention]] — Softmax (exact, sharp) vs linear (O(N*d^2), approximate, blurred) attention
+- [[comparisons/mha-vs-gqa-vs-mqa]] — Multi-Head vs Grouped Query vs Multi-Query attention: quality-efficiency spectrum
+- [[comparisons/self-attention-vs-cross-attention]] — Within-sequence vs between-sequence attention: when each applies
 
 ## Web Scraping, Content Extraction & Ingest Pipeline (Research: 2026-04-05)
 
