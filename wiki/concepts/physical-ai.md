@@ -1,8 +1,8 @@
 ---
 title: "Physical AI"
 type: concept
-sources: ["[[sources/nvidia-cosmos-world-foundation]]", "[[sources/world-models-race-2026]]", "[[sources/meta-v-jepa-2]]"]
-related: ["[[concepts/world-models]]", "[[concepts/embodied-ai]]", "[[entities/nvidia-cosmos]]", "[[concepts/jepa]]"]
+sources: ["[[sources/nvidia-cosmos-world-foundation]]", "[[sources/world-models-race-2026]]", "[[sources/meta-v-jepa-2]]", "[[sources/deloitte-physical-ai-humanoid-robots-2026]]", "[[sources/nvidia-isaac-groot-n1-foundation-model]]"]
+related: ["[[concepts/world-models]]", "[[concepts/embodied-ai]]", "[[entities/nvidia-cosmos]]", "[[concepts/jepa]]", "[[concepts/humanoid-robots]]", "[[concepts/vision-language-action-models]]", "[[concepts/embodied-intelligence]]", "[[concepts/foundation-models-for-robotics]]", "[[concepts/autonomous-driving]]", "[[concepts/sim-to-real-transfer]]"]
 tags: [physical-AI, robotics, autonomous-driving, simulation, world-models]
 date_ingested: 2026-04-05
 last_compiled: 2026-04-05
@@ -45,8 +45,24 @@ NVIDIA's vision positions Cosmos as the foundation layer:
 
 Physical AI is the application domain driving [[concepts/world-models]] development. It requires [[concepts/embodied-ai]] principles for agents that interact with environments. [[concepts/jepa]] and [[concepts/latent-world-models]] provide the representation learning that makes simulation-based training feasible. The [[concepts/video-generation-as-world-simulation]] paradigm provides training data through synthetic video generation.
 
+## Deloitte 2026: Industry Definition and Deployment
+
+Deloitte's 2026 Tech Trends defines physical AI as "artificial intelligence systems enabling machines to autonomously perceive, understand, reason about, and interact with the physical world in real time." The distinction from traditional automation: "Automation alone doesn't make them revolutionary; rather, it's their capacity to bridge the gap between digital intelligence and the physical world."
+
+The technology stack rests on three pillars: (1) [[concepts/vision-language-action-models]] that adapt LLM training paradigms to physical world data, (2) onboard neural processing units for low-latency inference, and (3) advances in sensors, actuators, and spatial computing.
+
+Current commercial deployments include: [[entities/waymo]] (10M+ rides), Amazon (1M robots, DeepFleet AI), BMW (humanoid testing in factories), Aurora Innovation (autonomous freight), and GE HealthCare (autonomous imaging).
+
+UBS projects 2 million [[concepts/humanoid-robots]] in workplaces by 2035, 300 million by 2050, with TAM of $30-50B by 2035 growing to $1.4-1.7T by 2050.
+
+Six barriers remain: [[concepts/sim-to-real-transfer]] gap, AI safety in physical contexts, regulatory fragmentation, human acceptance, cybersecurity bridging digital/physical domains, and fleet orchestration across heterogeneous vendors.
+
+The convergence of [[concepts/agentic-ai]] with physical AI over the next decade will produce robots whose "brains" are agentic AIs -- capable of adapting to new environments, planning multi-step tasks, recovering from failure, and operating under uncertainty.
+
 ## Sources
 
 - [[sources/nvidia-cosmos-world-foundation]] — the platform for physical AI
 - [[sources/world-models-race-2026]] — industry landscape
 - [[sources/meta-v-jepa-2]] — V-JEPA 2 for robotic planning
+- [[sources/deloitte-physical-ai-humanoid-robots-2026]] — definitive industry analysis with market projections
+- [[sources/nvidia-isaac-groot-n1-foundation-model]] — NVIDIA's open humanoid robot foundation model
