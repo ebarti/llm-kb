@@ -1,0 +1,160 @@
+#!/bin/bash
+# kb — LLM Knowledge Base CLI
+#
+# A personal knowledge base powered by Claude CLI.
+# All operations are natural language prompts.
+#
+# Usage:
+#   ./kb "research transformers"       # search web, ingest, compile
+#   ./kb "ingest https://example.com"  # ingest specific URL
+#   ./kb "compile wiki"
+#   ./kb "what is X?"
+#   ./kb "create slides about Y"
+#   ./kb "lint"
+#   ./kb -i                            # interactive mode
+#   ./kb research <topic>              # shorthand for research
+#   ./kb ingest <url> [url2] ...       # shorthand for ingest
+
+set -euo pipefail
+
+KB_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$KB_DIR"
+
+# Colors
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+print_help() {
+    echo -e "${GREEN}kb${NC} — LLM Knowledge Base CLI"
+    echo ""
+    echo "Usage:"
+    echo "  ./kb \"<prompt>\"              Natural language prompt"
+    echo "  ./kb -i                       Interactive mode"
+    echo "  ./kb research \"<topic>\"       Research topic: web search → ingest → compile"
+    echo "  ./kb ingest <url> [urls...]   Ingest specific URLs into raw/"
+    echo "  ./kb compile                  Compile/update the wiki"
+    echo "  ./kb ask \"<question>\"         Ask a question"
+    echo "  ./kb lint                     Run health check + fill gaps from web"
+    echo "  ./kb search \"<query>\"         Search the wiki"
+    echo "  ./kb slides \"<topic>\"         Generate Marp slides"
+    echo ""
+    echo "Examples:"
+    echo "  ./kb research \"transformer architecture\"        # autonomous deep research"
+    echo "  ./kb \"build a KB about RLHF\"                    # same thing, natural language"
+    echo "  ./kb \"ingest https://arxiv.org/abs/2401.00001\"  # ingest specific URL"
+    echo "  ./kb \"what are the key themes across all sources?\""
+    echo "  ./kb lint                                        # find gaps, auto-fill from web"
+    echo "  ./kb search \"attention mechanism\""
+}
+
+# Ensure directories exist
+mkdir -p raw wiki/{_meta,concepts,sources,entities,comparisons} output/{reports,slides,images}
+
+# Handle special commands
+case "${1:-}" in
+    -h|--help|help)
+        print_help
+        exit 0
+        ;;
+    -i|--interactive)
+        echo -e "${BLUE}Starting interactive knowledge base session...${NC}"
+        exec claude
+        ;;
+    search)
+        shift
+        exec "$KB_DIR/tools/search.sh" "$@"
+        ;;
+    "")
+        print_help
+        exit 0
+        ;;
+esac
+
+# Build the prompt
+PROMPT=""
+
+# Handle shorthand commands
+case "$1" in
+    research)
+        shift
+        TOPIC="$*"
+        PROMPT="RESEARCH this topic for the knowledge base: $TOPIC
+
+Do a deep research pass:
+1. Read wiki/_meta/summaries.md to see what we already have
+2. Use WebSearch to find 5-15 high-quality sources (papers, articles, docs, blog posts) — run multiple searches from different angles
+3. For each good source found: fetch it with WebFetch, clean it to markdown, save to raw/
+4. After all sources are ingested, compile the wiki: create source summaries, concept articles, update the index and metadata
+5. Summarize what you found and added"
+        ;;
+    ingest)
+        shift
+        URLS="$*"
+        PROMPT="Ingest the following URLs into the knowledge base. For each URL: fetch the content, convert to clean markdown, save to raw/, then update the wiki. URLs: $URLS"
+        ;;
+    compile)
+        PROMPT="Compile/update the wiki from all raw sources. Process any new or changed raw files, update source summaries, concept articles, and the master index."
+        ;;
+    ask)
+        shift
+        PROMPT="Answer this question using the knowledge base: $*"
+        ;;
+    lint)
+        PROMPT="Run a comprehensive health check on the wiki AND actively fill gaps:
+1. Check for broken links, orphan articles, missing summaries, stale content, inconsistencies
+2. Identify thin concepts (backed by only 1 source) and knowledge gaps
+3. For each gap found: use WebSearch to find sources that could fill it, then WebFetch + ingest them into raw/
+4. Recompile the wiki with the new sources
+5. Save the full report to output/lint-report.md"
+        ;;
+    slides)
+        shift
+        PROMPT="Create a Marp slide deck about: $*. Save it to the output/slides/ directory. Use the wiki as the source material."
+        ;;
+    *)
+        # Treat everything as a natural language prompt
+        PROMPT="$*"
+        ;;
+esac
+
+# Run Claude with the prompt
+echo -e "${BLUE}kb${NC} → Processing: ${YELLOW}${PROMPT:0:100}${NC}..."
+echo ""
+
+# --print: non-interactive, print output and exit
+# --allowedTools: grant file and web access for autonomous operation
+# Permission mode can be overridden with KB_PERMISSION_MODE env var
+PERM_MODE="${KB_PERMISSION_MODE:-bypassPermissions}"
+
+# Run Claude, then auto-commit changes
+claude \
+    --print \
+    --permission-mode "$PERM_MODE" \
+    --model "${KB_MODEL:-sonnet}" \
+    "$PROMPT"
+
+EXIT_CODE=$?
+
+# Auto-commit if there are changes and we're in a git repo
+if git rev-parse --is-inside-work-tree &>/dev/null 2>&1; then
+    if ! git diff --quiet 2>/dev/null || [ -n "$(git ls-files --others --exclude-standard 2>/dev/null)" ]; then
+        # Build a short commit message from the operation
+        COMMIT_MSG="kb: ${1:-prompt}"
+        case "$1" in
+            research) COMMIT_MSG="kb: research — ${2:-topic}" ;;
+            ingest)   COMMIT_MSG="kb: ingest — ${2:-urls}" ;;
+            compile)  COMMIT_MSG="kb: compile wiki" ;;
+            lint)     COMMIT_MSG="kb: lint + gap fill" ;;
+            slides)   COMMIT_MSG="kb: generate slides — ${2:-topic}" ;;
+            ask)      COMMIT_MSG="kb: query — ${2:-question}" ;;
+            *)        COMMIT_MSG="kb: ${PROMPT:0:60}" ;;
+        esac
+        git add -A && git commit -q -m "$COMMIT_MSG" 2>/dev/null
+        echo ""
+        echo -e "${GREEN}git${NC} → committed: $COMMIT_MSG"
+    fi
+fi
+
+exit $EXIT_CODE
