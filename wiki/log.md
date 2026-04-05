@@ -368,3 +368,32 @@ Deep research pass on how to measure if an LLM-generated knowledge base is actua
 - Created 1 comparison: comparisons/mcp-vs-function-calling
 - Updated: entities/anthropic (added new sources), concepts/multi-agent-systems (added A2A and workflow patterns)
 - Updated: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+
+## [2026-04-05] research | AI product design, LLM-powered product UX, and human-AI collaboration interfaces for knowledge work
+- Motivation: Karpathy said "there is room here for an incredible new product" — this research explores what that product looks like from a design perspective
+- Searched 11 queries: AI product design patterns, human-AI collaboration interface, LLM UX best practices, AI copilot design patterns, conversational vs structured UI, AI transparency/explainability UX, knowledge management AI product design, Notion AI vs Obsidian AI, AI-native applications design, progressive disclosure AI complexity, trust calibration human-AI
+- Fetched 10 sources:
+  - shapeof-ai-ux-patterns (shapeof.ai — 57 AI UX patterns taxonomy)
+  - zhuo-conversational-interfaces (Julie Zhuo Substack — five problems with chat UI)
+  - smashing-practical-xai-ux (Smashing Magazine — practical XAI for UX)
+  - microsoft-copilot-ux-guidance (Microsoft Learn — copilot UX guidance)
+  - sapphire-ai-native-applications (Sapphire Ventures — 5-D AI-native framework)
+  - uxforai-12-llm-product-practices (UX for AI — 12 LLM product practices)
+  - schmidt-designing-human-ai-collaboration (Schema Design Studio — 5 principles)
+  - arxiv-interface-design-human-ai-decisions (arXiv 2501.16627 — engagement-overload paradox)
+  - progressive-disclosure-ai-pattern (AI UX Design Guide — progressive disclosure)
+  - projects-by-if-copilot-pattern (Projects by IF — copilot design pattern)
+- Ingested 9 raw files to raw/
+- Created 9 source summaries in wiki/sources/
+- Created 13 new concept articles: ai-ux-design-patterns, copilot-pattern, conversational-ui-vs-structured-ui, blank-page-problem, trust-in-ai, trust-calibration, human-ai-collaboration-design, progressive-disclosure-ai, explainable-ai-ux, personalization-in-ai, ai-native-design, collaborative-ux, llm-product-development
+- Created 5 new entity pages: julie-zhuo, figma, hax-toolkit, sapphire-ventures, shape-of-ai
+- Created 1 comparison: conversational-vs-structured-vs-hybrid-ai-ui
+- Updated 2 existing articles: knowledge-base-product-gap (added product design specifications section), human-in-the-loop (added UX patterns for HITL section)
+- Updated: _meta/summaries.md, _meta/manifest.md, log.md
+- Key findings:
+  1. Chat interfaces get to 70% but fail at refinement — hybrid UI (conversation + structured controls) is the winning pattern
+  2. Trust, not attention, is the true currency of AI products (Schmidt)
+  3. More explanation can paradoxically HARM performance — the engagement-overload paradox requires progressive disclosure (2-3 layers max)
+  4. 57 named AI UX patterns now cataloged across 6 categories (Shape of AI)
+  5. AI-native products are evaluated across 5 dimensions: Design, Data, Domain Expertise, Dynamism, Distribution
+  6. The "incredible new product" Karpathy envisions should be: Immersive focus (full-screen KB), hybrid UI, Wayfinder onboarding, trust-by-design with citations and progressive disclosure, personalization of how (not just what), and customer-as-trainer feedback loop

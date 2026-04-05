@@ -21,6 +21,18 @@ reading_time: "5 min"
 - [[sources/hn-vector-database-debate]] — HN debate: pgvector/FAISS suffice for most cases; vector DBs only justified at billion-vector scale
 - [[sources/graphiti-temporal-knowledge-graphs]] — Graphiti (Zep): temporal context graph framework with time-windowed facts for AI agents
 
+### History of AI Knowledge Representation (Research: 2026-04-05)
+- [[sources/wikipedia-knowledge-representation-reasoning]] — Comprehensive KR&R overview from 1959 GPS through frames, expert systems, Cyc, Semantic Web
+- [[sources/wikipedia-expert-systems]] — Expert systems: 1965 origins, 1980s boom, knowledge acquisition bottleneck, absorption into business rules
+- [[sources/wikipedia-symbolic-ai]] — Symbolic AI: two summers/winters, six neuro-symbolic integration architectures
+- [[sources/wikipedia-cyc]] — Cyc project: 40 years, $60M+, 24.5M assertions encoding common-sense knowledge
+- [[sources/outsiderart-cyc-forgotten-ai]] — Cyc as AI forgotten project: Lenat arc from AM/EURISKO through decline to Cyc+LLM vision
+- [[sources/wikipedia-as-we-may-think]] — Vannevar Bush 1945 Memex essay: ancestor of hypertext and personal knowledge management
+- [[sources/wikipedia-project-xanadu]] — Ted Nelson Project Xanadu (1960): first hypertext, bidirectional links, transclusion
+- [[sources/wikipedia-semantic-web]] — Semantic Web: RDF/OWL/SPARQL standards, enterprise adoption, mass-web failure
+- [[sources/llm-enhanced-knowledge-representation-survey]] — 2024 survey: LLMs enhancing knowledge graph embeddings (encoder/decoder/generative)
+- [[sources/llms-as-reliable-knowledge-bases]] — 2024 evaluation: LLMs achieve only ~32% consistent correctness as knowledge bases
+
 ### PKM Methodologies, Tools & AI Transformation (Research: 2026-04-05)
 - [[sources/forte-building-second-brain]] — Tiago Forte BASB: CODE workflow, PARA organization, Progressive Summarization
 - [[sources/matuschak-evergreen-notes]] — Andy Matuschak: five principles for durable, evolving knowledge work
@@ -406,6 +418,19 @@ reading_time: "5 min"
 - [[concepts/multi-agent-systems]] — Multi-agent LLM pipelines for knowledge extraction (KARMA, STORM)
 - [[concepts/automated-wiki-creation]] — STORM's single-shot multi-perspective Wikipedia article generation
 - [[concepts/cheap-ontology]] — LLM wikis as $10M→API-cost ontology democratization
+
+### Knowledge Representation History & Theory (Research: 2026-04-05)
+- [[concepts/knowledge-representation]] — 65+ years of encoding world knowledge for machines: logic, frames, rules, ontologies, KGs, LLMs
+- [[concepts/symbolic-ai]] — The paradigm (1950s-present): intelligence via symbol manipulation, logic, and rules
+- [[concepts/expert-systems]] — Rule-based AI (1965-1990s): if-then rules + inference engines, first commercially successful AI
+- [[concepts/symbolic-vs-connectionist]] — AI central debate: symbols vs. neural networks, resolving toward complementarity
+- [[concepts/neural-symbolic-integration]] — Six architectures combining symbolic reasoning with neural pattern recognition
+- [[concepts/ontology]] — Formal specification of domain concepts and relationships: from Cyc through OWL to cheap ontology
+- [[concepts/semantic-web]] — Tim Berners-Lee machine-readable web: RDF/OWL/SPARQL, partial success in enterprise
+- [[concepts/memex]] — Bush 1945 concept: personal knowledge store with associative trails
+- [[concepts/hypertext]] — Nonsequential linked documents: coined by Nelson (1965), realized by the web (1989)
+- [[concepts/transclusion]] — Nelson concept of including content by reference rather than copy
+- [[concepts/llms-as-knowledge-bases]] — Whether LLMs implicit parametric knowledge can replace traditional KBs (answer: no, ~32%)
 
 ### Knowledge Graphs, Embeddings & Graph Databases (Research: 2026-04-05)
 - [[concepts/graphrag]] — Graph-based RAG: LLM-extracted KGs with community detection and hierarchical summarization
@@ -859,3 +884,41 @@ reading_time: "5 min"
 - Total comparisons: 33
 - Total raw files: 128
 
+
+## AI Product Design & Human-AI Collaboration
+
+### Sources
+- [[sources/shapeof-ai-ux-patterns]]
+- [[sources/zhuo-conversational-interfaces]]
+- [[sources/smashing-practical-xai-ux]]
+- [[sources/microsoft-copilot-ux-guidance]]
+- [[sources/sapphire-ai-native-applications]]
+- [[sources/uxforai-12-llm-product-practices]]
+- [[sources/schmidt-designing-human-ai-collaboration]]
+- [[sources/arxiv-interface-design-human-ai-decisions]]
+- [[sources/progressive-disclosure-ai-pattern]]
+
+### Concepts
+- [[concepts/ai-ux-design-patterns]]
+- [[concepts/copilot-pattern]]
+- [[concepts/conversational-ui-vs-structured-ui]]
+- [[concepts/blank-page-problem]]
+- [[concepts/trust-in-ai]]
+- [[concepts/trust-calibration]]
+- [[concepts/human-ai-collaboration-design]]
+- [[concepts/progressive-disclosure-ai]]
+- [[concepts/explainable-ai-ux]]
+- [[concepts/personalization-in-ai]]
+- [[concepts/ai-native-design]]
+- [[concepts/collaborative-ux]]
+- [[concepts/llm-product-development]]
+
+### Entities
+- [[entities/julie-zhuo]]
+- [[entities/figma]]
+- [[entities/hax-toolkit]]
+- [[entities/sapphire-ventures]]
+- [[entities/shape-of-ai]]
+
+### Comparisons
+- [[comparisons/conversational-vs-structured-vs-hybrid-ai-ui]]

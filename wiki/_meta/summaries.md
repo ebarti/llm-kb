@@ -870,3 +870,42 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 
 ### Comparisons
 - [[comparisons/conversational-vs-structured-vs-hybrid-ai-ui]] — Three UI paradigms compared: chat excels at intent but fails at refinement; structured excels at precision; hybrid is the emerging winner.
+
+## Sources (Collective Intelligence & Collaborative Knowledge)
+
+- [[sources/brookings-ai-collective-intelligence]] — Brookings analysis: AI as translation engine bridging design-minded collaboration rooms and model-minded simulations for better collective problem-solving.
+- [[sources/cip-whitepaper-collective-intelligence]] — CIP whitepaper proposes collective intelligence mechanisms (quadratic voting, liquid democracy, citizens' assemblies) to escape the trilemma of progress vs. safety vs. participation in AI governance.
+- [[sources/wikiedu-ai-wikipedia-editing-2025]] — Wiki Education audit: 5.8% of articles AI-generated since 2022; two-thirds of AI-flagged articles failed verification; 87% of editors found AI helpful for research but not content generation.
+- [[sources/ai-in-wikimedia-projects]] — Comprehensive history of AI in Wikipedia: from rambot (2002) through ClueBot NG to the 2025-2026 LLM content generation crisis, policy battles, and the symbiotic-parasitic relationship between AI and Wikipedia.
+- [[sources/cip-generative-ai-digital-commons]] — CIP working paper: generative AI simultaneously depends on and threatens digital commons — identifies 7 risks and 3 governance proposals.
+- [[sources/cohumain-collective-intelligence-human-ai]] — Carnegie Mellon/Illinois: COHUMAIN framework with Transactive Systems Model (memory, attention, reasoning) for understanding when human-AI teams achieve collective intelligence vs. when AI undermines it.
+- [[sources/reeves-automated-wikipedia-content-review]] — Systematic review of 51 papers on automated Wikipedia content generation: five technical approaches, massive evaluation gap (only 4 of 51 engaged editors).
+- [[sources/federated-wiki-cunningham]] — Ward Cunningham's Federated Wiki: forking-based collaborative knowledge where multiple perspectives coexist ('chorus of voices').
+- [[sources/wisdom-of-the-crowd]] — Crowd wisdom: Galton's ox experiment, Surowiecki's conditions, Page's diversity prediction theorem, digital-era challenges.
+- [[sources/knowledge-commons-overview]] — Knowledge commons: non-subtractible shared resources, Hess/Ostrom governance, copyleft licensing, AI-era enclosure tension.
+
+## Concepts (Collective Intelligence & Collaborative Knowledge)
+
+- [[concepts/collective-intelligence]] — The capacity of groups to outperform individuals through diverse, independent contributions aggregated via structured mechanisms — now being fundamentally reshaped by AI.
+- [[concepts/wisdom-of-crowds]] — Aggregated independent judgments from diverse groups outperform individual experts — mathematically formalized by Page's Diversity Prediction Theorem.
+- [[concepts/wikipedia-knowledge-model]] — Wikipedia's collaborative editorial model — anyone can edit, consensus-driven, verifiability over truth — the most successful collective knowledge creation system, now under AI stress.
+- [[concepts/collaborative-knowledge-building]] — Structured group processes for creating shared knowledge — three paradigms: consensus (Wikipedia), plurality (Federated Wiki), accumulation (LLM-KB).
+- [[concepts/knowledge-commons]] — Collectively owned non-subtractible knowledge resources — now facing existential challenge as AI extracts value while degrading the ecosystem.
+- [[concepts/human-ai-collaboration]] — Human-AI teams for knowledge creation — COHUMAIN framework; sobering finding: human-only teams currently outperform human-AI teams in information sharing.
+- [[concepts/federated-knowledge]] — Distributed knowledge architectures: Cunningham's Federated Wiki ('chorus of voices'), Wikibase federation (underlays, overlays, interlace).
+- [[concepts/ai-generated-content-risks]] — Risks beyond hallucination: subtle misattribution, content homogenization, verification overwhelm, contribution displacement.
+- [[concepts/ai-alignment-democratic]] — Citizens' assemblies, quadratic voting, liquid democracy for AI alignment (CIP + Anthropic Collective Constitutional AI).
+- [[concepts/transactive-memory-systems]] — Distributed cognition architecture: who knows what, coordinated attention and reasoning — augmented and threatened by AI (COHUMAIN).
+- [[concepts/digital-commons-governance]] — Ostrom's principles applied to digital knowledge; AI-era governance gap; CIP's three governance proposals.
+
+## Entities (Collective Intelligence & Collaborative Knowledge)
+
+- [[entities/collective-intelligence-project]] — Nonprofit R&D lab (Siddarth, Huang) for CI mechanisms in AI governance — Collective Constitutional AI with Anthropic, Global Dialogues (70+ countries).
+- [[entities/ward-cunningham]] — Inventor of the wiki (1995) and Federated Wiki (2011) — 'a chorus of voices' via forking rather than consensus.
+- [[entities/wikipedia]] — World's largest collaboratively edited encyclopedia (60M+ articles) — paradigmatic CI and knowledge commons, navigating AI crisis.
+- [[entities/wikidata]] — Wikimedia's structured knowledge base — 100M+ items, SPARQL endpoint, linked to 7,500+ external databases.
+- [[entities/elinor-ostrom]] — Nobel Prize-winning commons governance theorist; framework adapted to digital knowledge commons by Hess.
+
+## Comparisons (Collective Intelligence & Collaborative Knowledge)
+
+- [[comparisons/consensus-vs-federated-vs-ai-knowledge]] — Wikipedia consensus vs Federated Wiki plurality vs AI-compiled knowledge: authority, diversity, verification, scalability.

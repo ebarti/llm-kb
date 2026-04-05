@@ -1921,3 +1921,95 @@ Pages with no incoming links:
 
 ### comparisons/ragas-vs-deepeval
 - ← [[entities/ragas]], [[entities/deepeval]]
+
+## sources/wikipedia-model-context-protocol
+← [[concepts/model-context-protocol]], [[concepts/mcp-security]], [[concepts/mcp-ecosystem]]
+→ [[concepts/model-context-protocol]], [[concepts/tool-use-standards]], [[concepts/function-calling]], [[entities/anthropic]], [[entities/agentic-ai-foundation]], [[concepts/json-rpc]]
+
+## sources/anthropic-mcp-announcement
+← [[concepts/model-context-protocol]], [[concepts/mcp-ecosystem]]
+→ [[concepts/model-context-protocol]], [[entities/anthropic]], [[concepts/mcp-ecosystem]]
+
+## sources/pento-year-of-mcp-review
+← [[concepts/model-context-protocol]], [[concepts/mcp-security]], [[concepts/mcp-ecosystem]]
+→ [[concepts/model-context-protocol]], [[entities/agentic-ai-foundation]], [[concepts/mcp-security]], [[concepts/mcp-ecosystem]]
+
+## sources/anthropic-mcp-linux-foundation
+← [[concepts/model-context-protocol]], [[concepts/mcp-ecosystem]]
+→ [[concepts/model-context-protocol]], [[entities/agentic-ai-foundation]], [[entities/anthropic]], [[concepts/mcp-ecosystem]]
+
+## sources/descope-mcp-vs-function-calling
+← [[concepts/model-context-protocol]], [[concepts/function-calling]], [[comparisons/mcp-vs-function-calling]]
+→ [[concepts/model-context-protocol]], [[concepts/function-calling]], [[comparisons/mcp-vs-function-calling]]
+
+## sources/zilliz-function-calling-vs-mcp-vs-a2a
+← [[concepts/model-context-protocol]], [[concepts/function-calling]], [[concepts/agent-to-agent-protocol]]
+→ [[concepts/model-context-protocol]], [[concepts/function-calling]], [[concepts/agent-to-agent-protocol]], [[concepts/tool-use-standards]]
+
+## sources/google-ai-agent-protocols
+← [[concepts/model-context-protocol]], [[concepts/agent-to-agent-protocol]]
+→ [[concepts/model-context-protocol]], [[concepts/agent-to-agent-protocol]], [[concepts/ai-agent-integration-patterns]], [[entities/google-adk]]
+
+## sources/composio-api-integration-patterns
+← [[concepts/ai-agent-integration-patterns]]
+→ [[concepts/ai-agent-integration-patterns]], [[concepts/model-context-protocol]], [[concepts/function-calling]], [[concepts/agent-to-agent-protocol]]
+
+## sources/anthropic-building-effective-agents
+← [[concepts/augmented-llm]], [[concepts/agentic-workflow-patterns]], [[concepts/tool-use-standards]]
+→ [[concepts/agentic-workflow-patterns]], [[concepts/tool-use-standards]], [[concepts/augmented-llm]], [[concepts/multi-agent-systems]]
+
+## sources/anthropic-code-execution-mcp
+← [[concepts/mcp-code-execution-pattern]]
+→ [[concepts/model-context-protocol]], [[concepts/mcp-code-execution-pattern]], [[concepts/augmented-llm]]
+
+## concepts/model-context-protocol (updated)
+← [[concepts/function-calling]], [[concepts/tool-use-standards]], [[concepts/mcp-ecosystem]], [[concepts/mcp-security]], [[concepts/agent-to-agent-protocol]], [[concepts/augmented-llm]], [[concepts/mcp-code-execution-pattern]], [[concepts/ai-agent-integration-patterns]], [[comparisons/mcp-vs-function-calling]], [[entities/agentic-ai-foundation]], [[entities/google-adk]], [[sources/wikipedia-model-context-protocol]], [[sources/anthropic-mcp-announcement]], [[sources/pento-year-of-mcp-review]], [[sources/anthropic-mcp-linux-foundation]], [[sources/descope-mcp-vs-function-calling]], [[sources/zilliz-function-calling-vs-mcp-vs-a2a]], [[sources/google-ai-agent-protocols]], [[sources/anthropic-code-execution-mcp]]
+→ [[entities/anthropic]], [[entities/agentic-ai-foundation]], [[concepts/function-calling]], [[concepts/tool-use-standards]], [[concepts/mcp-ecosystem]], [[concepts/mcp-security]], [[concepts/agent-to-agent-protocol]], [[concepts/augmented-llm]], [[concepts/mcp-code-execution-pattern]], [[comparisons/mcp-vs-function-calling]]
+
+## concepts/function-calling
+← [[concepts/model-context-protocol]], [[concepts/tool-use-standards]], [[concepts/ai-agent-integration-patterns]], [[comparisons/mcp-vs-function-calling]]
+→ [[concepts/model-context-protocol]], [[concepts/tool-use-standards]], [[concepts/augmented-llm]], [[concepts/ai-agent-integration-patterns]], [[comparisons/mcp-vs-function-calling]]
+
+## concepts/tool-use-standards
+← [[concepts/model-context-protocol]], [[concepts/function-calling]], [[concepts/mcp-security]]
+→ [[concepts/model-context-protocol]], [[concepts/function-calling]], [[concepts/agent-to-agent-protocol]], [[concepts/augmented-llm]], [[concepts/agentic-workflow-patterns]], [[concepts/mcp-security]]
+
+## concepts/mcp-ecosystem
+← [[concepts/model-context-protocol]]
+→ [[concepts/model-context-protocol]], [[concepts/tool-use-standards]], [[entities/agentic-ai-foundation]]
+
+## concepts/mcp-security
+← [[concepts/model-context-protocol]], [[concepts/mcp-code-execution-pattern]]
+→ [[concepts/model-context-protocol]], [[concepts/hallucination-contamination]], [[concepts/tool-use-standards]], [[concepts/function-calling]]
+
+## concepts/agent-to-agent-protocol
+← [[concepts/model-context-protocol]], [[concepts/tool-use-standards]], [[concepts/multi-agent-systems]]
+→ [[concepts/model-context-protocol]], [[concepts/multi-agent-systems]], [[concepts/tool-use-standards]], [[concepts/agentic-workflow-patterns]]
+
+## concepts/augmented-llm
+← [[concepts/model-context-protocol]], [[concepts/agentic-workflow-patterns]]
+→ [[concepts/model-context-protocol]], [[concepts/tool-use-standards]], [[concepts/agentic-workflow-patterns]], [[concepts/multi-agent-systems]], [[concepts/llm-knowledge-base]], [[concepts/rag-vs-index-based-retrieval]], [[concepts/mcp-code-execution-pattern]]
+
+## concepts/agentic-workflow-patterns
+← [[concepts/augmented-llm]], [[concepts/tool-use-standards]]
+→ [[concepts/augmented-llm]], [[concepts/multi-agent-systems]], [[concepts/model-context-protocol]], [[concepts/agent-to-agent-protocol]], [[concepts/tool-use-standards]]
+
+## concepts/ai-agent-integration-patterns
+← [[concepts/function-calling]]
+→ [[concepts/model-context-protocol]], [[concepts/function-calling]], [[concepts/agent-to-agent-protocol]], [[concepts/tool-use-standards]]
+
+## concepts/mcp-code-execution-pattern
+← [[concepts/model-context-protocol]]
+→ [[concepts/model-context-protocol]], [[concepts/augmented-llm]], [[concepts/mcp-security]], [[concepts/mcp-ecosystem]]
+
+## entities/agentic-ai-foundation
+← [[concepts/model-context-protocol]], [[concepts/mcp-ecosystem]]
+→ [[concepts/model-context-protocol]], [[entities/anthropic]], [[concepts/mcp-ecosystem]]
+
+## entities/google-adk
+← (none)
+→ [[concepts/model-context-protocol]], [[concepts/agent-to-agent-protocol]], [[concepts/agentic-workflow-patterns]]
+
+## comparisons/mcp-vs-function-calling
+← [[concepts/model-context-protocol]], [[concepts/function-calling]]
+→ [[concepts/model-context-protocol]], [[concepts/function-calling]]

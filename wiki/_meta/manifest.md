@@ -222,3 +222,13 @@ Tracks which raw files have been compiled into the wiki.
 | `raw/pkm-tools-comparison-2026.md` | compiled | 2026-04-05 |
 | `raw/llms-for-knowledge-work-arxiv.md` | compiled | 2026-04-05 |
 | `raw/spaced-repetition-knowledge-management.md` | compiled | 2026-04-05 |
+| `raw/brookings-ai-collective-intelligence.md` | compiled | 2026-04-05 |
+| `raw/cip-whitepaper-collective-intelligence.md` | compiled | 2026-04-05 |
+| `raw/wikiedu-ai-wikipedia-editing-2025.md` | compiled | 2026-04-05 |
+| `raw/ai-in-wikimedia-projects.md` | compiled | 2026-04-05 |
+| `raw/cip-generative-ai-digital-commons.md` | compiled | 2026-04-05 |
+| `raw/cohumain-collective-intelligence-human-ai.md` | compiled | 2026-04-05 |
+| `raw/reeves-automated-wikipedia-content-review.md` | compiled | 2026-04-05 |
+| `raw/federated-wiki-cunningham.md` | compiled | 2026-04-05 |
+| `raw/wisdom-of-the-crowd.md` | compiled | 2026-04-05 |
+| `raw/knowledge-commons-overview.md` | compiled | 2026-04-05 |
