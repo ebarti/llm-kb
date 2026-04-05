@@ -1,8 +1,8 @@
 ---
 title: "Test-Time Compute Scaling"
 type: concept
-sources: ["[[sources/snell-test-time-compute-scaling]]", "[[sources/raschka-state-of-reasoning-inference]]", "[[sources/anthropic-extended-thinking]]", "[[sources/adaline-inside-reasoning-models]]"]
-related: ["[[concepts/reasoning-models]]", "[[concepts/process-reward-models]]", "[[concepts/chain-of-thought]]", "[[concepts/self-consistency]]", "[[concepts/llm-reasoning]]"]
+sources: ["[[sources/snell-test-time-compute-scaling]]", "[[sources/raschka-state-of-reasoning-inference]]", "[[sources/anthropic-extended-thinking]]", "[[sources/adaline-inside-reasoning-models]]", "[[sources/zhang-test-time-scaling-survey]]", "[[sources/agarwal-art-of-scaling-test-time-compute]]", "[[sources/roberts-train-to-test-scaling-laws]]", "[[sources/wu-inference-scaling-laws]]", "[[sources/emergehaus-test-time-compute-overview]]", "[[sources/introl-inference-time-scaling-paradigm-shift]]", "[[sources/iacobacci-thinking-budget-not-enough]]", "[[sources/chen-deep-thinking-tokens]]"]
+related: ["[[concepts/reasoning-models]]", "[[concepts/process-reward-models]]", "[[concepts/chain-of-thought]]", "[[concepts/self-consistency]]", "[[concepts/llm-reasoning]]", "[[concepts/inference-scaling-laws]]", "[[concepts/training-vs-inference-compute]]", "[[concepts/adaptive-compute-allocation]]", "[[concepts/best-of-n-sampling]]", "[[concepts/mcts-llm-reasoning]]", "[[concepts/latent-reasoning]]", "[[concepts/test-time-training]]", "[[concepts/reasoning-tokens]]"]
 last_compiled: 2026-04-05
 summary: "The paradigm of allocating additional computation at inference time (rather than training time) to improve reasoning -- enabling small models to outperform 14x larger models and forming the computational foundation of reasoning models like o1, o3, and R1."
 ---

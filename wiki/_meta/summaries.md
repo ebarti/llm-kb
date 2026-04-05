@@ -1192,6 +1192,15 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 - [[sources/chinchilla-scaling-laws]] — 20:1 token/parameter ratio; 70B Chinchilla beats 280B Gopher, 175B GPT-3 on same compute.
 - [[sources/unite-ai-bert-gpt-t5-comparison]] — BERT (encoder-only, bidirectional), GPT (decoder-only, causal), T5 (enc-dec, text-to-text).
 - [[sources/moe-models-comparison-2025]] — 2025 MoE specs: DeepSeek-R1 671B/37B, Llama 4 400B/17B, Qwen3 235B/22B.
+- [[sources/attention-mechanisms-comprehensive-survey]] — 2026 arXiv survey: attention history (Bahdanau 2014 to Transformers), scoring function comparison, O(n^2*d) self-attention properties, multi-head specialization.
+- [[sources/flashattention-3-tri-dao-blog]] — Tri Dao's FlashAttention-3 blog: async warp specialization + FP8 incoherent processing achieves 740 TFLOPS (75% H100 utilization).
+- [[sources/streamingllm-attention-sinks]] — MIT HAN Lab ICLR 2024: attention sinks phenomenon; StreamingLLM preserves 4 sink tokens + rolling window for 4M+ token generation with 22.2x speedup.
+- [[sources/retro-illustrated-retrieval-transformer]] — Jay Alammar's RETRO: 7.5B params matching GPT-3 (185B) via 2T-token retrieval database with chunked cross-attention.
+- [[sources/differentiable-neural-computers-deepmind]] — DeepMind DNC: neural controller + external memory via differentiable attention, temporal linking, graph navigation and multi-step reasoning.
+- [[sources/mamba-visual-guide-grootendorst]] — Grootendorst: SSM fundamentals, LTI limitation, Mamba selective mechanism (input-dependent B, C, delta), hardware-aware parallel scan.
+- [[sources/knowledge-circuits-transformers-research]] — NeurIPS 2024: MLPs store facts as key-value memories, attention heads route information — fact-storing MLPs are modular and swappable.
+- [[sources/kv-caching-huggingface-explained]] — Hugging Face: KV caching 5.21x speedup (11.7s vs 61s for 300 tokens on T4 GPU).
+- [[sources/gqa-grouped-query-attention-overview]] — IBM: GQA generalizes MHA/MQA, 90% KV cache reduction, 30-40% faster inference, uptrain at 5% compute.
 
 ### Concepts
 - [[concepts/transformer-architecture]] — The foundational NN architecture based on attention, powering all frontier LLMs since 2017.
@@ -1341,3 +1350,41 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 
 - [[comparisons/heuristic-vs-neural-content-extraction]] — Heuristic (fast, free, 90%+ pages) vs neural (ROUGE-L 0.86, needs GPU) content extraction — hybrid recommended.
 - [[comparisons/crawl4ai-vs-firecrawl]] — Open-source Crawl4AI (free, BM25 filtering) vs SaaS Firecrawl (managed, integrated).
+
+## Sources (LLM Applications Beyond Code)
+
+- [[sources/hbr-llms-unlock-creative-ideas]] -- HBR research: LLMs unlock creativity via persistence and flexibility, but group-level diversity paradoxically narrows; four AI ideation roles proposed.
+- [[sources/assemblyai-llm-use-cases-2026]] -- Seven primary LLM use cases in 2026: spoken data analysis, content creation, customer support, translation, sentiment, education, cybersecurity — with 40-70% task time reductions.
+- [[sources/frontiers-ai-lab-automation-scientific-discovery]] -- Hartung review: AI transitioning from co-pilot to lab-pilot — AlphaFold (Nobel Prize), halicin (novel antibiotic), ISM001-055 (first AI drug Phase II), autonomous labs.
+- [[sources/pmc-llms-healthcare-medical-review]] -- Comprehensive review of 7 healthcare LLM domains; GPT-4 at 93.1% on USMLE; Med-PaLM 2 +19% on MultiMedQA; critical hallucination and bias challenges.
+- [[sources/ai-deep-research-tools-2026]] -- Comparative review of 7 AI research tools: Perplexity, Elicit, Consensus, Scite (1.2B citations), Research Rabbit; best practice is multi-tool composition.
+- [[sources/mergen-llm-data-analysis-automation]] -- PMC study on mergen R package: LLM code correctness drops from 88% (simple) to 0% (complex); self-correction loops improve by up to 52.5%.
+- [[sources/emergentmind-llm-tutoring-solutions]] -- Survey of LLM tutoring systems: Physics-STAR (100% score increase), Tutorly (+15pp), AgentTutor (+24-30pp); IRT and Bayesian mastery tracking.
+- [[sources/microsoft-research-ai-2026-frontiers]] -- Microsoft Research 20 AI frontiers for 2026: AI lab assistants, EvoDiff protein design, virtual patients, interactive storytelling, agentic media, inclusive innovation.
+- [[sources/gavel-law-firm-llm-guide-2026]] -- Legal LLM adoption surged 19% to 79% in one year; three use cases (document review, drafting, research) with Everlaw, Luminance, Casetext.
+- [[sources/science-advances-ai-creativity-diversity-paradox]] -- Science Advances: AI-assisted stories rated more creative but more similar to each other; individual improvement vs collective homogenization.
+
+## Concepts (LLM Applications Beyond Code)
+
+- [[concepts/llm-applications-beyond-code]] -- The expanding frontier of LLM applications across writing, research, education, science, healthcare, law — Karpathy's 'knowledge manipulation' shift applied to all professional domains.
+- [[concepts/ai-scientific-discovery]] -- AI's transition from co-pilot to lab-pilot: AlphaFold (Nobel), halicin, ISM001-055, GNoME (380K crystals), autonomous laboratories.
+- [[concepts/llm-healthcare-applications]] -- Seven healthcare LLM domains: clinical decision support, education, patient care, literature, drug discovery, radiology, documentation.
+- [[concepts/llm-education-tutoring]] -- LLM tutoring systems achieving significant learning gains via IRT models, Bayesian mastery tracking, and multi-agent architectures.
+- [[concepts/llm-creative-applications]] -- LLMs for creative writing, ideation, storytelling; Gemini 3 Pro #1 LM Arena creative writing; Claude Opus 4.6 tops Mazur Writing Benchmark.
+- [[concepts/llm-legal-applications]] -- Legal AI adoption from 19% to 79% in one year; document review, drafting, research; lawyer role transformation mirrors developer shift.
+- [[concepts/ai-creativity-paradox]] -- AI improves individual creative output while reducing collective diversity — empirically demonstrated in Science Advances with implications for all knowledge domains.
+- [[concepts/llm-data-analysis]] -- LLMs for natural language to code translation; critical executability-correctness gap (88% correct simple, 0% complex); self-correction loops most effective.
+- [[concepts/ai-research-assistants]] -- 2026 research tool ecosystem: Perplexity (discover), Elicit (synthesize), Consensus (validate), Scite (verify), Research Rabbit (explore).
+
+## Entities (LLM Applications Beyond Code)
+
+- [[entities/perplexity-ai]] -- AI research tool providing citation-backed answers with real-time web search; gold standard for fast multi-source discovery.
+- [[entities/elicit]] -- AI literature review tool with customizable comparison tables and structured data extraction from peer-reviewed sources.
+- [[entities/scite]] -- Citation analysis tool with 1.2B citation statements from 187M+ articles; Smart Citations classify as supporting/contrasting/mentioning.
+- [[entities/alphafold]] -- DeepMind's Nobel Prize-winning protein structure prediction system; 200M+ predicted structures; landmark AI-for-science achievement.
+- [[entities/med-palm]] -- Google's medical LLM family; Med-PaLM 2 +19% on MultiMedQA; first LLM to reach expert-level on medical licensing exams.
+- [[entities/everlaw]] -- AI-powered e-discovery and document analysis platform for legal teams.
+
+## Comparisons (LLM Applications Beyond Code)
+
+- [[comparisons/coding-vs-knowledge-work-llm-applications]] -- Code generation vs knowledge work LLM applications: shared patterns (automation to orchestration), different maturity, convergence toward knowledge orchestration.

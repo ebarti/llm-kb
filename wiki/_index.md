@@ -1243,3 +1243,41 @@ reading_time: "5 min"
 - [[entities/llm-c]] — LLM training in pure C/CUDA
 - [[entities/fei-fei-li]] — Stanford professor, ImageNet creator, Karpathy's PhD advisor
 - [[entities/tesla]] — EV/AI company, Karpathy was Director of AI (2017-2022)
+
+---
+
+## LLM Applications Beyond Code
+
+### Sources
+- [[sources/hbr-llms-unlock-creative-ideas]] — HBR: LLMs unlock creativity via persistence and flexibility
+- [[sources/assemblyai-llm-use-cases-2026]] — Seven primary LLM use cases in 2026
+- [[sources/frontiers-ai-lab-automation-scientific-discovery]] — AI as lab-pilot for scientific discovery
+- [[sources/pmc-llms-healthcare-medical-review]] — LLMs in healthcare: seven application domains
+- [[sources/ai-deep-research-tools-2026]] — Seven best AI research tools in 2026
+- [[sources/mergen-llm-data-analysis-automation]] — LLMs for data analysis automation
+- [[sources/emergentmind-llm-tutoring-solutions]] — LLM-powered tutoring solutions survey
+- [[sources/microsoft-research-ai-2026-frontiers]] — Microsoft Research AI frontiers for 2026
+- [[sources/gavel-law-firm-llm-guide-2026]] — Small law firm AI guide
+- [[sources/science-advances-ai-creativity-diversity-paradox]] — AI creativity paradox: individual vs. collective
+
+### Concepts
+- [[concepts/llm-applications-beyond-code]] — The expanding frontier of LLM applications
+- [[concepts/ai-scientific-discovery]] — AI for science: co-pilot to lab-pilot
+- [[concepts/llm-healthcare-applications]] — Seven healthcare LLM domains
+- [[concepts/llm-education-tutoring]] — LLM-powered tutoring and personalized learning
+- [[concepts/llm-creative-applications]] — LLMs for creative writing, ideation, storytelling
+- [[concepts/llm-legal-applications]] — LLMs in legal practice
+- [[concepts/ai-creativity-paradox]] — Individual improvement vs. collective homogenization
+- [[concepts/llm-data-analysis]] — LLMs for automated data analysis
+- [[concepts/ai-research-assistants]] — AI research tool ecosystem
+
+### Entities
+- [[entities/perplexity-ai]] — AI research tool with citation-backed search
+- [[entities/elicit]] — AI literature review tool
+- [[entities/scite]] — Citation analysis with 1.2B statements
+- [[entities/alphafold]] — Nobel Prize-winning protein structure prediction
+- [[entities/med-palm]] — Google's medical LLM family
+- [[entities/everlaw]] — AI-powered legal document analysis
+
+### Comparisons
+- [[comparisons/coding-vs-knowledge-work-llm-applications]] — Code generation vs. knowledge work LLM applications

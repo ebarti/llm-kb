@@ -2643,3 +2643,98 @@ Pages with no incoming links:
 ### comparisons/vibe-coding-vs-agentic-engineering
 ← (none)
 → [[concepts/vibe-coding]], [[concepts/agentic-coding]], [[concepts/software-2-0]], [[concepts/ai-code-generation]], [[concepts/post-code-ai-workflow]], [[concepts/ai-productivity-paradox]], [[entities/andrej-karpathy]]
+
+## Web Scraping, Content Extraction & Ingest Pipeline
+
+### sources/web-scraping-best-practices-2026
+→ [[concepts/web-scraping-at-scale]], [[concepts/web-scraping-ethics-and-law]], [[concepts/anti-bot-evasion]]
+
+### sources/mozilla-readability-algorithm
+→ [[concepts/content-extraction]], [[concepts/boilerplate-removal]], [[entities/mozilla-readability]], [[concepts/html-to-markdown-conversion]]
+
+### sources/trafilatura-web-extraction
+→ [[concepts/content-extraction]], [[concepts/boilerplate-removal]], [[entities/trafilatura]], [[concepts/html-to-markdown-conversion]]
+
+### sources/jina-reader-lm-html-to-markdown
+→ [[concepts/html-to-markdown-conversion]], [[concepts/content-extraction]], [[entities/jina-reader]], [[entities/reader-lm]], [[entities/mozilla-readability]]
+
+### sources/crawl4ai-llm-web-crawler
+→ [[concepts/web-scraping-at-scale]], [[concepts/content-extraction]], [[entities/crawl4ai]], [[entities/firecrawl]], [[concepts/anti-bot-evasion]]
+
+### sources/web-scraping-legality-ethics-2025
+→ [[concepts/web-scraping-ethics-and-law]], [[concepts/web-scraping-at-scale]]
+
+### sources/python-scraping-tools-comparison
+→ [[concepts/web-scraping-at-scale]], [[entities/playwright]], [[entities/scrapy]], [[entities/beautiful-soup]]
+
+### sources/schema-org-structured-data
+→ [[concepts/structured-data-extraction]], [[concepts/content-extraction]]
+
+### sources/web-archiving-warc-tools
+→ [[concepts/web-archiving]], [[concepts/content-extraction]], [[concepts/plain-text-longevity]]
+
+### concepts/content-extraction
+← [[sources/mozilla-readability-algorithm]], [[sources/trafilatura-web-extraction]], [[sources/jina-reader-lm-html-to-markdown]], [[sources/crawl4ai-llm-web-crawler]], [[sources/schema-org-structured-data]]
+→ [[concepts/boilerplate-removal]], [[concepts/html-to-markdown-conversion]], [[concepts/web-scraping-at-scale]], [[concepts/structured-data-extraction]], [[entities/mozilla-readability]], [[entities/trafilatura]], [[entities/reader-lm]]
+
+### concepts/boilerplate-removal
+← [[sources/mozilla-readability-algorithm]], [[sources/trafilatura-web-extraction]], [[concepts/content-extraction]]
+→ [[concepts/content-extraction]], [[concepts/html-to-markdown-conversion]], [[concepts/data-quality-bottleneck]], [[entities/mozilla-readability]], [[entities/trafilatura]], [[entities/reader-lm]]
+
+### concepts/html-to-markdown-conversion
+← [[sources/jina-reader-lm-html-to-markdown]], [[sources/crawl4ai-llm-web-crawler]], [[concepts/content-extraction]]
+→ [[concepts/content-extraction]], [[concepts/markdown-as-universal-interface]], [[concepts/markdown-for-ai-agents]], [[entities/reader-lm]], [[entities/crawl4ai]], [[entities/pandoc]]
+
+### concepts/web-scraping-ethics-and-law
+← [[sources/web-scraping-legality-ethics-2025]], [[sources/web-scraping-best-practices-2026]]
+→ [[concepts/web-scraping-at-scale]], [[concepts/content-extraction]]
+
+### concepts/anti-bot-evasion
+← [[sources/web-scraping-best-practices-2026]], [[sources/crawl4ai-llm-web-crawler]]
+→ [[concepts/web-scraping-at-scale]], [[concepts/web-scraping-ethics-and-law]], [[entities/playwright]], [[entities/crawl4ai]]
+
+### concepts/structured-data-extraction
+← [[sources/schema-org-structured-data]], [[concepts/content-extraction]]
+→ [[concepts/content-extraction]], [[concepts/information-extraction]]
+
+### concepts/web-archiving
+← [[sources/web-archiving-warc-tools]]
+→ [[concepts/content-extraction]], [[concepts/plain-text-longevity]], [[concepts/file-over-app]], [[concepts/document-processing-pipeline]]
+
+### entities/mozilla-readability
+← [[sources/mozilla-readability-algorithm]], [[concepts/content-extraction]], [[concepts/boilerplate-removal]]
+→ [[concepts/content-extraction]], [[concepts/boilerplate-removal]], [[entities/jina-reader]]
+
+### entities/trafilatura
+← [[sources/trafilatura-web-extraction]], [[concepts/content-extraction]]
+→ [[concepts/content-extraction]], [[concepts/boilerplate-removal]], [[entities/mozilla-readability]]
+
+### entities/jina-reader
+← [[sources/jina-reader-lm-html-to-markdown]], [[concepts/html-to-markdown-conversion]]
+→ [[entities/reader-lm]], [[entities/mozilla-readability]], [[concepts/content-extraction]]
+
+### entities/reader-lm
+← [[sources/jina-reader-lm-html-to-markdown]], [[concepts/html-to-markdown-conversion]], [[concepts/content-extraction]]
+→ [[concepts/html-to-markdown-conversion]], [[entities/jina-reader]]
+
+### entities/crawl4ai
+← [[sources/crawl4ai-llm-web-crawler]], [[concepts/web-scraping-at-scale]]
+→ [[entities/firecrawl]], [[entities/playwright]], [[concepts/web-scraping-at-scale]]
+
+### entities/playwright
+← [[sources/python-scraping-tools-comparison]], [[concepts/anti-bot-evasion]]
+→ [[concepts/web-scraping-at-scale]], [[entities/crawl4ai]], [[entities/scrapy]]
+
+### entities/scrapy
+← [[sources/python-scraping-tools-comparison]]
+→ [[concepts/web-scraping-at-scale]], [[entities/playwright]]
+
+### entities/beautiful-soup
+← [[sources/python-scraping-tools-comparison]]
+→ [[concepts/content-extraction]], [[entities/scrapy]], [[entities/playwright]]
+
+### comparisons/heuristic-vs-neural-content-extraction
+→ [[concepts/content-extraction]], [[entities/mozilla-readability]], [[entities/trafilatura]], [[entities/reader-lm]]
+
+### comparisons/crawl4ai-vs-firecrawl
+→ [[entities/crawl4ai]], [[entities/firecrawl]]
