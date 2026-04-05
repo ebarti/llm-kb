@@ -44,9 +44,11 @@ print_help() {
     echo "  ./kb research \"transformer architecture\"        # autonomous deep research"
     echo "  ./kb \"build a KB about RLHF\"                    # same thing, natural language"
     echo "  ./kb \"ingest https://arxiv.org/abs/2401.00001\"  # ingest specific URL"
-    echo "  ./kb \"what are the key themes across all sources?\""
+    echo "  ./kb ask \"what are the key themes?\"             # Q&A over the wiki"
     echo "  ./kb lint                                        # find gaps, auto-fill from web"
-    echo "  ./kb search \"attention mechanism\""
+    echo "  ./kb search \"attention mechanism\"               # full-text search"
+    echo ""
+    echo "All operations auto-commit to git."
 }
 
 # Ensure directories exist
