@@ -909,3 +909,183 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 ## Comparisons (Collective Intelligence & Collaborative Knowledge)
 
 - [[comparisons/consensus-vs-federated-vs-ai-knowledge]] — Wikipedia consensus vs Federated Wiki plurality vs AI-compiled knowledge: authority, diversity, verification, scalability.
+
+## Sources (Obsidian as Knowledge Platform, Research: 2026-04-05)
+- [[sources/dsebastien-obsidian-plugins-2026]] — Comprehensive guide to 75+ Obsidian plugins organized by category — identifies Dataview, Templater, and QuickAdd as the foundational trio for power users.
+- [[sources/stephango-file-over-app]] — Steph Ango's manifesto for digital longevity: files you control in open formats outlast any app — Obsidian is built on this principle.
+- [[sources/stephango-vault-organization]] — Steph Ango's personal vault structure: flat folders, profuse internal links, fractal journaling, 7-point rating system, and bottom-up emergent organization.
+- [[sources/stephango-dialectic-interview]] — Deep interview with Obsidian CEO: five company principles (independence, no investors, small team, privacy, data durability), design as care, constraints as creativity.
+- [[sources/nxcode-obsidian-ai-second-brain-2026]] — Complete 2026 guide to AI-powered Obsidian: Smart Connections, Copilot, Claude Code + MCP integration, context engineering principles.
+- [[sources/systemsculpt-obsidian-ai-plugins-2026]] — Workflow-first evaluation of four AI plugin categories: governed workflows, inbox organization, agent autonomy, and local retrieval.
+- [[sources/obsidian-copilot-overview]] — Copilot for Obsidian: model-agnostic AI assistant with vault RAG, project workspaces, diff-preview composer, and 100K+ users — all data stored as plain markdown.
+- [[sources/pkm-comparison-obsidian-notion-logseq]] — 2026 three-way PKM comparison: Obsidian dominates for solo knowledge workers (local, 200ms, free), Notion for teams (cloud, real-time), Logseq for open-source block-based outlining.
+
+### Concepts (Obsidian as Knowledge Platform)
+- [[concepts/obsidian-plugin-ecosystem]] — Obsidian's 2,700+ community plugin ecosystem transforms a markdown editor into a programmable knowledge platform.
+- [[concepts/obsidian-ai-integration]] — Two paradigms for AI in Obsidian: plugin-based (Copilot, Smart Connections) and external-agent (Claude Code + MCP) — converging toward governed autonomous vault operations.
+- [[concepts/file-over-app]] — (Updated) Steph Ango's philosophy that files in open formats outlast any application — now enriched with Dialectic interview insights on civilizational stance and company principles.
+- [[concepts/vault-organization]] — Strategies for organizing Obsidian vaults: flat+links (Ango), PARA, MOCs, AI-optimized architectures.
+- [[concepts/obsidian-frontmatter-properties]] — YAML frontmatter properties in Obsidian: enabling Dataview queries, AI retrieval, search filtering, and database-like views via Bases.
+- [[concepts/obsidian-graph-view]] — Graph visualization of vault link structure for pattern discovery, orphan detection, and compilation quality verification.
+- [[concepts/obsidian-canvas]] — Infinite spatial boards for mapping notes, media, and ideas — enhanced by Advanced Canvas plugin.
+
+### Entities (Obsidian as Knowledge Platform)
+- [[entities/obsidian-copilot]] — The #1 downloaded AI plugin for Obsidian (100K+ users): model-agnostic chat, vault RAG, project workspaces — all data as markdown.
+- [[entities/smart-connections]] — Leading free Obsidian AI plugin using RAG to enable conversational queries across the entire vault.
+- [[entities/templater]] — Obsidian's advanced templating plugin (230K+ installs): dynamic variables, JavaScript execution, file manipulation.
+- [[entities/excalidraw]] — The most-downloaded Obsidian community plugin: full-featured freehand drawing and diagramming.
+
+### Sources (History of AI Knowledge Representation)
+- [[sources/wikipedia-knowledge-representation-reasoning]] — Comprehensive KR&R overview from 1959 GPS through frames, expert systems, Cyc, and Semantic Web.
+- [[sources/wikipedia-expert-systems]] — Expert systems: 1965 origins, 1980s boom (2/3 Fortune 500), knowledge acquisition bottleneck, absorption into business rules.
+- [[sources/wikipedia-symbolic-ai]] — Symbolic AI: two summers/winters, neats vs. scruffies, six neuro-symbolic integration architectures.
+- [[sources/wikipedia-cyc]] — Cyc project: 40 years, $60M+, 1.5M terms, 24.5M assertions of common-sense knowledge in CycL.
+- [[sources/outsiderart-cyc-forgotten-ai]] — Narrative of Doug Lenat's Cyc: from AM/EURISKO through 40 years of encoding to deep learning eclipse and final Cyc+LLM vision.
+- [[sources/wikipedia-as-we-may-think]] — Vannevar Bush's 1945 Atlantic essay proposing the Memex with associative trails — conceptual ancestor of hypertext, the web, and PKM.
+- [[sources/wikipedia-project-xanadu]] — Ted Nelson's Project Xanadu (1960-present): first hypertext, bidirectional links, transclusion — "longest-running vaporware."
+- [[sources/wikipedia-semantic-web]] — Tim Berners-Lee's Semantic Web: RDF/OWL/SPARQL layer cake, enterprise adoption, but mass-web failure due to formalization overhead.
+- [[sources/llm-enhanced-knowledge-representation-survey]] — 2024 survey: three-part taxonomy of LLM-enhanced KG embeddings (encoder/encoder-decoder/decoder), trend toward generative approaches.
+- [[sources/llms-as-reliable-knowledge-bases]] — 2024 evaluation: best LLM achieves only 32% consistently correct as KB; motivates hybrid structured+neural approaches.
+
+### Concepts (History of AI Knowledge Representation)
+- [[concepts/knowledge-representation]] — 65+ years of encoding world knowledge for machines: logic, frames, rules, ontologies, KGs, LLM parametric knowledge.
+- [[concepts/symbolic-ai]] — The paradigm (1950s-present): intelligence via symbol manipulation and logic — dominant through 1980s, eclipsed by deep learning, resurging via hybrid approaches.
+- [[concepts/expert-systems]] — Rule-based AI (1965-1990s): if-then knowledge bases + inference engines — first commercial AI success, killed by knowledge acquisition bottleneck.
+- [[concepts/symbolic-vs-connectionist]] — AI's central paradigm war: symbols vs. neural networks — resolving toward System 1/System 2 complementarity.
+- [[concepts/neural-symbolic-integration]] — Six architectures for combining symbolic reasoning with neural pattern recognition, from LLM tokens to tool-using agents.
+- [[concepts/ontology]] — Formal specification of domain concepts: from Cyc's 1.5M terms through OWL to LLM-era "cheap ontology."
+- [[concepts/semantic-web]] — Berners-Lee's machine-readable web (1994-present): RDF/OWL/SPARQL — succeeded in enterprise, failed on public web.
+- [[concepts/memex]] — Bush's 1945 hypothetical device for personal knowledge with associative trails — ancestor of hypertext and the web.
+- [[concepts/hypertext]] — Nonsequential linked text: coined by Ted Nelson (1965), partially realized by the web (1989), foundational to wiki KBs.
+- [[concepts/transclusion]] — Nelson's concept of live content inclusion by reference — never widely adopted but anticipating modern content embedding.
+- [[concepts/llms-as-knowledge-bases]] — Whether LLMs can replace traditional KBs: ~32% consistent correctness says no; motivates hybrid approaches.
+
+### Entities (History of AI Knowledge Representation)
+- [[entities/douglas-engelbart]] — Inventor (1925-2013) of the mouse, hyperlink, and GUI; "Mother of All Demos" (1968); inspired by Bush's Memex.
+- [[entities/ted-nelson]] — Pioneer (b. 1937) who coined "hypertext" (1965) and founded Project Xanadu (1960); envisioned bidirectional links and transclusion.
+- [[entities/john-mccarthy]] — Computer scientist (1927-2011) who coined "AI" (1956), invented LISP (1958), and championed logic-based AI.
+- [[entities/marvin-minsky]] — Cognitive scientist (1927-2016), frame theory (1970s), Perceptrons critique (1969), co-founded MIT AI Lab.
+- [[entities/edward-feigenbaum]] — Computer scientist (b. 1936), "father of expert systems," led Stanford Heuristic Programming Project.
+- [[entities/doug-lenat]] — AI researcher (1950-2023) who spent 39 years building the Cyc knowledge base; proposed Cyc+LLM integration before death.
+- [[entities/cyc-project]] — AI's most ambitious KR project (1984-present): 1.5M terms, 24.5M assertions, 2000 person-years, $60M+.
+
+### Comparisons (Knowledge Representation)
+- [[comparisons/symbolic-vs-neural-knowledge-representation]] — Explicit symbolic KR (rules, ontologies, KGs) vs implicit neural KR (LLM parameters): complementary strengths, motivating hybrid architectures.
+
+## LLM Reasoning (Research: 2026-04-05)
+
+### Sources
+- [[sources/wei-chain-of-thought-prompting]] — Foundational 2022 paper showing step-by-step reasoning exemplars in prompts unlock arithmetic, commonsense, and symbolic reasoning in 100B+ parameter LLMs.
+- [[sources/yao-tree-of-thoughts]] — NeurIPS 2023 paper introducing Tree of Thoughts (ToT), generalizing CoT via tree search to achieve 74% on Game of 24 vs. CoT's 4%.
+- [[sources/mirzadeh-gsm-symbolic]] — ICLR 2025 paper demonstrating LLM math reasoning is fragile: up to 65% drops with irrelevant info, variance with number changes.
+- [[sources/snell-test-time-compute-scaling]] — Landmark 2024 paper showing test-time compute scaling can outperform a 14x larger model, establishing the basis for reasoning models.
+- [[sources/lightman-lets-verify-step-by-step]] — OpenAI 2023: process supervision (step-level feedback) significantly outperforms outcome supervision for mathematical reasoning. Released PRM800K.
+- [[sources/song-llm-reasoning-failures-survey]] — TMLR 2026 survey: first comprehensive taxonomy of LLM reasoning failures (fundamental, application-specific, robustness).
+- [[sources/wei-emergent-abilities]] — Influential 2022 paper defining emergent abilities as capabilities appearing suddenly at scale, with the "mirage" debate about measurement artifacts.
+- [[sources/li-system1-system2-reasoning-survey]] — 2025 survey applying Kahneman's dual-process theory to LLMs: standard LLMs as System 1, reasoning models (o1, R1) as System 2.
+- [[sources/anthropic-extended-thinking]] — Anthropic 2025: Claude 3.7 Sonnet extended thinking with configurable thinking budgets, 96.5% on GPQA physics.
+- [[sources/adaline-inside-reasoning-models]] — Deep technical analysis of o3 and R1: training pipelines, architectures (dense vs MoE), benchmarks, RL as foundation.
+- [[sources/raschka-state-of-reasoning-inference]] — Sebastian Raschka 2025: four categories of inference-time scaling, emerging techniques (latent reasoning, self-backtracking).
+
+### Concepts
+- [[concepts/llm-reasoning]] — Multi-step inference, logical deduction, and problem-solving in LLMs via prompting, training, and inference-time scaling.
+- [[concepts/chain-of-thought]] — Prompting technique that elicits step-by-step reasoning, dramatically improving performance at 100B+ parameter scale.
+- [[concepts/tree-of-thought]] — Reasoning framework generalizing CoT via tree search (BFS/DFS) with backtracking and self-evaluation.
+- [[concepts/reasoning-models]] — LLMs trained via RL for extended deliberation: o1/o3, DeepSeek R1, Claude 3.7 extended thinking.
+- [[concepts/test-time-compute]] — Paradigm of allocating more compute at inference for better reasoning; small models can outperform 14x larger ones.
+- [[concepts/process-reward-models]] — Trained verifiers evaluating each reasoning step; key building block of test-time compute scaling.
+- [[concepts/self-consistency]] — Majority voting over multiple CoT samples for improved accuracy on reasoning tasks.
+- [[concepts/llm-reasoning-limitations]] — Systematic failures: fragility to distractors, numerical sensitivity, compositional breakdown, architectural root causes.
+- [[concepts/mathematical-reasoning-llm]] — Math reasoning from GSM8K to AIME; o3 achieves 96.7% but fundamental fragility persists.
+- [[concepts/emergent-abilities]] — Capabilities absent in smaller models that appear suddenly at scale; debate about genuine emergence vs. measurement artifact.
+- [[concepts/stochastic-parrot-debate]] — Whether LLMs genuinely reason or perform sophisticated pattern matching; evidence on both sides.
+- [[concepts/system-1-system-2-thinking]] — Kahneman's dual-process theory applied to LLMs: fast/intuitive (System 1) vs slow/deliberate (System 2).
+- [[concepts/reinforcement-learning-for-reasoning]] — RL (GRPO, scaled RL with verifiers) as the core training methodology for reasoning models.
+
+### Entities
+- [[entities/jason-wei]] — Google Brain/DeepMind researcher; first author of both the CoT Prompting and Emergent Abilities papers.
+- [[entities/openai]] — Organization behind GPT-4, o1/o3 reasoning models, and PRM800K process reward model dataset.
+
+### Comparisons
+- [[comparisons/o3-vs-r1-vs-claude-reasoning]] — Three leading reasoning model approaches compared: architecture, training, transparency, benchmarks.
+- [[comparisons/process-vs-outcome-supervision]] — Process supervision (step-level, 78% MATH) vs outcome supervision (answer-only, weaker).
+
+## LLM Training Data, Dataset Curation & Data Quality (Research: 2026-04-05)
+
+### Sources
+- [[sources/dclm-datacomp-language-models]] — DCLM: 240T-token testbed; fastText filtering enables 7B to reach 64% MMLU; model-based filtering decisively outperforms alternatives.
+- [[sources/fineweb-dataset-huggingface]] — FineWeb: 15T tokens from 96 CC dumps; per-dump dedup outperforms cross-dump; FineWeb-Edu + FineWeb-2.
+- [[sources/nemotron-cc-nvidia]] — Nemotron-CC: 6.3T tokens (4.4T real + 1.9T synthetic); classifier ensembling; exceeds Llama 3.1 8B.
+- [[sources/scaling-laws-data-quality]] — Quality-aware scaling law L(N,D,Q); gamma 0.17-0.40; quality modulates effective dataset size.
+- [[sources/synthetic-data-llm-pretraining-study]] — 30% rephrased + 70% natural optimal; textbook shows collapse; 8B generators best.
+- [[sources/data-deduplication-trillion-scale]] — MinHash LSH, exact matching, semantic dedup at trillion scale; tools and tradeoffs.
+- [[sources/rlhf-preference-data-collection]] — Preference data: on-policy critical; millions wasted; vendor complexity; bias transfer.
+- [[sources/benchmark-data-contamination]] — Fidelity-resistance tradeoff; no strategy achieves both; question-level analysis needed.
+- [[sources/multilingual-llm-training-data]] — English dominance; NMT-based synthetic data; multilinguality not solved.
+- [[sources/copyright-ai-training-data-2025]] — Fair use rulings 2025 (Anthropic, Meta); 2026 peak litigation expected.
+- [[sources/nebius-llm-data-preparation]] — End-to-end pipeline; three challenges: data scarcity, synthetic pollution, copyright.
+
+### Concepts
+- [[concepts/training-data-curation]] — Transforming raw web crawls into high-quality training datasets; single highest-leverage activity in LLM development.
+- [[concepts/model-based-filtering]] — Trained classifiers for data filtering; fastText outperforms by 4+ points; ensembling increases recall from 9% to 25%.
+- [[concepts/data-deduplication]] — Removing duplicates at trillion-token scale; MinHash LSH dominant; per-dump dedup outperforms cross-dump.
+- [[concepts/scaling-laws]] — Model/data/compute/quality relationships; Chinchilla extended to quality-aware; rankings transfer across scales.
+- [[concepts/synthetic-data-in-pretraining]] — 30/70 synthetic/natural optimal; rephrased safe, textbook risky; 8B generators best.
+- [[concepts/benchmark-contamination]] — Evaluation data in training corpora; fundamental fidelity-resistance tradeoff; DCLM decontamination as best practice.
+- [[concepts/preference-data]] — Human/AI judgments for RLHF; on-policy critical; expensive; biases transfer to models.
+- [[concepts/multilingual-training-data]] — Non-English training data challenges; FineWeb-2 covers 1,000+ languages.
+- [[concepts/copyright-and-training-data]] — Legal landscape; highly transformative consensus developing; 2026 peak litigation.
+- [[concepts/instruction-tuning]] — Instruction-response pair fine-tuning; bridge between pretraining and RLHF.
+
+### Entities
+- [[entities/common-crawl]] — Non-profit web crawl archive; foundational for all open LLM pretraining.
+- [[entities/fineweb]] — HuggingFace 15T-token dataset; FineWeb-Edu; FineWeb-2 (1,000+ languages).
+- [[entities/dclm]] — Apple/UW benchmark + 2T-token dataset; 64% MMLU on 7B model.
+- [[entities/nemotron-cc]] — NVIDIA 6.3T-token dataset; classifier ensembling; MMLU 70.3 on 8B.
+- [[entities/chinchilla]] — DeepMind compute-optimal scaling; ~20 tokens per parameter.
+- [[entities/minhash-lsh]] — Standard near-duplicate detection for LLM data dedup.
+- [[entities/anthropic-hh-rlhf]] — 170K preference comparisons; foundational open RLHF dataset.
+- [[entities/nathan-lambert]] — RLHF Book author; preference data collection expert.
+
+### Comparisons
+- [[comparisons/fineweb-vs-dclm-vs-nemotron-cc]] — FineWeb (scale) vs DCLM (rigor) vs Nemotron-CC (long-horizon balance).
+- [[comparisons/heuristic-vs-model-based-filtering]] — Heuristic (cheap, obvious noise) vs model-based (decisive, 4+ point advantage).
+
+## Scaling Knowledge Systems (Research: 2026-04-05)
+
+### Sources
+- [[sources/ek-km-trends-2026]] — Enterprise Knowledge CEO identifies 8 KM trends for 2026: semantic layers powering AI, boxed vs. built AI, tacit knowledge capture, conversational search replacing traditional search.
+- [[sources/glean-enterprise-search-guide]] — Glean's guide to AI enterprise search: Enterprise Graph architecture, 100+ SaaS integrations, permission-aware RAG, code intelligence, agentic workflows. Market $6.83B (2025).
+- [[sources/helpjuice-km-challenges]] — 8+ enterprise KM challenges: lack of buy-in, outdated tools, silos, unstructured processes, scaling difficulties, ROI measurement.
+- [[sources/eesel-confluence-notion-sharepoint]] — 2026 comparison: Confluence (structured wiki + Rovo AI), Notion (flexible blocks + autonomous Agent), SharePoint (compliance + Copilot at $30/user extra).
+- [[sources/ksa-knowledge-system-scalability]] — 4-phase scaling architecture (partition/federation, indexing, validation, governance), 3V complexity model, governance maturity as prerequisite.
+- [[sources/ek-taxonomy-ia-semantic-layer]] — Taxonomy and IA as semantic layer building blocks: controlled vocabularies, ontologies, and SKOS governance.
+- [[sources/branzan-production-knowledge-graphs-2025]] — 5 production KG tools (FalkorDB, Cognee, GraphRAG, LightRAG, AutoSchemaKG), decision matrix, 300-320% ROI.
+- [[sources/keerok-enterprise-rag-2026]] — Enterprise RAG deployment: $1.2B to $11B market (49.1% CAGR), 4 architecture approaches, 3-phase roadmap.
+- [[sources/cio-knowledge-graphs-enterprise-ai]] — KGs as enterprise AI missing link: traditional RAG capped at ~80% accuracy; LinkedIn +78% accuracy with KG+RAG; Novartis drug discovery KG.
+- [[sources/glean-knowledge-silos-unified-search]] — 79% of employees confirm silos; ~3.7h/day lost; revenue impact up to 30%; unified search as solution.
+- [[sources/earley-ontology-ia-role-in-ai]] — Ontology as "master data management for AI": knowledge model hierarchy, multi-parent inheritance, Cleveland Museum case study.
+
+### Concepts
+- [[concepts/enterprise-knowledge-management]] — Organizational discipline of capturing, organizing, governing knowledge at scale. $13.7B market (2025), $37.6B by 2031. AI transforming every layer.
+- [[concepts/knowledge-system-scaling]] — Expanding knowledge infrastructure for thousands of users: 3V complexity (Volume, Velocity, Variety), 4-phase architecture, governance maturity thresholds.
+- [[concepts/knowledge-silos]] — Knowledge trapped in teams/systems. 79% of employees confirm; ~3.7h/day lost; up to 30% revenue impact. Solutions: unified search, governance, cultural change.
+- [[concepts/enterprise-search]] — AI-powered unified search across enterprise apps. $6.83B market. Enterprise Graph architecture, semantic search, RAG, agentic workflows.
+- [[concepts/semantic-layer]] — Standardized abstraction between data repos and front-end apps. Comprises glossaries, metadata, catalogs, taxonomies, ontologies. Key 2026 enterprise AI enabler.
+- [[concepts/ontology-and-taxonomy]] — Knowledge model hierarchy: vocabulary to thesaurus to taxonomy to ontology to knowledge graph. Ontology = "master data management for AI."
+- [[concepts/information-architecture]] — Structural design of shared information environments. Determines how knowledge is organized, labeled, searched, navigated. Operates across all levels, not just presentation.
+- [[concepts/knowledge-governance]] — Policies, processes, roles governing knowledge lifecycle. Prerequisite to scaling. Includes validation pipelines, access control, content ownership.
+- [[concepts/tacit-knowledge-capture]] — Capturing undocumented experiential knowledge. AI note-taking and transcription make enterprise-scale programs feasible for the first time.
+- [[concepts/knowledge-management-challenges]] — 8+ interconnected KM obstacles. Well-implemented KM generates 200-400% ROI but fewer than 40% can articulate clear metrics.
+
+### Entities
+- [[entities/glean]] — AI enterprise search platform. Enterprise Graph architecture, 100+ integrations, Series F ($150M). Market leader.
+- [[entities/confluence]] — Atlassian structured wiki. Rovo AI with 20+ agents. Deep Jira integration (76% ship faster). $5.42/user/month.
+- [[entities/sharepoint]] — Microsoft enterprise CMS. 190M+ users, granular permissions, HIPAA. Copilot at $30/user/month extra.
+- [[entities/enterprise-knowledge]] — KM consulting firm (CEO Zach Wahl). Influential annual trend reports since 2019.
+- [[entities/falkordb]] — Graph database with GraphRAG SDK. Sub-50ms latency, 90% hallucination reduction.
+- [[entities/cognee]] — Cognitive memory layer for agentic AI. Hybrid graph+vector, 30+ connectors, incremental learning.
+- [[entities/novartis]] — Pharma company using KG for drug discovery (genes, diseases, compounds).
+
+### Comparisons
+- [[comparisons/personal-vs-enterprise-knowledge-systems]] — Personal (markdown+LLM) vs. team (wiki) vs. enterprise (semantic layers+search+KG). Each tier adds qualitative new challenges.

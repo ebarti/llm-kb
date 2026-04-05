@@ -397,3 +397,187 @@ Deep research pass on how to measure if an LLM-generated knowledge base is actua
   4. 57 named AI UX patterns now cataloged across 6 categories (Shape of AI)
   5. AI-native products are evaluated across 5 dimensions: Design, Data, Domain Expertise, Dynamism, Distribution
   6. The "incredible new product" Karpathy envisions should be: Immersive focus (full-screen KB), hybrid UI, Wayfinder onboarding, trust-by-design with citations and progressive disclosure, personalization of how (not just what), and customer-as-trainer feedback loop
+
+## [2026-04-05] research | PKM, Zettelkasten, Second Brain Methodologies, and AI/LLM Transformation
+
+Deep research pass on Personal Knowledge Management (PKM), Zettelkasten, second brain methodologies, and how AI/LLMs are transforming them.
+
+### Web Searches Performed (12)
+- Zettelkasten method digital tools 2025 2026
+- Second brain Tiago Forte building methodology CODE PARA
+- Personal knowledge management AI LLM transformation 2025
+- Obsidian vs Notion vs Logseq knowledge management comparison
+- Evergreen notes Andy Matuschak networked thought
+- PKM automation AI agents note-taking 2025 2026
+- Roam Research bidirectional linking knowledge graph
+- Digital garden philosophy public notes knowledge sharing
+- Spaced repetition knowledge management Anki learning
+- Memex Vannevar Bush "As We May Think" 1945
+- Niklas Luhmann Zettelkasten sociology slip box original method
+- Progressive summarization Tiago Forte layers highlighting technique
+
+### Sources Ingested (10 raw files)
+1. `raw/forte-building-second-brain.md` — Tiago Forte's BASB: CODE, PARA, Progressive Summarization
+2. `raw/matuschak-evergreen-notes.md` — Andy Matuschak's five principles for evergreen notes
+3. `raw/appleton-digital-garden-history.md` — Maggie Appleton's digital garden history and six patterns
+4. `raw/sebastien-agentic-knowledge-management.md` — Sebastien Dubois on Agentic KM
+5. `raw/zettelkasten-de-introduction.md` — Canonical Zettelkasten method guide
+6. `raw/luhmann-original-zettelkasten.md` — Luhmann's actual system vs modern interpretations
+7. `raw/memex-vannevar-bush.md` — Bush's 1945 memex and its influence chain
+8. `raw/pkm-tools-comparison-2026.md` — Obsidian vs Logseq vs Notion 2026 benchmarks
+9. `raw/llms-for-knowledge-work-arxiv.md` — arXiv longitudinal study on LLM adoption
+10. `raw/spaced-repetition-knowledge-management.md` — Spaced repetition and Anki integration with PKM
+
+### Wiki Pages Created/Updated
+
+**Source Summaries (10 new):**
+- wiki/sources/forte-building-second-brain.md
+- wiki/sources/matuschak-evergreen-notes.md
+- wiki/sources/appleton-digital-garden-history.md
+- wiki/sources/sebastien-agentic-knowledge-management.md
+- wiki/sources/zettelkasten-de-introduction.md
+- wiki/sources/luhmann-original-zettelkasten.md
+- wiki/sources/memex-vannevar-bush.md
+- wiki/sources/pkm-tools-comparison-2026.md
+- wiki/sources/llms-for-knowledge-work-arxiv.md
+- wiki/sources/spaced-repetition-knowledge-management.md
+
+**Concept Articles (10 new):**
+- wiki/concepts/zettelkasten.md — comprehensive article with Luhmann's original vs modern, digital implementation, comparison table
+- wiki/concepts/evergreen-notes.md — Matuschak's five principles, relationship to Zettelkasten and SRS
+- wiki/concepts/networked-thought.md — 80-year arc from Bush through Luhmann to modern tools
+- wiki/concepts/digital-garden.md — six patterns, Garden vs Stream, key figures
+- wiki/concepts/progressive-summarization.md — four-layer distillation technique
+- wiki/concepts/para-method.md — actionability-based organization vs topic-based
+- wiki/concepts/memex-and-tools-for-thought.md — Bush-Engelbart-Nelson-Web lineage
+- wiki/concepts/spaced-repetition.md — forgetting curve, Anki, PKM integration
+- wiki/concepts/learning-in-public.md — epistemic status markers, garden philosophy
+- wiki/concepts/agentic-knowledge-management.md — proactive AI agents in PKM, Digital Twin concept
+
+**Entity Pages (8 new):**
+- wiki/entities/niklas-luhmann.md
+- wiki/entities/tiago-forte.md
+- wiki/entities/andy-matuschak.md
+- wiki/entities/maggie-appleton.md
+- wiki/entities/anki.md
+- wiki/entities/roam-research.md
+- wiki/entities/logseq.md
+- wiki/entities/vannevar-bush.md (updated with influence chain)
+
+**Comparison Pages (3 new):**
+- wiki/comparisons/zettelkasten-vs-basb.md — philosophy, structure, when to use each
+- wiki/comparisons/obsidian-vs-logseq-vs-notion.md — 2026 feature/performance comparison
+- wiki/comparisons/manual-vs-ai-pkm.md — four-stage PKM evolution with tradeoffs
+
+**Updated Existing Pages:**
+- wiki/concepts/personal-knowledge-management.md — added full methodology landscape section
+- wiki/concepts/second-brain.md — added Forte source and new cross-references
+- wiki/entities/obsidian.md — added new sources and PKM-related cross-references
+- wiki/entities/notion.md — added new sources and cross-references
+- wiki/entities/vannevar-bush.md — added influence chain section
+- wiki/_index.md — added all new entries
+- wiki/_meta/summaries.md — added all new summaries
+- wiki/_meta/manifest.md — added all 10 new raw files
+
+### Key Findings
+- PKM has an 80-year intellectual lineage from Bush's memex (1945) through Luhmann's Zettelkasten to modern AI-maintained systems
+- Modern popular understanding of Zettelkasten (fleeting/literature/permanent notes) differs significantly from Luhmann's actual practice
+- The four stages of PKM evolution: manual → AI-assisted → AI-maintained → agentic
+- Agentic Knowledge Management (2025-2026) represents the frontier: AI agents proactively monitoring and acting on knowledge bases
+- Trust remains the key barrier to AI adoption in knowledge work (70% want automation, but significant quality and hallucination concerns)
+- The Zettelkasten and BASB methodologies are complementary: Zettelkasten for insight generation, BASB for creative output
+
+## [2026-04-05] research | Collective intelligence, collaborative knowledge building, Wikipedia-style systems, AI transformation of group knowledge creation
+- Searched: "collective intelligence AI knowledge building", "Wikipedia knowledge creation process", "collaborative knowledge graphs", "wisdom of crowds AI aggregation", "knowledge commons digital", "semantic web linked data Wikidata", "federated knowledge bases decentralized wiki", "AI Wikipedia automated editing", "knowledge synthesis LLM sensemaking", "epistemic commons AI", "crowdsourced vs AI knowledge", "Collective Intelligence Project CIP"
+- Fetched and ingested 10 sources:
+  - Brookings: AI changing physics of collective intelligence (Taylor, Page)
+  - CIP Whitepaper: collective intelligence for AI governance (Siddarth, Huang)
+  - Wiki Education: AI Wikipedia editing audit 2025 (Davis)
+  - Wikipedia: AI in Wikimedia projects (comprehensive history)
+  - CIP: Generative AI and digital commons (Huang, Siddarth)
+  - COHUMAIN: Collective intelligence in human-AI collaboration (Gupta, Gonzalez, Woolley)
+  - Reeves & Simperl: Systematic review of automated Wikipedia content generation
+  - Federated Wiki: Ward Cunningham's forking-based collaborative knowledge
+  - Wisdom of the Crowd: comprehensive overview (Galton, Surowiecki, Page)
+  - Knowledge Commons: Hess/Ostrom governance framework
+- Created 10 source summaries, 11 concept articles, 5 entity pages, 1 comparison page
+- New concepts: collective-intelligence, wisdom-of-crowds, wikipedia-knowledge-model, collaborative-knowledge-building, knowledge-commons, human-ai-collaboration, federated-knowledge, ai-generated-content-risks, ai-alignment-democratic, transactive-memory-systems, digital-commons-governance
+- New entities: collective-intelligence-project, ward-cunningham, wikipedia, wikidata, elinor-ostrom
+- New comparison: consensus-vs-federated-vs-ai-knowledge
+- Updated existing: entities/anthropic (added CIP partnership), concepts/automated-wiki-creation (added cross-links)
+- Updated: _index.md, _meta/summaries.md, _meta/manifest.md
+
+## [2026-04-05] research | Obsidian as a Knowledge Platform — Deep Research Pass
+- Searched: 13 queries covering plugins, Dataview, graph view, AI plugins, Canvas, Templater, community workflows, PKM comparison, digital gardens, API/plugin dev, YAML properties, vault organization, Steph Ango philosophy
+- Fetched: 10 web sources (dsebastien plugins guide, stephango file-over-app, stephango vault, nxcode AI second brain, systemsculpt AI plugins, obsidian copilot, stephango dialectic interview, pkm comparison 2026, digital garden docs, capacities comparison)
+- Ingested 8 new raw files: dsebastien-obsidian-plugins-2026, stephango-file-over-app, stephango-vault-organization, stephango-dialectic-interview, nxcode-obsidian-ai-second-brain-2026, systemsculpt-obsidian-ai-plugins-2026, obsidian-copilot-overview, pkm-comparison-obsidian-notion-logseq
+- Created 8 new source summaries
+- Created 7 new concept articles: obsidian-plugin-ecosystem, obsidian-ai-integration, vault-organization, obsidian-frontmatter-properties, obsidian-graph-view, obsidian-canvas, (digital-garden updated)
+- Created 4 new entity pages: obsidian-copilot, smart-connections, templater, excalidraw
+- Updated 6 existing pages: entities/obsidian (major expansion with stats, philosophy, plugins, AI), entities/steph-ango (company principles, vault workflow, design philosophy), entities/dataview (query types, ecosystem position), entities/logseq (2026 developments), concepts/obsidian-as-ide (two AI modes, plugin details), concepts/file-over-app (civilizational stance, broader influence), concepts/digital-garden (Obsidian publishing methods), comparisons/obsidian-vs-logseq-vs-notion (2025-2026 developments, pricing, philosophy)
+- Updated: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md (pending)
+
+## [2026-04-05] research | History of AI knowledge representation
+- Topic: From expert systems and symbolic AI through neural networks to modern LLMs — the evolution of machine knowledge
+- Searched: 11 web queries covering KR history, expert systems, symbolic vs connectionist, Cyc, Semantic Web, Bush/Memex, Nelson/Xanadu, Engelbart, neural KR, LLM-enhanced KRL, LLMs as KBs
+- Fetched and ingested 10 sources:
+  - Wikipedia: Knowledge Representation & Reasoning, Expert Systems, Symbolic AI, Cyc, As We May Think, Project Xanadu, Semantic Web
+  - Outsider Art: "Cyc: History's Forgotten AI Project"
+  - arXiv: LLM-Enhanced Knowledge Representation Learning Survey (2024)
+  - arXiv: Large Language Models as Reliable Knowledge Bases? (2024)
+- Created 10 source summaries in wiki/sources/
+- Created 11 new concept articles: knowledge-representation, expert-systems, symbolic-ai, symbolic-vs-connectionist, neural-symbolic-integration, ontology, semantic-web, memex, hypertext, transclusion, llms-as-knowledge-bases
+- Created 7 new entity pages: douglas-engelbart, ted-nelson, john-mccarthy, marvin-minsky, edward-feigenbaum, doug-lenat, cyc-project
+- Updated 1 existing entity: vannevar-bush (added new source)
+- Created 1 comparison: symbolic-vs-neural-knowledge-representation
+- Updated: _index.md, _meta/summaries.md, _meta/manifest.md
+- Total new wiki pages: 29 (10 sources + 11 concepts + 7 entities + 1 comparison)
+
+## [2026-04-05] research | LLM reasoning capabilities — chain-of-thought, tree-of-thought, mathematical reasoning, and the nature of LLM intelligence
+- Searched 12 queries: chain of thought reasoning LLM, tree of thoughts LLM, LLM mathematical reasoning, reasoning models o1 o3, Claude extended thinking, self-consistency majority voting, LLM logical reasoning limitations, process reward models, test time compute scaling, can LLMs truly reason stochastic parrots, emergent abilities LLMs, System 1 System 2 thinking LLM
+- Fetched 12 sources from: arXiv (6 papers), Anthropic blog, Adaline Labs, Kili Technology, Sebastian Raschka, Le Wagon, Georgetown CSET
+- Ingested 11 raw files:
+  - wei-chain-of-thought-prompting (Wei et al. 2022, foundational CoT paper)
+  - yao-tree-of-thoughts (Yao et al. NeurIPS 2023, ToT framework)
+  - mirzadeh-gsm-symbolic (Mirzadeh et al. ICLR 2025, math reasoning fragility)
+  - snell-test-time-compute-scaling (Snell et al. 2024, test-time compute)
+  - lightman-lets-verify-step-by-step (OpenAI 2023, process reward models)
+  - song-llm-reasoning-failures-survey (Song et al. TMLR 2026, failure taxonomy)
+  - wei-emergent-abilities (Wei et al. TMLR 2022, emergent abilities)
+  - li-system1-system2-reasoning-survey (Li et al. 2025, dual-process reasoning)
+  - anthropic-extended-thinking (Anthropic 2025, Claude extended thinking)
+  - adaline-inside-reasoning-models (Adaline Labs 2025, o3 vs R1 deep-dive)
+  - raschka-state-of-reasoning-inference (Raschka 2025, inference scaling survey)
+- Created 11 source summaries in wiki/sources/
+- Created 13 concept articles: llm-reasoning, chain-of-thought, tree-of-thought, reasoning-models, test-time-compute, process-reward-models, self-consistency, llm-reasoning-limitations, mathematical-reasoning-llm, emergent-abilities, stochastic-parrot-debate, system-1-system-2-thinking, reinforcement-learning-for-reasoning
+- Created 2 entity pages: jason-wei, openai
+- Updated 3 entity pages: deepseek (R1 training details), anthropic (extended thinking source), claude (extended thinking section)
+- Created 2 comparison pages: o3-vs-r1-vs-claude-reasoning, process-vs-outcome-supervision
+- Updated 1 comparison page: cot-vs-tot-vs-self-consistency (added reasoning model context and new sources)
+- Updated: _index.md, summaries.md, manifest.md, log.md
+
+## [2026-04-05] research | LLM training data, dataset curation, data quality, and role of data in AI performance
+- Ran 13 web searches covering: training data curation, Common Crawl preprocessing, data quality vs model size scaling, DCLM, FineWeb, data deduplication, benchmark contamination, synthetic data in pretraining, instruction tuning datasets, RLHF preference data, multilingual data, copyright and training data, Nemotron-CC
+- Fetched and ingested 10 sources:
+  - DCLM paper (arxiv.org) — dataset benchmark and model-based filtering
+  - FineWeb dataset (HuggingFace + Kili Technology) — per-dump dedup discovery
+  - Nemotron-CC paper (arxiv.org) — classifier ensembling and synthetic augmentation
+  - Scaling Laws Revisited paper (arxiv.org) — quality-aware scaling law L(N,D,Q)
+  - Synthetic Data in Pretraining paper (arxiv.org) — 30/70 optimal mixture
+  - Data Deduplication at Trillion Scale (Zilliz) — MinHash LSH practical guide
+  - RLHF Book preference data chapter (rlhfbook.com) — on-policy data, collection complexity
+  - Benchmark contamination analysis (Medium) — fidelity-resistance tradeoff
+  - Multilingual LLMs survey (PremAI) — low-resource language challenges
+  - Copyright litigation overview (Morrison Foerster) — 2025 fair use rulings
+  - Nebius data preparation guide — end-to-end pipeline
+- Created 11 raw files, 11 source summaries, 10 concept articles, 8 entity pages, 2 comparison pages
+- Updated 3 existing concept articles (data-quality-bottleneck, synthetic-data-generation, rlhf) with new source references
+- Updated index, summaries, manifest, log
+- Key findings:
+  - Model-based filtering (fastText classifiers) is the single most impactful data curation technique
+  - Quality-aware scaling law: L(N,D,Q) = A/N^alpha + B/(D^beta * Q^gamma) + E
+  - 30% rephrased synthetic + 70% natural web text is the optimal pretraining mixture
+  - Per-dump deduplication outperforms cross-dump deduplication
+  - Benchmark contamination has an unsolvable fidelity-resistance tradeoff
+  - On-policy preference data dramatically outperforms off-policy for RLHF
+  - Copyright litigation expected to peak in 2026 with OpenAI/Google cases

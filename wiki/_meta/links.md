@@ -2013,3 +2013,329 @@ Pages with no incoming links:
 ## comparisons/mcp-vs-function-calling
 ← [[concepts/model-context-protocol]], [[concepts/function-calling]]
 → [[concepts/model-context-protocol]], [[concepts/function-calling]]
+
+## AI Product Design & Human-AI Collaboration (2026-04-05)
+
+### Concept → Sources
+- [[concepts/ai-ux-design-patterns]] ← shapeof-ai-ux-patterns, microsoft-copilot-ux-guidance, progressive-disclosure-ai-pattern, smashing-practical-xai-ux
+- [[concepts/copilot-pattern]] ← microsoft-copilot-ux-guidance, shapeof-ai-ux-patterns, schmidt-designing-human-ai-collaboration, uxforai-12-llm-product-practices
+- [[concepts/conversational-ui-vs-structured-ui]] ← zhuo-conversational-interfaces, microsoft-copilot-ux-guidance, shapeof-ai-ux-patterns, sapphire-ai-native-applications
+- [[concepts/blank-page-problem]] ← zhuo-conversational-interfaces, shapeof-ai-ux-patterns, microsoft-copilot-ux-guidance
+- [[concepts/trust-in-ai]] ← schmidt-designing-human-ai-collaboration, smashing-practical-xai-ux, microsoft-copilot-ux-guidance, shapeof-ai-ux-patterns, arxiv-interface-design-human-ai-decisions
+- [[concepts/trust-calibration]] ← arxiv-interface-design-human-ai-decisions, smashing-practical-xai-ux, schmidt-designing-human-ai-collaboration
+- [[concepts/human-ai-collaboration-design]] ← schmidt-designing-human-ai-collaboration, arxiv-interface-design-human-ai-decisions, microsoft-copilot-ux-guidance, uxforai-12-llm-product-practices
+- [[concepts/progressive-disclosure-ai]] ← progressive-disclosure-ai-pattern, smashing-practical-xai-ux, shapeof-ai-ux-patterns, arxiv-interface-design-human-ai-decisions
+- [[concepts/explainable-ai-ux]] ← smashing-practical-xai-ux, shapeof-ai-ux-patterns, arxiv-interface-design-human-ai-decisions
+- [[concepts/personalization-in-ai]] ← zhuo-conversational-interfaces, schmidt-designing-human-ai-collaboration, sapphire-ai-native-applications, microsoft-copilot-ux-guidance
+- [[concepts/ai-native-design]] ← sapphire-ai-native-applications, schmidt-designing-human-ai-collaboration, uxforai-12-llm-product-practices
+- [[concepts/collaborative-ux]] ← microsoft-copilot-ux-guidance, uxforai-12-llm-product-practices, schmidt-designing-human-ai-collaboration
+- [[concepts/llm-product-development]] ← uxforai-12-llm-product-practices, sapphire-ai-native-applications
+
+### Entity → Sources
+- [[entities/julie-zhuo]] ← zhuo-conversational-interfaces
+- [[entities/figma]] ← schmidt-designing-human-ai-collaboration
+- [[entities/hax-toolkit]] ← microsoft-copilot-ux-guidance
+- [[entities/sapphire-ventures]] ← sapphire-ai-native-applications
+- [[entities/shape-of-ai]] ← shapeof-ai-ux-patterns
+
+### Key Cross-Topic Links
+- [[concepts/knowledge-base-product-gap]] ← NOW ENRICHED with product design specifications from all 9 new sources
+- [[concepts/human-in-the-loop]] ← UPDATED with UX patterns section from shapeof-ai-ux-patterns, microsoft-copilot-ux-guidance, arxiv-interface-design-human-ai-decisions
+
+## concepts/collective-intelligence
+← [[sources/brookings-ai-collective-intelligence]], [[sources/cip-whitepaper-collective-intelligence]], [[sources/cohumain-collective-intelligence-human-ai]], [[sources/wisdom-of-the-crowd]], [[sources/cip-generative-ai-digital-commons]], [[sources/ai-in-wikimedia-projects]], [[concepts/wisdom-of-crowds]], [[concepts/collaborative-knowledge-building]], [[concepts/human-ai-collaboration]], [[concepts/knowledge-commons]], [[concepts/wikipedia-knowledge-model]], [[concepts/ai-alignment-democratic]], [[concepts/transactive-memory-systems]], [[concepts/digital-commons-governance]]
+→ [[concepts/wisdom-of-crowds]], [[concepts/collaborative-knowledge-building]], [[concepts/human-ai-collaboration]], [[concepts/knowledge-commons]], [[concepts/wikipedia-knowledge-model]], [[concepts/ai-alignment-democratic]], [[concepts/multi-agent-systems]], [[concepts/ai-generated-content-risks]], [[entities/collective-intelligence-project]]
+
+## concepts/wisdom-of-crowds
+← [[concepts/collective-intelligence]], [[concepts/collaborative-knowledge-building]], [[concepts/ai-alignment-democratic]], [[sources/wisdom-of-the-crowd]]
+→ [[concepts/collective-intelligence]], [[concepts/wikipedia-knowledge-model]], [[concepts/ai-alignment-democratic]], [[concepts/collaborative-knowledge-building]]
+
+## concepts/wikipedia-knowledge-model
+← [[concepts/collective-intelligence]], [[concepts/wisdom-of-crowds]], [[concepts/collaborative-knowledge-building]], [[concepts/knowledge-commons]], [[concepts/ai-generated-content-risks]], [[concepts/federated-knowledge]], [[concepts/digital-commons-governance]], [[comparisons/consensus-vs-federated-vs-ai-knowledge]]
+→ [[concepts/collective-intelligence]], [[concepts/collaborative-knowledge-building]], [[concepts/knowledge-commons]], [[concepts/ai-generated-content-risks]], [[concepts/federated-knowledge]], [[concepts/automated-wiki-creation]], [[concepts/hallucination-contamination]], [[concepts/wisdom-of-crowds]], [[concepts/llm-knowledge-base]]
+
+## concepts/collaborative-knowledge-building
+← [[concepts/collective-intelligence]], [[concepts/wikipedia-knowledge-model]], [[concepts/human-ai-collaboration]], [[concepts/federated-knowledge]], [[concepts/knowledge-commons]], [[concepts/ai-generated-content-risks]], [[concepts/digital-commons-governance]]
+→ [[concepts/collective-intelligence]], [[concepts/wikipedia-knowledge-model]], [[concepts/federated-knowledge]], [[concepts/llm-knowledge-base]], [[concepts/knowledge-commons]], [[concepts/human-ai-collaboration]], [[entities/ward-cunningham]], [[entities/elinor-ostrom]]
+
+## concepts/knowledge-commons
+← [[concepts/collective-intelligence]], [[concepts/wikipedia-knowledge-model]], [[concepts/collaborative-knowledge-building]], [[concepts/ai-generated-content-risks]], [[concepts/digital-commons-governance]], [[concepts/federated-knowledge]], [[sources/knowledge-commons-overview]], [[sources/cip-generative-ai-digital-commons]]
+→ [[concepts/collective-intelligence]], [[concepts/wikipedia-knowledge-model]], [[concepts/digital-commons-governance]], [[concepts/collaborative-knowledge-building]], [[concepts/ai-generated-content-risks]], [[entities/elinor-ostrom]], [[entities/collective-intelligence-project]]
+
+## concepts/human-ai-collaboration
+← [[concepts/collective-intelligence]], [[concepts/collaborative-knowledge-building]], [[concepts/transactive-memory-systems]], [[sources/cohumain-collective-intelligence-human-ai]], [[sources/brookings-ai-collective-intelligence]]
+→ [[concepts/collective-intelligence]], [[concepts/collaborative-knowledge-building]], [[concepts/transactive-memory-systems]], [[concepts/wikipedia-knowledge-model]], [[concepts/ai-generated-content-risks]]
+
+## concepts/federated-knowledge
+← [[concepts/wikipedia-knowledge-model]], [[concepts/collaborative-knowledge-building]], [[sources/federated-wiki-cunningham]]
+→ [[concepts/wikipedia-knowledge-model]], [[concepts/collaborative-knowledge-building]], [[concepts/knowledge-graph]], [[concepts/knowledge-commons]], [[entities/ward-cunningham]], [[entities/wikidata]]
+
+## concepts/ai-generated-content-risks
+← [[concepts/wikipedia-knowledge-model]], [[concepts/knowledge-commons]], [[concepts/human-ai-collaboration]], [[concepts/digital-commons-governance]], [[concepts/collective-intelligence]]
+→ [[concepts/hallucination-contamination]], [[concepts/wikipedia-knowledge-model]], [[concepts/knowledge-commons]], [[concepts/collaborative-knowledge-building]], [[concepts/human-ai-collaboration]], [[concepts/wisdom-of-crowds]]
+
+## concepts/ai-alignment-democratic
+← [[concepts/collective-intelligence]], [[concepts/wisdom-of-crowds]], [[entities/anthropic]], [[entities/collective-intelligence-project]]
+→ [[concepts/collective-intelligence]], [[concepts/wisdom-of-crowds]], [[concepts/knowledge-commons]], [[concepts/collaborative-knowledge-building]], [[entities/collective-intelligence-project]]
+
+## concepts/transactive-memory-systems
+← [[concepts/human-ai-collaboration]], [[concepts/collective-intelligence]]
+→ [[concepts/collective-intelligence]], [[concepts/human-ai-collaboration]], [[concepts/collaborative-knowledge-building]], [[concepts/llm-knowledge-base]]
+
+## concepts/digital-commons-governance
+← [[concepts/knowledge-commons]], [[concepts/ai-alignment-democratic]]
+→ [[concepts/knowledge-commons]], [[concepts/collective-intelligence]], [[concepts/ai-alignment-democratic]], [[concepts/wikipedia-knowledge-model]], [[concepts/ai-generated-content-risks]], [[entities/elinor-ostrom]], [[entities/collective-intelligence-project]]
+
+## entities/collective-intelligence-project
+← [[concepts/collective-intelligence]], [[concepts/ai-alignment-democratic]], [[concepts/knowledge-commons]], [[concepts/digital-commons-governance]], [[entities/anthropic]]
+→ [[concepts/collective-intelligence]], [[concepts/ai-alignment-democratic]], [[concepts/knowledge-commons]], [[concepts/digital-commons-governance]], [[entities/anthropic]]
+
+## entities/ward-cunningham
+← [[concepts/collaborative-knowledge-building]], [[concepts/federated-knowledge]]
+→ [[concepts/federated-knowledge]], [[concepts/collaborative-knowledge-building]], [[concepts/wikipedia-knowledge-model]]
+
+## entities/wikipedia
+← [[concepts/wikipedia-knowledge-model]], [[concepts/knowledge-commons]], [[entities/wikidata]]
+→ [[concepts/wikipedia-knowledge-model]], [[concepts/collective-intelligence]], [[concepts/knowledge-commons]], [[concepts/ai-generated-content-risks]], [[entities/wikidata]]
+
+## entities/wikidata
+← [[concepts/federated-knowledge]], [[entities/wikipedia]]
+→ [[concepts/knowledge-graph]], [[concepts/federated-knowledge]], [[concepts/knowledge-commons]], [[entities/wikipedia]]
+
+## entities/elinor-ostrom
+← [[concepts/knowledge-commons]], [[concepts/collaborative-knowledge-building]], [[concepts/digital-commons-governance]]
+→ [[concepts/knowledge-commons]], [[concepts/digital-commons-governance]], [[concepts/collective-intelligence]]
+
+## comparisons/consensus-vs-federated-vs-ai-knowledge
+← (no incoming links)
+→ [[concepts/wikipedia-knowledge-model]], [[concepts/federated-knowledge]], [[concepts/llm-knowledge-base]], [[concepts/automated-wiki-creation]]
+
+## LLM Reasoning Backlinks (2026-04-05)
+
+### concepts/llm-reasoning
+- ← [[sources/wei-chain-of-thought-prompting]]
+- ← [[sources/yao-tree-of-thoughts]]
+- ← [[sources/mirzadeh-gsm-symbolic]]
+- ← [[sources/song-llm-reasoning-failures-survey]]
+- ← [[sources/li-system1-system2-reasoning-survey]]
+- ← [[sources/raschka-state-of-reasoning-inference]]
+- ← [[concepts/chain-of-thought]]
+- ← [[concepts/tree-of-thought]]
+- ← [[concepts/reasoning-models]]
+- ← [[concepts/test-time-compute]]
+- ← [[concepts/llm-reasoning-limitations]]
+- ← [[concepts/self-consistency]]
+- ← [[concepts/mathematical-reasoning-llm]]
+- ← [[concepts/emergent-abilities]]
+- ← [[concepts/stochastic-parrot-debate]]
+- ← [[concepts/system-1-system-2-thinking]]
+- ← [[concepts/reinforcement-learning-for-reasoning]]
+
+### concepts/chain-of-thought
+- ← [[sources/wei-chain-of-thought-prompting]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/tree-of-thought]]
+- ← [[concepts/self-consistency]]
+- ← [[concepts/reasoning-models]]
+- ← [[concepts/test-time-compute]]
+- ← [[concepts/emergent-abilities]]
+- ← [[concepts/llm-reasoning-limitations]]
+- ← [[comparisons/cot-vs-tot-vs-self-consistency]]
+
+### concepts/tree-of-thought
+- ← [[sources/yao-tree-of-thoughts]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/chain-of-thought]]
+- ← [[concepts/test-time-compute]]
+- ← [[comparisons/cot-vs-tot-vs-self-consistency]]
+
+### concepts/reasoning-models
+- ← [[sources/adaline-inside-reasoning-models]]
+- ← [[sources/anthropic-extended-thinking]]
+- ← [[sources/li-system1-system2-reasoning-survey]]
+- ← [[sources/raschka-state-of-reasoning-inference]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/test-time-compute]]
+- ← [[concepts/system-1-system-2-thinking]]
+- ← [[concepts/reinforcement-learning-for-reasoning]]
+- ← [[comparisons/o3-vs-r1-vs-claude-reasoning]]
+
+### concepts/test-time-compute
+- ← [[sources/snell-test-time-compute-scaling]]
+- ← [[sources/raschka-state-of-reasoning-inference]]
+- ← [[sources/anthropic-extended-thinking]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/reasoning-models]]
+- ← [[concepts/chain-of-thought]]
+- ← [[concepts/tree-of-thought]]
+- ← [[concepts/self-consistency]]
+- ← [[concepts/process-reward-models]]
+
+### concepts/process-reward-models
+- ← [[sources/lightman-lets-verify-step-by-step]]
+- ← [[sources/snell-test-time-compute-scaling]]
+- ← [[concepts/reasoning-models]]
+- ← [[concepts/test-time-compute]]
+- ← [[comparisons/process-vs-outcome-supervision]]
+
+### concepts/self-consistency
+- ← [[sources/raschka-state-of-reasoning-inference]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/chain-of-thought]]
+- ← [[concepts/test-time-compute]]
+- ← [[comparisons/cot-vs-tot-vs-self-consistency]]
+
+### concepts/llm-reasoning-limitations
+- ← [[sources/song-llm-reasoning-failures-survey]]
+- ← [[sources/mirzadeh-gsm-symbolic]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/stochastic-parrot-debate]]
+- ← [[concepts/mathematical-reasoning-llm]]
+
+### concepts/mathematical-reasoning-llm
+- ← [[sources/mirzadeh-gsm-symbolic]]
+- ← [[sources/lightman-lets-verify-step-by-step]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/llm-reasoning-limitations]]
+
+### concepts/emergent-abilities
+- ← [[sources/wei-emergent-abilities]]
+- ← [[sources/wei-chain-of-thought-prompting]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/chain-of-thought]]
+- ← [[concepts/stochastic-parrot-debate]]
+
+### concepts/stochastic-parrot-debate
+- ← [[sources/mirzadeh-gsm-symbolic]]
+- ← [[sources/song-llm-reasoning-failures-survey]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/llm-reasoning-limitations]]
+- ← [[concepts/emergent-abilities]]
+
+### concepts/system-1-system-2-thinking
+- ← [[sources/li-system1-system2-reasoning-survey]]
+- ← [[sources/anthropic-extended-thinking]]
+- ← [[concepts/llm-reasoning]]
+- ← [[concepts/reasoning-models]]
+- ← [[concepts/tree-of-thought]]
+
+### concepts/reinforcement-learning-for-reasoning
+- ← [[sources/adaline-inside-reasoning-models]]
+- ← [[sources/li-system1-system2-reasoning-survey]]
+- ← [[concepts/reasoning-models]]
+
+### entities/jason-wei
+- ← [[sources/wei-chain-of-thought-prompting]]
+- ← [[sources/wei-emergent-abilities]]
+
+### entities/openai
+- ← [[sources/lightman-lets-verify-step-by-step]]
+- ← [[sources/adaline-inside-reasoning-models]]
+- ← [[comparisons/o3-vs-r1-vs-claude-reasoning]]
+
+## History of AI Knowledge Representation (Research: 2026-04-05)
+
+## sources/wikipedia-knowledge-representation-reasoning
+→ [[concepts/knowledge-representation]], [[concepts/expert-systems]], [[concepts/symbolic-ai]], [[concepts/ontology]], [[entities/marvin-minsky]], [[entities/john-mccarthy]]
+
+## sources/wikipedia-expert-systems
+→ [[concepts/expert-systems]], [[concepts/knowledge-representation]], [[entities/edward-feigenbaum]], [[concepts/symbolic-ai]]
+
+## sources/wikipedia-symbolic-ai
+→ [[concepts/symbolic-ai]], [[concepts/symbolic-vs-connectionist]], [[concepts/neural-symbolic-integration]], [[concepts/expert-systems]]
+
+## sources/wikipedia-cyc
+→ [[entities/cyc-project]], [[entities/doug-lenat]], [[concepts/knowledge-representation]], [[concepts/symbolic-ai]], [[concepts/ontology]]
+
+## sources/outsiderart-cyc-forgotten-ai
+→ [[entities/cyc-project]], [[entities/doug-lenat]], [[concepts/symbolic-ai]], [[concepts/knowledge-representation]], [[concepts/neural-symbolic-integration]]
+
+## sources/wikipedia-as-we-may-think
+→ [[entities/vannevar-bush]], [[concepts/memex]], [[concepts/hypertext]], [[concepts/knowledge-representation]], [[entities/douglas-engelbart]]
+
+## sources/wikipedia-project-xanadu
+→ [[entities/ted-nelson]], [[concepts/hypertext]], [[concepts/transclusion]], [[entities/vannevar-bush]]
+
+## sources/wikipedia-semantic-web
+→ [[concepts/semantic-web]], [[concepts/ontology]], [[concepts/knowledge-representation]], [[concepts/knowledge-graph]]
+
+## sources/llm-enhanced-knowledge-representation-survey
+→ [[concepts/knowledge-representation]], [[concepts/knowledge-graph]], [[concepts/neural-symbolic-integration]], [[concepts/llm-knowledge-base]]
+
+## sources/llms-as-reliable-knowledge-bases
+→ [[concepts/llms-as-knowledge-bases]], [[concepts/hallucination-contamination]], [[concepts/knowledge-representation]], [[concepts/neural-symbolic-integration]]
+
+## concepts/knowledge-representation
+← [[sources/wikipedia-knowledge-representation-reasoning]], [[sources/wikipedia-expert-systems]], [[sources/wikipedia-symbolic-ai]], [[sources/wikipedia-cyc]], [[sources/outsiderart-cyc-forgotten-ai]], [[sources/wikipedia-as-we-may-think]], [[sources/wikipedia-semantic-web]], [[sources/llm-enhanced-knowledge-representation-survey]], [[sources/llms-as-reliable-knowledge-bases]]
+→ [[concepts/symbolic-ai]], [[concepts/expert-systems]], [[concepts/ontology]], [[concepts/semantic-web]], [[concepts/knowledge-graph]], [[concepts/neural-symbolic-integration]], [[concepts/llms-as-knowledge-bases]], [[concepts/llm-knowledge-base]], [[concepts/cheap-ontology]]
+
+## concepts/expert-systems
+← [[sources/wikipedia-expert-systems]], [[sources/wikipedia-symbolic-ai]], [[sources/wikipedia-knowledge-representation-reasoning]], [[concepts/knowledge-representation]], [[concepts/symbolic-ai]]
+→ [[concepts/knowledge-representation]], [[concepts/symbolic-ai]], [[entities/edward-feigenbaum]], [[concepts/cheap-ontology]], [[concepts/llm-knowledge-base]], [[concepts/data-quality-bottleneck]]
+
+## concepts/symbolic-ai
+← [[sources/wikipedia-symbolic-ai]], [[sources/wikipedia-knowledge-representation-reasoning]], [[sources/wikipedia-expert-systems]], [[sources/outsiderart-cyc-forgotten-ai]], [[concepts/knowledge-representation]], [[concepts/expert-systems]]
+→ [[concepts/knowledge-representation]], [[concepts/expert-systems]], [[concepts/symbolic-vs-connectionist]], [[concepts/neural-symbolic-integration]], [[entities/cyc-project]]
+
+## concepts/symbolic-vs-connectionist
+← [[sources/wikipedia-symbolic-ai]], [[concepts/symbolic-ai]], [[concepts/neural-symbolic-integration]]
+→ [[concepts/symbolic-ai]], [[concepts/neural-symbolic-integration]], [[concepts/knowledge-representation]], [[concepts/llms-as-knowledge-bases]], [[concepts/llm-knowledge-base]]
+
+## concepts/neural-symbolic-integration
+← [[sources/wikipedia-symbolic-ai]], [[sources/llm-enhanced-knowledge-representation-survey]], [[sources/outsiderart-cyc-forgotten-ai]], [[sources/llms-as-reliable-knowledge-bases]], [[concepts/symbolic-vs-connectionist]], [[concepts/symbolic-ai]], [[entities/cyc-project]], [[entities/doug-lenat]]
+→ [[concepts/symbolic-vs-connectionist]], [[concepts/symbolic-ai]], [[concepts/knowledge-graph]], [[concepts/llm-knowledge-base]], [[concepts/llms-as-knowledge-bases]]
+
+## concepts/ontology
+← [[sources/wikipedia-knowledge-representation-reasoning]], [[sources/wikipedia-semantic-web]], [[sources/wikipedia-cyc]], [[concepts/knowledge-representation]], [[concepts/semantic-web]]
+→ [[concepts/knowledge-representation]], [[concepts/semantic-web]], [[concepts/knowledge-graph]], [[concepts/cheap-ontology]], [[entities/cyc-project]]
+
+## concepts/semantic-web
+← [[sources/wikipedia-semantic-web]], [[concepts/knowledge-representation]], [[concepts/ontology]], [[concepts/hypertext]]
+→ [[concepts/ontology]], [[concepts/knowledge-representation]], [[concepts/knowledge-graph]], [[concepts/hypertext]], [[concepts/cheap-ontology]]
+
+## concepts/memex
+← [[sources/wikipedia-as-we-may-think]], [[concepts/hypertext]], [[entities/vannevar-bush]]
+→ [[entities/vannevar-bush]], [[concepts/hypertext]], [[concepts/personal-knowledge-management]], [[concepts/llm-knowledge-base]]
+
+## concepts/hypertext
+← [[sources/wikipedia-project-xanadu]], [[sources/wikipedia-as-we-may-think]], [[concepts/memex]], [[concepts/semantic-web]]
+→ [[entities/ted-nelson]], [[entities/vannevar-bush]], [[concepts/memex]], [[concepts/transclusion]], [[concepts/semantic-web]], [[concepts/markdown-as-universal-interface]]
+
+## concepts/transclusion
+← [[sources/wikipedia-project-xanadu]], [[concepts/hypertext]]
+→ [[entities/ted-nelson]], [[concepts/hypertext]], [[concepts/wiki-compilation]]
+
+## concepts/llms-as-knowledge-bases
+← [[sources/llms-as-reliable-knowledge-bases]], [[sources/llm-enhanced-knowledge-representation-survey]], [[concepts/symbolic-vs-connectionist]], [[concepts/neural-symbolic-integration]]
+→ [[concepts/knowledge-representation]], [[concepts/hallucination-contamination]], [[concepts/neural-symbolic-integration]], [[concepts/llm-knowledge-base]]
+
+## entities/douglas-engelbart
+← [[sources/wikipedia-as-we-may-think]], [[entities/vannevar-bush]], [[concepts/memex]]
+→ [[entities/vannevar-bush]], [[concepts/hypertext]], [[concepts/memex]], [[concepts/personal-knowledge-management]]
+
+## entities/ted-nelson
+← [[sources/wikipedia-project-xanadu]], [[concepts/hypertext]], [[concepts/transclusion]]
+→ [[concepts/hypertext]], [[concepts/transclusion]], [[entities/vannevar-bush]], [[concepts/memex]]
+
+## entities/john-mccarthy
+← [[sources/wikipedia-knowledge-representation-reasoning]], [[sources/wikipedia-symbolic-ai]]
+→ [[concepts/symbolic-ai]], [[concepts/knowledge-representation]], [[entities/marvin-minsky]]
+
+## entities/marvin-minsky
+← [[sources/wikipedia-knowledge-representation-reasoning]], [[sources/wikipedia-symbolic-ai]], [[entities/john-mccarthy]]
+→ [[concepts/knowledge-representation]], [[concepts/symbolic-ai]], [[entities/john-mccarthy]], [[concepts/multi-agent-systems]]
+
+## entities/edward-feigenbaum
+← [[sources/wikipedia-expert-systems]], [[concepts/expert-systems]]
+→ [[concepts/expert-systems]], [[concepts/symbolic-ai]], [[concepts/knowledge-representation]]
+
+## entities/doug-lenat
+← [[sources/wikipedia-cyc]], [[sources/outsiderart-cyc-forgotten-ai]], [[entities/cyc-project]]
+→ [[entities/cyc-project]], [[concepts/knowledge-representation]], [[concepts/symbolic-ai]], [[concepts/ontology]], [[concepts/neural-symbolic-integration]]
+
+## entities/cyc-project
+← [[sources/wikipedia-cyc]], [[sources/outsiderart-cyc-forgotten-ai]], [[concepts/symbolic-ai]], [[concepts/ontology]], [[entities/doug-lenat]]
+→ [[entities/doug-lenat]], [[concepts/knowledge-representation]], [[concepts/symbolic-ai]], [[concepts/ontology]], [[concepts/neural-symbolic-integration]], [[concepts/cheap-ontology]]
+
+## comparisons/symbolic-vs-neural-knowledge-representation
+→ [[concepts/symbolic-ai]], [[concepts/llms-as-knowledge-bases]], [[concepts/neural-symbolic-integration]], [[concepts/llm-knowledge-base]], [[entities/cyc-project]]

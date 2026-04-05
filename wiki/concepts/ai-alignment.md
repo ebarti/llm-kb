@@ -2,7 +2,7 @@
 title: "AI Alignment"
 type: concept
 sources: ["[[sources/anthropic-safety-research-directions-2025]]", "[[sources/ai-safety-alignment-progress-2025]]", "[[sources/international-ai-safety-report-2026]]"]
-related: ["[[concepts/ai-safety]]", "[[concepts/constitutional-ai]]", "[[concepts/scalable-oversight]]", "[[concepts/human-in-the-loop]]", "[[concepts/calibrated-uncertainty]]"]
+related: ["[[concepts/ai-safety]]", "[[concepts/rlhf]]", "[[concepts/dpo]]", "[[concepts/constitutional-ai]]", "[[concepts/rlaif]]", "[[concepts/reward-model]]", "[[concepts/reward-hacking]]", "[[concepts/scalable-oversight]]", "[[concepts/human-in-the-loop]]", "[[concepts/calibrated-uncertainty]]", "[[concepts/preference-data]]"]
 last_compiled: 2026-04-05
 summary: "The technical challenge of ensuring AI systems pursue the goals their operators intend — encompassing RLHF, Constitutional AI, scalable oversight, and the detection of deceptive alignment."
 ---

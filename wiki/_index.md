@@ -263,7 +263,21 @@ reading_time: "5 min"
 - [[sources/wisdom-of-the-crowd]] — Wisdom of crowds: Galton, Surowiecki, Page's diversity prediction theorem
 - [[sources/knowledge-commons-overview]] — Knowledge commons: Hess/Ostrom governance, copyleft licensing, AI-era challenges
 
+### RLHF, Alignment & Preference Optimization (Research: 2026-04-05)
+- [[sources/huggingface-rlhf-illustrated]] — HuggingFace's foundational RLHF tutorial: three-step pipeline, reward model training, PPO, KL penalties
+- [[sources/wolfe-direct-preference-optimization]] — Cameron Wolfe's DPO deep-dive: mathematical derivation, implicit reward reparameterization
+- [[sources/anthropic-constitutional-ai]] — Anthropic's Constitutional AI: self-critique, RLAIF, principle-based harmlessness
+- [[sources/argilla-rlhf-alternatives-overview]] — Systematic comparison of 9+ alignment methods (DPO, KTO, IPO, ORPO, SPIN, etc.)
+- [[sources/wolfe-reward-models-llm]] — Reward model architecture, types (classifier, LLM-as-judge, PRM), RewardBench best practices
+- [[sources/wolfe-rlaif-reinforcement-learning-ai-feedback]] — RLAIF: AI-generated preference labels achieve parity with human labels
+- [[sources/lilianweng-reward-hacking]] — Definitive taxonomy of reward hacking: Goodhart's Law, sycophancy, overoptimization scaling laws
+- [[sources/dpo-vs-ppo-comprehensive-study]] — Xu et al.: PPO consistently outperforms DPO across dialogue and code generation
+- [[sources/argilla-kto-kahneman-tversky]] — KTO: prospect-theory-based alignment using binary feedback signals
+
 ## Comparisons
+
+### Knowledge Representation Comparisons (Research: 2026-04-05)
+- [[comparisons/symbolic-vs-neural-knowledge-representation]] — Explicit symbolic KR vs. implicit neural KR: strengths, history, and hybrid resolution
 
 ### PKM Comparisons (Research: 2026-04-05)
 - [[comparisons/zettelkasten-vs-basb]] — Zettelkasten (insight generation) vs BASB (creative output): organizing principles, note structure, and workflows
@@ -272,6 +286,8 @@ reading_time: "5 min"
 
 - [[comparisons/text-rag-vs-multimodal-rag]] — Text-only RAG vs multimodal RAG: when visual content justifies added complexity
 - [[comparisons/rlhf-vs-constitutional-ai]] — RLHF (human labels) vs Constitutional AI (principle-guided self-critique): scalability, consistency, transparency
+- [[comparisons/ppo-vs-dpo]] — PPO vs DPO for LLM alignment: PPO wins on hard tasks, DPO wins on simplicity and accessibility
+- [[comparisons/rlhf-alternatives]] — Systematic comparison of 9+ methods (RLHF, DPO, KTO, IPO, ORPO, SPIN): data, compute, performance
 - [[comparisons/markdown-vs-proprietary-formats]] — Markdown vs Word/Notion/Evernote/Google Docs across longevity, AI-readability, portability
 - [[comparisons/rag-vs-fine-tuning]] — RAG (dynamic, traceable) vs fine-tuning (persistent, fast) with hybrid RAFT approach
 - [[comparisons/lora-vs-qlora]] — LoRA (16-bit, 90-95% quality) vs QLoRA (4-bit, 80-90% quality) memory and quality tradeoffs
@@ -587,7 +603,13 @@ reading_time: "5 min"
 - [[entities/andrej-karpathy]] — AI researcher who pioneered the LLM-maintained knowledge base workflow
 - [[entities/steph-ango]] — Obsidian CEO who recommended vault separation; articulated "file over app" philosophy
 - [[entities/elvis-saravia]] — DAIR.AI founder who formalized the four-phase operational cycle
-- [[entities/vannevar-bush]] — Engineer who envisioned the Memex in 1945
+- [[entities/vannevar-bush]] — Engineer (1890-1974), proposed the Memex in "As We May Think" (1945)
+- [[entities/douglas-engelbart]] — Inventor (1925-2013) of the mouse, hyperlink, GUI; "Mother of All Demos" (1968)
+- [[entities/ted-nelson]] — Pioneer (b. 1937), coined "hypertext" (1965), founded Project Xanadu (1960)
+- [[entities/john-mccarthy]] — Computer scientist (1927-2011), coined "AI" (1956), invented LISP (1958)
+- [[entities/marvin-minsky]] — Cognitive scientist (1927-2016), frame theory, co-founded MIT AI Lab
+- [[entities/edward-feigenbaum]] — Computer scientist (b. 1936), "father of expert systems"
+- [[entities/doug-lenat]] — AI researcher (1950-2023), founded the Cyc project (1984)
 - [[entities/sam-gallagher]] — Developer of the Knowledge Graph Kit (SQLite + ChromaDB)
 - [[entities/derek-sivers]] — Plain text advocate since 1990; author of "Write Plain Text Files"
 - [[entities/simon-willison]] — Creator of Datasette and LLM CLI tool; structured extraction advocate
@@ -597,6 +619,8 @@ reading_time: "5 min"
 - [[entities/tiago-forte]] — Productivity consultant who created Building a Second Brain (BASB), PARA, and Progressive Summarization
 - [[entities/andy-matuschak]] — Researcher who developed the evergreen notes framework and pioneered public sliding-pane notes
 - [[entities/maggie-appleton]] — Designer and anthropologist who compiled the definitive history of digital gardens
+
+- [[entities/cyc-project]] — AI most ambitious KR project (1984-present): 1.5M terms, 24.5M assertions
 
 ### Tools
 - [[entities/claude]] — Anthropic's frontier LLM family; Claude 4.6 features adaptive thinking and XML preference
@@ -622,6 +646,11 @@ reading_time: "5 min"
 - [[entities/llama]] — Meta's open-source LLM family, fine-tuned in Decoding AI pipeline
 - [[entities/zenml]] — MLOps pipeline orchestration framework
 - [[entities/vespa]] — Yahoo's hybrid search engine (vector + keyword + metadata)
+- [[entities/glean]] — AI enterprise search platform with Enterprise Graph architecture, 100+ integrations, Series F ($150M)
+- [[entities/confluence]] — Atlassian structured wiki with Rovo AI agents; deep Jira integration; $5.42/user/month
+- [[entities/sharepoint]] — Microsoft enterprise CMS for 190M+ users; granular permissions, HIPAA compliance; Copilot at $30/user extra
+- [[entities/falkordb]] — Graph database with GraphRAG SDK: sub-50ms latency, 90% hallucination reduction
+- [[entities/cognee]] — Cognitive memory layer for agentic AI: hybrid graph+vector, 30+ connectors, incremental learning
 - [[entities/notion]] — Cloud-based knowledge management tool (traditional PKM baseline)
 - [[entities/roam-research]] — Pioneered bidirectional linking for networked thought (2020); graph database for ideas
 - [[entities/logseq]] — Open-source, local-first outliner with block-based architecture and advanced querying
@@ -690,6 +719,8 @@ reading_time: "5 min"
 - [[entities/owasp]] — Ranked prompt injection as #1 AI security risk in 2025 Top 10 for LLMs
 - [[entities/zep]] — Company behind Graphiti, open-source temporal knowledge graphs
 - [[entities/dairai]] — AI education org that published the LLM-KB system architecture analysis
+- [[entities/enterprise-knowledge]] — KM consulting firm (CEO Zach Wahl); influential annual trend reports since 2019
+- [[entities/novartis]] — Pharma company using knowledge graphs for drug discovery (genes, diseases, compounds)
 
 - [[entities/memgpt-letta]] — MemGPT/Letta: OS-inspired virtual context management platform for stateful agents
 - [[entities/magic-ltm]] — Magic LTM-2-Mini: 100M token context via novel sequence-dimension algorithm
@@ -740,9 +771,13 @@ reading_time: "5 min"
 - [[comparisons/knowledge-graph-vs-wiki]] — Formal knowledge graphs (nodes/edges) vs. flat markdown wikis
 - [[comparisons/manual-pkm-vs-llm-pkm]] — Traditional manual PKM vs. LLM-maintained knowledge bases
 - [[comparisons/cursor-vs-claude-code-vs-copilot]] — The three dominant AI coding tools: Cursor (balanced IDE), Claude Code (deepest reasoning), Copilot (lowest friction)
+- [[comparisons/personal-vs-enterprise-knowledge-systems]] — Personal (markdown+LLM) vs. team (wiki platforms) vs. enterprise (semantic layers+search+KG) knowledge systems
 - [[comparisons/fine-tuning-vs-context-window]] — Encoding knowledge in weights vs. loading in context
 - [[comparisons/single-agent-vs-multi-agent]] — Single-LLM vs. multi-agent knowledge pipelines
 - [[comparisons/obsidian-vs-graph-database]] — File-based markdown storage vs. graph database storage
+### Knowledge Representation Comparisons (Research: 2026-04-05)
+- [[comparisons/symbolic-vs-neural-knowledge-representation]] — Explicit symbolic KR vs. implicit neural KR: strengths, history, and hybrid resolution
+
 ### PKM Comparisons (Research: 2026-04-05)
 - [[comparisons/zettelkasten-vs-basb]] — Zettelkasten (insight generation) vs BASB (creative output): organizing principles, note structure, and workflows
 - [[comparisons/obsidian-vs-logseq-vs-notion]] — 2026 tool comparison: local-first vs cloud-first, performance benchmarks, AI features
@@ -878,10 +913,10 @@ reading_time: "5 min"
 - [[comparisons/fineweb-vs-dclm-vs-nemotron-cc]] — Three leading pretraining datasets
 - [[comparisons/heuristic-vs-model-based-filtering]] — Rule-based vs classifier filtering
 
-- Total sources: 128
-- Total concepts: 137
-- Total entities: 93
-- Total comparisons: 33
+- Total sources: 139
+- Total concepts: 147
+- Total entities: 100
+- Total comparisons: 34
 - Total raw files: 128
 
 
@@ -922,3 +957,84 @@ reading_time: "5 min"
 
 ### Comparisons
 - [[comparisons/conversational-vs-structured-vs-hybrid-ai-ui]]
+
+### LLM Pretraining, Distributed Training & Compute (Research: 2026-04-05)
+
+#### Sources
+- [[sources/mlops-pretraining-pipeline]] — Modern LLM pretraining pipeline: next-token prediction, data curation, RPT
+- [[sources/jeremy-jordan-distributed-training]] — Distributed training: data/tensor/pipeline parallelism, Llama 3.1 405B config
+- [[sources/chinchilla-scaling-laws-explained]] — Chinchilla scaling laws: 20:1 ratio, post-Chinchilla evolution to 60,000:1
+- [[sources/spike-no-more-training-stability]] — Loss spike prevention: gradient explosion mechanisms and fixes
+- [[sources/training-costs-2026-analysis]] — Frontier training costs: GPT-4 ~$150M, DeepSeek V3 ~$5.6M
+- [[sources/rohan-paul-stabilizing-llm-training]] — Training stability: gradient clipping, BFloat16, SPAM/LAMB
+- [[sources/deepspeed-megatron-frameworks]] — DeepSpeed ZeRO + Megatron-LM, 3D parallelism
+- [[sources/raschka-pretraining-post-training-paradigms]] — 2024 training pipelines across four frontier models
+- [[sources/analyticsvidhya-llm-pretraining-guide]] — End-to-end pretraining mechanics
+- [[sources/hf-ultrascale-playbook]] — 5D parallelism, 4,000+ scaling experiments
+
+#### Concepts
+- [[concepts/llm-pretraining]] — Training LLMs from scratch on trillions of tokens
+- [[concepts/distributed-training]] — Splitting training across thousands of GPUs
+- [[concepts/data-parallelism]] — Replicate model, split batches, all-reduce gradients
+- [[concepts/tensor-parallelism]] — Split weight matrices within layers (intra-node)
+- [[concepts/pipeline-parallelism]] — Split layers across GPUs with micro-batching
+- [[concepts/3d-parallelism]] — DP+TP+PP mapped to cluster topology
+- [[concepts/5d-parallelism]] — 3D + Context + Expert Parallelism
+- [[concepts/chinchilla-scaling-laws]] — Compute-optimal ~20 tokens/param
+- [[concepts/compute-optimal-training]] — Balancing parameters and data
+- [[concepts/training-stability]] — Preventing divergence over weeks/months
+- [[concepts/loss-spikes]] — Gradient explosion failure mode
+- [[concepts/learning-rate-schedules]] — Warmup + cosine decay or WSD
+- [[concepts/mixed-precision-training]] — BFloat16 as industry standard
+- [[concepts/zero-optimizer]] — DeepSpeed ZeRO progressive sharding
+- [[concepts/next-token-prediction]] — Self-supervised CLM objective
+- [[concepts/pretraining-data-pipeline]] — Web crawl to clean tokens pipeline
+- [[concepts/multi-stage-pretraining]] — Phased training with evolving data mix
+- [[concepts/llm-training-costs]] — $5M-$200M for frontier models
+
+#### Entities
+- [[entities/deepspeed]] — Microsoft ZeRO optimizer framework
+- [[entities/megatron-lm]] — NVIDIA tensor/pipeline parallelism framework
+- [[entities/deepseek-v3]] — $5.6M frontier MoE model
+
+#### Comparisons
+- [[comparisons/deepspeed-vs-megatron-lm]] — Memory optimization vs compute distribution
+- [[comparisons/compute-optimal-vs-inference-optimal]] — Chinchilla (20:1) vs overtraining (1,875:1+)
+
+## LLM Reasoning Capabilities (Research: 2026-04-05)
+
+### Sources
+- [[sources/wei-chain-of-thought-prompting]] — Foundational 2022 paper: step-by-step reasoning exemplars unlock reasoning in 100B+ LLMs
+- [[sources/yao-tree-of-thoughts]] — NeurIPS 2023: multi-path tree search reasoning, 74% on Game of 24 vs CoT's 4%
+- [[sources/mirzadeh-gsm-symbolic]] — ICLR 2025: LLM math reasoning fragility, up to 65% drops with irrelevant info
+- [[sources/snell-test-time-compute-scaling]] — 2024: test-time compute scaling outperforms 14x larger models
+- [[sources/lightman-lets-verify-step-by-step]] — OpenAI 2023: process supervision outperforms outcome supervision
+- [[sources/song-llm-reasoning-failures-survey]] — TMLR 2026: comprehensive taxonomy of LLM reasoning failures
+- [[sources/wei-emergent-abilities]] — TMLR 2022: emergent abilities appear unpredictably at scale
+- [[sources/li-system1-system2-reasoning-survey]] — 2025: System 1 vs System 2 dual-process framework for LLMs
+- [[sources/anthropic-extended-thinking]] — Anthropic 2025: Claude 3.7 extended thinking, 96.5% on GPQA physics
+- [[sources/adaline-inside-reasoning-models]] — Technical deep-dive: o3 vs R1 training pipelines and benchmarks
+- [[sources/raschka-state-of-reasoning-inference]] — 2025: four categories of inference-time scaling
+
+### Concepts
+- [[concepts/llm-reasoning]] — Multi-step inference, logical deduction, and problem-solving in LLMs
+- [[concepts/chain-of-thought]] — Step-by-step reasoning prompting at 100B+ parameter scale
+- [[concepts/tree-of-thought]] — Multi-path tree search reasoning with BFS/DFS
+- [[concepts/reasoning-models]] — RL-trained models (o1, o3, R1, Claude) that internalize deliberate reasoning
+- [[concepts/test-time-compute]] — Allocating more compute at inference time for better reasoning
+- [[concepts/process-reward-models]] — Step-level verifiers evaluating each reasoning step
+- [[concepts/self-consistency]] — Majority voting over multiple CoT samples
+- [[concepts/llm-reasoning-limitations]] — Fragility, distractor susceptibility, compositional breakdown
+- [[concepts/mathematical-reasoning-llm]] — Math reasoning from GSM8K to AIME
+- [[concepts/emergent-abilities]] — Capabilities appearing suddenly at scale
+- [[concepts/stochastic-parrot-debate]] — Whether LLMs genuinely reason or pattern-match
+- [[concepts/system-1-system-2-thinking]] — Kahneman's dual-process theory applied to LLMs
+- [[concepts/reinforcement-learning-for-reasoning]] — RL as core training method for reasoning models
+
+### Entities
+- [[entities/jason-wei]] — First author of CoT and Emergent Abilities papers
+- [[entities/openai]] — Organization behind o1, o3, and process reward models
+
+### Comparisons
+- [[comparisons/o3-vs-r1-vs-claude-reasoning]] — Three leading reasoning models compared
+- [[comparisons/process-vs-outcome-supervision]] — Step-level vs answer-level feedback for training verifiers

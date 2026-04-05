@@ -1,8 +1,8 @@
 ---
 title: "RLHF vs Constitutional AI"
 type: comparison
-subjects: ["[[concepts/ai-alignment]]", "[[concepts/constitutional-ai]]"]
-sources: ["[[sources/ai-safety-alignment-progress-2025]]", "[[sources/anthropic-safety-research-directions-2025]]"]
+subjects: ["[[concepts/rlhf]]", "[[concepts/constitutional-ai]]"]
+sources: ["[[sources/ai-safety-alignment-progress-2025]]", "[[sources/anthropic-safety-research-directions-2025]]", "[[sources/anthropic-constitutional-ai]]", "[[sources/huggingface-rlhf-illustrated]]", "[[sources/wolfe-rlaif-reinforcement-learning-ai-feedback]]"]
 last_compiled: 2026-04-05
 summary: "Comparison of RLHF (human preference labels) and Constitutional AI (principle-guided self-critique): trade-offs in scalability, consistency, transparency, and alignment robustness."
 ---

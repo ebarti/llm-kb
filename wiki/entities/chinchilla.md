@@ -2,8 +2,8 @@
 title: "Chinchilla"
 type: entity
 entity_type: paper
-sources: ["[[sources/scaling-laws-data-quality]]", "[[sources/chinchilla-scaling-laws-explained]]"]
-related: ["[[concepts/scaling-laws]]", "[[concepts/training-data-curation]]", "[[concepts/chinchilla-scaling-laws]]", "[[concepts/compute-optimal-training]]", "[[concepts/llm-pretraining]]"]
+sources: ["[[sources/chinchilla-scaling-laws]]", "[[sources/scaling-laws-data-quality]]", "[[sources/chinchilla-scaling-laws-explained]]"]
+related: ["[[concepts/scaling-laws]]", "[[concepts/transformer-architecture]]", "[[concepts/training-data-curation]]", "[[concepts/chinchilla-scaling-laws]]", "[[concepts/compute-optimal-training]]", "[[concepts/llm-pretraining]]", "[[entities/gpt]]"]
 last_compiled: 2026-04-05
 summary: "DeepMind's 2022 paper establishing compute-optimal scaling laws: model parameters and training tokens should scale equally (~20 tokens per parameter), showing many existing LLMs were significantly undertrained."
 ---
