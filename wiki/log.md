@@ -973,3 +973,16 @@ Deep research pass on the world models paradigm: JEPA, video generation as world
 - **Comparison pages created** (2): comparisons/amodei-vs-aschenbrenner-vs-sutskever, comparisons/scaling-vs-research-path-to-agi
 - **Total wiki pages touched**: 22 (7 sources + 8 concepts + 5 entities + 2 comparisons)
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
+
+## [2026-04-05] research | AI robotics, embodied intelligence, foundation models for robotics
+- **Scope**: Deep research on the convergence of LLMs with physical world interaction — foundation models for robotics, humanoid robots, embodied AI, dexterous manipulation, sim-to-real transfer, autonomous driving
+- **Web searches**: 12 queries covering foundation models for robotics, humanoid robots 2026, RT-2/PaLM-E, Physical Intelligence π0, Tesla Optimus, Figure AI, embodied AI + LLMs, robot learning from video, sim-to-real transfer, autonomous driving foundation models, dexterous manipulation, robot language grounding
+- **Sources fetched and ingested**: 9 (Deloitte physical AI report, Google DeepMind RT-2, Physical Intelligence π0, LLMs for Robotics survey, SayCan, Figure AI Wikipedia, Tesla Optimus Wikipedia, NVIDIA GR00T N1, NVIDIA AutoMate sim-to-real)
+- **Raw files created** (9): raw/deloitte-physical-ai-humanoid-robots-2026.md, raw/google-deepmind-rt2-vla-model.md, raw/physical-intelligence-pi0-foundation-model.md, raw/llms-for-robotics-survey-2025.md, raw/saycan-grounding-language-robotic-affordances.md, raw/figure-ai-humanoid-robots.md, raw/tesla-optimus-humanoid-robot.md, raw/nvidia-isaac-groot-n1-foundation-model.md, raw/nvidia-automate-sim-to-real-assembly.md
+- **Source summaries created** (9): sources/deloitte-physical-ai-humanoid-robots-2026, sources/google-deepmind-rt2-vla-model, sources/physical-intelligence-pi0-foundation-model, sources/llms-for-robotics-survey-2025, sources/saycan-grounding-language-robotic-affordances, sources/figure-ai-humanoid-robots, sources/tesla-optimus-humanoid-robot, sources/nvidia-isaac-groot-n1-foundation-model, sources/nvidia-automate-sim-to-real-assembly
+- **Concept articles created** (9): concepts/embodied-intelligence, concepts/vision-language-action-models, concepts/foundation-models-for-robotics, concepts/humanoid-robots, concepts/language-grounding-for-robots, concepts/sim-to-real-transfer, concepts/dexterous-manipulation, concepts/cross-embodiment-transfer, concepts/robot-learning-from-demonstration, concepts/autonomous-driving
+- **Concept articles updated** (2): concepts/physical-ai (added Deloitte analysis, deployment data, barriers), concepts/flow-matching (added robotics application, π0's 50Hz control)
+- **Entity pages created** (10): entities/rt-2, entities/pi0, entities/physical-intelligence, entities/figure-ai, entities/tesla-optimus, entities/nvidia-groot, entities/saycan, entities/helix-vla, entities/boston-dynamics, entities/waymo
+- **Comparison pages created** (2): comparisons/rt2-vs-pi0-vs-groot, comparisons/tesla-optimus-vs-figure-vs-atlas
+- **Total wiki pages touched**: 32 (9 sources + 11 concepts + 10 entities + 2 comparisons)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
