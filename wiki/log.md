@@ -819,3 +819,48 @@ Deep research pass on Personal Knowledge Management (PKM), Zettelkasten, second 
   - concepts/swe-bench — added scaffold finding, open-source convergence, new sources
   - concepts/agentic-coding — added new sources and cross-links to vibe coding, Software 2.0, comparisons
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+
+## [2026-04-05] research | Web scraping, content extraction, and HTML-to-markdown conversion
+- **Topic**: Web scraping, content extraction, and converting messy web into clean structured data for knowledge bases
+- **Searches performed** (12): web scraping best practices 2025/2026, readability algorithm content extraction, trafilatura web content extraction, beautiful soup vs playwright, headless browser scraping, HTML to markdown conversion tools, web scraping ethics robots.txt, structured data extraction schema.org, Jina AI reader API, web archiving preservation tools, crawl4ai open source web crawler, firecrawl web scraping API
+- **Sources fetched and ingested** (9):
+  - raw/web-scraping-best-practices-2026.md (ScraperAPI comprehensive guide)
+  - raw/mozilla-readability-algorithm.md (WebcrawlerAPI Readability.js deep dive)
+  - raw/trafilatura-web-extraction.md (GitHub + docs for Trafilatura library)
+  - raw/jina-reader-lm-html-to-markdown.md (Jina AI Reader-LM v1 + v2 articles)
+  - raw/crawl4ai-llm-web-crawler.md (GitHub README for Crawl4AI)
+  - raw/web-scraping-legality-ethics-2025.md (Browserless legal analysis)
+  - raw/python-scraping-tools-comparison.md (DasRoot BS4 vs Scrapy vs Playwright)
+  - raw/schema-org-structured-data.md (Schema.org getting started guide)
+  - raw/web-archiving-warc-tools.md (IIPC awesome-web-archiving)
+- **Source summaries created** (9): sources/web-scraping-best-practices-2026, sources/mozilla-readability-algorithm, sources/trafilatura-web-extraction, sources/jina-reader-lm-html-to-markdown, sources/crawl4ai-llm-web-crawler, sources/web-scraping-legality-ethics-2025, sources/python-scraping-tools-comparison, sources/schema-org-structured-data, sources/web-archiving-warc-tools
+- **Concept articles created** (7): concepts/content-extraction, concepts/boilerplate-removal, concepts/html-to-markdown-conversion, concepts/web-scraping-ethics-and-law, concepts/anti-bot-evasion, concepts/structured-data-extraction, concepts/web-archiving
+- **Concept articles updated** (1): concepts/web-scraping-at-scale (added 4 new sources, tool selection guide, related concepts)
+- **Entity pages created** (8): entities/mozilla-readability, entities/trafilatura, entities/jina-reader, entities/reader-lm, entities/crawl4ai, entities/playwright, entities/scrapy, entities/beautiful-soup
+- **Comparison pages created** (2): comparisons/heuristic-vs-neural-content-extraction, comparisons/crawl4ai-vs-firecrawl
+- **Total wiki pages touched**: 27 (9 sources + 8 concepts + 8 entities + 2 comparisons)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
+
+## [2026-04-05] research | LLM Applications Beyond Code — Writing, Research, Education, Science, Creative Work
+
+Deep research pass on the expanding frontier of LLM applications beyond code generation, following Karpathy's shift from code to knowledge manipulation.
+
+- **Web searches performed**: 11 (LLM applications beyond coding, AI scientific discovery, LLM education tutoring, AI writing tools, LLM data analysis, AI medical diagnosis, LLM legal analysis, AI research assistant tools, LLM workflow automation, AI creativity debate, frontier AI applications)
+- **Sources fetched and ingested**: 10
+  - `raw/hbr-llms-unlock-creative-ideas.md` — HBR: LLMs unlock creativity via persistence and flexibility
+  - `raw/assemblyai-llm-use-cases-2026.md` — Seven primary enterprise LLM use cases
+  - `raw/frontiers-ai-lab-automation-scientific-discovery.md` — AI as lab-pilot for science (Hartung, Frontiers in AI)
+  - `raw/pmc-llms-healthcare-medical-review.md` — Seven healthcare LLM application domains (PMC review)
+  - `raw/ai-deep-research-tools-2026.md` — Seven best AI research tools in 2026
+  - `raw/mergen-llm-data-analysis-automation.md` — LLM data analysis automation (PMC study)
+  - `raw/emergentmind-llm-tutoring-solutions.md` — LLM tutoring systems survey
+  - `raw/microsoft-research-ai-2026-frontiers.md` — Microsoft Research 20 AI frontiers for 2026
+  - `raw/gavel-law-firm-llm-guide-2026.md` — Small law firm LLM guide
+  - `raw/science-advances-ai-creativity-diversity-paradox.md` — AI creativity paradox (Science Advances)
+- **Source summaries created** (10): sources/hbr-llms-unlock-creative-ideas, sources/assemblyai-llm-use-cases-2026, sources/frontiers-ai-lab-automation-scientific-discovery, sources/pmc-llms-healthcare-medical-review, sources/ai-deep-research-tools-2026, sources/mergen-llm-data-analysis-automation, sources/emergentmind-llm-tutoring-solutions, sources/microsoft-research-ai-2026-frontiers, sources/gavel-law-firm-llm-guide-2026, sources/science-advances-ai-creativity-diversity-paradox
+- **Concept articles created** (9): concepts/llm-applications-beyond-code (master map), concepts/ai-scientific-discovery, concepts/llm-healthcare-applications, concepts/llm-education-tutoring, concepts/llm-creative-applications, concepts/llm-legal-applications, concepts/ai-creativity-paradox, concepts/llm-data-analysis, concepts/ai-research-assistants
+- **Entity pages created** (6): entities/perplexity-ai, entities/elicit, entities/scite, entities/alphafold, entities/med-palm, entities/everlaw
+- **Comparison pages created** (1): comparisons/coding-vs-knowledge-work-llm-applications
+- **Existing articles updated** (1): concepts/post-code-ai-workflow (added link to llm-applications-beyond-code)
+- **Total wiki pages touched**: 27 (10 sources + 9 concepts + 6 entities + 1 comparison + 1 updated)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md

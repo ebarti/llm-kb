@@ -358,3 +358,12 @@ Tracks which raw files have been compiled into the wiki.
 | `raw/python-scraping-tools-comparison.md` | compiled | 2026-04-05 |
 | `raw/schema-org-structured-data.md` | compiled | 2026-04-05 |
 | `raw/web-archiving-warc-tools.md` | compiled | 2026-04-05 |
+| `raw/attention-mechanisms-comprehensive-survey.md` | compiled | 2026-04-05 |
+| `raw/flashattention-3-tri-dao-blog.md` | compiled | 2026-04-05 |
+| `raw/streamingllm-attention-sinks.md` | compiled | 2026-04-05 |
+| `raw/retro-illustrated-retrieval-transformer.md` | compiled | 2026-04-05 |
+| `raw/differentiable-neural-computers-deepmind.md` | compiled | 2026-04-05 |
+| `raw/mamba-visual-guide-grootendorst.md` | compiled | 2026-04-05 |
+| `raw/knowledge-circuits-transformers-research.md` | compiled | 2026-04-05 |
+| `raw/kv-caching-huggingface-explained.md` | compiled | 2026-04-05 |
+| `raw/gqa-grouped-query-attention-overview.md` | compiled | 2026-04-05 |

@@ -1219,6 +1219,11 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 - [[concepts/paged-attention]] — Virtual-memory-inspired KV cache: non-contiguous allocation, 60-80% waste to 4%.
 - [[concepts/sparse-attention]] — Subset-of-pairs attention via fixed patterns, routing, clustering, or linear approximation.
 - [[concepts/multimodal-transformers]] — Multi-modality architectures: vision encoders + LLM decoders, MoE, VLAs.
+- [[concepts/attention-mechanisms]] — The family of mechanisms enabling dynamic focus on relevant input parts — from Bahdanau 2014 through Transformer self-attention to modern variants (flash, linear, sparse, GQA).
+- [[concepts/attention-sinks]] — Initial tokens receive disproportionate attention regardless of content due to softmax sum-to-one constraint; enables StreamingLLM for infinite generation (ICLR 2024).
+- [[concepts/linear-attention]] — Kernel-based approximation avoiding the N x N attention matrix, reducing to O(N*d^2) — but consistently underperforms softmax due to lost injectivity and sharpness.
+- [[concepts/memory-augmented-neural-networks]] — Neural architectures with explicit external memory via differentiable read/write: NTMs (2014), DNCs (2016), RETRO (2021) — the lineage connecting attention to external knowledge storage.
+- [[concepts/knowledge-storage-in-transformers]] — MLP layers store facts as key-value memories while attention heads route queries to storage — forming modular, swappable "knowledge circuits" enabling surgical editing.
 
 ### Entities
 - [[entities/attention-is-all-you-need]] — 2017 paper: the Transformer architecture, most cited ML paper of 21st century.
@@ -1228,11 +1233,18 @@ One-line summaries of all wiki articles. Used for quick navigation and Q&A conte
 - [[entities/switch-transformer]] — Google 2021: 1.6T params, 2048 experts, single-expert routing, 4x speedup over T5-XXL.
 - [[entities/mixtral]] — Mistral 2023: 47B total / 12B active MoE; outperforms Llama 2 70B.
 - [[entities/tri-dao]] — Creator of FlashAttention and co-creator of Mamba.
+- [[entities/flashattention]] — IO-aware exact attention library (v1-v3): default in PyTorch/JAX; v3 reaches 740 TFLOPS FP16 and ~1.2 PFLOPS FP8 on H100.
+- [[entities/retro]] — DeepMind's 7.5B model matching GPT-3 (185B) via 2T-token retrieval database with chunked cross-attention — decoupling memorization from reasoning.
+- [[entities/neural-turing-machine]] — Graves 2014: foundational architecture coupling LSTM controller with differentiable external memory for algorithmic learning.
+- [[entities/streamingllm]] — MIT HAN Lab framework: infinite-length generation by preserving attention sink tokens + rolling KV window; 22.2x speedup, no fine-tuning.
 
 ### Comparisons
 - [[comparisons/transformers-vs-state-space-models]] — Databases vs brains: Transformers for tokenized text, SSMs for raw data, hybrids optimal.
 - [[comparisons/encoder-only-vs-decoder-only-vs-encoder-decoder]] — BERT vs GPT vs T5: why decoder-only won.
 - [[comparisons/dense-vs-moe-transformers]] — Dense (all params per token) vs MoE (sparse routing): MoE now default for frontier.
+- [[comparisons/softmax-vs-linear-attention]] — Softmax (O(N^2*d), exact, sharp retrieval) vs linear (O(N*d^2), approximate, blurred): linear attention offers efficiency but loses injectivity and sharpness.
+- [[comparisons/mha-vs-gqa-vs-mqa]] — Multi-Head (max quality) vs Grouped Query (near-MHA, 4-8x less KV) vs Multi-Query (fastest, quality loss): GQA dominant since 2023.
+- [[comparisons/self-attention-vs-cross-attention]] — Self-attention (within-sequence) vs cross-attention (between sequences): self-attention dominates decoder-only LLMs; cross-attention essential for multimodal and retrieval.
 
 ## Sources (Claude & Anthropic Deep Dive)
 

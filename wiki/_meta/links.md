@@ -2738,3 +2738,83 @@ Pages with no incoming links:
 
 ### comparisons/crawl4ai-vs-firecrawl
 → [[entities/crawl4ai]], [[entities/firecrawl]]
+
+## LLM Applications Beyond Code (Research: 2026-04-05)
+
+### sources/hbr-llms-unlock-creative-ideas
+→ [[concepts/llm-creative-applications]], [[concepts/ai-creativity-paradox]], [[concepts/llm-applications-beyond-code]], [[concepts/prompt-engineering]], [[concepts/chain-of-thought-prompting]], [[concepts/fine-tuning]], [[concepts/rag-prompting]]
+
+### sources/assemblyai-llm-use-cases-2026
+→ [[concepts/llm-applications-beyond-code]], [[concepts/llm-education-tutoring]], [[concepts/llm-data-analysis]], [[concepts/llm-legal-applications]]
+
+### sources/frontiers-ai-lab-automation-scientific-discovery
+→ [[concepts/ai-scientific-discovery]], [[concepts/llm-applications-beyond-code]], [[concepts/agentic-workflows]], [[concepts/multi-agent-systems]]
+
+### sources/pmc-llms-healthcare-medical-review
+→ [[concepts/llm-healthcare-applications]], [[concepts/llm-applications-beyond-code]], [[concepts/ai-scientific-discovery]], [[concepts/hallucination-contamination]], [[concepts/multimodal-ai]]
+
+### sources/ai-deep-research-tools-2026
+→ [[concepts/ai-research-assistants]], [[concepts/llm-applications-beyond-code]], [[concepts/post-code-ai-workflow]], [[entities/perplexity-ai]], [[entities/elicit]], [[entities/scite]]
+
+### sources/mergen-llm-data-analysis-automation
+→ [[concepts/llm-data-analysis]], [[concepts/llm-applications-beyond-code]], [[concepts/reflection-pattern]], [[concepts/chain-of-thought-prompting]]
+
+### sources/emergentmind-llm-tutoring-solutions
+→ [[concepts/llm-education-tutoring]], [[concepts/llm-applications-beyond-code]], [[concepts/multi-agent-systems]], [[concepts/agentic-workflows]]
+
+### sources/microsoft-research-ai-2026-frontiers
+→ [[concepts/ai-scientific-discovery]], [[concepts/llm-applications-beyond-code]], [[concepts/llm-healthcare-applications]], [[concepts/llm-creative-applications]], [[concepts/post-code-ai-workflow]]
+
+### sources/gavel-law-firm-llm-guide-2026
+→ [[concepts/llm-legal-applications]], [[concepts/llm-applications-beyond-code]], [[concepts/post-code-ai-workflow]], [[entities/everlaw]]
+
+### sources/science-advances-ai-creativity-diversity-paradox
+→ [[concepts/ai-creativity-paradox]], [[concepts/llm-creative-applications]], [[concepts/llm-applications-beyond-code]]
+
+### concepts/llm-applications-beyond-code
+→ [[concepts/post-code-ai-workflow]], [[concepts/ai-scientific-discovery]], [[concepts/llm-healthcare-applications]], [[concepts/llm-education-tutoring]], [[concepts/llm-creative-applications]], [[concepts/llm-legal-applications]], [[concepts/llm-data-analysis]], [[concepts/ai-research-assistants]], [[concepts/ai-creativity-paradox]], [[concepts/llm-knowledge-base]], [[concepts/cheap-ontology]], [[concepts/data-quality-bottleneck]], [[concepts/hallucination-contamination]]
+
+### concepts/ai-scientific-discovery
+→ [[concepts/llm-applications-beyond-code]], [[concepts/agentic-workflows]], [[concepts/multi-agent-systems]], [[concepts/llm-healthcare-applications]], [[entities/alphafold]]
+
+### concepts/llm-healthcare-applications
+→ [[concepts/llm-applications-beyond-code]], [[concepts/ai-scientific-discovery]], [[concepts/multimodal-ai]], [[concepts/hallucination-contamination]], [[entities/med-palm]]
+
+### concepts/llm-education-tutoring
+→ [[concepts/llm-applications-beyond-code]], [[concepts/multi-agent-systems]], [[concepts/agentic-workflows]], [[concepts/ai-creativity-paradox]]
+
+### concepts/llm-creative-applications
+→ [[concepts/llm-applications-beyond-code]], [[concepts/ai-creativity-paradox]], [[concepts/prompt-engineering]], [[concepts/post-code-ai-workflow]]
+
+### concepts/llm-legal-applications
+→ [[concepts/llm-applications-beyond-code]], [[concepts/post-code-ai-workflow]], [[concepts/llm-qa-over-documents]], [[concepts/hallucination-contamination]], [[entities/everlaw]]
+
+### concepts/ai-creativity-paradox
+→ [[concepts/llm-creative-applications]], [[concepts/llm-applications-beyond-code]], [[concepts/data-quality-bottleneck]], [[concepts/model-collapse]], [[concepts/vault-separation]]
+
+### concepts/llm-data-analysis
+→ [[concepts/llm-applications-beyond-code]], [[concepts/reflection-pattern]], [[concepts/prompt-engineering]], [[concepts/post-code-ai-workflow]]
+
+### concepts/ai-research-assistants
+→ [[concepts/llm-applications-beyond-code]], [[concepts/post-code-ai-workflow]], [[concepts/llm-summarization]], [[concepts/claim-extraction]], [[entities/perplexity-ai]], [[entities/elicit]], [[entities/scite]]
+
+### entities/perplexity-ai
+→ [[concepts/ai-research-assistants]], [[concepts/llm-applications-beyond-code]]
+
+### entities/elicit
+→ [[concepts/ai-research-assistants]], [[concepts/wiki-compilation]]
+
+### entities/scite
+→ [[concepts/ai-research-assistants]], [[concepts/claim-extraction]]
+
+### entities/alphafold
+→ [[concepts/ai-scientific-discovery]], [[concepts/llm-applications-beyond-code]]
+
+### entities/med-palm
+→ [[concepts/llm-healthcare-applications]], [[concepts/fine-tuning]]
+
+### entities/everlaw
+→ [[concepts/llm-legal-applications]]
+
+### comparisons/coding-vs-knowledge-work-llm-applications
+→ [[concepts/agentic-coding]], [[concepts/llm-applications-beyond-code]], [[concepts/post-code-ai-workflow]], [[concepts/ai-creativity-paradox]]

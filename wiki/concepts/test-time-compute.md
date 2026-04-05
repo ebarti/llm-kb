@@ -54,27 +54,64 @@ The key innovation from Snell et al.: allocate compute adaptively based on probl
 | Beam search | Parallel | High | High | Low |
 | MCTS | Parallel | Very high | Highest | Low |
 
+## The Four Dimensions of TTS (Zhang et al. Survey)
+
+The [[sources/zhang-test-time-scaling-survey|definitive 2025 survey]] organizes the field along four dimensions:
+
+1. **What to scale**: Parallel, sequential, hybrid, or internal scaling.
+2. **How to scale**: Tuning (SFT, RL) or inference methods (stimulation, verification, search, aggregation).
+3. **Where to scale**: Math, code, science, games, Q&A, agents, multimodal.
+4. **How well to scale**: Performance, efficiency, controllability, scalability.
+
+## Empirical Findings at Scale
+
+The [[sources/agarwal-art-of-scaling-test-time-compute|first large-scale empirical study]] (30B+ tokens, 8 models, 7B-235B) reveals three trends:
+
+1. **No universal dominance**: No single TTS strategy wins everywhere. Strategy must match problem difficulty, model type, and compute budget.
+2. **Distinct model patterns**: "Short-horizon" vs. "long-horizon" models respond differently to scaling.
+3. **Monotonic within type**: More compute reliably helps within a given model and strategy.
+
 ## Emerging Frontiers
 
-From [[sources/raschka-state-of-reasoning-inference|Raschka (2025)]]:
+### Latent Reasoning
+[[concepts/latent-reasoning]]: Compute in hidden states without generating explicit tokens. [[sources/hao-coconut-latent-reasoning|COCONUT]] feeds hidden states directly back as input, enabling implicit breadth-first search. More efficient but currently suffers performance degradation on some tasks.
 
-- **Latent reasoning**: Compute in hidden states without generating explicit tokens. More efficient but less interpretable. A frontier research direction.
-- **Self-backtracking**: Models autonomously detect and correct errors mid-generation.
-- **Thought switching penalty**: Prevents models from jumping between reasoning approaches prematurely.
-- **Test-time preference optimization**: Iterative refinement via feedback models.
+### Deep-Thinking Tokens
+[[sources/chen-deep-thinking-tokens|Chen et al. (2026)]] show that not all reasoning tokens are equal. "Deep-thinking tokens" (where predictions undergo significant layer-by-layer revision) correlate with accuracy far better than raw token count. The Think@n strategy prioritizes high deep-thinking ratio samples for cost-efficient inference.
+
+### Self-Backtracking
+Models autonomously detect and correct errors mid-generation.
+
+### Test-Time Preference Optimization
+Iterative refinement via feedback models.
+
+### Test-Time Training
+[[concepts/test-time-training]]: Actually modifying model weights at inference time. [[sources/ttrl-test-time-reinforcement-learning|TTRL]] uses majority voting as RL reward signal (211% improvement on AIME). [[sources/hu-test-time-learning-llm|TLM]] adapts via input perplexity minimization (20%+ improvement on domain tasks).
+
+## The Overthinking Problem
+
+[[sources/iacobacci-thinking-budget-not-enough|Iacobacci et al. (2025)]]: Simply increasing thinking budgets shows diminishing returns and plateau effects. Strategic configuration matters more than computational volume:
+- Summary approach (generate multiple, consolidate) outperforms naive budget increases.
+- Self-consistency shows competitive results.
+- Weaker models struggle to benefit from extended reasoning at all.
+
+This connects to the [[sources/chen-deep-thinking-tokens|deep-thinking token]] finding: more tokens may signal overthinking, not better reasoning.
 
 ## Practical Tradeoffs
 
 - **Latency**: Reasoning models are 3-5x slower due to token generation overhead.
-- **Cost**: More tokens = higher API costs. o3 in high-reasoning mode: 7.7s for 100K tokens.
+- **Cost**: More tokens = higher API costs. OpenAI 2024 inference spending: $2.3B -- 15x GPT-4 training cost.
 - **Diminishing returns**: Logarithmic scaling means doubling compute doesn't double quality.
 - **Task dependence**: No single technique dominates across all tasks.
+- **Model threshold**: Extended thinking requires minimum model capability to be effective.
 
-## Significance
+## Significance: The Paradigm Shift
 
-Test-time compute scaling represents a paradigm shift in AI development. The previous decade was dominated by scaling laws for pre-training (Kaplan et al., 2020; Hoffmann et al., 2022). Now the field recognizes that inference-time compute is an equally important axis of scaling, potentially more cost-effective for reasoning tasks.
+Test-time compute scaling represents a paradigm shift in AI development. The previous decade was dominated by [[concepts/scaling-laws]] for pre-training (Kaplan et al., 2020; Hoffmann et al., 2022). Now the field recognizes that inference-time compute is an equally important axis of scaling, potentially more cost-effective for reasoning tasks.
 
-As of 2025, "thinking on demand" (configurable reasoning budgets) is becoming standard practice, and reasoning capabilities are transitioning from optional features to baseline expectations.
+[[sources/roberts-train-to-test-scaling-laws|Roberts et al. (2026)]] show this shift has concrete training implications: when accounting for inference costs, optimal pretraining shifts into heavy overtraining of smaller models. The T2 scaling laws jointly optimize training and inference compute.
+
+As of 2026, reasoning is no longer optional -- it is baked into flagship models (GPT-5, Claude Opus 4, Gemini 3). Inference demand is projected to exceed training demand by 118x by 2026, with the AI inference market growing from $106B (2025) to $255B (2030).
 
 ## Sources
 
@@ -82,6 +119,14 @@ As of 2025, "thinking on demand" (configurable reasoning budgets) is becoming st
 - [[sources/raschka-state-of-reasoning-inference]] -- practical survey of techniques
 - [[sources/anthropic-extended-thinking]] -- Claude's implementation with thinking budgets
 - [[sources/adaline-inside-reasoning-models]] -- how o3 and R1 use test-time compute
+- [[sources/zhang-test-time-scaling-survey]] -- definitive survey (What/How/Where/How Well)
+- [[sources/agarwal-art-of-scaling-test-time-compute]] -- first large-scale empirical study (30B tokens)
+- [[sources/roberts-train-to-test-scaling-laws]] -- T2 laws bridging training and inference scaling
+- [[sources/wu-inference-scaling-laws]] -- ICLR 2025 inference scaling laws
+- [[sources/emergehaus-test-time-compute-overview]] -- enterprise perspective and strategy
+- [[sources/introl-inference-time-scaling-paradigm-shift]] -- paradigm shift analysis with infrastructure data
+- [[sources/iacobacci-thinking-budget-not-enough]] -- limits of naive budget scaling
+- [[sources/chen-deep-thinking-tokens]] -- deep-thinking tokens as reasoning quality metric
 
 ## Related Concepts
 
@@ -90,3 +135,11 @@ As of 2025, "thinking on demand" (configurable reasoning budgets) is becoming st
 - [[concepts/chain-of-thought]] -- the foundational sequential scaling technique
 - [[concepts/self-consistency]] -- the foundational parallel scaling technique
 - [[concepts/llm-reasoning]] -- the broader capability being improved
+- [[concepts/inference-scaling-laws]] -- formal scaling relationships for inference compute
+- [[concepts/training-vs-inference-compute]] -- the macro paradigm shift
+- [[concepts/adaptive-compute-allocation]] -- smart distribution of inference compute
+- [[concepts/best-of-n-sampling]] -- the baseline parallel scaling technique
+- [[concepts/mcts-llm-reasoning]] -- search-based scaling via tree search
+- [[concepts/latent-reasoning]] -- compute without explicit token generation
+- [[concepts/test-time-training]] -- modifying model weights at inference time
+- [[concepts/reasoning-tokens]] -- the tokens that constitute thinking

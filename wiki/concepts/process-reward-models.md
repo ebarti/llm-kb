@@ -1,7 +1,7 @@
 ---
 title: "Process Reward Models"
 type: concept
-sources: ["[[sources/lightman-lets-verify-step-by-step]]", "[[sources/snell-test-time-compute-scaling]]", "[[sources/raschka-state-of-reasoning-inference]]"]
+sources: ["[[sources/lightman-lets-verify-step-by-step]]", "[[sources/snell-test-time-compute-scaling]]", "[[sources/raschka-state-of-reasoning-inference]]", "[[sources/khalifa-thinkprm]]", "[[sources/zhang-test-time-scaling-survey]]"]
 related: ["[[concepts/test-time-compute]]", "[[concepts/reasoning-models]]", "[[concepts/llm-reasoning]]", "[[concepts/chain-of-thought]]"]
 last_compiled: 2026-04-05
 summary: "Trained verifier models that evaluate each step in a reasoning chain (not just the final answer), enabling selection of the best reasoning path -- a key building block of test-time compute scaling and reasoning models."
@@ -49,9 +49,13 @@ PRMs can detect errors mid-generation, enabling models to backtrack and revise r
 
 ## Recent Advances
 
-- **Process Reward Models That Think** (2025): Verbalized PRMs that generate verification chains-of-thought, requiring orders of magnitude fewer process labels.
+- **[[sources/khalifa-thinkprm|ThinkPRM]] (2025)**: Generative PRMs that produce verification chains-of-thought, requiring only 1% of PRM800K labels while outperforming discriminative PRMs by 8% on GPQA-Diamond. Extends the "thinking" paradigm to verification itself -- verification compute can be scaled independently at test time.
 - **Math-Shepherd** (2023): Automated step-level verification without human annotations.
 - **Generalizable PRMs**: Using formally verified training data for broader applicability.
+
+## Scaling Challenges
+
+[[sources/introl-inference-time-scaling-paradigm-shift|Crosley (2025)]] notes that DeepSeek-R1 explicitly found PRMs and MCTS less effective than pure RL with extended outputs. [[sources/wu-inference-scaling-laws|Wu et al. (ICLR 2025)]] find that compute-optimal inference favors scaling solution generation more aggressively than scaling verifications. This suggests PRM-based selection is most valuable in the low-sample regime, with advantages eroding at scale (16-32+ samples).
 
 ## AI Alignment Connection
 
