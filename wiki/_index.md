@@ -1611,3 +1611,44 @@ reading_time: "5 min"
 ### Comparisons
 - [[comparisons/biological-vs-artificial-neural-networks]] — Brain vs AI across 10 dimensions: energy, learning, memory, adaptability
 - [[comparisons/neuromorphic-vs-gpu-computing]] — Neuromorphic (1000x efficiency) vs GPU (general purpose): complementary technologies
+
+---
+
+## AI Hardware, Chips & Compute Infrastructure
+
+### Sources
+- [[sources/ai-hardware-accelerators-2026-guide]] — 2026 landscape: NVIDIA Blackwell, AMD MI300, custom silicon, cost comparisons
+- [[sources/cerebras-vs-sambanova-vs-groq-chips]] — Three NVIDIA alternatives compared in depth
+- [[sources/google-tpu-architecture-gemini]] — TPU v1 through Ironwood v7; Gemini 3 TPU-only training
+- [[sources/ai-inference-accelerators-compared]] — Inference wars: Etched, Taalas, Cerebras, Groq, NVIDIA benchmarked
+- [[sources/photonic-computing-ai-2026]] — Photonic computing status and timeline
+- [[sources/quantum-machine-learning-2026]] — QML algorithms, hardware, and hybrid approaches
+- [[sources/iea-ai-energy-demand-2026]] — IEA data center energy projections
+- [[sources/hbm-memory-wall-roadmap]] — HBM technology deep dive and memory wall analysis
+- [[sources/nvidia-gpu-specs-ai-training-2026]] — NVIDIA GPU specification reference (A100 through GB200)
+- [[sources/ai-infrastructure-investment-2026]] — The trillion-dollar buildout: capex, deals, projections
+
+### Concepts
+- [[concepts/ai-hardware-landscape]] — Competitive dynamics: NVIDIA vs custom silicon vs ASICs vs emerging
+- [[concepts/ai-accelerators]] — Purpose-built hardware from GPUs to model-specific ASICs
+- [[concepts/memory-bandwidth-wall]] — The dominant AI performance bottleneck and HBM evolution
+- [[concepts/training-vs-inference-hardware]] — Market bifurcation: compute-bound training vs bandwidth-bound inference
+- [[concepts/custom-silicon]] — Hyperscaler vertical integration: TPU, Trainium, MTIA, Maia
+- [[concepts/ai-data-center-energy]] — Energy footprint: 1,100 TWh in 2026, cooling, nuclear/solar
+- [[concepts/ai-infrastructure-investment]] — $2.5T global AI spending reshaping economies
+- [[concepts/photonic-computing]] — Computing with light: 100x efficiency potential, pre-commercial
+- [[concepts/quantum-machine-learning]] — Quantum-classical hybrid ML: promising but unproven
+- [[concepts/wafer-scale-computing]] — Cerebras: entire silicon wafer as single processor
+
+### Entities
+- [[entities/nvidia]] — Dominant AI chip company (~80% market); Blackwell; CUDA moat
+- [[entities/cerebras]] — World's largest chip (WSE-3); $10B+ OpenAI deal; IPO 2026
+- [[entities/groq]] — Deterministic inference LPU; acquired by NVIDIA ($20B)
+- [[entities/google-tpu]] — 7-generation custom silicon; Gemini 3 TPU-only training
+- [[entities/amd]] — MI300X: competitive GPU alternative at lower cost
+- [[entities/sambanova]] — Reconfigurable DataFlow Unit; 3TB memory per socket
+
+### Comparisons
+- [[comparisons/gpu-vs-custom-asic-vs-emerging]] — Four compute paradigms compared
+- [[comparisons/nvidia-vs-google-tpu]] — Universal flexibility vs cost-efficient vertical integration
+- [[comparisons/inference-asics-compared]] — Speed-flexibility spectrum of inference accelerators

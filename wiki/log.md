@@ -1008,3 +1008,37 @@ Deep research pass on the world models paradigm: JEPA, video generation as world
 - **Comparison pages created** (2): comparisons/biological-vs-artificial-neural-networks, comparisons/neuromorphic-vs-gpu-computing
 - **Total wiki pages touched**: 34 (10 sources + 16 concepts + 5 entities + 2 comparisons + metadata)
 - **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, _meta/links.md, log.md
+
+## [2026-04-05] research | Diffusion models, generative AI beyond text, image/video/audio/3D generation, multimodal creation frontier
+- **Scope**: Deep research on diffusion models, flow matching, DiT architecture, image generation (FLUX, SD3), video generation (Sora/Kling/Veo/Runway), audio generation (Suno/Udio/ElevenLabs), 3D generation (NeRF vs Gaussian Splatting), consistency models, autoregressive image generation, and the creative tools landscape.
+- **Web searches performed**: 11 queries covering diffusion models state of art, flow matching rectified flow, Stable Diffusion 3 FLUX, video generation platforms, audio generation music AI, 3D generation NeRF Gaussian Splatting, text-to-image architecture evolution, consistency models fast generation, autoregressive image generation, diffusion transformer DiT, and generative AI creative tools landscape.
+- **Sources fetched and ingested** (10 new raw files):
+  1. raw/bentoml-open-source-image-generation-2026.md — BentoML 2026 open-source image model survey
+  2. raw/dit-diffusion-transformer-architecture.md — Lightly AI DiT architecture guide
+  3. raw/ai-video-market-2026.md — Digital Applied AI video market after Sora
+  4. raw/ai-music-generation-2026.md — Jam AI music generation 2026
+  5. raw/nerf-vs-gaussian-splatting-2025.md — Sparc3D NeRF vs Gaussian Splatting
+  6. raw/flux-vs-stable-diffusion-2026.md — PXZ.ai FLUX vs SD technical comparison
+  7. raw/flow-matching-iclr-2025.md — ICLR 2025 flow matching blog post
+  8. raw/flux-architecture-demystified.md — arXiv FLUX.1 architecture paper
+  9. raw/consistency-models-fast-generation.md — OpenAI consistency models paper
+  10. raw/autoregressive-vision-models-survey.md — TMLR 2025 AR vision survey
+- **Source summaries created** (10): sources/bentoml-open-source-image-generation-2026, sources/dit-diffusion-transformer-architecture, sources/ai-video-market-2026, sources/ai-music-generation-2026, sources/nerf-vs-gaussian-splatting-2025, sources/flux-vs-stable-diffusion-2026, sources/flow-matching-iclr-2025, sources/flux-architecture-demystified, sources/consistency-models-fast-generation, sources/autoregressive-vision-models-survey
+- **Concept articles created** (14): concepts/diffusion-models, concepts/diffusion-transformer, concepts/flow-matching, concepts/rectified-flow, concepts/image-generation, concepts/video-generation, concepts/audio-generation, concepts/audio-visual-generation, concepts/3d-generation, concepts/consistency-models, concepts/autoregressive-image-generation, concepts/visual-tokenization, concepts/gaussian-splatting, concepts/neural-radiance-fields
+- **Entity pages created** (10): entities/flux, entities/stable-diffusion, entities/black-forest-labs, entities/comfyui, entities/runway, entities/kling, entities/veo, entities/suno, entities/udio, entities/elevenlabs
+- **Entity pages updated** (1): entities/sora (added economic failure data and post-shutdown market links)
+- **Comparison pages created** (4): comparisons/flux-vs-stable-diffusion, comparisons/nerf-vs-gaussian-splatting, comparisons/diffusion-vs-autoregressive-image-generation, comparisons/ai-video-platforms-2026
+- **Total wiki pages touched**: 39 (10 sources + 14 concepts + 11 entities + 4 comparisons)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md
+
+## [2026-04-05] research | AI Hardware, Custom Chips, Compute Infrastructure & Physical Substrate
+- **Topic**: AI hardware, custom chips, compute infrastructure — NVIDIA, custom ASICs, photonic computing, quantum ML
+- **Scope**: Deep research pass — 11 web searches, 10 source fetches, 10 raw files ingested, full compilation
+- **Raw files ingested** (10): ai-hardware-accelerators-2026-guide, cerebras-vs-sambanova-vs-groq-ai-chips, google-tpu-architecture-gemini, ai-inference-accelerators-compared, photonic-computing-ai-2026, quantum-machine-learning-2026, iea-ai-energy-demand-2026, hbm-memory-wall-roadmap, nvidia-gpu-specs-ai-training-2026, ai-infrastructure-investment-2026
+- **Source summaries created** (10): sources/ai-hardware-accelerators-2026-guide, sources/cerebras-vs-sambanova-vs-groq-chips, sources/google-tpu-architecture-gemini, sources/ai-inference-accelerators-compared, sources/photonic-computing-ai-2026, sources/quantum-machine-learning-2026, sources/iea-ai-energy-demand-2026, sources/hbm-memory-wall-roadmap, sources/nvidia-gpu-specs-ai-training-2026, sources/ai-infrastructure-investment-2026
+- **Concept articles created** (10): concepts/ai-hardware-landscape, concepts/ai-accelerators, concepts/memory-bandwidth-wall, concepts/training-vs-inference-hardware, concepts/custom-silicon, concepts/ai-data-center-energy, concepts/ai-infrastructure-investment, concepts/photonic-computing, concepts/quantum-machine-learning, concepts/wafer-scale-computing
+- **Entity pages created** (5): entities/cerebras, entities/groq, entities/google-tpu, entities/amd, entities/sambanova
+- **Entity pages updated** (1): entities/nvidia (hardware specs, GPU evolution, Groq acquisition, Vera Rubin)
+- **Comparison pages created** (3): comparisons/gpu-vs-custom-asic-vs-emerging, comparisons/nvidia-vs-google-tpu, comparisons/inference-asics-compared
+- **Total wiki pages touched**: 30 (10 sources + 10 concepts + 6 entities + 3 comparisons + metadata)
+- **Metadata updated**: _index.md, _meta/summaries.md, _meta/manifest.md, log.md

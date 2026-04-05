@@ -3216,3 +3216,137 @@ Pages with no incoming links:
 ### comparisons/tesla-optimus-vs-figure-vs-atlas
 ← (none)
 → [[entities/tesla-optimus]], [[entities/figure-ai]], [[entities/boston-dynamics]], [[concepts/humanoid-robots]], [[concepts/dexterous-manipulation]], [[concepts/physical-ai]], [[entities/helix-vla]]
+
+## Neuroscience-Inspired AI, Brain-Computer Interfaces & Biological Intelligence
+
+### sources/neuroai-catalyzing-next-gen-ai
+← (none)
+→ [[concepts/neuroai]], [[concepts/brain-inspired-ai]], [[concepts/complementary-learning-systems]], [[concepts/sparse-coding]], [[concepts/predictive-coding]], [[entities/karl-friston]], [[concepts/continual-learning]]
+
+### sources/ai-consciousness-evidence-debate
+← (none)
+→ [[concepts/ai-consciousness]], [[concepts/computational-functionalism]], [[entities/anthropic]], [[entities/david-chalmers]], [[concepts/ai-safety]]
+
+### sources/neuralink-bci-2026-status
+← (none)
+→ [[concepts/brain-computer-interfaces]], [[entities/neuralink]], [[entities/elon-musk]], [[concepts/neurotechnology]]
+
+### sources/free-energy-principle-unified-brain-theory
+← (none)
+→ [[concepts/free-energy-principle]], [[concepts/predictive-coding]], [[concepts/active-inference]], [[entities/karl-friston]], [[concepts/bayesian-brain]]
+
+### sources/sleep-replay-catastrophic-forgetting
+← (none)
+→ [[concepts/continual-learning]], [[concepts/catastrophic-forgetting]], [[concepts/sleep-consolidation-ai]], [[concepts/complementary-learning-systems]]
+
+### sources/hippocampus-stability-plasticity-dilemma
+← (none)
+→ [[concepts/complementary-learning-systems]], [[concepts/continual-learning]], [[concepts/catastrophic-forgetting]], [[concepts/sleep-consolidation-ai]]
+
+### sources/neuromorphic-computing-mainstream-2026
+← (none)
+→ [[concepts/neuromorphic-computing]], [[entities/intel-loihi]], [[entities/ibm-northpole]], [[concepts/brain-inspired-ai]], [[concepts/sparse-coding]]
+
+### sources/biological-vs-artificial-neural-networks
+← (none)
+→ [[concepts/brain-inspired-ai]], [[comparisons/biological-vs-artificial-neural-networks]], [[concepts/neuroai]]
+
+### sources/memory-systems-brain-to-ai-agents
+← (none)
+→ [[concepts/complementary-learning-systems]], [[concepts/brain-inspired-ai]], [[concepts/agent-memory]], [[concepts/continual-learning]]
+
+### sources/neuro-inspired-dynamic-sparsity-efficiency
+← (none)
+→ [[concepts/sparse-coding]], [[concepts/neuromorphic-computing]], [[concepts/brain-inspired-ai]], [[concepts/efficient-coding-hypothesis]], [[concepts/predictive-coding]]
+
+### concepts/neuroai
+← [[sources/neuroai-catalyzing-next-gen-ai]], [[sources/biological-vs-artificial-neural-networks]], [[sources/memory-systems-brain-to-ai-agents]], [[concepts/brain-inspired-ai]], [[concepts/predictive-coding]], [[concepts/free-energy-principle]], [[concepts/sparse-coding]], [[concepts/neuromorphic-computing]], [[concepts/ai-consciousness]], [[concepts/computational-functionalism]], [[concepts/neurotechnology]]
+→ [[concepts/brain-inspired-ai]], [[concepts/predictive-coding]], [[concepts/complementary-learning-systems]], [[concepts/sparse-coding]], [[concepts/neuromorphic-computing]], [[concepts/continual-learning]], [[concepts/ai-consciousness]], [[concepts/free-energy-principle]], [[concepts/efficient-coding-hypothesis]], [[concepts/agent-memory]], [[concepts/catastrophic-forgetting]]
+
+### concepts/brain-inspired-ai
+← [[sources/neuroai-catalyzing-next-gen-ai]], [[sources/neuro-inspired-dynamic-sparsity-efficiency]], [[sources/neuromorphic-computing-mainstream-2026]], [[sources/biological-vs-artificial-neural-networks]], [[sources/memory-systems-brain-to-ai-agents]], [[concepts/neuroai]], [[concepts/predictive-coding]], [[concepts/free-energy-principle]], [[concepts/complementary-learning-systems]], [[concepts/sparse-coding]], [[concepts/neuromorphic-computing]], [[concepts/sleep-consolidation-ai]], [[concepts/ai-consciousness]], [[concepts/active-inference]], [[concepts/bayesian-brain]], [[concepts/efficient-coding-hypothesis]]
+→ [[concepts/neuroai]], [[concepts/predictive-coding]], [[concepts/complementary-learning-systems]], [[concepts/sparse-coding]], [[concepts/neuromorphic-computing]], [[concepts/continual-learning]], [[concepts/sleep-consolidation-ai]], [[concepts/free-energy-principle]], [[entities/intel-loihi]], [[entities/ibm-northpole]]
+
+### concepts/predictive-coding
+← [[sources/free-energy-principle-unified-brain-theory]], [[sources/neuroai-catalyzing-next-gen-ai]], [[sources/neuro-inspired-dynamic-sparsity-efficiency]], [[concepts/neuroai]], [[concepts/brain-inspired-ai]], [[concepts/free-energy-principle]], [[concepts/bayesian-brain]], [[concepts/efficient-coding-hypothesis]], [[concepts/active-inference]]
+→ [[concepts/free-energy-principle]], [[concepts/active-inference]], [[concepts/bayesian-brain]], [[concepts/brain-inspired-ai]], [[entities/karl-friston]], [[concepts/sparse-coding]]
+
+### concepts/free-energy-principle
+← [[sources/free-energy-principle-unified-brain-theory]], [[concepts/neuroai]], [[concepts/predictive-coding]], [[concepts/active-inference]], [[concepts/bayesian-brain]], [[concepts/ai-consciousness]]
+→ [[concepts/predictive-coding]], [[concepts/active-inference]], [[concepts/bayesian-brain]], [[entities/karl-friston]], [[concepts/brain-inspired-ai]], [[concepts/neuroai]], [[concepts/ai-consciousness]]
+
+### concepts/active-inference
+← [[sources/free-energy-principle-unified-brain-theory]], [[concepts/free-energy-principle]], [[concepts/predictive-coding]]
+→ [[concepts/free-energy-principle]], [[concepts/predictive-coding]], [[concepts/bayesian-brain]], [[entities/karl-friston]], [[concepts/brain-inspired-ai]], [[concepts/neuroai]]
+
+### concepts/bayesian-brain
+← [[sources/free-energy-principle-unified-brain-theory]], [[concepts/free-energy-principle]], [[concepts/predictive-coding]], [[concepts/active-inference]]
+→ [[concepts/free-energy-principle]], [[concepts/predictive-coding]], [[concepts/active-inference]], [[entities/karl-friston]], [[concepts/brain-inspired-ai]], [[concepts/neuroai]]
+
+### concepts/complementary-learning-systems
+← [[sources/hippocampus-stability-plasticity-dilemma]], [[sources/sleep-replay-catastrophic-forgetting]], [[sources/memory-systems-brain-to-ai-agents]], [[sources/neuroai-catalyzing-next-gen-ai]], [[concepts/neuroai]], [[concepts/brain-inspired-ai]], [[concepts/catastrophic-forgetting]], [[concepts/continual-learning]], [[concepts/sleep-consolidation-ai]]
+→ [[concepts/continual-learning]], [[concepts/catastrophic-forgetting]], [[concepts/sleep-consolidation-ai]], [[concepts/brain-inspired-ai]], [[concepts/agent-memory]], [[concepts/neuroai]]
+
+### concepts/continual-learning
+← [[sources/sleep-replay-catastrophic-forgetting]], [[sources/hippocampus-stability-plasticity-dilemma]], [[sources/neuroai-catalyzing-next-gen-ai]], [[sources/memory-systems-brain-to-ai-agents]], [[concepts/neuroai]], [[concepts/brain-inspired-ai]], [[concepts/complementary-learning-systems]], [[concepts/catastrophic-forgetting]], [[concepts/sleep-consolidation-ai]]
+→ [[concepts/catastrophic-forgetting]], [[concepts/complementary-learning-systems]], [[concepts/sleep-consolidation-ai]], [[concepts/brain-inspired-ai]], [[concepts/agent-memory]], [[concepts/neuroai]]
+
+### concepts/sleep-consolidation-ai
+← [[sources/sleep-replay-catastrophic-forgetting]], [[sources/hippocampus-stability-plasticity-dilemma]], [[concepts/brain-inspired-ai]], [[concepts/complementary-learning-systems]], [[concepts/continual-learning]], [[concepts/catastrophic-forgetting]]
+→ [[concepts/continual-learning]], [[concepts/catastrophic-forgetting]], [[concepts/complementary-learning-systems]], [[concepts/brain-inspired-ai]], [[concepts/neuroai]]
+
+### concepts/sparse-coding
+← [[sources/neuro-inspired-dynamic-sparsity-efficiency]], [[sources/neuroai-catalyzing-next-gen-ai]], [[sources/neuromorphic-computing-mainstream-2026]], [[concepts/neuroai]], [[concepts/brain-inspired-ai]], [[concepts/predictive-coding]]
+→ [[concepts/efficient-coding-hypothesis]], [[concepts/neuromorphic-computing]], [[concepts/brain-inspired-ai]], [[concepts/neuroai]], [[concepts/predictive-coding]]
+
+### concepts/efficient-coding-hypothesis
+← [[sources/neuro-inspired-dynamic-sparsity-efficiency]], [[concepts/sparse-coding]]
+→ [[concepts/sparse-coding]], [[concepts/predictive-coding]], [[concepts/brain-inspired-ai]], [[concepts/neuromorphic-computing]]
+
+### concepts/neuromorphic-computing
+← [[sources/neuromorphic-computing-mainstream-2026]], [[sources/neuro-inspired-dynamic-sparsity-efficiency]], [[concepts/neuroai]], [[concepts/brain-inspired-ai]], [[concepts/sparse-coding]], [[concepts/efficient-coding-hypothesis]]
+→ [[concepts/sparse-coding]], [[concepts/brain-inspired-ai]], [[concepts/neuroai]], [[entities/intel-loihi]], [[entities/ibm-northpole]], [[concepts/sleep-consolidation-ai]]
+
+### concepts/brain-computer-interfaces
+← [[sources/neuralink-bci-2026-status]], [[concepts/neurotechnology]]
+→ [[concepts/neurotechnology]], [[concepts/neuroai]], [[entities/neuralink]], [[concepts/ai-consciousness]], [[concepts/active-inference]], [[concepts/ai-safety]]
+
+### concepts/ai-consciousness
+← [[sources/ai-consciousness-evidence-debate]], [[concepts/neuroai]], [[concepts/brain-computer-interfaces]], [[concepts/free-energy-principle]]
+→ [[concepts/computational-functionalism]], [[concepts/ai-safety]], [[concepts/neuroai]], [[concepts/brain-inspired-ai]], [[entities/david-chalmers]], [[concepts/free-energy-principle]], [[concepts/brain-computer-interfaces]]
+
+### concepts/computational-functionalism
+← [[sources/ai-consciousness-evidence-debate]], [[concepts/ai-consciousness]]
+→ [[concepts/ai-consciousness]], [[concepts/neuroai]], [[entities/david-chalmers]]
+
+### concepts/neurotechnology
+← [[sources/neuralink-bci-2026-status]], [[concepts/brain-computer-interfaces]]
+→ [[concepts/brain-computer-interfaces]], [[concepts/neuromorphic-computing]], [[concepts/neuroai]], [[entities/neuralink]]
+
+### entities/karl-friston
+← [[sources/free-energy-principle-unified-brain-theory]], [[sources/neuroai-catalyzing-next-gen-ai]], [[concepts/predictive-coding]], [[concepts/free-energy-principle]], [[concepts/active-inference]], [[concepts/bayesian-brain]]
+→ [[concepts/free-energy-principle]], [[concepts/predictive-coding]], [[concepts/active-inference]], [[concepts/bayesian-brain]], [[concepts/neuroai]]
+
+### entities/neuralink
+← [[sources/neuralink-bci-2026-status]], [[concepts/brain-computer-interfaces]], [[concepts/neurotechnology]]
+→ [[entities/elon-musk]], [[concepts/brain-computer-interfaces]], [[concepts/neurotechnology]]
+
+### entities/intel-loihi
+← [[sources/neuromorphic-computing-mainstream-2026]], [[concepts/neuromorphic-computing]], [[concepts/brain-inspired-ai]]
+→ [[concepts/neuromorphic-computing]], [[concepts/sparse-coding]], [[concepts/brain-inspired-ai]], [[entities/ibm-northpole]]
+
+### entities/ibm-northpole
+← [[sources/neuromorphic-computing-mainstream-2026]], [[concepts/neuromorphic-computing]], [[concepts/brain-inspired-ai]]
+→ [[concepts/neuromorphic-computing]], [[concepts/brain-inspired-ai]], [[entities/intel-loihi]]
+
+### entities/david-chalmers
+← [[sources/ai-consciousness-evidence-debate]], [[concepts/ai-consciousness]], [[concepts/computational-functionalism]]
+→ [[concepts/ai-consciousness]], [[concepts/computational-functionalism]], [[concepts/neuroai]]
+
+### comparisons/biological-vs-artificial-neural-networks
+← [[sources/biological-vs-artificial-neural-networks]]
+→ [[concepts/brain-inspired-ai]], [[concepts/neuroai]], [[concepts/sparse-coding]], [[concepts/predictive-coding]], [[concepts/neuromorphic-computing]], [[concepts/complementary-learning-systems]]
+
+### comparisons/neuromorphic-vs-gpu-computing
+← (none)
+→ [[concepts/neuromorphic-computing]], [[entities/intel-loihi]], [[entities/ibm-northpole]], [[concepts/sparse-coding]], [[concepts/brain-inspired-ai]]
