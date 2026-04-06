@@ -32,7 +32,8 @@ set -euo pipefail
 _KB_START_TIME=$(date +%s)
 
 # ─── Environment & Defaults ──────────────────────────────────────────────────
-KB_DIR="${KB_DIR:-$(cd "$(dirname "$0")" && pwd)}"
+KB_HOME="$(cd "$(dirname "$0")" && pwd)"   # Where kb is installed (tools, CLAUDE.md master copy)
+KB_DIR="${KB_DIR:-$KB_HOME}"               # Active workspace (overridable via --dir or KB_DIR)
 KB_MODEL="${KB_MODEL:-sonnet}"
 KB_PERMISSION_MODE="${KB_PERMISSION_MODE:-bypassPermissions}"
 KB_NO_COMMIT="${KB_NO_COMMIT:-0}"
@@ -106,6 +107,7 @@ parse_flags() {
             --no-commit)    NO_COMMIT=1; shift ;;
             --model)        shift; MODEL_OVERRIDE="${1:-}"; shift ;;
             --budget)       shift; BUDGET_OVERRIDE="${1:-}"; shift ;;
+            --dir|-d)       shift; KB_DIR="$(cd "${1:-.}" && pwd)"; shift ;;
             --completions)  shift; gen_completions "${1:-bash}"; exit 0 ;;
             *)              args+=("$1"); shift ;;
         esac
@@ -219,7 +221,9 @@ LOGO
     echo -e "  ${CYAN}test${RESET}                        Run integrity tests"
     echo -e "  ${CYAN}stats${RESET}                       Quick wiki statistics"
     echo -e "  ${CYAN}log${RESET}      [n|--all]          Show recent log entries"
-    echo -e "  ${CYAN}init${RESET}                        Initialize a new knowledge base"
+    echo -e "  ${CYAN}init${RESET}     [path]             Initialize a new knowledge base"
+    echo -e "  ${CYAN}new${RESET}      <name> [base]       Create a named workspace"
+    echo -e "  ${CYAN}workspaces${RESET}                   List all workspaces"
     echo ""
 
     echo -e "${BOLD}INFRASTRUCTURE${RESET}"
@@ -228,6 +232,7 @@ LOGO
     echo ""
 
     echo -e "${BOLD}FLAGS${RESET}"
+    echo -e "  ${YELLOW}--dir${RESET}, ${YELLOW}-d${RESET} <path>            Target a different workspace"
     echo -e "  ${YELLOW}--verbose${RESET}, ${YELLOW}-v${RESET}              Show detailed output"
     echo -e "  ${YELLOW}--dry-run${RESET}                  Show what would be done"
     echo -e "  ${YELLOW}--model${RESET} <model>            Override Claude model (default: ${KB_MODEL})"
@@ -259,6 +264,45 @@ LOGO
     echo -e "  ${GREEN}kb${RESET} compare \"RLHF\" \"DPO\""
     echo -e "  ${GREEN}kb${RESET} stats"
     echo -e "  ${GREEN}kb${RESET} log 20"
+}
+
+# ─── new (create a named workspace) ─────────────────────────────────────────
+cmd_new() {
+    local name="${1:?Usage: kb new <name> [path]}"
+    local base="${2:-$HOME/kb-workspaces}"
+    local target="$base/$name"
+    header "Creating workspace: $name"
+    msg "Location: $target"
+    cmd_init "$target"
+    echo ""
+    msg_info "To use this workspace:"
+    echo -e "  ${GREEN}./kb --dir $target${RESET} research \"your topic\""
+    echo -e "  ${GREEN}KB_DIR=$target ./kb${RESET} stats"
+    echo -e "  ${GREEN}cd $target && open .${RESET}  ${DIM}# open in Obsidian${RESET}"
+}
+
+# ─── list workspaces ────────────────────────────────────────────────────────
+cmd_workspaces() {
+    header "Knowledge Base Workspaces"
+    local base="${1:-$HOME/kb-workspaces}"
+
+    # Always show the install-location workspace
+    local install_count
+    install_count=$(find "$KB_HOME/wiki" -name '*.md' -type f 2>/dev/null | wc -l | tr -d ' ')
+    printf "  ${CYAN}%-30s${RESET} %6s articles  %s\n" "(default)" "$install_count" "$KB_HOME"
+
+    # Show named workspaces
+    if [[ -d "$base" ]]; then
+        for dir in "$base"/*/; do
+            [[ -d "$dir/wiki" ]] || continue
+            local name count
+            name=$(basename "$dir")
+            count=$(find "$dir/wiki" -name '*.md' -type f 2>/dev/null | wc -l | tr -d ' ')
+            printf "  ${GREEN}%-30s${RESET} %6s articles  %s\n" "$name" "$count" "$dir"
+        done
+    fi
+    echo ""
+    msg_info "Use ${GREEN}--dir <path>${RESET} to target a workspace, or ${GREEN}kb new <name>${RESET} to create one"
 }
 
 # ─── init ────────────────────────────────────────────────────────────────────
@@ -325,19 +369,25 @@ OBSIDIAN_THEME
         msg_ok "Created Obsidian config"
     fi
 
-    # CLAUDE.md
+    # CLAUDE.md — copy the full version from install location if available
     if [[ ! -f "$target/CLAUDE.md" ]]; then
         progress "Creating CLAUDE.md..."
-        cat > "$target/CLAUDE.md" <<'CLAUDEMD'
+        if [[ -f "$KB_HOME/CLAUDE.md" && "$target" != "$KB_HOME" ]]; then
+            cp "$KB_HOME/CLAUDE.md" "$target/CLAUDE.md"
+            msg_ok "Copied CLAUDE.md from $KB_HOME"
+        else
+            cat > "$target/CLAUDE.md" <<'CLAUDEMD'
 # LLM Knowledge Base
 
 You are operating an LLM-powered personal knowledge base. This is an Obsidian vault where YOU (the LLM) author and maintain all wiki content.
+
+**You are a research agent first, a wiki compiler second, and a Q&A system third.**
 
 ## Directory Structure
 
 ```
 raw/            → Raw ingested content (source of truth)
-wiki/           → LLM-compiled wiki
+wiki/           → LLM-compiled wiki (YOU maintain this)
   _index.md     → Master index
   log.md        → Chronological operation log
   _meta/        → Metadata (summaries, links, manifest)
@@ -349,9 +399,23 @@ output/         → Generated outputs (reports, slides, images)
 tools/          → Helper scripts
 ```
 
-See the full CLAUDE.md for detailed operation instructions.
+See the full CLAUDE.md in the kb install directory for detailed operation instructions.
 CLAUDEMD
-        msg_ok "Created CLAUDE.md"
+            msg_ok "Created CLAUDE.md"
+        fi
+    fi
+
+    # Tools — copy from install location if available and target is different
+    if [[ -d "$KB_HOME/tools" && "$target" != "$KB_HOME" && ! -d "$target/tools/search-engine" ]]; then
+        progress "Copying tools from $KB_HOME..."
+        cp -R "$KB_HOME/tools/" "$target/tools/"
+        msg_ok "Copied tools/"
+    fi
+
+    # Templates — copy from install location
+    if [[ -d "$KB_HOME/templates" && "$target" != "$KB_HOME" && ! -d "$target/templates" ]]; then
+        cp -R "$KB_HOME/templates/" "$target/templates/"
+        msg_ok "Copied templates/"
     fi
 
     # wiki/_index.md
@@ -1090,6 +1154,8 @@ main() {
         -h|--help|help)     cmd_help ;;
         -i|--interactive)   cmd_interactive ;;
         init)               shift; cmd_init "$@" ;;
+        new)                shift; cmd_new "$@" ;;
+        workspaces|ws)      shift; cmd_workspaces "$@" ;;
         research)           shift; cmd_research "$@" ;;
         ingest)             shift; cmd_ingest "$@" ;;
         compile)            cmd_compile ;;

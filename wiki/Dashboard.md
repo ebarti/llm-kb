@@ -11,13 +11,13 @@ reading_time: "3 min"
 
 ## Quick Stats
 
-| Metric | Count |
-|--------|-------|
-| Sources | 11 |
-| Concepts | 20 |
-| Entities | 0 |
-| Comparisons | 0 |
-| Total Articles | 31 |
+| Metric             | Count   |
+| ------------------ | ------- |
+| Sources            | 11      |
+| Concepts           | 20      |
+| Entities           | 0       |
+| Comparisons        | 0       |
+| Total Articles     | 31      |
 | Raw Files Compiled | 11 / 11 |
 
 > Tip: Install the Dataview plugin for live stats. Then replace the table above with:
