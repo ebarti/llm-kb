@@ -141,6 +141,7 @@ run_claude() {
         --print
         --permission-mode "$perm"
         --model "$model"
+        --effort max
     )
     if [[ -n "${BUDGET_OVERRIDE:-${KB_BUDGET:-}}" ]]; then
         claude_args+=(--max-turns "${BUDGET_OVERRIDE:-$KB_BUDGET}")
