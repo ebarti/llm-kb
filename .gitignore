@@ -6,4 +6,6 @@ __pycache__/
 .env
 .idea/
 tools/search-engine/.index/
+tools/monitor/.logs/
+tools/monitor/.state/
 
