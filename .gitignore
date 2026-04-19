@@ -4,3 +4,6 @@
 *.pyc
 __pycache__/
 .env
+.idea/
+tools/search-engine/.index/
+

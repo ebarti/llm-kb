@@ -25,8 +25,8 @@ from kb import KnowledgeBase
 
 def main():
     parser = argparse.ArgumentParser(description="Export KB as JSON")
-    parser.add_argument("--kb-path", default="/Users/eloibarti/Desktop/agentic-ai",
-                        help="Path to the knowledge base root")
+    parser.add_argument("--kb-path", default=None,
+                        help="Path to the knowledge base root (defaults to repo root or $KB_PATH)")
     parser.add_argument("--output", default=None,
                         help="Output file path (default: output/wiki-export.json)")
     parser.add_argument("--compact", action="store_true",

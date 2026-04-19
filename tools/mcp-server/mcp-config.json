@@ -3,7 +3,7 @@
     "kb-wiki": {
       "command": "python3",
       "args": ["tools/mcp-server/server.py"],
-      "cwd": "/Users/eloibarti/Desktop/agentic-ai"
+      "cwd": "/Users/eloibarti/Github/llm-kb"
     }
   }
 }

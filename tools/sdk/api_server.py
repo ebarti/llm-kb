@@ -183,8 +183,8 @@ def main():
     parser = argparse.ArgumentParser(description="LLM Knowledge Base JSON API Server")
     parser.add_argument("--port", type=int, default=8889, help="Port (default: 8889)")
     parser.add_argument("--host", default="localhost", help="Host (default: localhost)")
-    parser.add_argument("--kb-path", default="/Users/eloibarti/Desktop/agentic-ai",
-                        help="Path to the knowledge base root")
+    parser.add_argument("--kb-path", default=None,
+                        help="Path to the knowledge base root (defaults to repo root or $KB_PATH)")
     args = parser.parse_args()
 
     global _kb

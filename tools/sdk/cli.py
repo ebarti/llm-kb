@@ -228,8 +228,8 @@ def main():
               python3 tools/sdk/cli.py export-json
         """),
     )
-    parser.add_argument("--kb-path", default="/Users/eloibarti/Desktop/agentic-ai",
-                        help="Path to the knowledge base root")
+    parser.add_argument("--kb-path", default=None,
+                        help="Path to the knowledge base root (defaults to repo root or $KB_PATH)")
 
     # Shared flags available on every subcommand
     shared = argparse.ArgumentParser(add_help=False)

@@ -1,4 +1,6 @@
 {
+  "interfaceFontSize": 16,
+  "textFontSize": 16,
   "useMarkdownLinks": false,
   "newLinkFormat": "shortest",
   "showFrontmatter": true,

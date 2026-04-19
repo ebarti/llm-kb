@@ -34,10 +34,10 @@ _KB_START_TIME=$(date +%s)
 # ─── Environment & Defaults ──────────────────────────────────────────────────
 KB_HOME="$(cd "$(dirname "$0")" && pwd)"   # Where kb is installed (tools, CLAUDE.md master copy)
 KB_DIR="${KB_DIR:-$KB_HOME}"               # Active workspace (overridable via --dir or KB_DIR)
-KB_MODEL="${KB_MODEL:-sonnet}"
+KB_MODEL="${KB_MODEL:-opus}"
 KB_PERMISSION_MODE="${KB_PERMISSION_MODE:-bypassPermissions}"
 KB_NO_COMMIT="${KB_NO_COMMIT:-0}"
-KB_BUDGET="${KB_BUDGET:-}"
+KB_BUDGET="${KB_BUDGET:-200}"
 
 # ─── Colors & Symbols ───────────────────────────────────────────────────────
 if [[ -t 1 ]]; then
@@ -107,7 +107,7 @@ parse_flags() {
             --no-commit)    NO_COMMIT=1; shift ;;
             --model)        shift; MODEL_OVERRIDE="${1:-}"; shift ;;
             --budget)       shift; BUDGET_OVERRIDE="${1:-}"; shift ;;
-            --dir|-d)       shift; KB_DIR="$(cd "${1:-.}" && pwd)"; shift ;;
+            --dir|-d)       shift; DIR_REQUEST="${1:-.}"; shift ;;
             --completions)  shift; gen_completions "${1:-bash}"; exit 0 ;;
             *)              args+=("$1"); shift ;;
         esac
@@ -233,7 +233,7 @@ LOGO
     echo ""
 
     echo -e "${BOLD}FLAGS${RESET}"
-    echo -e "  ${YELLOW}--dir${RESET}, ${YELLOW}-d${RESET} <path>            Target a different workspace"
+    echo -e "  ${YELLOW}--dir${RESET}, ${YELLOW}-d${RESET} <name|path>       Target a workspace (name → ~/kb-workspaces/<name>; auto-creates if new)"
     echo -e "  ${YELLOW}--verbose${RESET}, ${YELLOW}-v${RESET}              Show detailed output"
     echo -e "  ${YELLOW}--dry-run${RESET}                  Show what would be done"
     echo -e "  ${YELLOW}--model${RESET} <model>            Override Claude model (default: ${KB_MODEL})"
@@ -950,12 +950,81 @@ cmd_research() {
 
     run_claude "RESEARCH this topic for the knowledge base: $topic
 
-Do a deep research pass:
-1. Read wiki/_meta/summaries.md to see what we already have
-2. Use WebSearch to find 5-15 high-quality sources (papers, articles, docs, blog posts) — run multiple searches from different angles
-3. For each good source found: fetch it with WebFetch, clean it to markdown, save to raw/
-4. After all sources are ingested, compile the wiki: create source summaries, concept articles, update the index and metadata
-5. Summarize what you found and added"
+You are a research agent running a ReAct loop. Do NOT plan a fixed number of sources upfront. Instead, iteratively discover what you need.
+
+## Progress reporting
+
+You MUST print structured progress updates so the user can track what's happening. Use this exact format:
+
+At the start:
+\`\`\`
+═══ RESEARCH: <topic> ═══
+\`\`\`
+
+At the start of each iteration:
+\`\`\`
+─── Iteration <N> ──────────────────────────
+  Coverage so far:  <X> sources ingested | <Y> wiki pages | <Z> subtopics covered
+  Gaps identified:  <list of gaps/thin areas to fill this iteration>
+  Search plan:      <list of queries to run>
+\`\`\`
+
+After each source is ingested:
+\`\`\`
+  ✓ Ingested: <source title> (<url>)
+\`\`\`
+
+When a fetch fails or is skipped:
+\`\`\`
+  ✗ Skipped: <reason> (<url>)
+\`\`\`
+
+After compiling each iteration:
+\`\`\`
+  Compiled: +<N> sources, +<N> concepts, +<N> entities, +<N> comparisons
+\`\`\`
+
+At the end:
+\`\`\`
+═══ RESEARCH COMPLETE ═══
+  Total sources:     <N>
+  Wiki pages:        <N> (sources: <n>, concepts: <n>, entities: <n>, comparisons: <n>)
+  Iterations:        <N>
+  Subtopics covered: <bulleted list>
+  Known gaps:        <any remaining gaps, or 'None identified'>
+\`\`\`
+
+## Loop: repeat until convergence
+
+### REASON
+- What subtopics exist within this topic?
+- What do I already have? (Read wiki/_meta/summaries.md)
+- What gaps remain? What subtopics are uncovered or thin?
+- What angles haven't I searched yet? (foundational work, recent breakthroughs, key papers, key people, critiques, industry applications, tutorials, adjacent topics, datasets, tools, benchmarks)
+
+### ACT
+- Run WebSearch queries targeting the identified gaps (multiple queries per iteration)
+- For each quality result: fetch with WebFetch, clean to markdown, save to raw/
+- Compile what you've ingested so far: source summaries, concept articles, entity pages, comparison pages
+
+### ASSESS
+- Re-read wiki/_meta/summaries.md to see updated coverage
+- List remaining gaps and thin areas
+- If significant gaps remain → loop back to REASON
+- If coverage is comprehensive and new searches return mostly duplicates → stop
+
+## Stopping condition
+Stop ONLY when:
+- All major subtopics have at least 2-3 sources backing them
+- New searches are returning content you've already covered
+- You cannot identify meaningful gaps remaining
+
+Do NOT stop after a single pass. Expect 3-5+ iterations of this loop for any non-trivial topic. Each iteration should discover new angles the previous ones missed.
+
+## After the loop
+- Do a final compile pass ensuring all wiki pages are cross-linked
+- Update the index and all metadata files
+- Print the final RESEARCH COMPLETE progress report"
 
     auto_commit "research — $topic"
 }
@@ -1135,6 +1204,19 @@ main() {
     # Parse global flags
     parse_flags "$@"
     set -- "${_ARGS[@]+"${_ARGS[@]}"}"
+
+    # Resolve --dir: bare name → workspace under base dir; path → use as-is
+    if [[ -n "${DIR_REQUEST:-}" ]]; then
+        if [[ "$DIR_REQUEST" != */* ]]; then
+            DIR_REQUEST="$HOME/kb-workspaces/$DIR_REQUEST"
+        fi
+        mkdir -p "$DIR_REQUEST"
+        KB_DIR="$(cd "$DIR_REQUEST" && pwd)"
+        if [[ ! -d "$KB_DIR/wiki" ]]; then
+            msg_info "New workspace detected — initializing ${BOLD}$KB_DIR${RESET}"
+            cmd_init "$KB_DIR"
+        fi
+    fi
 
     # Ensure we're in the KB directory
     cd "$KB_DIR"

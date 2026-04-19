@@ -48,8 +48,8 @@ Type help(kb) for full API docs. Ctrl+D to exit.
 
 def main():
     parser = argparse.ArgumentParser(description="KB Interactive REPL")
-    parser.add_argument("--kb-path", default="/Users/eloibarti/Desktop/agentic-ai",
-                        help="Path to the knowledge base root")
+    parser.add_argument("--kb-path", default=None,
+                        help="Path to the knowledge base root (defaults to repo root or $KB_PATH)")
     args = parser.parse_args()
 
     kb = KnowledgeBase(path=args.kb_path)

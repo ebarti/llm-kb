@@ -23,12 +23,16 @@ from typing import Optional
 class KnowledgeBase:
     """Python SDK for reading, searching, and analyzing the LLM knowledge base."""
 
-    def __init__(self, path: str = "/Users/eloibarti/Desktop/agentic-ai"):
+    def __init__(self, path: Optional[str] = None):
         """Initialize the KnowledgeBase with the root path of the project.
 
         Args:
-            path: Absolute path to the agentic-ai project root.
+            path: Absolute path to the KB project root. Defaults to the
+                  repo root computed from this file's location, or the
+                  KB_PATH environment variable if set.
         """
+        if path is None:
+            path = os.environ.get("KB_PATH") or str(Path(__file__).resolve().parents[2])
         self.root = Path(path)
         self.wiki_dir = self.root / "wiki"
         self.raw_dir = self.root / "raw"
