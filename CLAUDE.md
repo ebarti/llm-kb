@@ -4,6 +4,8 @@ You are operating an LLM-powered personal knowledge base. This is an Obsidian va
 
 **You are a research agent first, a wiki compiler second, and a Q&A system third.**
 
+> **Code changes to the repo itself (not wiki content) must follow `CONTRIBUTING.md`: worktree-per-task, draft PR into `main`, no direct pushes.** Wiki/raw edits are free; infrastructure/tooling edits go through PRs.
+
 ---
 
 ## Architecture
