@@ -86,6 +86,9 @@ run_suite "Content Quality Check" \
 run_suite "Search Engine Tests" \
     "python3 '$SCRIPT_DIR/test-search.py'"
 
+run_suite "Changelog Generator Tests" \
+    "python3 '$SCRIPT_DIR/test-gen-changelog.py'"
+
 run_suite "Smoke Tests" \
     "bash '$SCRIPT_DIR/smoke-test.sh'"
 

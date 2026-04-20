@@ -1052,7 +1052,7 @@ cmd_compile() {
         msg_info "Would run: python3 tools/compile/pages/generate_all.py"
     else
         progress "Refreshing auto-generated wiki navigation pages..."
-        python3 "$KB_HOME/tools/compile/pages/generate_all.py"
+        python3 "$KB_DIR/tools/compile/pages/generate_all.py"
     fi
 
     auto_commit "compile wiki"

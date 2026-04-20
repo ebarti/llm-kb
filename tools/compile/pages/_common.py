@@ -118,8 +118,8 @@ def article_rel_path(path: Path, wiki_dir: Path = WIKI) -> str:
 def render_frontmatter(meta: Dict[str, object]) -> str:
     """Render a minimal YAML frontmatter block for a generated page.
 
-    Values are stringified with basic quoting; numbers and bare identifiers
-    stay unquoted. Lists are written as `["a", "b"]`.
+    Strings are quoted; bool/int/float/list values pass through unquoted
+    (lists are written as `["a", "b"]`).
     """
     lines = ["---"]
     for key, val in meta.items():

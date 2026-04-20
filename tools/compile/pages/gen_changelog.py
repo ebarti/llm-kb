@@ -11,8 +11,6 @@ Usage:
 
 from __future__ import annotations
 
-import os
-import re
 import subprocess
 import sys
 from collections import defaultdict
@@ -32,7 +30,6 @@ from _common import (
 
 MAX_COMMITS = 500
 MAX_DAYS_SHOWN = 60
-GIT_OK = True
 
 
 def _git(*args: str) -> str | None:
