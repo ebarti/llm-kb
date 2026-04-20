@@ -17,7 +17,11 @@ def _count_articles(wiki_dir: Path) -> int:
 
 def run(ctx: CommandContext, base: Optional[Path] = None) -> WorkspacesResult:
     ws = ctx.workspace
-    base_dir = base or (Path.home() / "kb-workspaces")
+    # argparse hands in strings; coerce before using Path methods.
+    if base is None:
+        base_dir = Path.home() / "kb-workspaces"
+    else:
+        base_dir = Path(base).expanduser() if not isinstance(base, Path) else base
 
     entries: list[WorkspaceEntry] = []
 

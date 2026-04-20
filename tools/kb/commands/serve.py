@@ -57,7 +57,12 @@ def run_mcp(ctx: CommandContext, args: Optional[list[str]] = None) -> ServeResul
         )
 
     cmd = ["python3", str(server)] + (args or [])
-    proc = subprocess.run(cmd, check=False)
+    # mcp-server/server.py defaults WIKI_ROOT to os.getcwd(); without this
+    # an invocation via `kb --dir <tmp> mcp` would serve the caller's
+    # checkout, not the selected workspace.
+    env = os.environ.copy()
+    env["WIKI_ROOT"] = str(ws.kb_dir)
+    proc = subprocess.run(cmd, check=False, cwd=str(ws.kb_dir), env=env)
     return ServeResult(
         command="mcp",
         ok=proc.returncode == 0,

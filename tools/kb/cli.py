@@ -129,7 +129,9 @@ def _build_context(opts: GlobalOptions) -> CommandContext:
         budget_limit = int(env_budget)
 
     return CommandContext(
-        workspace=Workspace.resolve(kb_home=None, kb_dir=None, dir_flag=opts.dir_flag),
+        workspace=Workspace.resolve(
+            kb_home=None, kb_dir=None, dir_flag=opts.dir_flag, dry_run=opts.dry_run,
+        ),
         model=opts.model or os.environ.get("KB_MODEL", "opus"),
         budget_limit=budget_limit,
         dry_run=opts.dry_run,

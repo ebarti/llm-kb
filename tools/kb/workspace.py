@@ -127,6 +127,7 @@ class Workspace:
         kb_home: Optional[Path] = None,
         kb_dir: Optional[str] = None,
         dir_flag: Optional[str] = None,
+        dry_run: bool = False,
     ) -> "Workspace":
         """Resolve the install location and the active workspace path.
 
@@ -136,6 +137,10 @@ class Workspace:
           - ``KB_DIR`` env var overrides ``kb_home`` as the active dir
           - ``--dir <x>`` further overrides; a bare name is resolved under
             ``$HOME/kb-workspaces/<name>``; a path is used as-is
+
+        Under ``dry_run=True`` no directories are created and auto-init is
+        skipped — callers that actually need to write to the workspace must
+        run without ``--dry-run``.
         """
         if kb_home is None:
             kb_home = Path(__file__).resolve().parents[2]
@@ -153,13 +158,21 @@ class Workspace:
             else:
                 base_dir = Path.home() / "kb-workspaces" / dir_flag
 
-        base_dir.mkdir(parents=True, exist_ok=True)
-        base_dir = base_dir.resolve()
+        if not dry_run:
+            base_dir.mkdir(parents=True, exist_ok=True)
+        # Resolve may still work if parents exist; otherwise expand without
+        # touching disk so --dry-run stays purely read-only.
+        try:
+            base_dir = base_dir.resolve()
+        except OSError:
+            base_dir = base_dir.expanduser()
 
         ws = cls(kb_home=kb_home, kb_dir=base_dir)
 
-        # Auto-init freshly created workspaces (only when --dir was used).
-        if dir_flag and not (base_dir / "wiki").exists():
+        # Auto-init freshly created workspaces (only when --dir was used and
+        # we aren't in dry-run). Under --dry-run we deliberately skip init
+        # so the command preview stays side-effect-free.
+        if dir_flag and not dry_run and not (base_dir / "wiki").exists():
             ws.initialize()
 
         return ws

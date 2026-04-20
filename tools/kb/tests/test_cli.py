@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -9,6 +10,7 @@ from unittest import mock
 from tools.kb.budget import BudgetTracker
 from tools.kb.commands.search import _parse_qmd
 from tools.kb.runner import invoke_llm
+from tools.kb.workspace import Workspace
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -57,6 +59,42 @@ class RunnerBudgetTests(unittest.TestCase):
         self.assertEqual(1, result.returncode)
         self.assertIn("hard token budgets require the Anthropic SDK backend", result.text)
         run_mock.assert_not_called()
+
+
+class WorkspaceDryRunTests(unittest.TestCase):
+    def test_dry_run_does_not_initialize_new_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / "fresh-ws"
+            # Pre-existing parent but target directory does not exist.
+            self.assertFalse(target.exists())
+            Workspace.resolve(dir_flag=str(target), dry_run=True)
+            # Dry-run must not create the workspace tree, copy tools, init git, etc.
+            self.assertFalse((target / "wiki").exists())
+            self.assertFalse((target / ".git").exists())
+            self.assertFalse((target / "tools").exists())
+
+    def test_non_dry_run_initializes_new_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / "live-ws"
+            Workspace.resolve(dir_flag=str(target), dry_run=False)
+            self.assertTrue((target / "wiki").exists())
+
+
+class WorkspacesCommandTests(unittest.TestCase):
+    def test_workspaces_accepts_string_base(self) -> None:
+        # Regression: passing a string base used to raise AttributeError
+        # because Path methods were called on a str.
+        with tempfile.TemporaryDirectory() as td:
+            proc = subprocess.run(
+                [str(KB_SCRIPT), "workspaces", td, "--json"],
+                cwd=str(REPO_ROOT),
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(0, proc.returncode, proc.stderr)
+            payload = json.loads(proc.stdout)
+            self.assertEqual("workspaces", payload["command"])
 
 
 class WrapperIntegrationTests(unittest.TestCase):
