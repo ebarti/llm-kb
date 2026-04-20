@@ -30,6 +30,7 @@ import argparse
 import json
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 # Make the package importable when invoked directly as ./tools/graph/gq.
@@ -84,20 +85,33 @@ def cmd_build(args: argparse.Namespace) -> int:
         return 2
 
     nodes, edges = extract_nodes_and_edges(wiki_dir, raw_dir=raw_dir)
+    db_path = Path(args.db).resolve()
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=f".{db_path.name}.",
+        suffix=".tmp",
+        dir=str(db_path.parent),
+    )
+    os.close(fd)
+    tmp_path = Path(tmp_name)
 
-    store = ensure_db(args.db)
     try:
-        store.reset()
-        store.conn.execute("BEGIN")
-        for n in nodes:
-            store.upsert_node(
-                n.id, type=n.type, title=n.title, path=n.path, summary=n.summary
-            )
-        for e in edges:
-            store.upsert_edge(e.src, e.dst, e.predicate, provenance=e.provenance)
-        store.commit()
-    finally:
-        store.close()
+        store = ensure_db(str(tmp_path))
+        try:
+            for n in nodes:
+                store.upsert_node(
+                    n.id, type=n.type, title=n.title, path=n.path, summary=n.summary
+                )
+            for e in edges:
+                store.upsert_edge(e.src, e.dst, e.predicate, provenance=e.provenance)
+            store.commit()
+        finally:
+            store.close()
+
+        os.replace(tmp_path, db_path)
+    except Exception:
+        _cleanup_sqlite_artifacts(tmp_path)
+        raise
 
     if args.json:
         _print_json({
@@ -110,6 +124,13 @@ def cmd_build(args: argparse.Namespace) -> int:
         print(f"  nodes: {len(nodes)}")
         print(f"  edges: {len(edges)}")
     return 0
+
+
+def _cleanup_sqlite_artifacts(db_path: Path) -> None:
+    for extra in ("", "-journal", "-wal", "-shm"):
+        candidate = Path(f"{db_path}{extra}")
+        if candidate.exists():
+            candidate.unlink()
 
 
 def cmd_stats(args: argparse.Namespace) -> int:

@@ -307,9 +307,9 @@ class GraphStore:
         Writes happen only through `build`.
         """
         stripped = sql.strip().rstrip(";").lower()
-        if not stripped.startswith(("select", "with", "explain", "pragma")):
+        if not stripped.startswith(("select", "with", "explain")):
             raise ValueError(
-                "only read-only queries allowed (SELECT/WITH/EXPLAIN/PRAGMA)"
+                "only read-only queries allowed (SELECT/WITH/EXPLAIN)"
             )
         forbidden = (" insert ", " update ", " delete ", " drop ", " alter ",
                      " create ", " replace ")

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import shutil
 import sys
 import sqlite3
@@ -24,7 +25,11 @@ import unittest
 from pathlib import Path
 
 # Make `graph` importable when run directly.
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+TOOLS_DIR = Path(__file__).resolve().parent.parent
+REPO_ROOT = TOOLS_DIR.parent
+GQ = TOOLS_DIR / "graph" / "gq"
+
+sys.path.insert(0, str(TOOLS_DIR))
 
 from graph.store import GraphStore, PREDICATES, DEFAULT_PREDICATE  # noqa: E402
 from graph.extract import (  # noqa: E402
@@ -143,6 +148,8 @@ class StoreTests(unittest.TestCase):
             list(self.store.query("UPDATE edges SET predicate='x'"))
         with self.assertRaises(ValueError):
             list(self.store.query("DROP TABLE edges"))
+        with self.assertRaises(ValueError):
+            list(self.store.query("PRAGMA user_version = 7"))
         # Read-only query should work.
         rows = list(self.store.query("SELECT COUNT(*) FROM edges"))
         self.assertEqual(rows[0][0], 1)
@@ -354,6 +361,15 @@ def _write_fixture(root: Path) -> None:
         p.write_text(content, encoding="utf-8")
 
 
+def _run_gq(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["python3", str(GQ), *args],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+    )
+
+
 class ExtractionTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = Path(tempfile.mkdtemp(prefix="graph-fixture-"))
@@ -523,6 +539,88 @@ class IntegrationTests(unittest.TestCase):
         self.assertIn("concepts/retrieval", dsts)
 
 
+class CliBuildTests(unittest.TestCase):
+    def test_build_preserves_last_good_db_on_failure(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-"))
+        try:
+            wiki = tmp / "wiki"
+            raw = tmp / "raw"
+            (wiki / "concepts").mkdir(parents=True)
+            raw.mkdir()
+
+            good_article = wiki / "concepts" / "a.md"
+            peer_article = wiki / "concepts" / "b.md"
+            good_article.write_text(
+                """---
+title: "A"
+type: concept
+summary: "a"
+last_compiled: 2026-04-20
+---
+
+[[concepts/b]]
+""",
+                encoding="utf-8",
+            )
+            peer_article.write_text(
+                """---
+title: "B"
+type: concept
+summary: "b"
+last_compiled: 2026-04-20
+---
+""",
+                encoding="utf-8",
+            )
+
+            db = tmp / ".graph.db"
+            first_build = _run_gq(
+                "--db", str(db), "build", "--wiki", str(wiki), "--raw", str(raw)
+            )
+            self.assertEqual(first_build.returncode, 0, first_build.stderr)
+
+            conn = sqlite3.connect(db)
+            seed_nodes = conn.execute("SELECT COUNT(*) FROM nodes").fetchone()[0]
+            seed_edges = conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0]
+            conn.close()
+            self.assertEqual(seed_nodes, 2)
+            self.assertEqual(seed_edges, 1)
+
+            good_article.write_text(
+                """---
+title: "A"
+type: concept
+summary: "a"
+last_compiled: 2026-04-20
+edges:
+  - {to: "concepts/b", predicate: "still_nope"}
+---
+
+[[concepts/b]]
+""",
+                encoding="utf-8",
+            )
+
+            failed_build = _run_gq(
+                "--db", str(db), "build", "--wiki", str(wiki), "--raw", str(raw)
+            )
+            self.assertNotEqual(failed_build.returncode, 0)
+            self.assertIn("invalid predicate", failed_build.stderr)
+
+            conn = sqlite3.connect(db)
+            self.assertEqual(
+                conn.execute("SELECT COUNT(*) FROM nodes").fetchone()[0],
+                seed_nodes,
+            )
+            self.assertEqual(
+                conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0],
+                seed_edges,
+            )
+            conn.close()
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 # ---------------------------------------------------------------------- #
 #  Runner
 # ---------------------------------------------------------------------- #
@@ -548,6 +646,7 @@ def main() -> int:
         loader.loadTestsFromTestCase(HeuristicTests),
         loader.loadTestsFromTestCase(ExtractionTests),
         loader.loadTestsFromTestCase(IntegrationTests),
+        loader.loadTestsFromTestCase(CliBuildTests),
     ])
 
     if args.json:

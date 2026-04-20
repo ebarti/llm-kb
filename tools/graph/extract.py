@@ -50,7 +50,7 @@ awareness.
                    (NB: "based on" on its own is too weak; we require the
                    verb "implements" / "realizes")
     cites        — "cites", "citing", "reference[sd]?", "as shown in",
-                   "see ", "per ", "according to"
+                   "see also", "per ", "according to"
     compares     — "compares", "compared with", "compared to", "vs\\.", "versus"
     part_of      — "part of", "subset of", "component of", "belongs to"
     instance_of  — "instance of", "example of", "is a …"
@@ -120,7 +120,7 @@ PREDICATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         r"cites?|cited|citing|"
         r"references?|referenced|referencing|"
         r"as\s+shown\s+in|as\s+described\s+in|as\s+noted\s+in|"
-        r"see\s+also|see\s+|"
+        r"see\s+also|"
         r"per\s+|according\s+to"
         r")\b[^.?!]*$",
         re.IGNORECASE,
