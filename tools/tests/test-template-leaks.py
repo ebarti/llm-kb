@@ -55,13 +55,53 @@ TEST_CASES = [
         """,
         "expected_tokens": ["[[title]]"],
     },
+    # Indented-code-block cases: these use raw_content because dedent
+    # would strip the 4-space indent that marks the code block.
+    {
+        "name": "ignores_indented_code_blocks",
+        "raw_content": (
+            "Some prose describing the template syntax:\n"
+            "\n"
+            "    [[title]]\n"
+            "    {{summary}}\n"
+            "\n"
+            "End of example.\n"
+        ),
+        "expected_tokens": [],
+    },
+    {
+        "name": "ignores_tab_indented_code_blocks",
+        "raw_content": (
+            "Another example with a tab indent:\n"
+            "\n"
+            "\t[[wikilinks]]\n"
+            "\t{{name}}\n"
+            "\n"
+            "Back to prose.\n"
+        ),
+        "expected_tokens": [],
+    },
+    {
+        "name": "still_flags_prose_after_indented_code_block",
+        "raw_content": (
+            "Intro text.\n"
+            "\n"
+            "    [[title]]\n"
+            "\n"
+            "Now prose with [[wikilinks]] that must still be flagged.\n"
+        ),
+        "expected_tokens": ["[[wikilinks]]"],
+    },
 ]
 
 
-def scan_text(content: str):
+def scan_text(content: str | None = None, raw_content: str | None = None):
     with tempfile.TemporaryDirectory() as tmpdir:
         sample = Path(tmpdir) / "sample.md"
-        sample.write_text(textwrap.dedent(content).strip() + "\n", encoding="utf-8")
+        if raw_content is not None:
+            sample.write_text(raw_content, encoding="utf-8")
+        else:
+            sample.write_text(textwrap.dedent(content).strip() + "\n", encoding="utf-8")
         return CHECKER.scan_file(sample)
 
 
@@ -70,7 +110,10 @@ def run_checks():
     ok = True
 
     for case in TEST_CASES:
-        leaks = scan_text(case["content"])
+        leaks = scan_text(
+            content=case.get("content"),
+            raw_content=case.get("raw_content"),
+        )
         tokens = [leak["token"] for leak in leaks]
         passed = tokens == case["expected_tokens"]
         if not passed:

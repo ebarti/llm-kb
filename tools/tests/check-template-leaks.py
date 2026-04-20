@@ -101,6 +101,21 @@ def strip_inline_code(line: str):
     return "".join(cleaned)
 
 
+def _is_indented_code_line(line: str) -> bool:
+    """A non-empty line that begins with 4 spaces or a tab (CommonMark).
+
+    Lines that are entirely whitespace are not code lines on their own;
+    they extend an already-open indented block but do not start one.
+    """
+    if not line.strip():
+        return False
+    if line.startswith("\t"):
+        return True
+    if line.startswith("    "):
+        return True
+    return False
+
+
 def scan_file(filepath: Path):
     """Return a list of (line_number, line_text, kind, token) leak records."""
     leaks = []
@@ -112,6 +127,12 @@ def scan_file(filepath: Path):
     in_fence = False
     fence_char = None
     fence_length = 0
+    # CommonMark indented code block state. A block opens when a line
+    # indented by 4+ spaces (or a tab) follows a blank line (or is the
+    # first non-empty line in the file), and closes on the next
+    # non-blank line that is not itself indented.
+    in_indented_code = False
+    prev_blank = True  # start-of-file counts as "after a blank line"
 
     for i, line in enumerate(text.splitlines(), start=1):
         fence = get_fence_delimiter(line)
@@ -120,11 +141,36 @@ def scan_file(filepath: Path):
                 in_fence = False
                 fence_char = None
                 fence_length = 0
+            prev_blank = False
             continue
 
         if fence:
             in_fence = True
             fence_char, fence_length = fence
+            in_indented_code = False
+            prev_blank = False
+            continue
+
+        is_blank = not line.strip()
+
+        if in_indented_code:
+            # Indented blocks continue across blank lines, but a
+            # non-blank, non-indented line closes them.
+            if is_blank:
+                prev_blank = True
+                continue
+            if _is_indented_code_line(line):
+                prev_blank = False
+                continue
+            in_indented_code = False
+
+        if prev_blank and _is_indented_code_line(line):
+            in_indented_code = True
+            prev_blank = False
+            continue
+
+        prev_blank = is_blank
+        if is_blank:
             continue
 
         scan_line = strip_inline_code(line)
