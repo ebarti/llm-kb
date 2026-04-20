@@ -1048,6 +1048,13 @@ cmd_compile() {
 
     run_claude "Compile/update the wiki from all raw sources. Process any new or changed raw files, update source summaries, concept articles, and the master index."
 
+    if (( DRY_RUN )); then
+        msg_info "Would run: python3 tools/compile/pages/generate_all.py"
+    else
+        progress "Refreshing auto-generated wiki navigation pages..."
+        python3 "$KB_HOME/tools/compile/pages/generate_all.py"
+    fi
+
     auto_commit "compile wiki"
 }
 

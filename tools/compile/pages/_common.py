@@ -25,6 +25,43 @@ def today() -> str:
     return datetime.now().strftime("%Y-%m-%d")
 
 
+def _parse_inline_list(raw: str) -> list[str]:
+    """Parse a single-line YAML-ish list with quoted or bare scalar items."""
+    inner = raw.strip()
+    if not (inner.startswith("[") and inner.endswith("]")):
+        return []
+    inner = inner[1:-1].strip()
+    if not inner:
+        return []
+
+    items: list[str] = []
+    current: list[str] = []
+    quote: str | None = None
+
+    for ch in inner:
+        if quote:
+            if ch == quote:
+                quote = None
+            else:
+                current.append(ch)
+            continue
+        if ch in ('"', "'"):
+            quote = ch
+            continue
+        if ch == ",":
+            item = "".join(current).strip()
+            if item:
+                items.append(item)
+            current = []
+            continue
+        current.append(ch)
+
+    item = "".join(current).strip()
+    if item:
+        items.append(item)
+    return items
+
+
 def parse_frontmatter(text: str) -> Tuple[Dict[str, object], str]:
     """Parse YAML-ish frontmatter. Returns (metadata_dict, body).
 
@@ -51,10 +88,7 @@ def parse_frontmatter(text: str) -> Tuple[Dict[str, object], str]:
         elif raw.startswith("'") and raw.endswith("'"):
             meta[key] = raw[1:-1]
         elif raw.startswith("["):
-            items = re.findall(r'"([^"]*)"', raw)
-            if not items:
-                items = re.findall(r"'([^']*)'", raw)
-            meta[key] = items
+            meta[key] = _parse_inline_list(raw)
         else:
             meta[key] = raw
     return meta, body
