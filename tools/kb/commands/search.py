@@ -80,32 +80,50 @@ def _parse_qmd(output: str, top_k: int) -> list[SearchHit]:
 
     qmd prints blocks like::
 
-        1. path/to/file.md (score=3.14)
-           title text
+        1. **Document Title** [concept] score=3.14
            snippet snippet snippet
+           file: concepts/document-title.md
     """
     hits: list[SearchHit] = []
-    line_re = re.compile(
-        r"^\s*(?P<idx>\d+)\.\s+(?P<path>[^\s]+)(?:\s+\(score=(?P<score>[\d\.]+)\))?\s*$"
+    header_re = re.compile(
+        r"^\s*(?P<idx>\d+)\.\s+\*\*(?P<title>.+?)\*\*"
+        r"(?:\s+\[(?P<doc_type>[^\]]+)\])?"
+        r"(?:\s+score=(?P<score>[\d\.]+))?\s*$"
     )
+    file_re = re.compile(r"^\s*file:\s*(?P<path>\S.+?)\s*$")
     current: SearchHit | None = None
+
+    def _flush(hit: SearchHit | None) -> None:
+        if hit is not None and hit.path:
+            hits.append(hit)
+
     for line in output.splitlines():
-        m = line_re.match(line)
-        if m:
-            if current:
-                hits.append(current)
-            score = m.group("score")
+        header = header_re.match(line)
+        if header:
+            _flush(current)
+            score = header.group("score")
             current = SearchHit(
-                path=m.group("path"),
+                path="",
+                title=header.group("title"),
                 score=float(score) if score else None,
             )
-        elif current is not None and line.strip():
-            if current.title is None:
-                current.title = line.strip()
-            elif current.snippet is None:
-                current.snippet = line.strip()
-    if current:
-        hits.append(current)
+            continue
+
+        if current is None:
+            continue
+
+        file_match = file_re.match(line)
+        if file_match:
+            current.path = file_match.group("path").strip()
+            continue
+
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or stripped.startswith("backlinks:"):
+            continue
+        if current.snippet is None:
+            current.snippet = stripped
+
+    _flush(current)
     return hits[:top_k]
 
 

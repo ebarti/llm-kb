@@ -11,10 +11,9 @@ lint, slides, report, compare, entity, discover, freeform).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Callable, Optional
 
-from ..budget import DEFAULT_BUDGET_TOKENS, BudgetExceeded, BudgetTracker
+from ..budget import BudgetExceeded, BudgetTracker
 from ..git_util import auto_commit
 from ..models import (
     EXIT_ABORT,
@@ -35,7 +34,7 @@ class CommandContext:
 
     workspace: Workspace
     model: str = "opus"
-    budget_limit: Optional[int] = DEFAULT_BUDGET_TOKENS
+    budget_limit: Optional[int] = None
     dry_run: bool = False
     no_commit: bool = False
     verbose: bool = False

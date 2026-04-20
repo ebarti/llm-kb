@@ -11,8 +11,9 @@ We support two backends:
 2. **Claude CLI** (fallback, matching the bash kb's behaviour). We invoke
    ``claude --print --model ... --max-turns N`` as a subprocess. The CLI
    currently does not report token usage back to stdout in a machine-
-   readable way, so budget enforcement falls back to the ``--max-turns``
-   hint. The caller is warned when in CLI mode.
+   readable way, so it cannot hard-enforce token budgets. When a hard
+   budget is requested, CLI mode fails fast and instructs the caller to
+   use the SDK backend instead.
 
 Callers typically use :func:`invoke_llm` which picks the best backend for
 the current environment and returns a :class:`LLMResult` with the final
@@ -204,6 +205,17 @@ def _invoke_cli(
     permission_mode: str,
     verbose: bool,
 ) -> LLMResult:
+    if budget.limit is not None:
+        return LLMResult(
+            text=(
+                "ERROR: hard token budgets require the Anthropic SDK backend; "
+                "Claude CLI does not expose token usage."
+            ),
+            backend="cli",
+            returncode=1,
+            budget_exceeded=True,
+        )
+
     if not shutil.which("claude"):
         return LLMResult(
             text="ERROR: Claude CLI not found on PATH and no ANTHROPIC_API_KEY set.",
@@ -223,10 +235,6 @@ def _invoke_cli(
     args.extend(["--effort", "max"])
     if max_turns is not None:
         args.extend(["--max-turns", str(max_turns)])
-    elif budget.limit is not None:
-        # Pass the budget as a soft hint: rough tokens/turn estimate
-        # (bash kb mapped KB_BUDGET directly to --max-turns)
-        args.extend(["--max-turns", str(max(1, int(budget.limit)))])
 
     args.append(prompt)
 
@@ -248,8 +256,7 @@ def _invoke_cli(
         )
 
     text = (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else "")
-    # CLI backend does not expose per-response token counts reliably;
-    # we conservatively record 0 usage and let --max-turns bound cost.
+    # CLI backend does not expose per-response token counts reliably.
     return LLMResult(
         text=text,
         backend="cli",

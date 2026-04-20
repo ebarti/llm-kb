@@ -28,6 +28,10 @@
 
 set -euo pipefail
 
+KB_HOME="$(cd "$(dirname "$0")" && pwd)"
+cd "$KB_HOME"
+exec python3 -m tools.kb.cli "$@"
+
 # ─── Timing ──────────────────────────────────────────────────────────────────
 _KB_START_TIME=$(date +%s)
 

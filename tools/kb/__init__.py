@@ -2,11 +2,12 @@
 kb — LLM Knowledge Base CLI (Python rewrite).
 
 Typed command-line interface for a Claude-powered personal knowledge base.
-All LLM-invoking subcommands support a token budget (--budget) that is
-enforced against Anthropic SDK usage metadata, and every command supports
---json for machine-readable structured output.
+When `--budget` is set, hard token caps are enforced against Anthropic SDK
+usage metadata; the fallback Claude CLI refuses hard budgets because it does
+not expose machine-readable token usage. Every command supports `--json`
+for machine-readable structured output.
 
-See tools/kb/cli.py for the typer app, tools/kb/commands/ for per-command
+See tools/kb/cli.py for the command entrypoint, tools/kb/commands/ for per-command
 implementations, and tools/kb/budget.py for budget enforcement.
 """
 
