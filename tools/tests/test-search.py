@@ -105,6 +105,45 @@ def run_search(cmd, query, timeout=30):
         return str(e), latency, -1
 
 
+def run_hybrid_pool_regression():
+    """
+    Regression for --top > 50 on the hybrid path: the bm25_k / vector_k pool
+    must widen to at least `top_n` so results aren't silently capped at 50.
+    Exercises hybrid.hybrid_search with an injected stub bm25 and no dense
+    retrieval so we don't need numpy / sentence-transformers available.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import hybrid
+
+    calls = {}
+
+    def fake_bm25(query, index, top_n=10, **kwargs):
+        calls["top_n"] = top_n
+        return [
+            {"id": f"concepts/doc-{i}", "title": f"Doc {i}", "type": "concept",
+             "score": 100.0 - i, "path": f"concepts/doc-{i}.md", "tags": [],
+             "date": "", "summary": "", "links": [], "related": [],
+             "sources": [], "backlinks": []}
+            for i in range(top_n)
+        ]
+
+    idx = {"docs": {}, "backlinks": {}}
+    requested_top = 75
+    hybrid.hybrid_search(
+        "q", idx,
+        vector_index=None, encoder=None,
+        top_n=requested_top,
+        bm25_k=requested_top, vector_k=requested_top,
+        bm25_search=fake_bm25,
+    )
+    return [{
+        "description": "hybrid_search forwards top > 50 to bm25_k pool",
+        "passed": calls.get("top_n") == requested_top,
+    }]
+
+
 def run_chunker_regressions():
     """Exercise chunk hashing without requiring optional ML dependencies."""
     if str(SEARCH_ENGINE_DIR) not in sys.path:
@@ -213,6 +252,18 @@ def run_checks():
         results["ok"] = False
     else:
         for test in results["regression_tests"]:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        hybrid_tests = run_hybrid_pool_regression()
+    except Exception as e:
+        results["issues"].append(f"Hybrid pool regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(hybrid_tests)
+        for test in hybrid_tests:
             if not test["passed"]:
                 results["issues"].append(f"Regression failed: {test['description']}")
                 results["ok"] = False

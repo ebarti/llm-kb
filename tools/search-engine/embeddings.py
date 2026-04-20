@@ -189,10 +189,20 @@ class VectorIndex:
             meta = json.loads(chunks_file.read_text(encoding="utf-8"))
         except Exception:
             return None
+        # Alignment guards: a corrupt or partially-written pair can desync the
+        # parallel arrays. Returning None here forces a clean rebuild instead
+        # of serving silently-misaligned chunk metadata against vector rows.
+        if vectors.ndim != 2:
+            return None
+        chunks = meta.get("chunks", [])
+        if not isinstance(chunks, list):
+            return None
+        if len(chunks) != vectors.shape[0]:
+            return None
         return cls(
             vectors=vectors.astype(np.float32, copy=False),
-            chunks=meta.get("chunks", []),
-            dim=int(meta.get("dim", vectors.shape[1] if vectors.ndim == 2 else 0)),
+            chunks=chunks,
+            dim=int(meta.get("dim", vectors.shape[1])),
             model_name=meta.get("model_name", MODEL_NAME),
             built_at=float(meta.get("built_at", 0.0)),
         )

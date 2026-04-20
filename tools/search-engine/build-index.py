@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from search import scan_documents, build_index, save_index, INDEX_FILE
 
 
-def _build_bm25(force):
+def _build_bm25():
     print("Scanning wiki documents...")
     t0 = time.time()
     docs = scan_documents()
@@ -68,9 +68,13 @@ def _build_vectors(docs, force):
         avg = sum(c.tokens for c in all_chunks) / len(all_chunks)
         print(f"  Avg chunk tokens: {avg:.0f}")
 
-    existing = None if force else embeddings.VectorIndex.load()
-    if existing is not None and force:
-        print("  --force: ignoring existing vector cache")
+    loaded_existing = embeddings.VectorIndex.load()
+    if force:
+        if loaded_existing is not None:
+            print("  --force: ignoring existing vector cache")
+        existing = None
+    else:
+        existing = loaded_existing
 
     print("Encoding (first run downloads model to ~/.cache/huggingface)...")
     encoder = embeddings.Encoder()
@@ -98,7 +102,7 @@ def main():
 
     docs = None
     if not args.vectors_only:
-        docs = _build_bm25(args.force)
+        docs = _build_bm25()
 
     if args.vectors or args.vectors_only:
         if docs is None:

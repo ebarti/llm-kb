@@ -25,9 +25,6 @@ from typing import Iterable
 # BGE-small has 512 max. 300 leaves slack for the heading breadcrumb.
 TARGET_TOKENS = 300
 
-# Hard floor: sections smaller than this merge with the next sibling when possible.
-MIN_TOKENS = 40
-
 # Hard ceiling: if a single leaf section exceeds this, we soft-split on paragraph
 # boundaries. We never split inside code fences or tables.
 MAX_TOKENS = 600
@@ -303,6 +300,5 @@ __all__ = [
     "Block",
     "chunk_document",
     "TARGET_TOKENS",
-    "MIN_TOKENS",
     "MAX_TOKENS",
 ]

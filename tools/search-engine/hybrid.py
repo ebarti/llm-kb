@@ -136,6 +136,7 @@ def hybrid_search(
     rrf_k: int = DEFAULT_K,
     bm25_k: int = 50,
     vector_k: int = 50,
+    bm25_search=None,
     **bm25_kwargs,
 ) -> list:
     """
@@ -152,7 +153,9 @@ def hybrid_search(
         rrf_k: RRF smoothing constant.
         bm25_k: how deep into BM25 to consider.
         vector_k: how many chunks to pull from the vector index.
-        bm25_kwargs: extra filters passed through to search.search
+        bm25_search: callable matching search.search's signature. Injected by
+            the caller to avoid a circular import at module load.
+        bm25_kwargs: extra filters passed through to bm25_search
             (doc_type, tags, date_from, date_to, fuzzy).
 
     Returns:
@@ -160,8 +163,11 @@ def hybrid_search(
         format_llm / format_pretty, but augmented with 'rrf_score' and
         'chunk_snippet' fields.
     """
-    # Import here to avoid a circular import at module load.
-    from search import search as bm25_search
+    if bm25_search is None:
+        raise TypeError(
+            "hybrid_search requires a bm25_search callable; pass "
+            "search.search from the caller."
+        )
 
     bm25_hits = bm25_search(query, index, top_n=bm25_k, **bm25_kwargs)
 

@@ -551,13 +551,22 @@ def _run_hybrid(query, index, args):
             top_n=args.top, fuzzy=not args.no_fuzzy,
         )
 
-    # BM25 auto-rebuilds when wiki files change; the dense index does not,
-    # so warn when it has fallen behind so fused results reflect current content.
+    # BM25 auto-rebuilds when wiki files change; the dense index does not.
+    # If it has fallen behind, fused results would silently reflect outdated
+    # content -- surface a warning AND fall back to BM25-only so the user gets
+    # a correct answer now and a clear nudge to rebuild.
     if embeddings.vectors_are_stale(vector_index, WIKI_DIR):
         print(
             "Warning: vector index is stale relative to wiki content. "
-            "Rerun: python3 tools/search-engine/build-index.py --vectors",
+            "Falling back to BM25-only. Rebuild with: "
+            "python3 tools/search-engine/build-index.py --vectors",
             file=sys.stderr,
+        )
+        return search_with_snippets(
+            query, index,
+            doc_type=args.type, tags=args.tags,
+            date_from=args.date_from, date_to=args.date_to,
+            top_n=args.top, fuzzy=not args.no_fuzzy,
         )
 
     encoder = embeddings.Encoder(vector_index.model_name)
@@ -565,12 +574,18 @@ def _run_hybrid(query, index, args):
     # Pull a deep pool when reranking so the cross-encoder has something to
     # reorder; otherwise just grab the final top_n.
     hybrid_top = max(args.top, 50) if args.rerank else args.top
+    # Feed the same pool depth to both retrievers so --top > 50 actually widens
+    # the candidate set rather than silently capping at the default 50.
+    pool = max(50, hybrid_top)
 
     results = hybrid.hybrid_search(
         query, index,
         vector_index=vector_index,
         encoder=encoder,
         top_n=hybrid_top,
+        bm25_k=pool,
+        vector_k=pool,
+        bm25_search=search,
         doc_type=args.type, tags=args.tags,
         date_from=args.date_from, date_to=args.date_to,
         fuzzy=not args.no_fuzzy,
