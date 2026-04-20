@@ -1048,6 +1048,16 @@ cmd_compile() {
 
     run_claude "Compile/update the wiki from all raw sources. Process any new or changed raw files, update source summaries, concept articles, and the master index."
 
+    # Rebuild the typed graph store from the wiki (stdlib-only, fast).
+    if [[ -x "$KB_DIR/tools/graph/gq" ]] || [[ -f "$KB_DIR/tools/graph/gq" ]]; then
+        progress "Rebuilding typed graph store..."
+        if python3 "$KB_DIR/tools/graph/gq" build >/dev/null 2>&1; then
+            msg_ok "Graph store rebuilt (.graph.db)"
+        else
+            msg_warn "Graph store build failed (non-fatal)"
+        fi
+    fi
+
     auto_commit "compile wiki"
 }
 

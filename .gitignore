@@ -7,3 +7,9 @@ __pycache__/
 .idea/
 tools/search-engine/.index/
 
+# Typed graph store (rebuilt on compile)
+.graph.db
+.graph.db-journal
+.graph.db-wal
+.graph.db-shm
+

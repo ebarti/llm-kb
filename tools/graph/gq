@@ -1,0 +1,323 @@
+#!/usr/bin/env python3
+"""gq — graph query CLI for the LLM knowledge base.
+
+Backed by `.graph.db` (SQLite) at the repo root. The DB is rebuilt from
+the wiki/ directory by `gq build`, which is also wired into `./kb compile`.
+
+Usage:
+    gq build                            rebuild .graph.db from wiki/
+    gq stats                            summary counts
+    gq predicate-counts                 per-predicate edge counts
+    gq cites-of <article>               outgoing 'cites' edges from article
+    gq mentioned-by <article>           incoming 'mentions' edges into article
+    gq contradictions                   all 'contradicts' / 'refutes' edges
+    gq outgoing <article> [--predicate P]   all outgoing edges
+    gq incoming <article> [--predicate P]   all incoming edges
+    gq query "<sql>"                    arbitrary read-only SQL
+    gq node <id>                        show a node record
+
+Flags:
+    --db <path>         override DB path (default: <repo>/.graph.db)
+    --wiki <path>       override wiki/ dir for `build`
+    --raw <path>        override raw/ dir for `build`
+    --json              emit JSON instead of a table
+    -h, --help
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+
+# Make the package importable when invoked directly as ./tools/graph/gq.
+_THIS = Path(__file__).resolve()
+_TOOLS = _THIS.parent.parent   # <repo>/tools
+_REPO = _TOOLS.parent           # <repo>
+if str(_TOOLS) not in sys.path:
+    sys.path.insert(0, str(_TOOLS))
+
+from graph.store import (  # noqa: E402  (sys.path set above)
+    GraphStore,
+    PREDICATES,
+    DEFAULT_DB_PATH,
+    ensure_db,
+)
+from graph.extract import extract_nodes_and_edges  # noqa: E402
+
+
+# ---------------------------------------------------------------------- #
+#  Output helpers
+# ---------------------------------------------------------------------- #
+def _print_rows(rows: list, as_json: bool, empty_msg: str = "(no rows)") -> None:
+    if as_json:
+        out = [dict(r) for r in rows]
+        print(json.dumps(out, indent=2))
+        return
+    if not rows:
+        print(empty_msg)
+        return
+    # Assume sqlite3.Row objects — render as a simple aligned table.
+    keys = list(rows[0].keys())
+    col_width = {k: max(len(k), max(len(str(r[k])) for r in rows)) for k in keys}
+    header = "  ".join(k.ljust(col_width[k]) for k in keys)
+    print(header)
+    print("  ".join("-" * col_width[k] for k in keys))
+    for r in rows:
+        print("  ".join(str(r[k]).ljust(col_width[k]) for k in keys))
+
+
+def _print_json(obj, pretty=True) -> None:
+    print(json.dumps(obj, indent=2 if pretty else None))
+
+
+# ---------------------------------------------------------------------- #
+#  Commands
+# ---------------------------------------------------------------------- #
+def cmd_build(args: argparse.Namespace) -> int:
+    wiki_dir = Path(args.wiki).resolve()
+    raw_dir = Path(args.raw).resolve() if args.raw else wiki_dir.parent / "raw"
+    if not wiki_dir.exists():
+        print(f"wiki directory not found: {wiki_dir}", file=sys.stderr)
+        return 2
+
+    nodes, edges = extract_nodes_and_edges(wiki_dir, raw_dir=raw_dir)
+
+    store = ensure_db(args.db)
+    try:
+        store.reset()
+        store.conn.execute("BEGIN")
+        for n in nodes:
+            store.upsert_node(
+                n.id, type=n.type, title=n.title, path=n.path, summary=n.summary
+            )
+        for e in edges:
+            store.upsert_edge(e.src, e.dst, e.predicate, provenance=e.provenance)
+        store.commit()
+    finally:
+        store.close()
+
+    if args.json:
+        _print_json({
+            "db": args.db,
+            "nodes": len(nodes),
+            "edges": len(edges),
+        })
+    else:
+        print(f"Built {args.db}")
+        print(f"  nodes: {len(nodes)}")
+        print(f"  edges: {len(edges)}")
+    return 0
+
+
+def cmd_stats(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        n_nodes = store.count("nodes")
+        n_edges = store.count("edges")
+        pred_counts = store.predicate_counts()
+    if args.json:
+        _print_json({
+            "nodes": n_nodes,
+            "edges": n_edges,
+            "predicates": dict(pred_counts),
+        })
+    else:
+        print(f"nodes: {n_nodes}")
+        print(f"edges: {n_edges}")
+        if pred_counts:
+            print("by predicate:")
+            for pred, n in pred_counts:
+                print(f"  {pred:<14} {n}")
+    return 0
+
+
+def cmd_predicate_counts(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        counts = store.predicate_counts()
+    if args.json:
+        _print_json(dict(counts))
+    else:
+        if not counts:
+            print("(no edges)")
+            return 0
+        width = max(len(p) for p, _ in counts)
+        for pred, n in counts:
+            print(f"{pred.ljust(width)}  {n}")
+    return 0
+
+
+def cmd_cites_of(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        rows = store.cites_of(args.article)
+    _print_rows(rows, args.json, empty_msg=f"(no 'cites' edges from {args.article})")
+    return 0
+
+
+def cmd_mentioned_by(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        rows = store.mentioned_by(args.article)
+    _print_rows(rows, args.json, empty_msg=f"(no 'mentions' edges into {args.article})")
+    return 0
+
+
+def cmd_contradictions(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        rows = store.contradictions()
+    _print_rows(rows, args.json, empty_msg="(no contradictions recorded)")
+    return 0
+
+
+def cmd_outgoing(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        rows = store.outgoing(args.article, predicate=args.predicate)
+    _print_rows(rows, args.json, empty_msg=f"(no outgoing edges from {args.article})")
+    return 0
+
+
+def cmd_incoming(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        rows = store.incoming(args.article, predicate=args.predicate)
+    _print_rows(rows, args.json, empty_msg=f"(no incoming edges into {args.article})")
+    return 0
+
+
+def cmd_node(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        row = store.get_node(args.id)
+    if row is None:
+        print(f"(no node {args.id!r})")
+        return 1
+    if args.json:
+        _print_json(dict(row))
+    else:
+        for k in row.keys():
+            print(f"{k:<8} {row[k]}")
+    return 0
+
+
+def cmd_query(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        try:
+            rows = list(store.query(args.sql))
+        except ValueError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+    _print_rows(rows, args.json, empty_msg="(no rows)")
+    return 0
+
+
+# ---------------------------------------------------------------------- #
+#  Argument parser
+# ---------------------------------------------------------------------- #
+def _build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="gq",
+        description="Typed graph query CLI (SQLite-backed).",
+    )
+    p.add_argument(
+        "--db",
+        default=os.environ.get("KB_GRAPH_DB", DEFAULT_DB_PATH),
+        help=f"path to .graph.db (default: {DEFAULT_DB_PATH})",
+    )
+    p.add_argument("--json", action="store_true", help="emit JSON output")
+
+    sub = p.add_subparsers(dest="command", required=True)
+
+    # build
+    sp = sub.add_parser("build", help="rebuild .graph.db from wiki/")
+    sp.add_argument(
+        "--wiki",
+        default=str(_REPO / "wiki"),
+        help=f"wiki directory (default: {_REPO / 'wiki'})",
+    )
+    sp.add_argument(
+        "--raw",
+        default=None,
+        help="raw directory (default: <wiki>/../raw)",
+    )
+    sp.set_defaults(func=cmd_build)
+
+    # stats
+    sp = sub.add_parser("stats", help="node/edge counts + per-predicate breakdown")
+    sp.set_defaults(func=cmd_stats)
+
+    # predicate-counts
+    sp = sub.add_parser(
+        "predicate-counts", help="per-predicate edge counts"
+    )
+    sp.set_defaults(func=cmd_predicate_counts)
+
+    # cites-of
+    sp = sub.add_parser(
+        "cites-of", help="show outgoing 'cites' edges from an article"
+    )
+    sp.add_argument("article")
+    sp.set_defaults(func=cmd_cites_of)
+
+    # mentioned-by
+    sp = sub.add_parser(
+        "mentioned-by", help="show incoming 'mentions' edges for an article"
+    )
+    sp.add_argument("article")
+    sp.set_defaults(func=cmd_mentioned_by)
+
+    # contradictions
+    sp = sub.add_parser(
+        "contradictions", help="list all 'contradicts' and 'refutes' edges"
+    )
+    sp.set_defaults(func=cmd_contradictions)
+
+    # outgoing
+    sp = sub.add_parser("outgoing", help="all outgoing edges from an article")
+    sp.add_argument("article")
+    sp.add_argument(
+        "--predicate",
+        choices=PREDICATES,
+        default=None,
+        help="filter by predicate",
+    )
+    sp.set_defaults(func=cmd_outgoing)
+
+    # incoming
+    sp = sub.add_parser("incoming", help="all incoming edges into an article")
+    sp.add_argument("article")
+    sp.add_argument(
+        "--predicate",
+        choices=PREDICATES,
+        default=None,
+        help="filter by predicate",
+    )
+    sp.set_defaults(func=cmd_incoming)
+
+    # node
+    sp = sub.add_parser("node", help="show a single node record")
+    sp.add_argument("id")
+    sp.set_defaults(func=cmd_node)
+
+    # query
+    sp = sub.add_parser("query", help="run arbitrary read-only SQL")
+    sp.add_argument("sql")
+    sp.set_defaults(func=cmd_query)
+
+    return p
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = _build_parser()
+    args = parser.parse_args(argv)
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
