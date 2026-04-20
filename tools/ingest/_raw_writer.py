@@ -181,12 +181,29 @@ def write_raw(
         if not raw_final_ext:
             raw_final_ext = "bin"
         raw_out = d / f"raw.{raw_final_ext}"
+        # Purge any raw.* with a different extension so only one canonical
+        # raw blob ever lives in the bundle.
+        for stale in d.glob("raw.*"):
+            if stale.name != raw_out.name:
+                try:
+                    stale.unlink()
+                except OSError:
+                    pass
         if raw_bytes is not None:
             raw_out.write_bytes(raw_bytes)
         else:
             # Move/copy the source; we use copy so callers with tempfiles don't lose them prematurely
             shutil.copy2(raw_src_path, raw_out)  # type: ignore[arg-type]
         raw_bytes_available = True
+    else:
+        # Raw-less rewrite: prior raw.* files would leave meta.json claiming
+        # raw_bytes_available=false while stale bytes linger. Remove them so
+        # the bundle stays internally consistent (and check-raw-v2 happy).
+        for stale in d.glob("raw.*"):
+            try:
+                stale.unlink()
+            except OSError:
+                pass
 
     # Write clean.md
     clean_out = d / "clean.md"

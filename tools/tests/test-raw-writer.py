@@ -174,6 +174,59 @@ class TestRawWriter(unittest.TestCase):
         on_disk = json.loads((self.base / "raw" / "noraw-idem" / "meta.json").read_text())
         self.assertEqual(on_disk["fetched_at"], first_fetched_at)
 
+    def test_rewrite_without_raw_bytes_removes_stale_raw(self):
+        """Raw-less rewrite must delete any pre-existing raw.* file so the
+        bundle stays consistent with meta.raw_bytes_available=false."""
+        raw_writer.write_raw(
+            base_dir=self.base,
+            slug="stale",
+            url="https://example.com",
+            fetcher="web",
+            clean_content="v1",
+            raw_bytes=b"<html>old</html>",
+            raw_ext="html",
+        )
+        d = self.base / "raw" / "stale"
+        self.assertTrue((d / "raw.html").exists())
+
+        # Rewrite with no raw bytes and different clean content.
+        raw_writer.write_raw(
+            base_dir=self.base,
+            slug="stale",
+            url="https://example.com",
+            fetcher="web",
+            clean_content="v2 different",
+        )
+        self.assertFalse(list(d.glob("raw.*")), "stale raw.* should be removed")
+        meta = json.loads((d / "meta.json").read_text())
+        self.assertFalse(meta["raw_bytes_available"])
+        self.assertIsNone(meta["sha256_raw"])
+
+    def test_rewrite_replaces_raw_with_new_extension(self):
+        """A subsequent raw write with a different extension must purge the
+        prior raw.* so only one canonical raw blob lives in the bundle."""
+        raw_writer.write_raw(
+            base_dir=self.base,
+            slug="ext",
+            url="https://example.com",
+            fetcher="web",
+            clean_content="v1",
+            raw_bytes=b"<html/>",
+            raw_ext="html",
+        )
+        raw_writer.write_raw(
+            base_dir=self.base,
+            slug="ext",
+            url="https://example.com",
+            fetcher="pdf",
+            clean_content="v2",
+            raw_bytes=b"%PDF-1.4",
+            raw_ext="pdf",
+        )
+        d = self.base / "raw" / "ext"
+        remaining = sorted(p.name for p in d.glob("raw.*"))
+        self.assertEqual(remaining, ["raw.pdf"])
+
     def test_sha256_matches_file_contents(self):
         raw_bytes = b"\x00\x01\x02binary\xffbytes"
         raw_writer.write_raw(
@@ -284,5 +337,32 @@ class TestMigration(unittest.TestCase):
         self.assertEqual(original_sha, new_sha)
 
 
+def _main() -> int:
+    # run-all.sh invokes child tests with --json; unittest.main() doesn't know
+    # that flag, so strip it here and emit a tiny JSON summary after the run.
+    json_mode = False
+    argv = [sys.argv[0]]
+    for a in sys.argv[1:]:
+        if a == "--json":
+            json_mode = True
+        else:
+            argv.append(a)
+
+    loader = unittest.TestLoader()
+    suite = loader.loadTestsFromModule(sys.modules[__name__])
+    runner = unittest.TextTestRunner(verbosity=0 if json_mode else 2, stream=sys.stderr)
+    result = runner.run(suite)
+
+    if json_mode:
+        print(json.dumps({
+            "ok": result.wasSuccessful(),
+            "tests_run": result.testsRun,
+            "failures": len(result.failures),
+            "errors": len(result.errors),
+        }, indent=2))
+
+    return 0 if result.wasSuccessful() else 1
+
+
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    sys.exit(_main())
