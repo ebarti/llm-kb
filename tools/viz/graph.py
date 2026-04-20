@@ -60,33 +60,40 @@ PREDICATE_COLORS = {
 #  Data loading — prefer the typed store, fall back to ad-hoc extraction.
 # ---------------------------------------------------------------------- #
 def load_from_graph_db(db_path):
-    """Return (nodes dict, typed edges list) from a built .graph.db."""
+    """Return (nodes dict, typed edges list) from a built .graph.db.
+
+    Returns None if the DB is missing, empty, or unreadable for any reason
+    (schema missing, corruption, locked, etc.) so the caller can fall back
+    to live extraction rather than render a silently broken graph.
+    """
     if not os.path.exists(db_path):
         return None
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
-        edge_count = conn.execute("SELECT COUNT(*) AS n FROM edges").fetchone()["n"]
-    except sqlite3.OperationalError:
-        conn.close()
-        return None
-    if not edge_count:
-        conn.close()
-        return None
+        try:
+            edge_count = conn.execute("SELECT COUNT(*) AS n FROM edges").fetchone()["n"]
+        except sqlite3.Error:
+            return None
+        if not edge_count:
+            return None
 
-    nodes = {}
-    for row in conn.execute("SELECT * FROM nodes"):
-        nodes[row["id"]] = {
-            "title": row["title"] or row["id"].split("/")[-1],
-            "type": row["type"] or "concept",
-            "summary": row["summary"] or "",
-        }
+        nodes = {}
+        for row in conn.execute("SELECT * FROM nodes"):
+            nodes[row["id"]] = {
+                "title": row["title"] or row["id"].split("/")[-1],
+                "type": row["type"] or "concept",
+                "summary": row["summary"] or "",
+            }
 
-    edges = []
-    for row in conn.execute("SELECT src, dst, predicate FROM edges"):
-        edges.append((row["src"], row["dst"], row["predicate"]))
-    conn.close()
-    return nodes, edges
+        edges = []
+        for row in conn.execute("SELECT src, dst, predicate FROM edges"):
+            edges.append((row["src"], row["dst"], row["predicate"]))
+        return nodes, edges
+    except sqlite3.Error:
+        return None
+    finally:
+        conn.close()
 
 
 def load_from_wiki():
@@ -270,7 +277,7 @@ const link = g.append("g").selectAll("line")
   .attr("class", "link")
   .attr("stroke", d => EDGE_COLORS[d.predicate] || "#555")
   .attr("stroke-width", d => d.predicate === "mentions" ? 0.8 : 1.5)
-  .attr("marker-end", d => "url(#arrow-" + d.predicate + ")");
+  .attr("marker-end", d => EDGE_COLORS[d.predicate] ? "url(#arrow-" + d.predicate + ")" : null);
 
 const node = g.append("g").selectAll("g")
   .data(graph.nodes).join("g").attr("class", "node");

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import shutil
 import sys
@@ -717,18 +718,24 @@ def main() -> int:
         loader.loadTestsFromTestCase(ExtractionTests),
         loader.loadTestsFromTestCase(IntegrationTests),
         loader.loadTestsFromTestCase(CliBuildTests),
+        loader.loadTestsFromTestCase(VizFreshnessTests),
     ])
 
     if args.json:
-        runner = unittest.TextTestRunner(stream=open("/dev/null", "w"), verbosity=0)
+        with open(os.devnull, "w") as devnull:
+            runner = unittest.TextTestRunner(stream=devnull, verbosity=0)
+            try:
+                result = runner.run(suite)
+            except Exception:
+                traceback.print_exc()
+                return 2
     else:
         runner = unittest.TextTestRunner(verbosity=2)
-
-    try:
-        result = runner.run(suite)
-    except Exception:
-        traceback.print_exc()
-        return 2
+        try:
+            result = runner.run(suite)
+        except Exception:
+            traceback.print_exc()
+            return 2
 
     summary = _collect_results(result)
     if args.json:

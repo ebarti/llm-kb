@@ -29,7 +29,6 @@ Stdlib only — no sqlalchemy, no pip packages.
 
 from __future__ import annotations
 
-import os
 import re
 import sqlite3
 from pathlib import Path
@@ -92,11 +91,14 @@ class GraphStore:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
-        self.close()
+        self.close(commit=exc_type is None)
 
-    def close(self) -> None:
+    def close(self, commit: bool = True) -> None:
         try:
-            self.conn.commit()
+            if commit:
+                self.conn.commit()
+            else:
+                self.conn.rollback()
         finally:
             self.conn.close()
 
@@ -183,7 +185,8 @@ class GraphStore:
         """
         if predicate not in PREDICATES:
             raise ValueError(
-                f"invalid predicate {predicate!r}; expected one of {PREDICATES}"
+                f"invalid predicate {predicate!r}; expected one of {PREDICATES}; "
+                f"src={src!r}, dst={dst!r}, provenance={provenance!r}"
             )
         if not src or not dst:
             raise ValueError("edge requires non-empty src and dst")

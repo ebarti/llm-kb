@@ -17,8 +17,9 @@ Given a wiki directory, yields `nodes` (one per article file) and `edges`
           - to: "entities/openai"
             predicate: "cites"
 
-   These override any heuristic match. Provenance is logged as
-   `frontmatter:edges` (or `frontmatter:manual` when keyed under `manual:`).
+   These override any heuristic match. Regardless of whether the entries are
+   keyed under ``edges:`` or ``manual:``, provenance is logged as
+   ``frontmatter:manual``.
 
 2. **Structural frontmatter fields** — `source`, `sources`, `subjects` are
    interpreted as typed:
@@ -64,9 +65,9 @@ from __future__ import annotations
 
 import hashlib
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator, Optional
+from typing import Iterator, Optional
 
 
 # ---------------------------------------------------------------------- #
