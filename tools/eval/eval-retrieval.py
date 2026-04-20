@@ -251,6 +251,21 @@ def render_markdown(report: dict) -> str:
     return "\n".join(lines)
 
 
+def ci_miss_metric_name(report: dict) -> str:
+    k_values = report.get("k_values") or []
+    if k_values:
+        return f"recall@{max(k_values)}"
+
+    recall_metrics = [
+        name for name in report.get("aggregated_metrics", {})
+        if name.startswith("recall@")
+    ]
+    if recall_metrics:
+        return max(recall_metrics, key=lambda name: int(name.split("@", 1)[1]))
+
+    return "recall@10"
+
+
 def render_ci_summary(report: dict) -> str:
     """Terse stdout summary for CI logs."""
     m = report["aggregated_metrics"]
@@ -265,9 +280,13 @@ def render_ci_summary(report: dict) -> str:
         f"  latency avg  {lat['avg']:.2f}ms | p95 {lat['p95']:.2f}ms"
     )
     # Surface any per-question misses for CI visibility
-    misses = [q for q in report["per_question"] if q["metrics"].get("recall@10", 0) == 0]
+    miss_metric = ci_miss_metric_name(report)
+    misses = [
+        q for q in report["per_question"]
+        if q["metrics"].get(miss_metric, 0) == 0
+    ]
     if misses:
-        lines.append(f"  miss(0 recall@10): {len(misses)} question(s)")
+        lines.append(f"  miss(0 {miss_metric}): {len(misses)} question(s)")
         for q in misses:
             lines.append(f"    {q['id']}  — {q['q'][:70]}")
     return "\n".join(lines)

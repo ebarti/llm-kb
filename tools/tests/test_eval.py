@@ -281,6 +281,41 @@ def test_mrr() -> None:
     )
 
 
+def test_render_ci_summary_uses_report_k_values() -> None:
+    report = {
+        "goldset_size": 2,
+        "index_size": 42,
+        "k_values": [5],
+        "aggregated_metrics": {"recall@5": 0.5, "ndcg@5": 0.5},
+        "latency_ms": {"avg": 12.3, "p95": 18.4},
+        "per_question": [
+            {
+                "id": "q-hit",
+                "q": "question with a relevant result",
+                "metrics": {"recall@5": 1.0},
+            },
+            {
+                "id": "q-miss",
+                "q": "question with no relevant result",
+                "metrics": {"recall@5": 0.0},
+            },
+        ],
+    }
+
+    summary = eval_retrieval.render_ci_summary(report)
+
+    check(
+        "ci summary labels misses with requested recall metric",
+        "miss(0 recall@5): 1 question(s)" in summary,
+        summary,
+    )
+    check(
+        "ci summary lists only actual misses for requested recall metric",
+        "q-miss" in summary and "q-hit" not in summary,
+        summary,
+    )
+
+
 # ---------------------------------------------------------------------------
 # End-to-end script smoke tests
 # ---------------------------------------------------------------------------
@@ -369,6 +404,7 @@ TESTS = [
     test_recall_at_k,
     test_dcg_and_ndcg,
     test_mrr,
+    test_render_ci_summary_uses_report_k_values,
     test_retrieval_script_runs,
     test_generation_script_runs,
 ]
