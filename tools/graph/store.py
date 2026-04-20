@@ -30,6 +30,7 @@ Stdlib only — no sqlalchemy, no pip packages.
 from __future__ import annotations
 
 import os
+import re
 import sqlite3
 from pathlib import Path
 from typing import Iterable, Iterator, Optional, Sequence
@@ -305,18 +306,40 @@ class GraphStore:
 
         This is deliberately conservative — the CLI `gq query` exposes this.
         Writes happen only through `build`.
+
+        The scanner strips SQL comments (``--`` line, ``/* */`` block),
+        collapses all whitespace to single spaces, and tokenizes on
+        non-word boundaries so that `` 'WITH x AS (SELECT 1)\\nDELETE FROM
+        ...'`` cannot smuggle a DELETE past the guard.
         """
-        stripped = sql.strip().rstrip(";").lower()
-        if not stripped.startswith(("select", "with", "explain")):
+        if not sql or not sql.strip():
+            raise ValueError("empty query")
+
+        # Strip block comments ``/* ... */`` and line comments ``-- ...``.
+        cleaned = re.sub(r"/\*.*?\*/", " ", sql, flags=re.DOTALL)
+        cleaned = re.sub(r"--[^\n]*", " ", cleaned)
+        # Collapse all whitespace (including newlines, tabs) to single spaces.
+        cleaned = re.sub(r"\s+", " ", cleaned).strip().rstrip(";")
+        lowered = cleaned.lower()
+
+        if not lowered.startswith(("select ", "with ", "explain ",
+                                    "select(", "with(", "explain(")) \
+                and lowered not in ("select", "with", "explain"):
             raise ValueError(
                 "only read-only queries allowed (SELECT/WITH/EXPLAIN)"
             )
-        forbidden = (" insert ", " update ", " delete ", " drop ", " alter ",
-                     " create ", " replace ")
-        padded = f" {stripped} "
-        for f in forbidden:
-            if f in padded:
-                raise ValueError(f"forbidden keyword in query: {f.strip()}")
+
+        # Tokenize on non-word boundaries so keywords are matched even
+        # when surrounded by newlines, commas, parens, etc.
+        tokens = set(re.findall(r"[a-z_]+", lowered))
+        forbidden = {
+            "insert", "update", "delete", "drop", "alter",
+            "create", "replace", "pragma", "attach", "detach",
+            "reindex", "vacuum", "truncate",
+        }
+        bad = tokens & forbidden
+        if bad:
+            raise ValueError(f"forbidden keyword in query: {sorted(bad)[0]}")
         return iter(self.conn.execute(sql, params))
 
 

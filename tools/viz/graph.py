@@ -111,10 +111,43 @@ def load_from_wiki():
     return nodes, edges
 
 
+def _wiki_is_newer_than_db(db_path: str, wiki_dir: str) -> bool:
+    """Return True when any ``.md`` file under ``wiki_dir`` has a more
+    recent mtime than the graph DB. Used to detect when ``kb compile``
+    has updated articles but the graph rebuild was skipped or failed,
+    so the viz falls back to live extraction instead of rendering
+    silently stale nodes/edges.
+    """
+    if not os.path.exists(db_path):
+        return True
+    try:
+        db_mtime = os.path.getmtime(db_path)
+    except OSError:
+        return True
+    if not os.path.isdir(wiki_dir):
+        return False
+    for root, _dirs, files in os.walk(wiki_dir):
+        for name in files:
+            if not name.endswith(".md"):
+                continue
+            full = os.path.join(root, name)
+            try:
+                if os.path.getmtime(full) > db_mtime:
+                    return True
+            except OSError:
+                continue
+    return False
+
+
 def load_graph():
-    data = load_from_graph_db(GRAPH_DB)
-    if data is not None:
-        return data
+    # Prefer the prebuilt DB, but fall back to live extraction when the
+    # wiki has been edited since the DB was written. Without this the
+    # viz renders a silently stale graph whenever the DB rebuild was
+    # skipped or failed (kb compile treats that as non-fatal).
+    if not _wiki_is_newer_than_db(GRAPH_DB, WIKI):
+        data = load_from_graph_db(GRAPH_DB)
+        if data is not None:
+            return data
     return load_from_wiki()
 
 

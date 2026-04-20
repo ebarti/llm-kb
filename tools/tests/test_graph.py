@@ -154,6 +154,34 @@ class StoreTests(unittest.TestCase):
         rows = list(self.store.query("SELECT COUNT(*) FROM edges"))
         self.assertEqual(rows[0][0], 1)
 
+    def test_query_rejects_newline_bypass(self):
+        """Mutating keywords smuggled behind a leading SELECT/WITH via
+        newlines, commas, or SQL comments must still be rejected."""
+        self.store.upsert_edge("a", "b", "cites")
+        # Newline-separated statement inside a WITH — the old guard
+        # required literal spaces around keywords and missed this.
+        with self.assertRaises(ValueError):
+            list(self.store.query(
+                "WITH x AS (SELECT 1)\nDELETE FROM edges"
+            ))
+        with self.assertRaises(ValueError):
+            list(self.store.query(
+                "WITH x AS (SELECT 1)\nINSERT INTO nodes (id) VALUES ('z')"
+            ))
+        # Block comment hiding a mutating verb.
+        with self.assertRaises(ValueError):
+            list(self.store.query(
+                "SELECT 1; /* trailing */ DROP TABLE edges"
+            ))
+        # Line comment before a verb.
+        with self.assertRaises(ValueError):
+            list(self.store.query(
+                "SELECT 1\n-- comment\nUPDATE edges SET predicate='x'"
+            ))
+        # After all those, the underlying data must still be intact.
+        rows = list(self.store.query("SELECT COUNT(*) FROM edges"))
+        self.assertEqual(rows[0][0], 1)
+
     def test_predicates_exposed(self):
         # Sanity: the constant list has every predicate in the issue spec.
         expected = {
@@ -617,6 +645,48 @@ edges:
                 seed_edges,
             )
             conn.close()
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class VizFreshnessTests(unittest.TestCase):
+    """viz/graph.py must not render a stale DB when the wiki has moved."""
+
+    def _load_viz(self):
+        import importlib.util
+        viz_path = TOOLS_DIR / "viz" / "graph.py"
+        spec = importlib.util.spec_from_file_location("viz_graph", viz_path)
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)  # type: ignore[union-attr]
+        return module
+
+    def test_wiki_is_newer_than_db(self):
+        viz = self._load_viz()
+        tmp = Path(tempfile.mkdtemp(prefix="viz-freshness-"))
+        try:
+            wiki = tmp / "wiki"
+            wiki.mkdir()
+            article = wiki / "a.md"
+            article.write_text("hi", encoding="utf-8")
+
+            db = tmp / ".graph.db"
+            db.write_bytes(b"")
+            import os as _os
+            import time as _time
+            # Make the wiki article newer than the DB.
+            past = _os.path.getmtime(db) - 60
+            _os.utime(article, (past + 120, past + 120))
+            _os.utime(db, (past, past))
+            self.assertTrue(viz._wiki_is_newer_than_db(str(db), str(wiki)))
+
+            # Now make the DB newer.
+            _os.utime(db, (past + 240, past + 240))
+            self.assertFalse(viz._wiki_is_newer_than_db(str(db), str(wiki)))
+
+            # Missing DB -> treat as stale (force fresh extraction).
+            _os.unlink(db)
+            self.assertTrue(viz._wiki_is_newer_than_db(str(db), str(wiki)))
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
