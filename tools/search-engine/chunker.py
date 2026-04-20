@@ -153,15 +153,12 @@ class Chunk:
     heading_path: list = field(default_factory=list)   # breadcrumb of H1->H3 titles
     text: str = ""               # raw chunk text (no frontmatter)
     tokens: int = 0              # estimated token count
-    content_hash: str = ""       # sha256 of text for incremental indexing
+    content_hash: str = ""       # sha256 of encoder input for incremental indexing
 
     @property
     def embed_text(self) -> str:
         """What we actually feed to the encoder: breadcrumb + body."""
-        bc = " > ".join(self.heading_path) if self.heading_path else ""
-        if bc:
-            return f"{bc}\n\n{self.text}"
-        return self.text
+        return _format_embed_text(self.heading_path, self.text)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -169,6 +166,19 @@ class Chunk:
 
 def _make_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+
+
+def _format_embed_text(heading_path: list, text: str) -> str:
+    """Build the exact string fed to the embedding model."""
+    bc = " > ".join(heading_path) if heading_path else ""
+    if bc:
+        return f"{bc}\n\n{text}"
+    return text
+
+
+def _make_chunk_hash(heading_path: list, text: str) -> str:
+    """Hash encoder input so incremental cache reuse tracks embedding semantics."""
+    return _make_hash(_format_embed_text(heading_path, text))
 
 
 def _pack_blocks(
@@ -203,7 +213,7 @@ def _pack_blocks(
             heading_path=heading_path[:],
             text=text,
             tokens=_estimate_tokens(text),
-            content_hash=_make_hash(text),
+            content_hash=_make_chunk_hash(heading_path, text),
         )
         chunks.append(chunk)
         buf = []

@@ -19,6 +19,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SEARCH_SCRIPT = BASE_DIR / "tools" / "search-engine" / "search.py"
 SEARCH_SH = BASE_DIR / "tools" / "search.sh"
+SEARCH_ENGINE_DIR = BASE_DIR / "tools" / "search-engine"
 
 # Test cases: (query, expected_substring_in_output)
 # We check that the output contains at least one expected term
@@ -104,11 +105,48 @@ def run_search(cmd, query, timeout=30):
         return str(e), latency, -1
 
 
+def run_chunker_regressions():
+    """Exercise chunk hashing without requiring optional ML dependencies."""
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    from chunker import chunk_document
+
+    alpha = chunk_document("concepts/alpha", "# Alpha\n\nShared paragraph.")
+    beta = chunk_document("concepts/beta", "# Beta\n\nShared paragraph.")
+    alpha_clone = chunk_document("concepts/alpha-clone", "# Alpha\n\nShared paragraph.")
+
+    if len(alpha) != 1 or len(beta) != 1 or len(alpha_clone) != 1:
+        raise AssertionError("Expected one chunk per synthetic document")
+
+    alpha_chunk = alpha[0]
+    beta_chunk = beta[0]
+    alpha_clone_chunk = alpha_clone[0]
+
+    return [
+        {
+            "description": "Chunk hash changes when heading breadcrumb changes",
+            "passed": (
+                alpha_chunk.embed_text != beta_chunk.embed_text
+                and alpha_chunk.content_hash != beta_chunk.content_hash
+            ),
+        },
+        {
+            "description": "Chunk hash stays stable for identical encoder input",
+            "passed": (
+                alpha_chunk.embed_text == alpha_clone_chunk.embed_text
+                and alpha_chunk.content_hash == alpha_clone_chunk.content_hash
+            ),
+        },
+    ]
+
+
 def run_checks():
     cmd = find_search_command()
     results = {
         "search_engine_found": cmd is not None,
         "search_command": " ".join(cmd) if cmd else None,
+        "regression_tests": [],
         "query_tests": [],
         "edge_case_tests": [],
         "latency_stats": {},
@@ -120,6 +158,17 @@ def run_checks():
         results["issues"].append("Search engine not found (tools/search-engine/search.py or tools/search.sh)")
         results["ok"] = False
         return results
+
+    try:
+        results["regression_tests"] = run_chunker_regressions()
+    except Exception as e:
+        results["issues"].append(f"Chunk regression checks failed to run: {e}")
+        results["ok"] = False
+    else:
+        for test in results["regression_tests"]:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
 
     latencies = []
 
@@ -184,6 +233,11 @@ def print_report(result):
         return
 
     print(f"\nCommand: {result['search_command']}")
+
+    print("\n--- Regression Tests ---")
+    for t in result["regression_tests"]:
+        symbol = "\033[32m✓\033[0m" if t["passed"] else "\033[31m✗\033[0m"
+        print(f"  {symbol} {t['description']}")
 
     print("\n--- Query Tests ---")
     for t in result["query_tests"]:
