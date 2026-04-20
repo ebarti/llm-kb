@@ -105,6 +105,21 @@ def mean_reciprocal_rank(ranked_ids: list[str], relevant_ids: set[str], k: int) 
     return 0.0
 
 
+def _percentile(samples: list[float], q: float) -> float:
+    """Nearest-rank percentile for a non-empty list of samples.
+
+    For q=0.95 and n=20 this returns the 19th-ranked sample (index 18), not
+    the maximum, which `int(n * 0.95)` (== 19 == max index) would produce.
+    """
+    if not samples:
+        return 0.0
+    s = sorted(samples)
+    n = len(s)
+    # Nearest-rank: ceil(q * n), clamped to [1, n], then to 0-based index.
+    rank = max(1, min(n, math.ceil(q * n)))
+    return s[rank - 1]
+
+
 # ---------------------------------------------------------------------------
 # Gold-set loading
 # ---------------------------------------------------------------------------
@@ -195,9 +210,7 @@ def evaluate(goldset: list[dict], top_k: int, k_values: list[int]) -> dict:
         "aggregated_metrics": aggregated,
         "latency_ms": {
             "avg": round(sum(latencies) / len(latencies), 2) if latencies else 0.0,
-            "p95": round(
-                sorted(latencies)[int(len(latencies) * 0.95)] if latencies else 0.0, 2
-            ),
+            "p95": round(_percentile(latencies, 0.95), 2) if latencies else 0.0,
             "max": round(max(latencies), 2) if latencies else 0.0,
         },
         "per_question": per_q,
@@ -346,8 +359,9 @@ def main() -> int:
         type=float,
         default=None,
         help=(
-            "Exit non-zero if the aggregated recall@10 falls below this "
-            "threshold. Disabled by default so CI reports drift without blocking."
+            "Exit non-zero if the aggregated recall at the highest requested "
+            "--k-values falls below this threshold. Disabled by default so CI "
+            "reports drift without blocking."
         ),
     )
     args = parser.parse_args()
@@ -394,10 +408,11 @@ def main() -> int:
 
     # --fail-under gate
     if args.fail_under is not None:
-        recall10 = report["aggregated_metrics"].get("recall@10", 0.0)
-        if recall10 < args.fail_under:
+        metric_name = ci_miss_metric_name(report)
+        recall_val = report["aggregated_metrics"].get(metric_name, 0.0)
+        if recall_val < args.fail_under:
             print(
-                f"FAIL: recall@10={recall10:.4f} below threshold "
+                f"FAIL: {metric_name}={recall_val:.4f} below threshold "
                 f"{args.fail_under:.4f}",
                 file=sys.stderr,
             )
