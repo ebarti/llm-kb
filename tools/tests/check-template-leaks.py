@@ -59,9 +59,12 @@ PLACEHOLDER_WIKILINKS = {
 WIKILINK_RE = re.compile(r"\[\[([^\]|]+?)(?:\|[^\]]+?)?\]\]")
 
 # Matches common Mustache / Jinja-style placeholders like {{title}}, {{date}},
-# {{summary}}, {{filename}}, {{Source A}}, {{Author}} etc. that appear in
-# templates/*.md. Inside wiki/, these always indicate a leak.
-MUSTACHE_PLACEHOLDER_RE = re.compile(r"\{\{[A-Za-z0-9_ ]+\}\}")
+# {{summary}}, {{filename}}, {{Source A}}, {{Author}}, {{foo-bar}},
+# {{3-5 bullet points}}, etc. that appear in templates/*.md. Inside wiki/,
+# these always indicate a leak. Any non-brace content between {{ and }}
+# counts -- code-fence and indented-code stripping already prevents false
+# positives from literal syntax examples.
+MUSTACHE_PLACEHOLDER_RE = re.compile(r"\{\{[^{}]+\}\}")
 FENCE_RE = re.compile(r"^(`{3,}|~{3,})")
 
 
@@ -93,8 +96,10 @@ def strip_inline_code(line: str):
         closing = line.find("`" * tick_count, index)
 
         if closing == -1:
-            cleaned.append(line[tick_start:index])
-            continue
+            # No matching closing backticks -- treat the remainder as
+            # literal text and stop scanning to avoid an infinite loop.
+            cleaned.append(line[tick_start:])
+            break
 
         index = closing + tick_count
 
@@ -117,7 +122,7 @@ def _is_indented_code_line(line: str) -> bool:
 
 
 def scan_file(filepath: Path):
-    """Return a list of (line_number, line_text, kind, token) leak records."""
+    """Return a list of leak record dicts with line_number, line_text, kind, and token keys."""
     leaks = []
     try:
         text = filepath.read_text(encoding="utf-8", errors="replace")

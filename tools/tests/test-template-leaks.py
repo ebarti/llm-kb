@@ -12,6 +12,7 @@ import sys
 import tempfile
 import textwrap
 from pathlib import Path
+from typing import Optional
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CHECKER_PATH = BASE_DIR / "tools" / "tests" / "check-template-leaks.py"
@@ -92,10 +93,18 @@ TEST_CASES = [
         ),
         "expected_tokens": ["[[wikilinks]]"],
     },
+    {
+        "name": "flags_mustache_placeholders_with_hyphens_and_spaces",
+        "content": """
+        Leaked templates like {{foo-bar}} and {{3-5 bullet points}} must
+        be caught even though they contain hyphens or multi-word content.
+        """,
+        "expected_tokens": ["{{foo-bar}}", "{{3-5 bullet points}}"],
+    },
 ]
 
 
-def scan_text(content: str | None = None, raw_content: str | None = None):
+def scan_text(content: Optional[str] = None, raw_content: Optional[str] = None):
     with tempfile.TemporaryDirectory() as tmpdir:
         sample = Path(tmpdir) / "sample.md"
         if raw_content is not None:

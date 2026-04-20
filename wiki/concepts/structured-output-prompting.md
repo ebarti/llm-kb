@@ -53,7 +53,7 @@ Research shows format preference varies by model:
 This KB's entire operation depends on structured output:
 - Frontmatter YAML in every wiki article
 - Consistent heading structure (## Key Points, ## Detailed Summary, etc.)
-- Wikilink format (bracketed category-and-slug references like concepts/example)
+- Wikilink format (bracketed category-and-slug references like `[[concepts/example]]`)
 - Index and manifest as structured Markdown tables
 
 ## Sources
