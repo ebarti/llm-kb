@@ -118,23 +118,42 @@ def _classify(fpath: str) -> str:
     return "other"
 
 
-def _file_to_wikilink(fpath: str) -> str:
+def _file_to_wikilink(fpath: str, existing_wiki_paths: set[str] | None = None) -> str:
+    """Render a wiki-relative path as a wikilink *only* when the target
+    still exists in the current wiki. Historical entries for deleted or
+    renamed files fall back to inline code so the changelog never emits
+    a broken ``[[...]]`` link.
+    """
     if fpath.startswith("wiki/"):
         rel = fpath[len("wiki/"):]
         if rel.endswith(".md"):
             rel = rel[:-3]
-        return f"[[{rel}]]"
+        if existing_wiki_paths is None or rel in existing_wiki_paths:
+            return f"[[{rel}]]"
+        return f"`{fpath}`"
     return f"`{fpath}`"
 
 
-def _file_without_fallback(fpath: str) -> str:
-    if fpath.endswith(".md"):
-        return fpath[:-3]
-    return fpath
+def _collect_existing_wiki_paths() -> set[str]:
+    """Return the set of current wiki article ids (path relative to
+    ``wiki/``, without the ``.md`` suffix). Used to guard wikilink
+    emission for historical changelog entries.
+    """
+    paths: set[str] = set()
+    if not WIKI.is_dir():
+        return paths
+    for fp in WIKI.rglob("*.md"):
+        rel = fp.relative_to(WIKI)
+        if rel.parts and rel.parts[0] == "_meta":
+            # Meta files are not article targets.
+            continue
+        paths.add(str(rel)[:-3])
+    return paths
 
 
 def generate() -> Path:
     commits = _parse_git_log()
+    existing = _collect_existing_wiki_paths()
 
     lines: list[str] = []
     lines.append("# Wiki Changelog")
@@ -200,7 +219,7 @@ def generate() -> Path:
                         lines.append(f"### {title}")
                         # Sort by path for stability
                         for path, h in sorted(set(items)):
-                            lines.append(f"- {_file_to_wikilink(path)}  `({h})`")
+                            lines.append(f"- {_file_to_wikilink(path, existing)}  `({h})`")
                         lines.append("")
 
                 if day["M"]:
@@ -211,7 +230,7 @@ def generate() -> Path:
                         seen_path_to_hash.setdefault(path, h)
                     for path in sorted(seen_path_to_hash):
                         h = seen_path_to_hash[path]
-                        lines.append(f"- {_file_to_wikilink(path)}  `({h})`")
+                        lines.append(f"- {_file_to_wikilink(path, existing)}  `({h})`")
                     lines.append("")
 
                 if day["D"]:

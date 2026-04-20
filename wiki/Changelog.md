@@ -2,13 +2,26 @@
 title: "Changelog"
 type: "meta"
 summary: "Auto-generated changelog of wiki additions, modifications, and deletions from git history."
-last_compiled: "2026-04-19"
+last_compiled: "2026-04-20"
 ---
 # Wiki Changelog
 
-_Auto-generated on 2026-04-19 from git history by `tools/compile/pages/gen_changelog.py`._
+_Auto-generated on 2026-04-20 from git history by `tools/compile/pages/gen_changelog.py`._
 
-Additions: **1731** · Modifications: **128** · Deletions: **0** across **2** day(s).
+Additions: **1731** · Modifications: **135** · Deletions: **1** across **3** day(s).
+
+## 2026-04-20
+
+### Updated
+- [[Changelog]]  `(3ee71a32)`
+- [[Dashboard]]  `(3ee71a32)`
+- [[Glossary]]  `(3ee71a32)`
+- [[Graph]]  `(3ee71a32)`
+- [[Tags]]  `(ce4ef223)`
+- `wiki/_meta/queries.md`  `(3ee71a32)`
+
+### Removed
+- ~~`wiki/Reading-List.md`~~  `(3ee71a32)`
 
 ## 2026-04-06
 
@@ -1698,24 +1711,24 @@ Additions: **1731** · Modifications: **128** · Deletions: **0** across **2** d
 - `raw/zilliz-function-calling-vs-mcp-vs-a2a.md`  `(eeaeda84)`
 
 ### New Meta Files
-- [[_meta/citation-report]]  `(eeaeda84)`
-- [[_meta/freshness-report]]  `(eeaeda84)`
+- `wiki/_meta/citation-report.md`  `(eeaeda84)`
+- `wiki/_meta/freshness-report.md`  `(eeaeda84)`
 
 ### Other New Files
 - [[Changelog]]  `(eeaeda84)`
 - [[Dashboard]]  `(eeaeda84)`
 - [[Glossary]]  `(eeaeda84)`
 - [[Graph]]  `(eeaeda84)`
-- [[Queries]]  `(eeaeda84)`
-- [[Reading-List]]  `(eeaeda84)`
+- `wiki/Queries.md`  `(eeaeda84)`
+- `wiki/Reading-List.md`  `(eeaeda84)`
 - [[Tags]]  `(eeaeda84)`
 
 ### Updated
 - [[Dashboard]]  `(3a80eef0)`
 - [[_index]]  `(81fa3cba)`
-- [[_meta/links]]  `(39b13d0f)`
-- [[_meta/manifest]]  `(2623f5c3)`
-- [[_meta/summaries]]  `(2623f5c3)`
+- `wiki/_meta/links.md`  `(39b13d0f)`
+- `wiki/_meta/manifest.md`  `(2623f5c3)`
+- `wiki/_meta/summaries.md`  `(2623f5c3)`
 - [[comparisons/rlhf-vs-constitutional-ai]]  `(4e1eb34d)`
 - [[concepts/agentic-coding]]  `(fe5c7f57)`
 - [[concepts/ai-alignment]]  `(4e1eb34d)`
@@ -1831,9 +1844,9 @@ Additions: **1731** · Modifications: **128** · Deletions: **0** across **2** d
 - `raw/storm-automated-wiki-creation.md`  `(fc1ed04d)`
 
 ### New Meta Files
-- [[_meta/links]]  `(fc1ed04d)`
-- [[_meta/manifest]]  `(fc1ed04d)`
-- [[_meta/summaries]]  `(fc1ed04d)`
+- `wiki/_meta/links.md`  `(fc1ed04d)`
+- `wiki/_meta/manifest.md`  `(fc1ed04d)`
+- `wiki/_meta/summaries.md`  `(fc1ed04d)`
 
 ### Other New Files
 - [[_index]]  `(fc1ed04d)`
