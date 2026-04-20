@@ -70,9 +70,9 @@ def run_llm_command(
       - ``BudgetExceeded`` -> exit code 2
       - Auto-commit on success
     """
-    ctx.workspace.ensure_dirs()
-
     if ctx.dry_run:
+        # Do NOT create workspace dirs on dry-run — keep it fully side-effect
+        # free so users can preview commands against arbitrary paths.
         return LLMInvocationResult(
             command=command,
             topic=topic,
@@ -84,6 +84,7 @@ def run_llm_command(
             exit_code=EXIT_SUCCESS,
         )
 
+    ctx.workspace.ensure_dirs()
     budget = ctx.new_budget()
 
     try:
@@ -122,7 +123,10 @@ def run_llm_command(
             if llm_result.budget_exceeded
             else (EXIT_SUCCESS if llm_result.returncode == 0 else EXIT_ERROR)
         ),
-        message=llm_result.text[:2000] if llm_result.text else None,
+        # Do not truncate LLM output here — downstream rendering consumes the
+        # full text (progress updates, file paths, etc.). Any serialization
+        # bounds should be applied at the serialization site, not here.
+        message=llm_result.text if llm_result.text else None,
         details={"backend": llm_result.backend},
     )
 

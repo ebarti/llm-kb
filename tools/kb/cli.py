@@ -102,7 +102,12 @@ def _parse_global_options(argv: Sequence[str]) -> tuple[GlobalOptions, list[str]
             if arg == "--model":
                 opts.model = value
             elif arg == "--budget":
-                opts.budget = int(value)
+                try:
+                    opts.budget = int(value)
+                except ValueError as exc:
+                    raise SystemExit(
+                        "invalid --budget value: expected integer"
+                    ) from exc
             elif arg in {"--dir", "-d"}:
                 opts.dir_flag = value
             else:
@@ -111,7 +116,12 @@ def _parse_global_options(argv: Sequence[str]) -> tuple[GlobalOptions, list[str]
         elif arg.startswith("--model="):
             opts.model = arg.split("=", 1)[1]
         elif arg.startswith("--budget="):
-            opts.budget = int(arg.split("=", 1)[1])
+            try:
+                opts.budget = int(arg.split("=", 1)[1])
+            except ValueError as exc:
+                raise SystemExit(
+                    "invalid --budget value: expected integer"
+                ) from exc
         elif arg.startswith("--dir="):
             opts.dir_flag = arg.split("=", 1)[1]
         elif arg.startswith("--permission-mode="):
@@ -126,7 +136,12 @@ def _build_context(opts: GlobalOptions) -> CommandContext:
     env_budget = os.environ.get("KB_BUDGET")
     budget_limit = opts.budget
     if budget_limit is None and env_budget:
-        budget_limit = int(env_budget)
+        try:
+            budget_limit = int(env_budget)
+        except ValueError as exc:
+            raise SystemExit(
+                "invalid KB_BUDGET value: expected integer"
+            ) from exc
 
     return CommandContext(
         workspace=Workspace.resolve(

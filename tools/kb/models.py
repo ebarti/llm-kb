@@ -11,10 +11,98 @@ from typing import Any, Optional
 
 try:
     from pydantic import BaseModel, Field
-except ImportError:  # pragma: no cover - pydantic is a declared dependency
-    raise SystemExit(
-        "pydantic is required. Install with: pip install -r requirements.txt"
-    )
+except ImportError:  # pragma: no cover - pydantic is an optional dependency
+    # Fallback: minimal stub so `./kb --help`, ``kb stats``, ``kb search``
+    # etc. keep working without pydantic installed. ``model_dump_json`` keeps
+    # the --json output path functional. Install pydantic
+    # (``pip install pydantic``) for full validation.
+
+    import json as _json
+
+    class _FieldInfo:
+        __slots__ = ("default", "default_factory")
+
+        def __init__(self, default=None, default_factory=None):
+            self.default = default
+            self.default_factory = default_factory
+
+    def Field(default=None, *, default_factory=None, **_kwargs):  # type: ignore[misc]
+        return _FieldInfo(default=default, default_factory=default_factory)
+
+    class _StubBase:
+        """Minimal BaseModel stand-in.
+
+        Collects annotated class attributes (walking the MRO so inherited
+        fields are preserved) and provides a kwargs-only ``__init__`` plus
+        ``model_dump``/``model_dump_json`` for JSON serialization.
+        """
+
+        def __init__(self, **kwargs):
+            fields = self._stub_fields()
+            for name, default_getter in fields.items():
+                if name in kwargs:
+                    setattr(self, name, kwargs.pop(name))
+                else:
+                    setattr(self, name, default_getter())
+            if kwargs:
+                raise TypeError(
+                    f"Unexpected fields for {type(self).__name__}: {list(kwargs)}"
+                )
+
+        @classmethod
+        def _stub_fields(cls) -> dict:
+            # Walk MRO from base -> derived so subclass overrides win.
+            fields: dict = {}
+            _MISSING = object()
+            for klass in reversed(cls.__mro__):
+                ann = getattr(klass, "__annotations__", {}) or {}
+                for name in ann:
+                    raw = klass.__dict__.get(name, _MISSING)
+                    if isinstance(raw, _FieldInfo):
+                        if raw.default_factory is not None:
+                            factory = raw.default_factory
+                            fields[name] = (lambda f=factory: f())
+                        else:
+                            dflt = raw.default
+                            fields[name] = (lambda v=dflt: v)
+                    elif raw is _MISSING:
+                        # No default: caller must supply. Raise if missing.
+                        def _required(n=name, c=klass.__name__):
+                            raise TypeError(
+                                f"{c}: missing required field '{n}'"
+                            )
+                        fields[name] = _required
+                    else:
+                        dflt = raw
+                        fields[name] = (lambda v=dflt: v)
+            return fields
+
+        def model_dump(self) -> dict:
+            out: dict = {}
+            for name in self._stub_fields():
+                out[name] = _dump_value(getattr(self, name, None))
+            return out
+
+        def model_dump_json(self, indent: int | None = None) -> str:
+            return _json.dumps(self.model_dump(), indent=indent, default=str)
+
+        # pydantic v1 compatibility aliases
+        def dict(self) -> dict:
+            return self.model_dump()
+
+        def json(self, indent: int | None = None) -> str:
+            return self.model_dump_json(indent=indent)
+
+    def _dump_value(val):
+        if isinstance(val, _StubBase):
+            return val.model_dump()
+        if isinstance(val, list):
+            return [_dump_value(v) for v in val]
+        if isinstance(val, dict):
+            return {k: _dump_value(v) for k, v in val.items()}
+        return val
+
+    BaseModel = _StubBase  # type: ignore[assignment,misc]
 
 
 # --------------------------------------------------------------------------- #

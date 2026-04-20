@@ -217,8 +217,24 @@ def _invoke_cli(
         )
 
     if not shutil.which("claude"):
+        api_key_set = bool(os.environ.get("ANTHROPIC_API_KEY"))
+        try:
+            import anthropic  # type: ignore  # noqa: F401
+            sdk_importable = True
+        except ImportError:
+            sdk_importable = False
+
+        if api_key_set and not sdk_importable:
+            msg = (
+                "ERROR: Claude CLI not found on PATH and SDK backend "
+                "unavailable (install anthropic or ensure ANTHROPIC_API_KEY "
+                "is set correctly)."
+            )
+        else:
+            msg = "ERROR: Claude CLI not found on PATH and no ANTHROPIC_API_KEY set."
+
         return LLMResult(
-            text="ERROR: Claude CLI not found on PATH and no ANTHROPIC_API_KEY set.",
+            text=msg,
             backend="cli",
             returncode=1,
         )

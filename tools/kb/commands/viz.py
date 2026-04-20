@@ -38,16 +38,24 @@ def run(ctx: CommandContext, viz_type: str = "stats") -> VizResult:
                 message=proc.stdout + proc.stderr,
             )
         generated: list[str] = []
+        failed: list[str] = []
         for vt in VIZ_SCRIPTS:
             sub = run(ctx, vt)
             if sub.ok:
                 generated.extend(sub.generated)
+            else:
+                failed.append(vt)
         return VizResult(
             command="viz",
             viz_type="all",
-            ok=True,
-            exit_code=EXIT_SUCCESS,
+            ok=not failed,
+            exit_code=EXIT_SUCCESS if not failed else EXIT_ERROR,
             generated=generated,
+            message=(
+                f"Failed to generate: {', '.join(failed)}"
+                if failed
+                else f"Generated: {', '.join(generated)}"
+            ),
         )
 
     script = VIZ_SCRIPTS.get(viz_type)
