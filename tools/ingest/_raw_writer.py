@@ -26,8 +26,9 @@ meta.json schema:
         "raw_extension": "html"      # empty if no raw bytes saved
     }
 
-Idempotency: if raw/<slug>/meta.json exists and sha256_raw matches the newly
-fetched bytes, writes are skipped.
+Idempotency: if raw/<slug>/meta.json exists and either sha256_raw matches the
+newly fetched bytes or sha256_clean matches a raw-less write, writes are
+skipped.
 
 Usage (CLI):
     python3 tools/ingest/_raw_writer.py \
@@ -108,7 +109,8 @@ def write_raw(
     force: bool = False,
 ) -> dict:
     """
-    Write the raw/<slug>/ bundle. Idempotent on sha256_raw match.
+    Write the raw/<slug>/ bundle. Idempotent on raw hash match, or clean hash
+    match when no raw bytes are available.
 
     Returns a dict {
         "status": "wrote" | "skipped_hash_match",
@@ -126,6 +128,13 @@ def write_raw(
     d = slug_dir(base_dir, slug)
     d.mkdir(parents=True, exist_ok=True)
 
+    if isinstance(clean_content, bytes):
+        clean_bytes = clean_content
+    else:
+        clean_bytes = clean_content.encode("utf-8")
+    new_sha_clean = sha256_bytes(clean_bytes)
+    clean_size = len(clean_bytes)
+
     # Compute candidate sha256 of new raw bytes before overwriting anything
     new_sha_raw: Optional[str] = None
     raw_size = 0
@@ -138,13 +147,23 @@ def write_raw(
         new_sha_raw = sha256_file(raw_src_path)
         raw_size = raw_src_path.stat().st_size
 
-    # Idempotency check: if meta exists and raw hash matches, skip
+    # Idempotency check: prefer raw-byte hash when we have it, otherwise fall
+    # back to the cleaned content hash for fetchers that cannot persist raw
+    # bytes on a retry path.
     existing_meta_path = meta_path(base_dir, slug)
-    if existing_meta_path.exists() and not force and new_sha_raw is not None:
+    if existing_meta_path.exists() and not force:
         try:
             existing = json.loads(existing_meta_path.read_text(encoding="utf-8"))
-            existing_sha = existing.get("sha256_raw")
-            if existing_sha and existing_sha == new_sha_raw:
+            existing_sha_raw = existing.get("sha256_raw")
+            existing_sha_clean = existing.get("sha256_clean")
+            if new_sha_raw is not None and existing_sha_raw == new_sha_raw:
+                return {
+                    "status": "skipped_hash_match",
+                    "slug": slug,
+                    "dir": str(d),
+                    "meta": existing,
+                }
+            if new_sha_raw is None and existing_sha_clean == new_sha_clean:
                 return {
                     "status": "skipped_hash_match",
                     "slug": slug,
@@ -171,13 +190,7 @@ def write_raw(
 
     # Write clean.md
     clean_out = d / "clean.md"
-    if isinstance(clean_content, bytes):
-        clean_bytes = clean_content
-    else:
-        clean_bytes = clean_content.encode("utf-8")
     clean_out.write_bytes(clean_bytes)
-    sha_clean = sha256_bytes(clean_bytes)
-    clean_size = len(clean_bytes)
 
     meta = {
         "slug": slug,
@@ -187,7 +200,7 @@ def write_raw(
         "fetcher_version": fetcher_version,
         "content_type": content_type or "",
         "sha256_raw": new_sha_raw,
-        "sha256_clean": sha_clean,
+        "sha256_clean": new_sha_clean,
         "size_bytes_raw": raw_size,
         "size_bytes_clean": clean_size,
         "raw_bytes_available": raw_bytes_available,

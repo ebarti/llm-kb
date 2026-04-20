@@ -151,6 +151,29 @@ class TestRawWriter(unittest.TestCase):
         self.assertIsNone(meta["sha256_raw"])
         self.assertFalse(meta["raw_bytes_available"])
 
+    def test_idempotent_without_raw_bytes_on_clean_hash(self):
+        result1 = raw_writer.write_raw(
+            base_dir=self.base,
+            slug="noraw-idem",
+            url="https://example.com",
+            fetcher="web",
+            clean_content="same clean",
+        )
+        self.assertEqual(result1["status"], "wrote")
+        first_fetched_at = result1["meta"]["fetched_at"]
+
+        result2 = raw_writer.write_raw(
+            base_dir=self.base,
+            slug="noraw-idem",
+            url="https://example.com",
+            fetcher="web",
+            clean_content="same clean",
+        )
+        self.assertEqual(result2["status"], "skipped_hash_match")
+
+        on_disk = json.loads((self.base / "raw" / "noraw-idem" / "meta.json").read_text())
+        self.assertEqual(on_disk["fetched_at"], first_fetched_at)
+
     def test_sha256_matches_file_contents(self):
         raw_bytes = b"\x00\x01\x02binary\xffbytes"
         raw_writer.write_raw(
