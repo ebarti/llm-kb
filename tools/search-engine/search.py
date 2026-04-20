@@ -478,9 +478,25 @@ def format_llm(results, query):
         return f"No results for: {query}"
     lines = [f"# Search: \"{query}\" — {len(results)} results\n"]
     for i, r in enumerate(results, 1):
-        lines.append(f"{i}. **{r['title']}** [{r['type']}] score={r['score']}")
+        # Prefer rerank > rrf > bm25 as the headline score so users see what
+        # actually determined the ordering.
+        if "rerank_score" in r:
+            headline = f"rerank={r['rerank_score']}"
+        elif "rrf_score" in r:
+            headline = f"rrf={r['rrf_score']}"
+        else:
+            headline = f"score={r['score']}"
+        lines.append(f"{i}. **{r['title']}** [{r['type']}] {headline}")
         if r.get("summary"):
             lines.append(f"   {r['summary'][:200]}")
+        # Hybrid path: show the chunk snippet it matched on when available.
+        snip = r.get("chunk_snippet")
+        if isinstance(snip, dict) and snip.get("text"):
+            bc = " > ".join(snip.get("heading_path") or [])
+            if bc:
+                lines.append(f"   section: {bc}")
+            text = snip["text"].replace("\n", " ")
+            lines.append(f"   > {text[:200]}")
         lines.append(f"   file: {r['path']}")
         if r.get("backlinks"):
             lines.append(f"   backlinks: {', '.join(r['backlinks'][:5])}")
@@ -490,6 +506,88 @@ def format_llm(results, query):
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
+def _run_hybrid(query, index, args):
+    """
+    Execute the hybrid (BM25 + dense) retrieval path, optionally followed by a
+    cross-encoder rerank. Emits a user-friendly error and falls back to BM25 if
+    ML deps are missing.
+    """
+    try:
+        import embeddings
+        import hybrid
+    except ImportError as e:
+        print(f"Hybrid search unavailable: {e}", file=sys.stderr)
+        print("Falling back to BM25.", file=sys.stderr)
+        return search_with_snippets(
+            query, index,
+            doc_type=args.type, tags=args.tags,
+            date_from=args.date_from, date_to=args.date_to,
+            top_n=args.top, fuzzy=not args.no_fuzzy,
+        )
+
+    ok, msg = embeddings.is_available()
+    if not ok:
+        print(f"Hybrid search unavailable: {msg}", file=sys.stderr)
+        print("Falling back to BM25.", file=sys.stderr)
+        return search_with_snippets(
+            query, index,
+            doc_type=args.type, tags=args.tags,
+            date_from=args.date_from, date_to=args.date_to,
+            top_n=args.top, fuzzy=not args.no_fuzzy,
+        )
+
+    vector_index = embeddings.VectorIndex.load()
+    if vector_index is None or vector_index.vectors.shape[0] == 0:
+        print(
+            "No vector index found. Run: python3 tools/search-engine/build-index.py --vectors",
+            file=sys.stderr,
+        )
+        print("Falling back to BM25.", file=sys.stderr)
+        return search_with_snippets(
+            query, index,
+            doc_type=args.type, tags=args.tags,
+            date_from=args.date_from, date_to=args.date_to,
+            top_n=args.top, fuzzy=not args.no_fuzzy,
+        )
+
+    encoder = embeddings.Encoder(vector_index.model_name)
+
+    # Pull a deep pool when reranking so the cross-encoder has something to
+    # reorder; otherwise just grab the final top_n.
+    hybrid_top = max(args.top, 50) if args.rerank else args.top
+
+    results = hybrid.hybrid_search(
+        query, index,
+        vector_index=vector_index,
+        encoder=encoder,
+        top_n=hybrid_top,
+        doc_type=args.type, tags=args.tags,
+        date_from=args.date_from, date_to=args.date_to,
+        fuzzy=not args.no_fuzzy,
+    )
+
+    if args.rerank:
+        try:
+            import rerank as rerank_mod
+        except ImportError as e:
+            print(f"Reranker unavailable: {e}", file=sys.stderr)
+        else:
+            ok, msg = rerank_mod.is_available()
+            if not ok:
+                print(f"Reranker unavailable: {msg}", file=sys.stderr)
+            else:
+                reranker = rerank_mod.CrossEncoderReranker()
+                results = rerank_mod.rerank_results(query, results, reranker=reranker)
+
+    # Always attach BM25-style snippets too for readability.
+    query_tokens = tokenize(query)
+    for r in results[: args.top]:
+        body = load_body(r["id"])
+        r["snippet"] = extract_snippet(query_tokens, r["id"], body)
+
+    return results[: args.top]
+
 
 def main():
     parser = argparse.ArgumentParser(description="Search the LLM knowledge base wiki")
@@ -505,6 +603,14 @@ def main():
     parser.add_argument("--no-fuzzy", action="store_true", help="Disable fuzzy matching")
     parser.add_argument("--rebuild", action="store_true", help="Force index rebuild")
     parser.add_argument("--stats", action="store_true", help="Show index stats")
+    parser.add_argument(
+        "--hybrid", action="store_true",
+        help="BM25 + dense-vector hybrid retrieval with RRF fusion",
+    )
+    parser.add_argument(
+        "--rerank", action="store_true",
+        help="Apply cross-encoder rerank after hybrid retrieval (implies --hybrid)",
+    )
 
     args = parser.parse_args()
 
@@ -524,15 +630,22 @@ def main():
         parser.print_help()
         return
 
-    results = search_with_snippets(
-        args.query, index,
-        doc_type=args.type,
-        tags=args.tags,
-        date_from=args.date_from,
-        date_to=args.date_to,
-        top_n=args.top,
-        fuzzy=not args.no_fuzzy,
-    )
+    # --rerank is meaningless without hybrid candidates; auto-enable hybrid.
+    if args.rerank:
+        args.hybrid = True
+
+    if args.hybrid:
+        results = _run_hybrid(args.query, index, args)
+    else:
+        results = search_with_snippets(
+            args.query, index,
+            doc_type=args.type,
+            tags=args.tags,
+            date_from=args.date_from,
+            date_to=args.date_to,
+            top_n=args.top,
+            fuzzy=not args.no_fuzzy,
+        )
 
     if args.json:
         print(json.dumps(results, indent=2))
