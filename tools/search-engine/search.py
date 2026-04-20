@@ -551,6 +551,15 @@ def _run_hybrid(query, index, args):
             top_n=args.top, fuzzy=not args.no_fuzzy,
         )
 
+    # BM25 auto-rebuilds when wiki files change; the dense index does not,
+    # so warn when it has fallen behind so fused results reflect current content.
+    if embeddings.vectors_are_stale(vector_index, WIKI_DIR):
+        print(
+            "Warning: vector index is stale relative to wiki content. "
+            "Rerun: python3 tools/search-engine/build-index.py --vectors",
+            file=sys.stderr,
+        )
+
     encoder = embeddings.Encoder(vector_index.model_name)
 
     # Pull a deep pool when reranking so the cross-encoder has something to

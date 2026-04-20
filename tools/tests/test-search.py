@@ -123,7 +123,7 @@ def run_chunker_regressions():
     beta_chunk = beta[0]
     alpha_clone_chunk = alpha_clone[0]
 
-    return [
+    tests = [
         {
             "description": "Chunk hash changes when heading breadcrumb changes",
             "passed": (
@@ -139,6 +139,53 @@ def run_chunker_regressions():
             ),
         },
     ]
+
+    # Vector index staleness detection (does not require numpy/transformers).
+    import embeddings
+    import tempfile
+    import os
+
+    with tempfile.TemporaryDirectory() as td:
+        wiki = Path(td)
+        (wiki / "concepts").mkdir()
+        art = wiki / "concepts" / "foo.md"
+        art.write_text("# Foo\n")
+
+        class _Stub:
+            class _Vecs:
+                shape = (1, 8)
+            vectors = _Vecs()
+            built_at = 0.0  # predates the stamp
+
+        tests.append({
+            "description": "vectors_are_stale: None treated as stale",
+            "passed": embeddings.vectors_are_stale(None, wiki) is True,
+        })
+        tests.append({
+            "description": "vectors_are_stale: built_at=0 treated as stale",
+            "passed": embeddings.vectors_are_stale(_Stub(), wiki) is True,
+        })
+
+        class _Fresh:
+            class _Vecs:
+                shape = (1, 8)
+            vectors = _Vecs()
+            built_at = art.stat().st_mtime + 3600
+
+        tests.append({
+            "description": "vectors_are_stale: fresh built_at treated as current",
+            "passed": embeddings.vectors_are_stale(_Fresh(), wiki) is False,
+        })
+
+        # Touch the article into the future to simulate wiki edit after build.
+        future = _Fresh.built_at + 7200
+        os.utime(art, (future, future))
+        tests.append({
+            "description": "vectors_are_stale: wiki edit after build marks stale",
+            "passed": embeddings.vectors_are_stale(_Fresh(), wiki) is True,
+        })
+
+    return tests
 
 
 def run_checks():

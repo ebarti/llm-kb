@@ -148,6 +148,7 @@ class VectorIndex:
     chunks: list
     dim: int
     model_name: str
+    built_at: float = 0.0
 
     @classmethod
     def empty(cls, dim: int, model_name: str) -> "VectorIndex":
@@ -163,11 +164,16 @@ class VectorIndex:
     def save(self, vectors_file: Path = VECTORS_FILE, chunks_file: Path = CHUNKS_FILE):
         if not _HAS_NUMPY:
             raise RuntimeError("numpy required to save VectorIndex")
+        import time as _time
         INDEX_DIR.mkdir(parents=True, exist_ok=True)
         np.save(vectors_file, self.vectors)
+        # Stamp the build time so search-time staleness checks can compare
+        # against wiki file mtimes the same way the BM25 index does.
+        self.built_at = _time.time()
         meta = {
             "model_name": self.model_name,
             "dim": self.dim,
+            "built_at": self.built_at,
             "chunks": self.chunks,
         }
         chunks_file.write_text(json.dumps(meta, indent=2), encoding="utf-8")
@@ -188,6 +194,7 @@ class VectorIndex:
             chunks=meta.get("chunks", []),
             dim=int(meta.get("dim", vectors.shape[1] if vectors.ndim == 2 else 0)),
             model_name=meta.get("model_name", MODEL_NAME),
+            built_at=float(meta.get("built_at", 0.0)),
         )
 
     def search(self, query_vec, top_k: int = 20) -> list:
@@ -205,6 +212,35 @@ class VectorIndex:
         idx = np.argpartition(-scores, k - 1)[:k]
         idx = idx[np.argsort(-scores[idx])]
         return [(self.chunks[i], float(scores[i])) for i in idx]
+
+
+def vectors_are_stale(vector_index: Optional["VectorIndex"], wiki_dir: Path) -> bool:
+    """
+    Return True if any wiki file is newer than the vector index's build time.
+
+    Mirrors `search.index_needs_rebuild` so the hybrid path can detect the
+    same kind of drift BM25 auto-rebuilds handle. A missing or empty index is
+    treated as stale so callers fall back / prompt a rebuild.
+    """
+    if vector_index is None or vector_index.vectors.shape[0] == 0:
+        return True
+    built_at = getattr(vector_index, "built_at", 0.0) or 0.0
+    if built_at <= 0:
+        # Older indexes predate the built_at stamp -- treat as stale so users
+        # get a prompt the next time they run --hybrid.
+        return True
+    subdirs = ["sources", "concepts", "entities", "comparisons"]
+    for subdir in subdirs:
+        d = wiki_dir / subdir
+        if not d.exists():
+            continue
+        for f in d.glob("*.md"):
+            try:
+                if f.stat().st_mtime > built_at:
+                    return True
+            except OSError:
+                continue
+    return False
 
 
 def build_or_update_index(
@@ -311,6 +347,7 @@ __all__ = [
     "VectorIndex",
     "build_or_update_index",
     "is_available",
+    "vectors_are_stale",
     "VECTORS_FILE",
     "CHUNKS_FILE",
     "MODEL_NAME",
