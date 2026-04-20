@@ -1,167 +1,58 @@
 ---
-title: "Tag Index"
-type: reference
-last_updated: 2026-04-05
-reading_time: "3 min"
+title: "Tags"
+type: "meta"
+summary: "Auto-generated tag cloud pulled from frontmatter `tags:` and inline `#tags`."
+last_compiled: "2026-04-19"
 ---
-
 # Tag Index
 
-Browse all tags used across the knowledge base. Tags are defined in article frontmatter (`tags:` field) and inline (`#tag`).
+_Auto-generated on 2026-04-19 by `tools/compile/pages/gen_tags.py`. Covers `tags:` frontmatter and inline `#tags` across the wiki._
 
----
+## Summary
 
-## All Tags (Dataview)
+- Unique tags: **5**
+- Articles scanned: **1268**
+- Total tag usages: **11**
 
-```dataview
-LIST WITHOUT ID tag + " (" + length(rows) + " articles)"
-FROM "wiki"
-FLATTEN file.tags AS tag
-GROUP BY tag
-SORT tag ASC
-```
+## Tag Cloud (by count)
 
----
+| Tag | Articles |
+|-----|---------:|
+| `#decision` | 3 |
+| `#meeting` | 3 |
+| `#idea` | 2 |
+| `#research` | 2 |
+| `#fcb32c` | 1 |
 
-## Suggested Tag Taxonomy
-
-The following tags are recommended for consistent categorization. Add them to article frontmatter as needed.
-
-### A
-
-- `#architecture` -- System design and structural patterns
-- `#agent` -- LLM agent systems and multi-agent frameworks
-
-### C
-
-- `#comparison` -- Comparative analysis articles
+## Tag Index
 
 ### D
 
-- `#data-quality` -- Data quality, cleaning, validation
-
-### E
-
-- `#evaluation` -- Benchmarks, metrics, testing
+- **`#decision`** (3)
+  - [[concepts/obsidian-ai-integration]]
+  - [[concepts/obsidian-frontmatter-properties]]
+  - [[concepts/vault-organization]]
 
 ### F
 
-- `#framework` -- Software frameworks and libraries
-
-### G
-
-- `#graph` -- Knowledge graphs, graph databases
-
-### H
-
-- `#hallucination` -- LLM hallucination and contamination risks
+- **`#fcb32c`** (1)
+  - [[concepts/mdx]]
 
 ### I
 
-- `#infrastructure` -- Databases, vector stores, deployment
-
-### K
-
-- `#knowledge-management` -- PKM, enterprise KM, knowledge workflows
-
-### L
-
-- `#llm` -- Large language models (general)
+- **`#idea`** (2)
+  - [[concepts/obsidian-ai-integration]]
+  - [[concepts/vault-organization]]
 
 ### M
 
-- `#markdown` -- Markdown as knowledge substrate
-- `#multi-agent` -- Multi-agent LLM systems
-
-### O
-
-- `#obsidian` -- Obsidian-specific features and workflows
-- `#ontology` -- Ontology, taxonomy, schema design
-
-### P
-
-- `#pipeline` -- Data and compilation pipelines
-- `#pkm` -- Personal knowledge management
-- `#product` -- Product opportunities and gaps
+- **`#meeting`** (3)
+  - [[concepts/obsidian-ai-integration]]
+  - [[concepts/obsidian-frontmatter-properties]]
+  - [[concepts/vault-organization]]
 
 ### R
 
-- `#rag` -- Retrieval-augmented generation
-- `#retrieval` -- Information retrieval (general)
-- `#risk` -- Risks, failure modes, mitigations
-
-### S
-
-- `#scale` -- Scalability considerations
-- `#second-brain` -- Second brain / personal AI assistant
-
-### T
-
-- `#temporal` -- Time-aware knowledge, versioning
-- `#tool` -- Specific tools (Obsidian, ChromaDB, etc.)
-
-### W
-
-- `#wiki` -- Wiki compilation and maintenance
-- `#workflow` -- Human and LLM workflows
-
----
-
-## Articles Per Tag (Dataview)
-
-### Architecture
-```dataview
-LIST summary
-FROM "wiki"
-WHERE contains(file.tags, "#architecture")
-```
-
-### Risk
-```dataview
-LIST summary
-FROM "wiki"
-WHERE contains(file.tags, "#risk")
-```
-
-### Retrieval
-```dataview
-LIST summary
-FROM "wiki"
-WHERE contains(file.tags, "#retrieval") OR contains(file.tags, "#rag")
-```
-
-### Multi-Agent
-```dataview
-LIST summary
-FROM "wiki"
-WHERE contains(file.tags, "#multi-agent") OR contains(file.tags, "#agent")
-```
-
-### Knowledge Management
-```dataview
-LIST summary
-FROM "wiki"
-WHERE contains(file.tags, "#pkm") OR contains(file.tags, "#knowledge-management")
-```
-
-### Wiki & Pipeline
-```dataview
-LIST summary
-FROM "wiki"
-WHERE contains(file.tags, "#wiki") OR contains(file.tags, "#pipeline")
-```
-
----
-
-## Type-Based Browsing
-
-Not using tags yet? Browse by article type instead:
-
-- **Sources**: `path:wiki/sources` in search, or [[_index#Sources]]
-- **Concepts**: `path:wiki/concepts` in search, or [[_index#Concepts]]
-- **Entities**: `path:wiki/entities` in search
-- **Comparisons**: `path:wiki/comparisons` in search
-
----
-
-*Add tags to articles using the `tags:` frontmatter field (e.g., `tags: ["#architecture", "#llm"]`) or inline with `#tagname`. This page will automatically update via Dataview.*
+- **`#research`** (2)
+  - [[concepts/obsidian-frontmatter-properties]]
+  - [[concepts/vault-organization]]
