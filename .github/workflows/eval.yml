@@ -1,0 +1,154 @@
+name: eval
+
+# Retrieval evaluation harness. Runs on PRs that touch the search engine,
+# the eval harness itself, or the wiki corpus it evaluates against. Scores
+# the BM25 retriever on tools/eval/goldset.jsonl and posts the aggregated
+# metrics plus any regressions as a PR comment.
+#
+# Note: we deliberately DO NOT run tools/eval/eval-generation.py in CI.
+# Generation eval requires an LLM judge to score correctness / citation
+# accuracy / groundedness end-to-end; even the `--mode mock` path is
+# heavier than CI warrants, and the `--mode api` path costs real money
+# against the Anthropic API on every PR. Retrieval eval is the useful
+# guard-rail for CI; generation eval is run locally / on demand.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/search-engine/**'
+      - 'tools/eval/**'
+      - 'wiki/**'
+      - '.github/workflows/eval.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  retrieval-eval:
+    name: retrieval eval
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Search engine + retrieval eval are pure stdlib Python, so no pip
+      # install is required. Only the JSON->markdown step below uses the
+      # standard library. If deps are ever added, wire them in here.
+      - name: Show environment
+        run: |
+          python3 --version
+          echo "Repo root: $(pwd)"
+
+      - name: Rebuild search index
+        run: python3 tools/search-engine/build-index.py --force
+
+      - name: Run retrieval eval
+        run: |
+          python3 tools/eval/eval-retrieval.py --ci
+          echo "--- eval-retrieval-latest.json (head) ---"
+          head -40 output/eval-retrieval-latest.json || true
+
+      - name: Render PR comment body
+        id: render
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib
+          report = json.loads(pathlib.Path("output/eval-retrieval-latest.json").read_text())
+          agg = report["aggregated_metrics"]
+          lat = report["latency_ms"]
+
+          lines = []
+          lines.append("### Retrieval eval")
+          lines.append("")
+          lines.append(
+              f"Gold set: **{report['goldset_size']}** questions  |  "
+              f"Index: **{report['index_size']}** articles"
+          )
+          lines.append("")
+          lines.append("| Metric | Value |")
+          lines.append("|---|---|")
+          for name, val in agg.items():
+              lines.append(f"| `{name}` | {val:.4f} |")
+          lines.append("")
+          lines.append(
+              f"Latency — avg: {lat['avg']}ms, p95: {lat['p95']}ms, "
+              f"max: {lat['max']}ms"
+          )
+          lines.append("")
+
+          misses = [
+              q for q in report["per_question"]
+              if q["metrics"].get("recall@10", 0) == 0
+          ]
+          if misses:
+              lines.append(f"<details><summary>{len(misses)} question(s) with recall@10 == 0</summary>")
+              lines.append("")
+              for q in misses:
+                  qtxt = q["q"][:100].replace("|", "\\|")
+                  lines.append(f"- `{q['id']}` — {qtxt}")
+              lines.append("")
+              lines.append("</details>")
+          else:
+              lines.append("All gold-set questions had at least one relevant doc in top-10.")
+
+          lines.append("")
+          lines.append("_Generation eval is not run in CI (LLM-judge cost). Run locally with `python3 tools/eval/eval-generation.py`._")
+          body = "\n".join(lines)
+
+          out_path = pathlib.Path(os.environ["GITHUB_OUTPUT"])
+          with out_path.open("a", encoding="utf-8") as fh:
+              fh.write("body<<EOF\n")
+              fh.write(body)
+              fh.write("\nEOF\n")
+          PY
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        env:
+          # Pass the rendered markdown via env var (not a ${{ }} template
+          # substitution) so backticks / $ signs in the body cannot break
+          # the inline JavaScript.
+          REPORT_BODY: ${{ steps.render.outputs.body }}
+        with:
+          script: |
+            const body = process.env.REPORT_BODY || '';
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            if (!issue_number) {
+              core.info('No PR context; skipping comment.');
+              return;
+            }
+            const marker = '<!-- retrieval-eval-report -->';
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number, per_page: 100,
+            });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            const full = marker + '\n' + body;
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: existing.id, body: full,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number, body: full,
+              });
+            }
+
+      - name: Upload eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrieval-eval-report
+          path: |
+            output/eval-retrieval-latest.json
+            output/eval-retrieval-latest.md
+          if-no-files-found: warn
