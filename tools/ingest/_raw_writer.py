@@ -176,6 +176,12 @@ def write_raw(
     # Write raw.<ext> if we have bytes
     raw_bytes_available = False
     raw_final_ext = ""
+    # On a raw-less rewrite, preserve the prior raw blob + its metadata so we
+    # never silently lose bytes we previously saved. We re-read the existing
+    # meta.json and carry forward sha256_raw / size_bytes_raw / raw_extension
+    # / raw_bytes_available if a real raw.<ext> still lives on disk.
+    preserved_sha_raw: Optional[str] = None
+    preserved_raw_size = 0
     if raw_bytes is not None or raw_src_path is not None:
         raw_final_ext = (raw_ext or "").lstrip(".")
         if not raw_final_ext:
@@ -196,18 +202,58 @@ def write_raw(
             shutil.copy2(raw_src_path, raw_out)  # type: ignore[arg-type]
         raw_bytes_available = True
     else:
-        # Raw-less rewrite: prior raw.* files would leave meta.json claiming
-        # raw_bytes_available=false while stale bytes linger. Remove them so
-        # the bundle stays internally consistent (and check-raw-v2 happy).
-        for stale in d.glob("raw.*"):
+        # Raw-less rewrite: prefer preserving any pre-existing raw blob rather
+        # than deleting it, so a retry that only has clean content does not
+        # drop bytes we legitimately captured on a previous ingest. We read
+        # the prior meta.json (if any) and carry its raw.* metadata forward
+        # when the referenced raw file still exists on disk.
+        if existing_meta_path.exists():
             try:
-                stale.unlink()
-            except OSError:
-                pass
+                existing = json.loads(existing_meta_path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                existing = {}
+            prev_ext = (existing.get("raw_extension") or "").lstrip(".")
+            prev_raw = d / f"raw.{prev_ext}" if prev_ext else None
+            if (
+                existing.get("raw_bytes_available")
+                and prev_raw is not None
+                and prev_raw.exists()
+            ):
+                raw_bytes_available = True
+                raw_final_ext = prev_ext
+                preserved_sha_raw = existing.get("sha256_raw")
+                preserved_raw_size = (
+                    existing.get("size_bytes_raw") or prev_raw.stat().st_size
+                )
+            else:
+                # No usable prior blob — scrub any lingering raw.* so the
+                # bundle matches meta.raw_bytes_available=false.
+                for stale in d.glob("raw.*"):
+                    try:
+                        stale.unlink()
+                    except OSError:
+                        pass
+        else:
+            # No prior meta.json — scrub any orphan raw.* files.
+            for stale in d.glob("raw.*"):
+                try:
+                    stale.unlink()
+                except OSError:
+                    pass
 
     # Write clean.md
     clean_out = d / "clean.md"
     clean_out.write_bytes(clean_bytes)
+
+    # If we're preserving a prior raw blob on a raw-less rewrite, carry its
+    # hash/size forward. Otherwise use the freshly computed values (or None/0
+    # when no raw bytes were ever captured).
+    if preserved_sha_raw is not None:
+        meta_sha_raw: Optional[str] = preserved_sha_raw
+        meta_size_raw = preserved_raw_size
+    else:
+        meta_sha_raw = new_sha_raw
+        meta_size_raw = raw_size
 
     meta = {
         "slug": slug,
@@ -216,9 +262,9 @@ def write_raw(
         "fetcher": fetcher,
         "fetcher_version": fetcher_version,
         "content_type": content_type or "",
-        "sha256_raw": new_sha_raw,
+        "sha256_raw": meta_sha_raw,
         "sha256_clean": new_sha_clean,
-        "size_bytes_raw": raw_size,
+        "size_bytes_raw": meta_size_raw,
         "size_bytes_clean": clean_size,
         "raw_bytes_available": raw_bytes_available,
         "raw_extension": raw_final_ext,

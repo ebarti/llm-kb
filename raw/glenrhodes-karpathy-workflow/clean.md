@@ -6,7 +6,7 @@ date_published: 2026-04-01
 date_ingested: 2026-04-05
 tags: [llm-knowledge-base, obsidian, workflow, markdown, rag]
 type: article
-status: raw
+status: clean
 discovered_via: search
 ---
 

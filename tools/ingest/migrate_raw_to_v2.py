@@ -179,10 +179,31 @@ def migrate_one(md_file: Path, *, dry_run: bool) -> dict:
     if meta_out.exists():
         try:
             existing = json.loads(meta_out.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            existing = None
+        if isinstance(existing, dict):
             if existing.get("sha256_clean") == sha_clean and existing.get("migrated_legacy"):
                 return {"slug": slug, "status": "already_migrated", "action": "noop"}
-        except (json.JSONDecodeError, OSError):
-            pass
+            # Conflict: a live v2 bundle exists (non-migrated, or migrated
+            # with a different sha). Do NOT overwrite it with the legacy
+            # flat-file snapshot — that would clobber freshly ingested
+            # content. Surface a clear warning and leave both files in
+            # place for human review.
+            is_v2_bundle = (
+                "raw_bytes_available" in existing or existing.get("migrated_legacy")
+            )
+            if is_v2_bundle:
+                return {
+                    "slug": slug,
+                    "status": "conflict",
+                    "action": "skipped",
+                    "error": (
+                        f"raw/{slug}/ already contains a v2 bundle; refusing to "
+                        f"overwrite from legacy raw/{md_file.name}. "
+                        f"Resolve manually (delete legacy file or rename slug)."
+                    ),
+                    "target_dir": str(target_dir.relative_to(BASE_DIR)),
+                }
 
     # Name-collision safety: target_dir must not be a file
     if target_dir.exists() and not target_dir.is_dir():
@@ -323,6 +344,11 @@ def main() -> int:
         if r.get("status") == "error":
             errors += 1
             print(f"  ERROR: {r['slug']}: {r.get('error')}")
+        elif r.get("status") == "conflict":
+            # Not an error (we intentionally skipped), but warn loudly so
+            # the operator can resolve the hybrid state.
+            if not args.json:
+                print(f"  WARN: {r['slug']}: {r.get('error')}")
         elif not args.json:
             status = r.get("status")
             if status == "already_migrated":
@@ -339,6 +365,7 @@ def main() -> int:
         "migrated": sum(1 for r in results if r.get("status") == "migrated"),
         "already_migrated": sum(1 for r in results if r.get("status") == "already_migrated"),
         "would_migrate": sum(1 for r in results if r.get("status") == "would_migrate"),
+        "conflicts": sum(1 for r in results if r.get("status") == "conflict"),
         "errors": errors,
         "dry_run": args.dry_run,
     }
@@ -348,11 +375,17 @@ def main() -> int:
     print(f"Migrated:         {summary['migrated']}")
     print(f"Would migrate:    {summary['would_migrate']}")
     print(f"Already migrated: {summary['already_migrated']}")
+    print(f"Conflicts:        {summary['conflicts']}")
     print(f"Errors:           {summary['errors']}")
 
     if not args.dry_run and args.delete_originals and errors == 0:
+        # Never delete a legacy flat file whose slug ended in a conflict —
+        # the operator needs both files visible to resolve the hybrid state.
+        conflict_slugs = {r["slug"] for r in results if r.get("status") == "conflict"}
         deleted = 0
         for md_file in flat_files:
+            if md_file.stem in conflict_slugs:
+                continue
             target_dir = RAW_DIR / md_file.stem
             if (target_dir / "clean.md").exists() and (target_dir / "meta.json").exists():
                 md_file.unlink()

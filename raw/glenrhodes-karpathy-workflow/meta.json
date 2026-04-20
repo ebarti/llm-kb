@@ -6,11 +6,11 @@
   "fetcher_version": "v2.0.0-migration",
   "content_type": "html",
   "sha256_raw": null,
-  "sha256_clean": "f78543ad9f713ff0415c2ee118e5642f71504c6616f4fae49494501fb274995c",
-  "size_bytes_raw": 0,
-  "size_bytes_clean": 2589,
+  "sha256_clean": "6d809e026ceb96075a3496354746f32777bb58282da2e1c6d9f85278ccb1af0c",
+  "size_bytes_raw": null,
+  "size_bytes_clean": 2591,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/glenrhodes-karpathy-workflow.md"
 }

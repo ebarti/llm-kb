@@ -174,30 +174,72 @@ class TestRawWriter(unittest.TestCase):
         on_disk = json.loads((self.base / "raw" / "noraw-idem" / "meta.json").read_text())
         self.assertEqual(on_disk["fetched_at"], first_fetched_at)
 
-    def test_rewrite_without_raw_bytes_removes_stale_raw(self):
-        """Raw-less rewrite must delete any pre-existing raw.* file so the
-        bundle stays consistent with meta.raw_bytes_available=false."""
-        raw_writer.write_raw(
+    def test_rewrite_without_raw_bytes_preserves_prior_raw(self):
+        """Raw-less rewrite must preserve the prior raw.* file and its
+        metadata (sha256_raw, size_bytes_raw, raw_extension,
+        raw_bytes_available=true) so a retry that only carries updated clean
+        content never silently drops raw bytes we captured earlier."""
+        raw_bytes = b"<html>old</html>"
+        first = raw_writer.write_raw(
             base_dir=self.base,
-            slug="stale",
+            slug="preserve",
             url="https://example.com",
             fetcher="web",
             clean_content="v1",
-            raw_bytes=b"<html>old</html>",
+            raw_bytes=raw_bytes,
             raw_ext="html",
         )
-        d = self.base / "raw" / "stale"
+        self.assertEqual(first["status"], "wrote")
+        d = self.base / "raw" / "preserve"
         self.assertTrue((d / "raw.html").exists())
+        prior_sha = first["meta"]["sha256_raw"]
+        prior_size = first["meta"]["size_bytes_raw"]
 
         # Rewrite with no raw bytes and different clean content.
-        raw_writer.write_raw(
+        second = raw_writer.write_raw(
             base_dir=self.base,
-            slug="stale",
+            slug="preserve",
             url="https://example.com",
             fetcher="web",
             clean_content="v2 different",
         )
-        self.assertFalse(list(d.glob("raw.*")), "stale raw.* should be removed")
+        self.assertEqual(second["status"], "wrote")
+
+        # The raw.html must survive the raw-less rewrite.
+        self.assertTrue((d / "raw.html").exists(), "prior raw.html should be preserved")
+        self.assertEqual((d / "raw.html").read_bytes(), raw_bytes)
+
+        meta = json.loads((d / "meta.json").read_text())
+        self.assertTrue(meta["raw_bytes_available"])
+        self.assertEqual(meta["sha256_raw"], prior_sha)
+        self.assertEqual(meta["size_bytes_raw"], prior_size)
+        self.assertEqual(meta["raw_extension"], "html")
+        # Clean content did change.
+        self.assertEqual((d / "clean.md").read_bytes(), b"v2 different")
+        self.assertEqual(meta["sha256_clean"], _sha(b"v2 different"))
+
+    def test_rewrite_without_raw_bytes_no_prior_raw_stays_false(self):
+        """If there is no prior raw blob, a raw-less rewrite leaves the
+        bundle with raw_bytes_available=false and no raw.* files (state must
+        match what meta.json claims)."""
+        raw_writer.write_raw(
+            base_dir=self.base,
+            slug="noprior",
+            url="https://example.com",
+            fetcher="web",
+            clean_content="v1",
+        )
+        d = self.base / "raw" / "noprior"
+        self.assertFalse(list(d.glob("raw.*")))
+
+        raw_writer.write_raw(
+            base_dir=self.base,
+            slug="noprior",
+            url="https://example.com",
+            fetcher="web",
+            clean_content="v2 different",
+        )
+        self.assertFalse(list(d.glob("raw.*")))
         meta = json.loads((d / "meta.json").read_text())
         self.assertFalse(meta["raw_bytes_available"])
         self.assertIsNone(meta["sha256_raw"])
@@ -335,6 +377,52 @@ class TestMigration(unittest.TestCase):
         migrate.migrate_one(flat, dry_run=False)
         new_sha = _sha((self.base / "raw" / "rev" / "clean.md").read_bytes())
         self.assertEqual(original_sha, new_sha)
+
+    def test_conflict_skips_live_v2_bundle(self):
+        """If raw/<slug>/ already holds a v2 bundle (fresh ingest) and the
+        legacy flat raw/<slug>.md is still around, the migrator must NOT
+        overwrite the live v2 content. It must return a 'conflict' status
+        and leave both files untouched."""
+        # Simulate a fresh v2 ingest at raw/live/.
+        live_dir = self.base / "raw" / "live"
+        live_dir.mkdir()
+        (live_dir / "clean.md").write_text("fresh v2 clean", encoding="utf-8")
+        (live_dir / "raw.html").write_bytes(b"<html>fresh</html>")
+        live_meta = {
+            "slug": "live",
+            "url": "https://fresh/v2",
+            "fetched_at": "2026-04-19T00:00:00Z",
+            "fetcher": "web",
+            "fetcher_version": "v2.0.0",
+            "content_type": "html",
+            "sha256_raw": _sha(b"<html>fresh</html>"),
+            "sha256_clean": _sha(b"fresh v2 clean"),
+            "size_bytes_raw": len(b"<html>fresh</html>"),
+            "size_bytes_clean": len(b"fresh v2 clean"),
+            "raw_bytes_available": True,
+            "raw_extension": "html",
+            "migrated_legacy": False,
+        }
+        (live_dir / "meta.json").write_text(
+            json.dumps(live_meta, indent=2) + "\n", encoding="utf-8"
+        )
+
+        # A stale flat file with DIFFERENT content lingers.
+        flat = self._write_flat("live", "---\ntitle: old\n---\n\nstale legacy body\n")
+
+        result = migrate.migrate_one(flat, dry_run=False)
+        self.assertEqual(result["status"], "conflict")
+        self.assertIn("refusing to overwrite", result["error"])
+
+        # Live v2 content is untouched.
+        self.assertEqual(
+            (live_dir / "clean.md").read_text(encoding="utf-8"), "fresh v2 clean"
+        )
+        on_disk_meta = json.loads((live_dir / "meta.json").read_text())
+        self.assertEqual(on_disk_meta["url"], "https://fresh/v2")
+        self.assertFalse(on_disk_meta["migrated_legacy"])
+        # Legacy flat file is still present for operator review.
+        self.assertTrue(flat.exists())
 
 
 def _main() -> int:
