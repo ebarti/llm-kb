@@ -270,7 +270,7 @@ def judge_anthropic(
 
     client = anthropic.Anthropic()
     prompt = JUDGE_PROMPT_TEMPLATE.format(
-        q=q["q"],
+        q=q.get("question") or q.get("q") or "",
         sketch=q.get("expected_answer_sketch", ""),
         expected_citations=", ".join(q.get("expected_citations", [])),
         retrieved_ids=", ".join(r["id"] for r in retrieved),
@@ -290,13 +290,40 @@ def judge_anthropic(
     if not match:
         raise ValueError(f"Judge returned non-JSON response: {text[:200]}")
     data = json.loads(match.group(0))
+
+    # Fix 4: validate Likert fields rather than defaulting missing fields to
+    # 0 — that silently produced (0 - 1) / 4 = -0.25 scores on malformed
+    # judge output. Fail fast with a clear message so the caller can retry
+    # or fall back to mock mode.
+    def parse_likert(field: str) -> int:
+        if field not in data:
+            raise ValueError(
+                f"Judge response missing required Likert field: {field}"
+            )
+        try:
+            score = int(data[field])
+        except (TypeError, ValueError) as e:
+            raise ValueError(
+                f"Judge response field {field!r} must be an integer in "
+                f"1..5; got {data[field]!r}"
+            ) from e
+        if score < 1 or score > 5:
+            raise ValueError(
+                f"Judge response field {field!r} must be in 1..5; got {score}"
+            )
+        return score
+
+    correctness_likert = parse_likert("correctness")
+    citation_likert = parse_likert("citation_accuracy")
+    groundedness_likert = parse_likert("groundedness")
+
     return {
-        "correctness_likert": int(data.get("correctness", 0)),
-        "citation_likert": int(data.get("citation_accuracy", 0)),
-        "groundedness_likert": int(data.get("groundedness", 0)),
-        "correctness": round((data.get("correctness", 0) - 1) / 4, 4),
-        "citation_accuracy": round((data.get("citation_accuracy", 0) - 1) / 4, 4),
-        "groundedness": round((data.get("groundedness", 0) - 1) / 4, 4),
+        "correctness_likert": correctness_likert,
+        "citation_likert": citation_likert,
+        "groundedness_likert": groundedness_likert,
+        "correctness": round((correctness_likert - 1) / 4, 4),
+        "citation_accuracy": round((citation_likert - 1) / 4, 4),
+        "groundedness": round((groundedness_likert - 1) / 4, 4),
         "notes": data.get("notes", ""),
         "judge_backend": model,
     }
@@ -321,13 +348,17 @@ def evaluate_generation(
     latencies_judge: list[float] = []
 
     for q in goldset:
+        # Gold set uses `question`; accept legacy `q` for backward compat.
+        question_text = q.get("question") or q.get("q") or ""
         t0 = time.perf_counter()
-        retrieved = retrieve(q["q"], index, top_k)
+        retrieved = retrieve(question_text, index, top_k)
         t1 = time.perf_counter()
         if mode == "api":
-            composed = compose_answer_anthropic(q["q"], retrieved, model=compose_model)
+            composed = compose_answer_anthropic(
+                question_text, retrieved, model=compose_model
+            )
         else:
-            composed = compose_answer_mock(q["q"], retrieved)
+            composed = compose_answer_mock(question_text, retrieved)
         t2 = time.perf_counter()
         if mode == "api":
             scored = judge_anthropic(q, composed, retrieved, model=judge_model)
@@ -344,7 +375,7 @@ def evaluate_generation(
 
         per_q.append({
             "id": q.get("id"),
-            "q": q["q"],
+            "question": question_text,
             "type": q.get("type"),
             "retrieved": [r["id"] for r in retrieved],
             "composed": composed,

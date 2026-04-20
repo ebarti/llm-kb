@@ -3,7 +3,10 @@ name: eval
 # Retrieval evaluation harness. Runs on PRs that touch the search engine,
 # the eval harness itself, or the wiki corpus it evaluates against. Scores
 # the BM25 retriever on tools/eval/goldset.jsonl and posts the aggregated
-# metrics plus any regressions as a PR comment.
+# metrics from the latest run as a PR comment.
+#
+# There is no baseline comparison — the comment reports current metrics only;
+# reviewers eyeball drift against previous PRs manually.
 #
 # Note: we deliberately DO NOT run tools/eval/eval-generation.py in CI.
 # Generation eval requires an LLM judge to score correctness / citation
@@ -61,10 +64,22 @@ jobs:
         id: render
         run: |
           python3 - <<'PY'
-          import json, os, pathlib
+          import json, os, pathlib, sys
+
+          # Reuse the helper from eval-retrieval.py so the miss metric stays
+          # in sync with the CLI (derived from report['k_values'], not hardcoded).
+          sys.path.insert(0, "tools/eval")
+          import importlib.util
+          _spec = importlib.util.spec_from_file_location(
+              "eval_retrieval", "tools/eval/eval-retrieval.py"
+          )
+          eval_retrieval = importlib.util.module_from_spec(_spec)
+          _spec.loader.exec_module(eval_retrieval)
+
           report = json.loads(pathlib.Path("output/eval-retrieval-latest.json").read_text())
           agg = report["aggregated_metrics"]
           lat = report["latency_ms"]
+          miss_metric = eval_retrieval.ci_miss_metric_name(report)
 
           lines = []
           lines.append("### Retrieval eval")
@@ -85,20 +100,46 @@ jobs:
           )
           lines.append("")
 
+          # Surface gold-set entries whose expected citations are not even in the
+          # index (reported per-question by eval-retrieval.py).
+          missing_index = sorted({
+              c
+              for q in report["per_question"]
+              for c in q.get("missing_from_index", [])
+          })
+          if missing_index:
+              lines.append(
+                  f"<details><summary>{len(missing_index)} expected "
+                  "citation(s) missing from the search index</summary>"
+              )
+              lines.append("")
+              for c in missing_index:
+                  lines.append(f"- `{c}`")
+              lines.append("")
+              lines.append("</details>")
+              lines.append("")
+
           misses = [
               q for q in report["per_question"]
-              if q["metrics"].get("recall@10", 0) == 0
+              if q["metrics"].get(miss_metric, 0) == 0
           ]
           if misses:
-              lines.append(f"<details><summary>{len(misses)} question(s) with recall@10 == 0</summary>")
+              lines.append(
+                  f"<details><summary>{len(misses)} question(s) with "
+                  f"{miss_metric} == 0</summary>"
+              )
               lines.append("")
               for q in misses:
-                  qtxt = q["q"][:100].replace("|", "\\|")
+                  # Gold set uses `question`; keep `q` fallback for backward compat.
+                  qtxt = (q.get("question") or q.get("q") or "")[:100].replace("|", "\\|")
                   lines.append(f"- `{q['id']}` — {qtxt}")
               lines.append("")
               lines.append("</details>")
           else:
-              lines.append("All gold-set questions had at least one relevant doc in top-10.")
+              max_k = max(report.get("k_values") or [10])
+              lines.append(
+                  f"All gold-set questions had at least one relevant doc in top-{max_k}."
+              )
 
           lines.append("")
           lines.append("_Generation eval is not run in CI (LLM-judge cost). Run locally with `python3 tools/eval/eval-generation.py`._")
@@ -112,6 +153,9 @@ jobs:
           PY
 
       - name: Comment on PR
+        # Skip for PRs from forks: the GITHUB_TOKEN for a forked PR is
+        # read-only, so attempting to post a comment would fail the job.
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/github-script@v7
         env:
           # Pass the rendered markdown via env var (not a ${{ }} template

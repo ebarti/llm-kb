@@ -7,3 +7,11 @@ __pycache__/
 .idea/
 tools/search-engine/.index/
 
+# Eval harness produces fresh reports each run in CI; do not commit volatile
+# artifacts (timestamps, per-question latencies, ranked lists). Historical
+# timestamped snapshots are also ignored since CI uploads them as artifacts.
+output/eval-*-latest.json
+output/eval-*-latest.md
+output/eval-retrieval-[0-9]*.json
+output/eval-generation-[0-9]*.json
+

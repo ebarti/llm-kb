@@ -32,10 +32,24 @@ RETRIEVAL_SCRIPT = EVAL_DIR / "eval-retrieval.py"
 GENERATION_SCRIPT = EVAL_DIR / "eval-generation.py"
 WIKI_DIR = REPO_ROOT / "wiki"
 
-# Dynamically import eval-retrieval (filename has a hyphen so dynamic load)
-_spec = importlib.util.spec_from_file_location("eval_retrieval", RETRIEVAL_SCRIPT)
-eval_retrieval = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(eval_retrieval)  # type: ignore[union-attr]
+
+def _load_eval_retrieval():
+    """Dynamically import eval-retrieval.py (hyphen in filename).
+
+    This is deferred so that a missing/broken script surfaces as a test
+    failure via `check()` rather than crashing the entire test runner at
+    import time.
+    """
+    spec = importlib.util.spec_from_file_location(
+        "eval_retrieval", RETRIEVAL_SCRIPT
+    )
+    if spec is None or spec.loader is None:
+        raise ImportError(
+            f"could not load module spec for {RETRIEVAL_SCRIPT}"
+        )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 # ---------------------------------------------------------------------------
@@ -77,7 +91,7 @@ def expect_close(actual: float, expected: float, label: str, tol: float = 1e-6) 
 # Goldset schema tests
 # ---------------------------------------------------------------------------
 
-REQUIRED_KEYS = {"q", "expected_citations"}
+REQUIRED_KEYS = {"question", "expected_citations"}
 RECOMMENDED_KEYS = {"expected_answer_sketch", "tags", "type", "id"}
 
 
@@ -109,12 +123,14 @@ def test_goldset_schema() -> None:
     ids_seen: set[str] = set()
     tag_types_seen: set[str] = set()
     for line_num, e in entries:
+        # Legacy `q` is accepted by load_goldset(), but new gold sets should
+        # use `question`. Enforce the new name in tests to catch regressions.
         missing = REQUIRED_KEYS - e.keys()
         check(f"q{line_num} has required keys", not missing, f"missing {missing}")
-        if "q" in e:
+        if "question" in e:
             check(
                 f"q{line_num} question non-empty string",
-                isinstance(e["q"], str) and bool(e["q"].strip()),
+                isinstance(e["question"], str) and bool(e["question"].strip()),
             )
         if "expected_citations" in e:
             check(
@@ -147,6 +163,15 @@ def test_goldset_schema() -> None:
 def test_expected_citations_exist() -> None:
     if not GOLDSET.exists():
         return
+    try:
+        eval_retrieval = _load_eval_retrieval()
+    except Exception as e:  # noqa: BLE001
+        check(
+            "eval-retrieval module importable",
+            False,
+            f"import failed: {e!r}",
+        )
+        return
     missing = []
     with GOLDSET.open("r", encoding="utf-8") as f:
         for line in f:
@@ -175,6 +200,15 @@ def test_expected_citations_exist() -> None:
 # ---------------------------------------------------------------------------
 
 def test_citation_to_doc_id() -> None:
+    try:
+        eval_retrieval = _load_eval_retrieval()
+    except Exception as e:  # noqa: BLE001
+        check(
+            "eval-retrieval module importable",
+            False,
+            f"import failed: {e!r}",
+        )
+        return
     expect(
         eval_retrieval.citation_to_doc_id("wiki/concepts/foo.md"),
         "concepts/foo",
@@ -207,6 +241,15 @@ def test_citation_to_doc_id() -> None:
 # ---------------------------------------------------------------------------
 
 def test_recall_at_k() -> None:
+    try:
+        eval_retrieval = _load_eval_retrieval()
+    except Exception as e:  # noqa: BLE001
+        check(
+            "eval-retrieval module importable",
+            False,
+            f"import failed: {e!r}",
+        )
+        return
     # 3 relevant docs total; top-5 contains all 3 -> recall@5 = 1.0
     ranked = ["a", "b", "c", "d", "e"]
     rel = {"a", "b", "c"}
@@ -228,6 +271,15 @@ def test_recall_at_k() -> None:
 
 
 def test_dcg_and_ndcg() -> None:
+    try:
+        eval_retrieval = _load_eval_retrieval()
+    except Exception as e:  # noqa: BLE001
+        check(
+            "eval-retrieval module importable",
+            False,
+            f"import failed: {e!r}",
+        )
+        return
     ranked = ["a", "b", "c", "d"]
     rel = {"a", "c"}
     # DCG@3 = 1/log2(2) + 0/log2(3) + 1/log2(4) = 1.0 + 0 + 0.5 = 1.5
@@ -263,6 +315,15 @@ def test_dcg_and_ndcg() -> None:
 
 
 def test_mrr() -> None:
+    try:
+        eval_retrieval = _load_eval_retrieval()
+    except Exception as e:  # noqa: BLE001
+        check(
+            "eval-retrieval module importable",
+            False,
+            f"import failed: {e!r}",
+        )
+        return
     # First relevant at rank 2 -> 0.5
     expect_close(
         eval_retrieval.mean_reciprocal_rank(["x", "a", "b"], {"a"}, 5),
@@ -282,6 +343,15 @@ def test_mrr() -> None:
 
 
 def test_render_ci_summary_uses_report_k_values() -> None:
+    try:
+        eval_retrieval = _load_eval_retrieval()
+    except Exception as e:  # noqa: BLE001
+        check(
+            "eval-retrieval module importable",
+            False,
+            f"import failed: {e!r}",
+        )
+        return
     report = {
         "goldset_size": 2,
         "index_size": 42,
@@ -291,12 +361,12 @@ def test_render_ci_summary_uses_report_k_values() -> None:
         "per_question": [
             {
                 "id": "q-hit",
-                "q": "question with a relevant result",
+                "question": "question with a relevant result",
                 "metrics": {"recall@5": 1.0},
             },
             {
                 "id": "q-miss",
-                "q": "question with no relevant result",
+                "question": "question with no relevant result",
                 "metrics": {"recall@5": 0.0},
             },
         ],
@@ -357,6 +427,81 @@ def test_retrieval_script_runs() -> None:
                 )
 
 
+def test_retrieval_fail_under_uses_custom_k_values() -> None:
+    """Regression guard for --fail-under with a custom --k-values.
+
+    The CLI used to hardcode recall@10 for its --fail-under threshold, which
+    meant passing --k-values 5 silently compared against a metric the user
+    didn't request. The threshold and the summary miss label must both use
+    the highest requested k (recall@5 here, not recall@10).
+    """
+    # Build a tiny fixture goldset so the test does not depend on the
+    # production gold set or on the search-engine index shape.
+    with tempfile.TemporaryDirectory() as td:
+        fixture = Path(td) / "goldset.jsonl"
+        fixture.write_text(
+            json.dumps({
+                "id": "qfx1",
+                "question": "what is retrieval augmented generation",
+                "expected_citations": [
+                    "wiki/concepts/retrieval-augmented-generation.md",
+                ],
+                "type": "concept",
+            })
+            + "\n",
+            encoding="utf-8",
+        )
+
+        # Threshold chosen above 1.0 so the run is guaranteed to fail with
+        # exit code 1 regardless of real retrieval performance.
+        rc = subprocess.run(
+            [
+                sys.executable,
+                str(RETRIEVAL_SCRIPT),
+                "--goldset",
+                str(fixture),
+                "--k-values",
+                "5",
+                "--top-k",
+                "5",
+                "--output-dir",
+                td,
+                "--fail-under",
+                "1.5",
+            ],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+
+        check(
+            "--fail-under above ceiling exits 1",
+            rc.returncode == 1,
+            f"exit={rc.returncode} stdout={rc.stdout[:200]} stderr={rc.stderr[:200]}",
+        )
+        # The failure message must name the metric derived from --k-values,
+        # not the legacy recall@10.
+        check(
+            "--fail-under error names recall@5 (not recall@10)",
+            "recall@5" in rc.stderr and "recall@10" not in rc.stderr,
+            f"stderr={rc.stderr[:300]}",
+        )
+        # The non-quiet stdout summary must not reference recall@10 when the
+        # user requested --k-values 5 (miss line, if present, uses recall@5).
+        check(
+            "ci summary does not mention recall@10 under --k-values 5",
+            "recall@10" not in rc.stdout,
+            f"stdout={rc.stdout[:300]}",
+        )
+        # And it must include the recall@5 metric line.
+        check(
+            "ci summary includes recall@5 metric",
+            "recall@5" in rc.stdout,
+            f"stdout={rc.stdout[:300]}",
+        )
+
+
 def test_generation_script_runs() -> None:
     with tempfile.TemporaryDirectory() as td:
         rc = subprocess.run(
@@ -406,6 +551,7 @@ TESTS = [
     test_mrr,
     test_render_ci_summary_uses_report_k_values,
     test_retrieval_script_runs,
+    test_retrieval_fail_under_uses_custom_k_values,
     test_generation_script_runs,
 ]
 

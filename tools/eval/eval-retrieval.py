@@ -135,9 +135,15 @@ def load_goldset(path: Path) -> list[dict]:
                 item = json.loads(line)
             except json.JSONDecodeError as e:
                 raise ValueError(f"{path}:{line_num}: invalid JSON — {e}")
-            if "q" not in item or "expected_citations" not in item:
+            # Accept either `question` (preferred) or `q` (legacy) for backward
+            # compatibility with older gold sets. Normalize to `question` in
+            # memory so downstream readers only need one shape.
+            if "question" not in item and "q" in item:
+                item["question"] = item["q"]
+            if "question" not in item or "expected_citations" not in item:
                 raise ValueError(
-                    f"{path}:{line_num}: entry missing 'q' or 'expected_citations'"
+                    f"{path}:{line_num}: entry missing 'question' or "
+                    "'expected_citations'"
                 )
             item.setdefault("id", f"q{line_num:03d}")
             items.append(item)
@@ -161,11 +167,16 @@ def evaluate(goldset: list[dict], top_k: int, k_values: list[int]) -> dict:
     for q in goldset:
         expected = [citation_to_doc_id(c) for c in q["expected_citations"]]
         # Warn (in output) if an expected citation is not even in the index.
+        # Score against the FULL expected set so that missing-from-index gold
+        # entries are reflected as recall misses rather than silently dropped
+        # (which would inflate Recall@k). The missing list is preserved in the
+        # report so the CI comment / reviewer can see them.
         missing_from_index = [c for c in expected if c not in doc_universe]
-        relevant = set(c for c in expected if c in doc_universe)
+        relevant = set(expected)
 
+        question_text = q.get("question") or q.get("q") or ""
         start = time.perf_counter()
-        results = search.search(q["q"], index, top_n=max_k)
+        results = search.search(question_text, index, top_n=max_k)
         latency_ms = (time.perf_counter() - start) * 1000.0
         latencies.append(latency_ms)
 
@@ -186,7 +197,7 @@ def evaluate(goldset: list[dict], top_k: int, k_values: list[int]) -> dict:
 
         per_q.append({
             "id": q.get("id"),
-            "q": q["q"],
+            "question": question_text,
             "type": q.get("type"),
             "tags": q.get("tags", []),
             "expected": expected,
@@ -301,7 +312,9 @@ def render_ci_summary(report: dict) -> str:
     if misses:
         lines.append(f"  miss(0 {miss_metric}): {len(misses)} question(s)")
         for q in misses:
-            lines.append(f"    {q['id']}  — {q['q'][:70]}")
+            # Prefer `question`, fall back to legacy `q` for older reports.
+            qtext = q.get("question") or q.get("q") or ""
+            lines.append(f"    {q['id']}  — {qtext[:70]}")
     return "\n".join(lines)
 
 
