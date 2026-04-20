@@ -1,0 +1,16 @@
+{
+  "slug": "premai-inference-servers-compared",
+  "url": "https://blog.premai.io/llm-inference-servers-compared-vllm-vs-tgi-vs-sglang-vs-triton-2026/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "9e28a4788451bdf36cf2596bba80be636e041809cbdca38bfeebcf45f2e8f6a0",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2651,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/premai-inference-servers-compared.md"
+}

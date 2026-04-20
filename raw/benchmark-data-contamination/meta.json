@@ -1,0 +1,16 @@
+{
+  "slug": "benchmark-data-contamination",
+  "url": "https://thegrigorian.medium.com/when-benchmarks-lie-why-contamination-breaks-llm-evaluation-1fa335706f32",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "b5c05dabd58a49065930d760cc8989fbdedd44566a9ccc110cff264f1a4b2e70",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2593,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/benchmark-data-contamination.md"
+}

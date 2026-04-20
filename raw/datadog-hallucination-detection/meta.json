@@ -1,0 +1,16 @@
+{
+  "slug": "datadog-hallucination-detection",
+  "url": "https://www.datadoghq.com/blog/ai/llm-hallucination-detection/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "cae32a546eff8987a48f1cc9a4f9d7d93c6ed60a07b7dd39dfd9cfe0965e2ab2",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2586,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/datadog-hallucination-detection.md"
+}

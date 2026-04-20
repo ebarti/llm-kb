@@ -1,0 +1,16 @@
+{
+  "slug": "redis-token-optimization",
+  "url": "https://redis.io/blog/llm-token-optimization-speed-up-apps/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "b1d500e91165b1d56cfc73cd8d32c5053a21ffa52304b1d8784337caca2be422",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2403,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/redis-token-optimization.md"
+}

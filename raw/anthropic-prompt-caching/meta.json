@@ -1,0 +1,16 @@
+{
+  "slug": "anthropic-prompt-caching",
+  "url": "https://claude.com/blog/prompt-caching",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "b883df8365085fea17716204aebd7542a07ee7e340794b2a450d68deec6c8ca3",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2285,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/anthropic-prompt-caching.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "international-ai-safety-report-2026",
+  "url": "https://elephas.app/resources/international-ai-safety-report-2026-key-findings",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "f99a52114a39df810a20390589f44b8d3fda069aa18db767bfad3b6873e7b02c",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 1950,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/international-ai-safety-report-2026.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "arxiv-interface-design-human-ai-decisions",
+  "url": "https://arxiv.org/abs/2501.16627",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "arxiv",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "pdf",
+  "sha256_raw": null,
+  "sha256_clean": "3adcf30d1a8c469000056aafddde2fab1a4868c1a11a73d8ccc06ddd67adb61b",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2189,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/arxiv-interface-design-human-ai-decisions.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "anthropic-extended-thinking",
+  "url": "https://www.anthropic.com/news/visible-extended-thinking",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "667053d86b084ce752614ccc051492bbefb3709ce1af01fd61625872b51f958b",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2273,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/anthropic-extended-thinking.md"
+}

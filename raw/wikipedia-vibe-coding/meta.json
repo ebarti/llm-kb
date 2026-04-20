@@ -1,0 +1,16 @@
+{
+  "slug": "wikipedia-vibe-coding",
+  "url": "https://en.wikipedia.org/wiki/Vibe_coding",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "79d8d34fe368375d719fcc4864b7a42e66d5d7521643c0caf452ee5794655e1b",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 4198,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/wikipedia-vibe-coding.md"
+}

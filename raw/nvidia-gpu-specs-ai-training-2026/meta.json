@@ -1,0 +1,16 @@
+{
+  "slug": "nvidia-gpu-specs-ai-training-2026",
+  "url": "https://www.atlantic.net/gpu-server-hosting/top-nvidia-gpus-for-ai-training-and-inference/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "a8d8db067379251b8a05adbb1b830d5ddba8eb533961f961739e4538829027ef",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2170,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/nvidia-gpu-specs-ai-training-2026.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "multi-agent-collaboration-survey",
+  "url": "https://arxiv.org/abs/2501.06322",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "557495fd7fdaf3f96a84050c10a38aaa67169086794ce5409bc59b470974fcd0",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2266,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/multi-agent-collaboration-survey.md"
+}

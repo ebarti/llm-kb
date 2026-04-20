@@ -1,0 +1,16 @@
+{
+  "slug": "scientific-american-world-models-revolution",
+  "url": "https://www.scientificamerican.com/article/world-models-could-unlock-the-next-revolution-in-artificial-intelligence/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "49802531e3fac4a13a671321d3abacc8d36eace47b690342df3338def45f2eb3",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2025,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/scientific-american-world-models-revolution.md"
+}

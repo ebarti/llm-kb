@@ -1,0 +1,16 @@
+{
+  "slug": "llms-as-reliable-knowledge-bases",
+  "url": "https://arxiv.org/abs/2407.13578",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "24de8ce29f83c978671821e6ce31e00f197f55b9d1e715fef5937f3032652672",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2482,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/llms-as-reliable-knowledge-bases.md"
+}

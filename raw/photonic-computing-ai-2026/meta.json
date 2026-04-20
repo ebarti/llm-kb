@@ -1,0 +1,16 @@
+{
+  "slug": "photonic-computing-ai-2026",
+  "url": "https://www.photondelta.com/blog/will-photonic-chips-revolutionize-computing-by-2026/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "2a4bea053cd3549bcf6ca79ff5094c42cfc8dc50c217085d3a4d01f4a6010801",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3111,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/photonic-computing-ai-2026.md"
+}

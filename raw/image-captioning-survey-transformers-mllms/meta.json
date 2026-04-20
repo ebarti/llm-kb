@@ -1,0 +1,16 @@
+{
+  "slug": "image-captioning-survey-transformers-mllms",
+  "url": "https://www.sciencedirect.com/science/article/pii/S2949719125000354",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "9adb081835bef356d06e71dee4b743a987f2f532c76797ff2ff0ec3479c44ddd",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2864,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/image-captioning-survey-transformers-mllms.md"
+}

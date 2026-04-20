@@ -1,0 +1,16 @@
+{
+  "slug": "multilingual-llm-training-data",
+  "url": "https://blog.premai.io/multilingual-llms-progress-challenges-and-future-directions/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "5dab5241c7e7a91590279703fcf1112121c3d8270e9b9f7e19d9b68b8fd3d9d4",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2071,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/multilingual-llm-training-data.md"
+}

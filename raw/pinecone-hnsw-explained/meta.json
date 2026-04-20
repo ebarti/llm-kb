@@ -1,0 +1,16 @@
+{
+  "slug": "pinecone-hnsw-explained",
+  "url": "https://www.pinecone.io/learn/series/faiss/hnsw/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "ffe92a6c11710c16df9fd28ee007e517b9db9268cf4c7607c60c73954d71ea5c",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2552,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/pinecone-hnsw-explained.md"
+}

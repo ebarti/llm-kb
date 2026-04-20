@@ -1,0 +1,16 @@
+{
+  "slug": "bentoml-speculative-decoding",
+  "url": "https://bentoml.com/llm/inference-optimization/speculative-decoding",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "407df44a89711a8a2456513df6ef42cf4f35daae9466fd0740b79f0506843d58",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2643,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/bentoml-speculative-decoding.md"
+}

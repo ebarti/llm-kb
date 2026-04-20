@@ -1,0 +1,16 @@
+{
+  "slug": "lightman-lets-verify-step-by-step",
+  "url": "https://arxiv.org/abs/2305.20050",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "5d521ecb6ac0d651f3d8d5874123f99b72478304b5d08244b51a0b36fe02d046",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2370,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/lightman-lets-verify-step-by-step.md"
+}

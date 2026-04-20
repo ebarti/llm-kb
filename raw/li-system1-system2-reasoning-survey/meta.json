@@ -1,0 +1,16 @@
+{
+  "slug": "li-system1-system2-reasoning-survey",
+  "url": "https://arxiv.org/abs/2502.17419",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "d3cca0881ed428ebd60b11f73676dfb1fc2c8bf25b603b7cdf5fb80054e3cd43",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2289,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/li-system1-system2-reasoning-survey.md"
+}

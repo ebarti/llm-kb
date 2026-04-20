@@ -1,0 +1,16 @@
+{
+  "slug": "zhuo-conversational-interfaces",
+  "url": "https://lg.substack.com/p/conversational-interfaces-the-good",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "e4a5049a2612625801d9e988f5d4522c3979a5314c70a8aebae5da0499459aca",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2894,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/zhuo-conversational-interfaces.md"
+}

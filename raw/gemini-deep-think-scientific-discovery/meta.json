@@ -1,0 +1,16 @@
+{
+  "slug": "gemini-deep-think-scientific-discovery",
+  "url": "https://deepmind.google/blog/accelerating-mathematical-and-scientific-discovery-with-gemini-deep-think/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "2a14f83e0847ebb6bcce7996b69b26e018657d7417190e1902f9a14f74b7e09b",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2480,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/gemini-deep-think-scientific-discovery.md"
+}

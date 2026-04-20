@@ -1,0 +1,16 @@
+{
+  "slug": "nvidia-isaac-groot-n1-foundation-model",
+  "url": "https://nvidianews.nvidia.com/news/nvidia-isaac-gr00t-n1-open-humanoid-robot-foundation-model-simulation-frameworks",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "aa5564a6b80ba97a6c93f089d7fc2a48b7a4021fde70d53e91e59dcc6e1c113a",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2195,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/nvidia-isaac-groot-n1-foundation-model.md"
+}

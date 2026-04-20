@@ -1,0 +1,16 @@
+{
+  "slug": "wikipedia-as-we-may-think",
+  "url": "https://en.wikipedia.org/wiki/As_We_May_Think",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "dc170b0c98b5ca183221259942d79f29474423b2fa4b326d57c242081c3c43f6",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2543,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/wikipedia-as-we-may-think.md"
+}

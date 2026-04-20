@@ -1,0 +1,16 @@
+{
+  "slug": "sakana-ab-mcts-collective-inference",
+  "url": "https://sakana.ai/ab-mcts/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "7ff60db904c9f2ae0d66767d8449215b35cb666e15168624d1b7479d672a1c64",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 1641,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/sakana-ab-mcts-collective-inference.md"
+}

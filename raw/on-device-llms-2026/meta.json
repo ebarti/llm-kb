@@ -1,0 +1,16 @@
+{
+  "slug": "on-device-llms-2026",
+  "url": "https://v-chandra.github.io/on-device-llms/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "e04f45cc952a6c66120d80001b43cda1d05c3188c64d85890fb3e363c7d96b07",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2715,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/on-device-llms-2026.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "mlops-pretraining-pipeline",
+  "url": "https://mlops.community/pretraining-breaking-down-the-modern-llm-training-pipeline/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "3c9b447eae1a486d33b4651479bf20b0dd747b37e10776382edc3a3e08d51672",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3572,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/mlops-pretraining-pipeline.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "wikiedu-ai-wikipedia-editing-2025",
+  "url": "https://wikiedu.org/blog/2026/01/29/generative-ai-and-wikipedia-editing-what-we-learned-in-2025/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "2e16d2a1b77fbf6582c514ae274e4d97d53093b1fd54a818393f67cdedd7d07f",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2242,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/wikiedu-ai-wikipedia-editing-2025.md"
+}

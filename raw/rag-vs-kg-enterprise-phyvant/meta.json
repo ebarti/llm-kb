@@ -1,0 +1,16 @@
+{
+  "slug": "rag-vs-kg-enterprise-phyvant",
+  "url": "https://phyvant.com/blog/rag-vs-knowledge-graphs-what-actually-works",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "5f51f130e88ec47f3409518bf66fedaf8ef9f0fc1becd5b83f22c50dea6cf48e",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2917,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/rag-vs-kg-enterprise-phyvant.md"
+}

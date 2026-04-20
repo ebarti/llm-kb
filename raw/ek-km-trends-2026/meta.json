@@ -1,0 +1,16 @@
+{
+  "slug": "ek-km-trends-2026",
+  "url": "https://enterprise-knowledge.com/top-knowledge-management-trends-2026/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "021a00bb2ec5af85df95b3bec285f2f4e4a6872964ebbe6f8e90e62f027c6e15",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3476,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/ek-km-trends-2026.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "anthropic-building-effective-agents",
+  "url": "https://www.anthropic.com/research/building-effective-agents",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "d92c24a1063f1af9c4cdaac32b6320c8c4e84094d6f2466fc54c3f2d39bbeb72",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 4392,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/anthropic-building-effective-agents.md"
+}

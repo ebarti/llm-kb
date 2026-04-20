@@ -1,0 +1,16 @@
+{
+  "slug": "wikipedia-model-context-protocol",
+  "url": "https://en.wikipedia.org/wiki/Model_Context_Protocol",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "734d5f8c970704e9fa368f7e0ae1b93b53b111ad32758ec046277db1625dda5f",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3824,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/wikipedia-model-context-protocol.md"
+}

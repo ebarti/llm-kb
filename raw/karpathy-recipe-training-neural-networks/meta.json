@@ -1,0 +1,16 @@
+{
+  "slug": "karpathy-recipe-training-neural-networks",
+  "url": "https://karpathy.github.io/2019/04/25/recipe/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "ca5d03f1ab94c1fa16a27bc4b4a5ae4fa22adcff2aa6f2adb7305bd0170cb36f",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2472,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/karpathy-recipe-training-neural-networks.md"
+}

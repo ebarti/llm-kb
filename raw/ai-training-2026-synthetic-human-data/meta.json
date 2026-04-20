@@ -1,0 +1,16 @@
+{
+  "slug": "ai-training-2026-synthetic-human-data",
+  "url": "https://invisibletech.ai/blog/ai-training-in-2026-anchoring-synthetic-data-in-human-truth",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "ee1e58a8a21b452b51d90f1091dfb91c196b17e31fac65c1272828e424f1a2b8",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2591,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/ai-training-2026-synthetic-human-data.md"
+}

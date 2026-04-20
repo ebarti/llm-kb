@@ -1,0 +1,16 @@
+{
+  "slug": "trafilatura-web-extraction",
+  "url": "https://github.com/adbar/trafilatura",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "ed713380a7de5a2233761363b5a781254d6f550686237027bc58d6f91cf38ed2",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2426,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/trafilatura-web-extraction.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "deepseek-revolution-2026",
+  "url": "https://o-mega.ai/articles/top-10-open-source-llms-the-deepseek-revolution-2026",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "2c8fa629641e8a64ff6c6db9412cc17b8ba8d1f5fe3aa6b14e8765670e8c476b",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 1617,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/deepseek-revolution-2026.md"
+}

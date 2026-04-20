@@ -120,12 +120,17 @@ def run_checks():
         rel = str(f.relative_to(WIKI_DIR)).replace(".md", "")
         known_paths.add(rel)
 
-    # Also allow raw/ references
+    # Also allow raw/ references (both legacy flat files and v2 directories)
     raw_dir = BASE_DIR / "raw"
     if raw_dir.is_dir():
         for f in raw_dir.iterdir():
-            if f.suffix == ".md":
+            if f.is_file() and f.suffix == ".md":
+                # Legacy: raw/<slug>.md
                 known_paths.add("raw/" + f.stem)
+            elif f.is_dir() and (f / "clean.md").exists():
+                # v2: raw/<slug>/clean.md — accept both raw/<slug> and raw/<slug>/clean
+                known_paths.add("raw/" + f.name)
+                known_paths.add("raw/" + f.name + "/clean")
 
     titles_seen = {}
     all_wikilinks = []

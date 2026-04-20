@@ -1,0 +1,16 @@
+{
+  "slug": "brookings-ai-collective-intelligence",
+  "url": "https://www.brookings.edu/articles/ai-is-changing-the-physics-of-collective-intelligence-how-do-we-respond/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "dcf30c290d988bedf411728e6afc1b6bfcf94889101e8ef0b05adddd0a83bb7e",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3989,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/brookings-ai-collective-intelligence.md"
+}

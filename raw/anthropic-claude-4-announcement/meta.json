@@ -1,0 +1,16 @@
+{
+  "slug": "anthropic-claude-4-announcement",
+  "url": "https://www.anthropic.com/news/claude-4",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "a98d31572e27185d08e861fdc6cf33cb0017abb898647243a139f6a6a5c16733",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 1623,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/anthropic-claude-4-announcement.md"
+}

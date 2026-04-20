@@ -1,0 +1,16 @@
+{
+  "slug": "gpt-ner-named-entity-recognition",
+  "url": "https://arxiv.org/abs/2304.10428",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "465ad956a10b437f2ece261e19cd63d5cbe18e571dbe17bf3505162b4f7217a7",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2394,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/gpt-ner-named-entity-recognition.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "graphite-ai-code-review-tools",
+  "url": "https://graphite.com/guides/best-ai-pull-request-reviewers-2025",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "8ff84d0597b9240a70c87f63b67e156bccb682675610a7f827f9901c1ace0ae9",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2651,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/graphite-ai-code-review-tools.md"
+}

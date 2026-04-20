@@ -1,0 +1,16 @@
+{
+  "slug": "epoch-ai-scaling-limits-2030",
+  "url": "https://epoch.ai/blog/can-ai-scaling-continue-through-2030/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "29a4c2c621645a9ea4232bfde59df01a0174590b074a06e8c748a1aedf8b4775",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3060,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/epoch-ai-scaling-limits-2030.md"
+}

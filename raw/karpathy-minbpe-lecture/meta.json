@@ -1,0 +1,16 @@
+{
+  "slug": "karpathy-minbpe-lecture",
+  "url": "https://github.com/karpathy/minbpe/blob/master/lecture.md",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "7cd90d9a60ce0a04baa616f2b1177cdfa0cf4491d27045cc754500ed81f946c4",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2654,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/karpathy-minbpe-lecture.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "gavel-law-firm-llm-guide-2026",
+  "url": "https://www.gavel.io/resources/small-law-firm-ai-guide-to-using-llms",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "d5189ffbe807e452d4e9005415a8785b22b81607879616a52475a19c524232f2",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2258,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/gavel-law-firm-llm-guide-2026.md"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "glean-enterprise-search-guide",
+  "url": "https://www.glean.com/blog/the-definitive-guide-to-ai-based-enterprise-search-for-2025",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "b6748467c68f5880403e23bae67e8ee7005748cef5f3227038bf94b751af1be6",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 4223,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/glean-enterprise-search-guide.md"
+}

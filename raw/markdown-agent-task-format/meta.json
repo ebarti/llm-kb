@@ -1,0 +1,16 @@
+{
+  "slug": "markdown-agent-task-format",
+  "url": "https://dev.to/battyterm/the-case-for-markdown-as-your-agents-task-format-6mp",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "457740a8a79f23e2f51d63227d945d7a9aae386b78864f81d8cc30ac6c5177e7",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2377,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/markdown-agent-task-format.md"
+}

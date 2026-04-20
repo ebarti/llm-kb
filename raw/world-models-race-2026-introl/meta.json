@@ -1,0 +1,16 @@
+{
+  "slug": "world-models-race-2026-introl",
+  "url": "https://introl.com/blog/world-models-race-agi-2026",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "742013027ed1e43182aad862548849a69022f4a32cd3df8137a258bb1897fd17",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2807,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/world-models-race-2026-introl.md"
+}

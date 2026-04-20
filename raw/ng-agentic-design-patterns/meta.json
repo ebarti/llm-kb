@@ -1,0 +1,16 @@
+{
+  "slug": "ng-agentic-design-patterns",
+  "url": "https://www.deeplearning.ai/the-batch/agentic-design-patterns-part-2-reflection/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "578f5f58564ef6029cd19dfce02b64c83feb3d30b78abe37c37b031c126d05e1",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2640,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/ng-agentic-design-patterns.md"
+}

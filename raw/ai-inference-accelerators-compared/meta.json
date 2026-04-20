@@ -1,0 +1,16 @@
+{
+  "slug": "ai-inference-accelerators-compared",
+  "url": "https://blog.themenonlab.com/blog/ai-inference-accelerators-compared",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "76809478cb731298b4c792f13621360028e8d31d270af58d114e85ef12ae2173",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2580,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/ai-inference-accelerators-compared.md"
+}

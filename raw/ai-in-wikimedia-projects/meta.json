@@ -1,0 +1,16 @@
+{
+  "slug": "ai-in-wikimedia-projects",
+  "url": "https://en.wikipedia.org/wiki/Artificial_intelligence_in_Wikimedia_projects",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "400fea7c33d2121639f9ac3bce05b85f664cba02e3e22230b03581d310a02ba3",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 4078,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/ai-in-wikimedia-projects.md"
+}

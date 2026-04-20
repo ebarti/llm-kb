@@ -1,0 +1,16 @@
+{
+  "slug": "karpathy-2025-llm-year-review",
+  "url": "https://karpathy.bearblog.dev/year-in-review-2025/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "4313287164c16723a7a7c1209b42b070194022097f0383403eb8cacfb0330899",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2438,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/karpathy-2025-llm-year-review.md"
+}

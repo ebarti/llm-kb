@@ -1,0 +1,16 @@
+{
+  "slug": "clip-thread-by-@karpathy",
+  "url": "https://x.com/karpathy/status/2039805659525644595",
+  "fetched_at": "2026-04-06T00:00:00Z",
+  "fetcher": "tweet",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "json",
+  "sha256_raw": null,
+  "sha256_clean": "82631c9b326d13e528eb0c8f4646b5a6393aa0c88ceaa1e630eafac927882f8d",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3685,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/clip-thread-by-@karpathy.md"
+}

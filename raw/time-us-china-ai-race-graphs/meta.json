@@ -1,0 +1,16 @@
+{
+  "slug": "time-us-china-ai-race-graphs",
+  "url": "https://time.com/7358519/ai-china-us-race-graphs/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "7fea7a68df5ab611f6945f6655a3e7216ff56f586e49bc56127f5f5ce4047319",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 1479,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/time-us-china-ai-race-graphs.md"
+}

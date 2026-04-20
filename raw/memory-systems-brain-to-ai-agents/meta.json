@@ -1,0 +1,16 @@
+{
+  "slug": "memory-systems-brain-to-ai-agents",
+  "url": "https://arxiv.org/html/2512.23343v1",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "0e010bf8481d986c3abd97e8e917b863237d495e61ab6d3f46e9d5d5ad2cb811",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3941,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/memory-systems-brain-to-ai-agents.md"
+}

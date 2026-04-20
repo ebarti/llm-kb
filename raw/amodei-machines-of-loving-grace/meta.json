@@ -1,0 +1,16 @@
+{
+  "slug": "amodei-machines-of-loving-grace",
+  "url": "https://darioamodei.com/essay/machines-of-loving-grace",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "6636d95e8f9179de19874442a13aa081e39643327196678a887ae447bed3bf1e",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 5126,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/amodei-machines-of-loving-grace.md"
+}

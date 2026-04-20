@@ -1,0 +1,16 @@
+{
+  "slug": "redis-rag-vs-long-context",
+  "url": "https://redis.io/blog/rag-vs-large-context-window-ai-apps/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "04e233150f9240a4d9a5848edd9f0d8d97258c0f69079a6df4c607536a968429",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2644,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/redis-rag-vs-long-context.md"
+}

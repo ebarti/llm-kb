@@ -1,0 +1,16 @@
+{
+  "slug": "rome-memit-knowledge-editing",
+  "url": "https://rome.baulab.info/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "10ee9b7f12f6274771b2010871883885748d5090a16a8f151e57ad2cee0dd5e6",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2989,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/rome-memit-knowledge-editing.md"
+}

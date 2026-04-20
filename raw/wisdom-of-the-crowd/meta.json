@@ -1,0 +1,16 @@
+{
+  "slug": "wisdom-of-the-crowd",
+  "url": "https://en.wikipedia.org/wiki/Wisdom_of_the_crowd",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "b121ef89c086df0ea7739117dd03152ec77c55fee81bf8437957b5a885187734",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3505,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/wisdom-of-the-crowd.md"
+}

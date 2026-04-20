@@ -1,0 +1,16 @@
+{
+  "slug": "web-scraping-legality-ethics-2025",
+  "url": "https://www.browserless.io/blog/is-web-scraping-legal",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "bfbd38ccf2a1567578dc65a28349fd3e0a7bcd519ac5e68ff967d5b145143f73",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3229,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/web-scraping-legality-ethics-2025.md"
+}

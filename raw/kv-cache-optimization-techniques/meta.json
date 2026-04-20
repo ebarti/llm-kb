@@ -1,0 +1,16 @@
+{
+  "slug": "kv-cache-optimization-techniques",
+  "url": "https://www.omrimallis.com/posts/techniques-for-kv-cache-optimization/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "52543c11cdc832f51398339640fa7677b26d26be28a88bbe667bab04a971c36f",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3069,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/kv-cache-optimization-techniques.md"
+}

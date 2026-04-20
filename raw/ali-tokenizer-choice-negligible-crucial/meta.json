@@ -1,0 +1,16 @@
+{
+  "slug": "ali-tokenizer-choice-negligible-crucial",
+  "url": "https://arxiv.org/html/2310.08754v4",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "ffafd0d7ab1a5e2fc1b0a0eb414aa52c66c2ce6d235eef0c23949779f13d25bf",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2579,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/ali-tokenizer-choice-negligible-crucial.md"
+}

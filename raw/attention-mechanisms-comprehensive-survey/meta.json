@@ -1,0 +1,16 @@
+{
+  "slug": "attention-mechanisms-comprehensive-survey",
+  "url": "https://arxiv.org/html/2601.03329v1",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "f9709ccab948e4c9b717867174da4c3c1180b56d9c8c6352d3590d41970aec47",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 4314,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/attention-mechanisms-comprehensive-survey.md"
+}

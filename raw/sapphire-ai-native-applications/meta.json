@@ -1,0 +1,16 @@
+{
+  "slug": "sapphire-ai-native-applications",
+  "url": "https://sapphireventures.com/blog/ai-native-applications/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "6c7dca6dc86c0c1df28e44b7678883a1fc75e0e212e4469e027e25c1867741b1",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2820,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/sapphire-ai-native-applications.md"
+}

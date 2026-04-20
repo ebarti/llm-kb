@@ -1,0 +1,16 @@
+{
+  "slug": "physical-intelligence-pi0-foundation-model",
+  "url": "https://www.pi.website/blog/pi0",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "d2a2c576108841bfa891626543f41a17ef676c98563f56a34699727699b9e8b5",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2281,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/physical-intelligence-pi0-foundation-model.md"
+}

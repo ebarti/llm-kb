@@ -1,0 +1,16 @@
+{
+  "slug": "greptile-state-of-ai-coding-2025",
+  "url": "https://www.greptile.com/state-of-ai-coding-2025",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "1e02d3ef7db196a91d71b2a269b8033cfd40cf11bd1ecfc95d259095ec8c792b",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2056,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/greptile-state-of-ai-coding-2025.md"
+}

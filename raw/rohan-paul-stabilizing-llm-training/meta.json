@@ -1,0 +1,16 @@
+{
+  "slug": "rohan-paul-stabilizing-llm-training",
+  "url": "https://www.rohan-paul.com/p/stabilizing-llm-training-techniques",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "961f159973d9179655429e3bab9a1cee783174b108efb8410977171c7803d985",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3079,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/rohan-paul-stabilizing-llm-training.md"
+}

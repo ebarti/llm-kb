@@ -1,0 +1,16 @@
+{
+  "slug": "ai-music-generation-2026",
+  "url": "https://jam.com/resources/best-ai-music-generators-2026",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "68dacbcbbdc32f251193b316e84ad528526a79db4feab346630ac484fb935d0e",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2130,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/ai-music-generation-2026.md"
+}

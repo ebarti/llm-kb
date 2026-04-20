@@ -1,0 +1,16 @@
+{
+  "slug": "deloitte-physical-ai-humanoid-robots-2026",
+  "url": "https://www.deloitte.com/us/en/insights/topics/technology-management/tech-trends/2026/physical-ai-humanoid-robots.html",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "01b126d65841e77a8dc1774de472f9b8ef3abdf9fde5061ec225e57e615e9af9",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 3505,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/deloitte-physical-ai-humanoid-robots-2026.md"
+}

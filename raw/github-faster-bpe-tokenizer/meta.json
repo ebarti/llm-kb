@@ -1,0 +1,16 @@
+{
+  "slug": "github-faster-bpe-tokenizer",
+  "url": "https://github.blog/ai-and-ml/llms/so-many-tokens-so-little-time-introducing-a-faster-more-flexible-byte-pair-tokenizer/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "4f13397b740494f01ade8e68c0044a37a353251cde0c4fcb52d84b5eb3e96691",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2584,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/github-faster-bpe-tokenizer.md"
+}

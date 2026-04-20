@@ -1,0 +1,16 @@
+{
+  "slug": "confident-ai-llm-evaluation-metrics",
+  "url": "https://www.confident-ai.com/blog/llm-evaluation-metrics-everything-you-need-for-llm-evaluation",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "1b2ce6a1aed446335dd4776f7d2904cca9952958a20fab81b91d0c760969acc0",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 4241,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/confident-ai-llm-evaluation-metrics.md"
+}

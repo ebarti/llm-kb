@@ -1,0 +1,16 @@
+{
+  "slug": "agentic-rag-survey",
+  "url": "https://arxiv.org/abs/2501.09136",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "d56a5aa692711b11cbb57c95bfafc84a23adda01c22ecb635e33c7fd15fa23ff",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2097,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/agentic-rag-survey.md"
+}

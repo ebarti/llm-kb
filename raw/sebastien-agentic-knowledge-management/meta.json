@@ -1,0 +1,16 @@
+{
+  "slug": "sebastien-agentic-knowledge-management",
+  "url": "https://www.dsebastien.net/agentic-knowledge-management-the-next-evolution-of-pkm/",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "9075c78c0a4811e9ea07a90598cf53a5b1018b2080898ee538127c62deaad50f",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 5184,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/sebastien-agentic-knowledge-management.md"
+}

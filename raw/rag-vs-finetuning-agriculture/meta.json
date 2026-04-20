@@ -1,0 +1,16 @@
+{
+  "slug": "rag-vs-finetuning-agriculture",
+  "url": "https://arxiv.org/abs/2401.08406",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "ee1feead8115ed226d0779c322d0060f055f20c4d7df97bfdc848868d8214462",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2010,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/rag-vs-finetuning-agriculture.md"
+}

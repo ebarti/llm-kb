@@ -1,0 +1,16 @@
+{
+  "slug": "composio-api-integration-patterns",
+  "url": "https://composio.dev/content/apis-ai-agents-integration-patterns",
+  "fetched_at": "2026-04-05T00:00:00Z",
+  "fetcher": "web",
+  "fetcher_version": "v2.0.0-migration",
+  "content_type": "html",
+  "sha256_raw": null,
+  "sha256_clean": "ab586efcc4132d458e8996b2955dc716e3d68e613cd2a40d6fda06ae30292ee0",
+  "size_bytes_raw": 0,
+  "size_bytes_clean": 2743,
+  "raw_bytes_available": false,
+  "raw_extension": "",
+  "migrated_legacy": true,
+  "legacy_path": "raw/composio-api-integration-patterns.md"
+}
