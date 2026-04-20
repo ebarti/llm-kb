@@ -6,4 +6,5 @@ __pycache__/
 .env
 .idea/
 tools/search-engine/.index/
+.claude/
 
