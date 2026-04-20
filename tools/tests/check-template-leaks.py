@@ -62,6 +62,43 @@ WIKILINK_RE = re.compile(r"\[\[([^\]|]+?)(?:\|[^\]]+?)?\]\]")
 # {{summary}}, {{filename}}, {{Source A}}, {{Author}} etc. that appear in
 # templates/*.md. Inside wiki/, these always indicate a leak.
 MUSTACHE_PLACEHOLDER_RE = re.compile(r"\{\{[A-Za-z0-9_ ]+\}\}")
+FENCE_RE = re.compile(r"^(`{3,}|~{3,})")
+
+
+def get_fence_delimiter(line: str):
+    """Return (char, length) when the line opens/closes a fenced code block."""
+    match = FENCE_RE.match(line.lstrip())
+    if not match:
+        return None
+
+    marker = match.group(1)
+    return marker[0], len(marker)
+
+
+def strip_inline_code(line: str):
+    """Remove inline code spans so literal syntax examples don't trigger leaks."""
+    cleaned = []
+    index = 0
+
+    while index < len(line):
+        if line[index] != "`":
+            cleaned.append(line[index])
+            index += 1
+            continue
+
+        tick_start = index
+        while index < len(line) and line[index] == "`":
+            index += 1
+        tick_count = index - tick_start
+        closing = line.find("`" * tick_count, index)
+
+        if closing == -1:
+            cleaned.append(line[tick_start:index])
+            continue
+
+        index = closing + tick_count
+
+    return "".join(cleaned)
 
 
 def scan_file(filepath: Path):
@@ -72,9 +109,28 @@ def scan_file(filepath: Path):
     except OSError:
         return leaks
 
+    in_fence = False
+    fence_char = None
+    fence_length = 0
+
     for i, line in enumerate(text.splitlines(), start=1):
+        fence = get_fence_delimiter(line)
+        if in_fence:
+            if fence and fence[0] == fence_char and fence[1] >= fence_length:
+                in_fence = False
+                fence_char = None
+                fence_length = 0
+            continue
+
+        if fence:
+            in_fence = True
+            fence_char, fence_length = fence
+            continue
+
+        scan_line = strip_inline_code(line)
+
         # --- Placeholder wikilinks ---
-        for m in WIKILINK_RE.finditer(line):
+        for m in WIKILINK_RE.finditer(scan_line):
             target = m.group(1).strip()
             if target.endswith(".md"):
                 target = target[:-3]
@@ -87,7 +143,7 @@ def scan_file(filepath: Path):
                 })
 
         # --- Mustache-style placeholders ---
-        for m in MUSTACHE_PLACEHOLDER_RE.finditer(line):
+        for m in MUSTACHE_PLACEHOLDER_RE.finditer(scan_line):
             leaks.append({
                 "line": i,
                 "text": line.strip(),
