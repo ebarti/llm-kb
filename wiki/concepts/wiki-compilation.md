@@ -16,7 +16,7 @@ Wiki compilation is the process by which an LLM transforms a `raw/` directory of
 
 - **Source summaries**: Each raw file gets a summary article in `wiki/sources/` covering key points, quotes, and related concepts.
 - **Concept articles**: The LLM identifies concepts that appear across multiple sources and synthesizes cross-source articles in `wiki/concepts/`.
-- **Cross-linking**: Obsidian-style `[[wikilinks]]` connect concept articles, source summaries, and raw files into a navigable graph.
+- **Cross-linking**: Obsidian-style wikilinks connect concept articles, source summaries, and raw files into a navigable graph.
 - **Index and metadata**: The LLM maintains `_index.md` (master article list), `_meta/summaries.md` (one-line summaries), `_meta/links.md` (backlink graph), and `_meta/manifest.md` (compiled file tracking).
 - **Incrementalism**: The manifest tracks which raw files have been processed so compilation only touches what's new.
 

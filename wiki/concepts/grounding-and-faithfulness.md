@@ -58,7 +58,7 @@ For an LLM-maintained wiki, grounding operates at two levels:
 When the LLM compiles wiki articles from `raw/` source files, every claim should trace to specific source passages. The compilation pipeline itself should enforce attribution.
 
 ### Query-Time Grounding
-When answering questions, the LLM navigates the wiki via indexes and summaries, reads relevant articles, and synthesizes answers. Grounding means citing specific wiki articles with `[[wikilinks]]` rather than generating from parametric knowledge.
+When answering questions, the LLM navigates the wiki via indexes and summaries, reads relevant articles, and synthesizes answers. Grounding means citing specific wiki articles with wikilinks rather than generating from parametric knowledge.
 
 ### The Grounding Paradox for AI Wikis
 An LLM wiki faces a unique challenge: the "ground truth" documents were themselves processed by an LLM. If the compilation step introduces errors, grounding query-time answers in those wiki articles merely propagates the error with a citation ([[concepts/hallucination-contamination]]).

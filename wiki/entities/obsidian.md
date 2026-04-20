@@ -11,13 +11,13 @@ reading_time: "3 min"
 
 ## Overview
 
-Obsidian is a desktop and mobile application for managing knowledge bases built on local markdown files. It supports `[[wikilinks]]` for cross-referencing, a graph view that visualizes link structures, and a rich plugin ecosystem. In the LLM knowledge base workflow, Obsidian serves as the human-facing IDE -- a viewer and navigator for the raw data, compiled wiki, and generated artifacts that the LLM produces. Crucially, the human uses Obsidian primarily to read, while the LLM performs all writing and maintenance.
+Obsidian is a desktop and mobile application for managing knowledge bases built on local markdown files. It supports wikilinks for cross-referencing, a graph view that visualizes link structures, and a rich plugin ecosystem. In the LLM knowledge base workflow, Obsidian serves as the human-facing IDE -- a viewer and navigator for the raw data, compiled wiki, and generated artifacts that the LLM produces. Crucially, the human uses Obsidian primarily to read, while the LLM performs all writing and maintenance.
 
 Obsidian was founded by Steph Ango and Shida Li. Its core philosophy of local-first, plain-text storage aligns perfectly with the LLM-KB approach: files remain human-readable, version-controllable, and independent of any proprietary format. This portability is a major reason Karpathy chose it as the frontend for his workflow.
 
 ## Key Features (Relevant to LLM-KB)
 
-- **Wikilinks and backlinks**: Native `[[wikilink]]` support creates an implicit graph structure that mirrors how the LLM cross-links concept articles during compilation. The backlinks panel shows all articles referencing the current file.
+- **Wikilinks and backlinks**: Native wikilink support creates an implicit graph structure that mirrors how the LLM cross-links concept articles during compilation. The backlinks panel shows all articles referencing the current file.
 
 - **Graph view**: Visualizes the entire link graph of the wiki, making it possible to see clusters of related concepts and identify orphan articles at a glance.
 

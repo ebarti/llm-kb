@@ -24,8 +24,8 @@ Transclusion addresses the **duplication problem** in knowledge management: info
 
 ## Partial Realizations
 
-- **Wiki templates**: MediaWiki's `{{template}}` syntax transcludes template content
-- **Obsidian embeds**: `![[note]]` syntax embeds one note's content in another
+- **Wiki templates**: MediaWiki's double-brace template syntax transcludes template content
+- **Obsidian embeds**: The embed syntax (bang + double-bracketed note name) includes one note's content in another
 - **RSS/Atom feeds**: Syndication as a form of content reference
 - **Git submodules**: Code inclusion by reference
 - **iframes**: Web content embedding (crude form)

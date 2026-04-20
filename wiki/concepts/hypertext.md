@@ -11,7 +11,7 @@ summary: "Nonsequential writing with reader-chosen paths through linked document
 
 Hypertext is text displayed on a computer that contains links to other text, enabling nonsequential reading and writing. The term was coined by [[entities/ted-nelson]] in 1965. The concept traces to [[entities/vannevar-bush]]'s [[concepts/memex]] (1945) and was partially realized by the World Wide Web (1989).
 
-Hypertext is foundational to wiki-based [[concepts/knowledge-representation]] systems, including the [[concepts/llm-knowledge-base]] approach that uses [[wikilinks]] as its core linking mechanism.
+Hypertext is foundational to wiki-based [[concepts/knowledge-representation]] systems, including the [[concepts/llm-knowledge-base]] approach that uses wikilinks as its core linking mechanism.
 
 ## Key Ideas
 
@@ -45,7 +45,7 @@ Tim Berners-Lee's World Wide Web (1989) implemented hypertext but in a simplifie
 
 ## Connection to LLM Knowledge Bases
 
-The [[concepts/llm-knowledge-base]] approach uses Obsidian-style `[[wikilinks]]` as its hypertext mechanism. These provide:
+The [[concepts/llm-knowledge-base]] approach uses Obsidian-style wikilinks as its hypertext mechanism. These provide:
 - Bidirectional linking (Obsidian's backlinks panel realizes Nelson's vision)
 - A navigable knowledge graph (the link structure IS the ontology)
 - LLM-maintained cross-references (solving the manual maintenance burden that plagued earlier hypertext systems)

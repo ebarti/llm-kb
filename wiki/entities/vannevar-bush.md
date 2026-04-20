@@ -19,7 +19,7 @@ Bush's vision is the intellectual ancestor of hypertext, the World Wide Web, and
 
 - **"As We May Think" (1945)**: Published in The Atlantic, this essay described a future where individuals would have personal devices to store and cross-reference all their knowledge. The essay introduced the concept of "associative trails" -- user-defined paths through knowledge that would be stored alongside the knowledge itself.
 
-- **The Memex concept**: Bush's proposed machine would use microfilm to store an individual's entire library, with a mechanical system for creating and following cross-references between documents. This is conceptually identical to a wiki with wikilinks -- or to Karpathy's markdown knowledge base with its `[[wikilinks]]` connecting concepts.
+- **The Memex concept**: Bush's proposed machine would use microfilm to store an individual's entire library, with a mechanical system for creating and following cross-references between documents. This is conceptually identical to a wiki with wikilinks -- or to Karpathy's markdown knowledge base, which uses wikilinks to connect concepts.
 
 - **Science policy leadership**: Bush's role in establishing the National Science Foundation and shaping postwar American science policy demonstrated the same impulse driving LLM knowledge bases: the conviction that better organization of knowledge leads to better outcomes.
 

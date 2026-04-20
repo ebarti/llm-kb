@@ -24,13 +24,13 @@ Karpathy's system and its derivatives rely entirely on markdown as the storage a
 
 **Future-proof**: `.md` files will be readable in 50 years. Proprietary database formats won't be.
 
-**Wikilinks for structure**: `[[concept-name]]` provides implicit graph structure without a graph database. LLMs can follow wikilinks during compilation to build coherent concept articles.
+**Wikilinks for structure**: Obsidian-style bracketed references (e.g. a link to a concept article) provide implicit graph structure without a graph database. LLMs can follow wikilinks during compilation to build coherent concept articles.
 
 ## The Markdown Workflow
 
 ```
 raw/source.md          → LLM reads (immutable source of truth)
-wiki/concepts/foo.md   → LLM writes (concept articles with [[wikilinks]])
+wiki/concepts/foo.md   → LLM writes (concept articles with wikilinks)
 wiki/sources/bar.md    → LLM writes (source summaries)
 wiki/_index.md         → LLM writes (master index)
 output/report.md       → LLM writes (generated artifacts)

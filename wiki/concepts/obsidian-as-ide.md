@@ -22,7 +22,7 @@ In the LLM knowledge base workflow, Obsidian serves as the human-facing IDE: a v
 
 ## Why Obsidian
 
-Obsidian's native support for markdown, `[[wikilinks]]`, and backlink graphs makes it a natural fit for a wiki structured around interconnected `.md` files. The [[concepts/obsidian-graph-view]] and backlinks panel expose the link structure the LLM builds during compilation. The [[concepts/file-over-app]] philosophy ensures the vault is accessible to external LLM agents via the file system.
+Obsidian's native support for markdown, wikilinks, and backlink graphs makes it a natural fit for a wiki structured around interconnected `.md` files. The [[concepts/obsidian-graph-view]] and backlinks panel expose the link structure the LLM builds during compilation. The [[concepts/file-over-app]] philosophy ensures the vault is accessible to external LLM agents via the file system.
 
 Key IDE-like features for LLM-KB work:
 

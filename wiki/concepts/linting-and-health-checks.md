@@ -16,7 +16,7 @@ Wiki linting is the process of running LLM-powered health checks over the compil
 
 - **Inconsistency detection**: The LLM compares claims across articles to find contradictions.
 - **Missing data imputation**: Gaps in knowledge can be filled using web search tools during a lint pass.
-- **Broken link detection**: Find `[[wikilinks]]` pointing to non-existent files.
+- **Broken link detection**: Find wikilinks pointing to non-existent files.
 - **Orphan detection**: Identify wiki articles with no incoming links.
 - **New article suggestions**: The LLM identifies concepts mentioned across sources that don't yet have dedicated articles.
 - **Stale content detection**: Raw files not yet compiled into the wiki.

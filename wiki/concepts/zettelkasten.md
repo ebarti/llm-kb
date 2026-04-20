@@ -73,7 +73,7 @@ Consistent practice is essential — the zettelkasten.de guide warns to expect 2
 
 The Zettelkasten's principles directly inform modern [[concepts/llm-knowledge-base]] design:
 - Atomicity → one concept per wiki article
-- Hypertextual linking → [[wikilinks]] between articles
+- Hypertextual linking → wikilinks between articles
 - Structure Notes → index files and summaries
 - Communication partner → LLM as the interlocutor
 

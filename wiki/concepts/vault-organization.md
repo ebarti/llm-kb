@@ -59,7 +59,7 @@ Context engineering principles:
 - Rich YAML frontmatter for precise retrieval
 - Atomic notes (one concept per note) for better AI retrieval accuracy
 - Consistent tagging: `#idea`, `#decision`, `#meeting`, `#research`
-- Explicit [[wikilinks]] so AI can follow the relationship graph
+- Explicit wikilinks so AI can follow the relationship graph
 
 ### LLM-KB Architecture (This Vault)
 

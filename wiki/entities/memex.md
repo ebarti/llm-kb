@@ -17,7 +17,7 @@ The Memex was never built, but its influence on computing and knowledge manageme
 
 ## Key Ideas
 
-- **Associative trails**: Bush observed that the human mind operates by association rather than indexing. The Memex would allow users to create named trails linking items in any order, mimicking how thought connects disparate ideas. This is functionally equivalent to `[[wikilinks]]` in a modern markdown wiki.
+- **Associative trails**: Bush observed that the human mind operates by association rather than indexing. The Memex would allow users to create named trails linking items in any order, mimicking how thought connects disparate ideas. This is functionally equivalent to wikilinks in a modern markdown wiki.
 
 - **Personal knowledge store**: The Memex was conceived as an individual tool, not a shared database. Each person would maintain their own Memex, populated with their own materials and annotated with their own trails. This maps directly to the personal nature of Karpathy's LLM knowledge base.
 

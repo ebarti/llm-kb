@@ -55,7 +55,7 @@ From [[sources/llm-kg-construction-survey]]:
 
 In the [[concepts/wiki-compilation]] pipeline, relation extraction:
 - Populates the `related:` frontmatter field in wiki articles
-- Generates the `[[wikilinks]]` connecting concepts to entities
+- Generates the wikilinks connecting concepts to entities
 - Builds the backlink graph in `wiki/_meta/links.md`
 - Identifies comparison opportunities (when two entities share competing relations)
 

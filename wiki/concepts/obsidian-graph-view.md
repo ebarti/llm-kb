@@ -9,7 +9,7 @@ summary: "Obsidian's graph view visualizes notes as nodes and links as edges —
 
 ## Overview
 
-The Graph View is [[entities/obsidian]]'s built-in visualization of the vault's link structure. Every note is rendered as a node, and every `[[wikilink]]` as an edge, creating a dynamic, interactive network visualization. It provides a "bird's-eye view" of how knowledge is organized and connected.
+The Graph View is [[entities/obsidian]]'s built-in visualization of the vault's link structure. Every note is rendered as a node, and every wikilink as an edge, creating a dynamic, interactive network visualization. It provides a "bird's-eye view" of how knowledge is organized and connected.
 
 ## Core Capabilities
 

@@ -38,7 +38,7 @@ More importantly, hierarchies are **static** — once filed, notes rarely surfac
 
 ## The Role of AI
 
-Modern AI and [[concepts/knowledge-graph]] systems are the latest expression of networked thought. LLMs excel at discovering connections across domains — the same capability that makes networked thought valuable for humans. The [[concepts/llm-knowledge-base]] approach essentially automates the connection-making that Luhmann performed manually, with [[wikilinks]] serving as the digital equivalent of his cross-references.
+Modern AI and [[concepts/knowledge-graph]] systems are the latest expression of networked thought. LLMs excel at discovering connections across domains — the same capability that makes networked thought valuable for humans. The [[concepts/llm-knowledge-base]] approach essentially automates the connection-making that Luhmann performed manually, with wikilinks serving as the digital equivalent of his cross-references.
 
 The [[concepts/agentic-knowledge-management]] vision takes this further: AI agents that continuously discover and propose new connections within your knowledge base, functioning as an autonomous version of Luhmann's communication partner.
 

@@ -32,7 +32,7 @@ The Memex set in motion a chain of innovations:
 
 Modern [[concepts/llm-knowledge-base]] systems fulfill Bush's vision more completely than any prior technology:
 - Personal knowledge store with all source documents (raw/ directory = microfilm library)
-- Associative linking via [[wikilinks]] (= Bush's trails)
+- Associative linking via wikilinks (= Bush's trails)
 - LLM-maintained cross-references (= Bush's encyclopedia with mesh of trails)
 - Natural language querying (= Bush's vision of intuitive access)
 

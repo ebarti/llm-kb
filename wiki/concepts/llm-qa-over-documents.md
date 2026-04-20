@@ -25,7 +25,7 @@ Once a wiki is compiled and large enough, an LLM agent can answer complex resear
 1. User asks a question in natural language
 2. LLM reads `_meta/summaries.md` to find relevant articles
 3. LLM reads full relevant articles from `wiki/`
-4. LLM synthesizes answer, citing sources with `[[wikilinks]]`
+4. LLM synthesizes answer, citing sources with wikilinks
 5. (Optional) LLM saves substantial answers to `output/reports/` or files them into the wiki
 
 ## Sources
