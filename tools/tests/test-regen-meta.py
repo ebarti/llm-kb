@@ -92,6 +92,39 @@ def _actual_self_links() -> set[str]:
     return self_links
 
 
+def test_committed_artifacts_are_up_to_date(regen) -> tuple[bool, str]:
+    """Preflight: the committed wiki/_meta files must match what the
+    regenerator would emit right now. This runs before any other test
+    mutates META_DIR, so a stale checked-in artifact surfaces as a real
+    failure instead of being silently repaired.
+
+    ``freshness-report.md`` is excluded because its ``last_updated`` /
+    ``age_days`` values are anchored to wall-clock ``date.today()`` by
+    design, so a day-over-day drift is expected and handled by its own
+    regeneration on compile.
+    """
+    targets = ("stats.json", "manifest.md", "summaries.md", "links.md")
+    scan = regen.WikiScan()
+    scan.scan()
+    renderers = {
+        "stats.json": regen.render_stats,
+        "manifest.md": regen.render_manifest,
+        "summaries.md": regen.render_summaries,
+        "links.md": regen.render_links,
+    }
+    stale: list[str] = []
+    for name in targets:
+        existing = (META_DIR / name).read_text(encoding="utf-8") if (META_DIR / name).exists() else ""
+        expected = renderers[name](scan)
+        if existing != expected:
+            stale.append(name)
+    return (not stale), (
+        "all committed meta files up to date"
+        if not stale
+        else f"stale committed artifacts: {stale} (run ./kb compile or python3 tools/compile/regen_meta.py)"
+    )
+
+
 def test_produces_all_files(regen) -> tuple[bool, str]:
     regen.regenerate(quiet=True)
     missing = [
@@ -247,6 +280,9 @@ def test_links_include_self_links(regen) -> tuple[bool, str]:
 
 
 TESTS = [
+    # Preflight must run first -- subsequent tests call regenerate() and
+    # would silently repair any stale committed artifacts.
+    ("committed_artifacts_are_up_to_date", test_committed_artifacts_are_up_to_date),
     ("produces_all_five_files", test_produces_all_files),
     ("idempotent_second_run_is_noop", test_idempotent),
     ("check_mode_clean_after_regen", test_check_mode_clean),

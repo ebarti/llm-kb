@@ -286,7 +286,13 @@ class WikiScan:
         self.dir_word_counts: dict[str, int] = {}
         self.total_words: int = 0
         self.total_files: int = 0
+        # generated_date is input-derived (latest last_compiled) and is
+        # used in file headers to keep output deterministic across runs.
         self.generated_date: date = date.today()
+        # today_date is the wall-clock anchor used for age-sensitive
+        # scoring (freshness). Kept separate so the freshness report
+        # keeps aging even when the wiki sits untouched.
+        self.today_date: date = date.today()
 
     # ----- collection --------------------------------------------------
 
@@ -581,8 +587,14 @@ def render_freshness(scan: WikiScan) -> str:
     ``[0.0, 1.0]``. Articles without a parseable ``last_compiled`` get
     the neutral-low score ``0.15`` (matching the existing plugin).
     Articles older than ``STALE_DAYS`` are flagged.
+
+    Ages are anchored to ``scan.today_date`` (wall-clock ``date.today()``
+    by default). Using the input-derived ``generated_date`` here would
+    make every article look "current" relative to the newest
+    ``last_compiled`` in the wiki, so staleness detection would stop
+    aging as soon as the wiki sat untouched.
     """
-    today = scan.generated_date
+    today = scan.today_date
 
     scored: list[dict] = []
     for article_id in sorted(scan.articles.keys()):
@@ -616,7 +628,7 @@ def render_freshness(scan: WikiScan) -> str:
         "",
         "# Freshness Report",
         "",
-        f"Generated (input-derived): {today.isoformat()}",
+        f"Age anchor (wall clock): {today.isoformat()}",
         "",
         f"Score = 1.0 - age_days / {FRESH_WINDOW_DAYS}. Articles with "
         f"`last_compiled` older than {STALE_DAYS} days are flagged as "
