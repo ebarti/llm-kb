@@ -94,7 +94,44 @@ test_rss_passthrough_flags_are_preserved() {
     assert_missing "$fixture/report.ran"
 }
 
+test_topic_modifier_does_not_activate_monitor_with_report() {
+    local fixture
+
+    # --report --topic RAG must run report.py only. Previously --topic
+    # unilaterally enabled DO_TOPICS, which pulled monitor.py in and
+    # tripped the multi-module extra-flag guard.
+    fixture="$(make_fixture)"
+    "$fixture/discover" --report --topic RAG >/dev/null
+    assert_file_content "$fixture/report.ran" "ran"
+    assert_missing "$fixture/monitor.args"
+    assert_missing "$fixture/rss.args"
+}
+
+test_topic_modifier_does_not_activate_monitor_with_feeds() {
+    local fixture
+
+    # --feeds --topic RAG must dispatch only to rss.py, not monitor.py.
+    fixture="$(make_fixture)"
+    "$fixture/discover" --feeds --topic RAG >/dev/null
+    assert_file_content "$fixture/rss.args" "[]"
+    assert_missing "$fixture/monitor.args"
+    assert_missing "$fixture/report.ran"
+}
+
+test_topic_modifier_alone_still_defaults_to_topics() {
+    local fixture
+
+    fixture="$(make_fixture)"
+    "$fixture/discover" --topic RAG >/dev/null
+    assert_file_content "$fixture/monitor.args" '["--topic", "RAG"]'
+    assert_missing "$fixture/rss.args"
+    assert_missing "$fixture/report.ran"
+}
+
 test_modifier_only_invocations_default_to_topics
 test_rss_passthrough_flags_are_preserved
+test_topic_modifier_does_not_activate_monitor_with_report
+test_topic_modifier_does_not_activate_monitor_with_feeds
+test_topic_modifier_alone_still_defaults_to_topics
 
 echo "discover regression tests passed"

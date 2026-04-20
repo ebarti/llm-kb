@@ -108,14 +108,14 @@ while [[ $# -gt 0 ]]; do
                 echo "${RED}error:${NC} --topic requires an argument" >&2
                 exit 2
             fi
-            # If user specifies --topic without --feeds/--report/--all, they
-            # implicitly mean "topic check" — activate topics.
-            DO_TOPICS=true
+            # --topic is a modifier for monitor.py. Do NOT unilaterally enable
+            # topic dispatch here — doing so would turn `--report --topic X`
+            # or `--feeds --topic X` into state-mutating topic checks. Topics
+            # get auto-enabled later only when no module selector was chosen.
             TOPIC_FILTER="$2"
             shift 2
             ;;
         --topic=*)
-            DO_TOPICS=true
             TOPIC_FILTER="${1#--topic=}"
             shift
             ;;
