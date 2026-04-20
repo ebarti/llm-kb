@@ -130,6 +130,14 @@ for pyfile in "$BASE_DIR"/tools/monitor/*.py; do
     fi
 done
 
+for pyfile in "$BASE_DIR"/tools/compile/*.py; do
+    if [[ -f "$pyfile" ]]; then
+        fname=$(basename "$pyfile")
+        run_test "compile/$fname syntax check" \
+            "python3 -m py_compile '$pyfile'" "any"
+    fi
+done
+
 # --- Summary ---
 
 TOTAL=$((PASS + FAIL))

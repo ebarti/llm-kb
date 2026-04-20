@@ -1,103 +1,103 @@
 {
   "current": {
-    "total_words": 51431,
-    "total_files": 152,
+    "total_words": 493777,
+    "total_files": 1277,
     "by_directory": {
-      "(root)": 9022,
-      "_meta": 3287,
-      "concepts": 9320,
-      "entities": 9785,
-      "sources": 20017
+      "(root)": 36425,
+      "comparisons": 48048,
+      "concepts": 231485,
+      "entities": 61833,
+      "sources": 115986
     },
-    "timestamp": "2026-04-06 00:55",
+    "timestamp": "2026-04-06",
     "top_files": [
+      {
+        "file": "_index.md",
+        "words": 16912
+      },
+      {
+        "file": "log.md",
+        "words": 10531
+      },
       {
         "file": "Reading-List.md",
         "words": 6525
       },
       {
-        "file": "_meta/links.md",
-        "words": 2398
-      },
-      {
-        "file": "Graph.md",
-        "words": 821
-      },
-      {
-        "file": "_meta/summaries.md",
-        "words": 801
-      },
-      {
-        "file": "concepts/retrieval-augmented-generation.md",
-        "words": 780
-      },
-      {
-        "file": "concepts/synthetic-data-generation.md",
-        "words": 682
-      },
-      {
-        "file": "concepts/text-embeddings.md",
-        "words": 682
-      },
-      {
-        "file": "concepts/fine-tuning.md",
-        "words": 626
-      },
-      {
-        "file": "concepts/vector-search.md",
-        "words": 569
-      },
-      {
-        "file": "concepts/plain-text-longevity.md",
-        "words": 518
-      },
-      {
         "file": "entities/andrej-karpathy.md",
-        "words": 498
+        "words": 2320
       },
       {
-        "file": "sources/forte-building-second-brain.md",
-        "words": 482
+        "file": "concepts/test-time-compute.md",
+        "words": 1090
       },
       {
-        "file": "sources/karpathy-llm-knowledge-bases.md",
-        "words": 475
+        "file": "concepts/knowledge-system-scaling.md",
+        "words": 1046
       },
       {
-        "file": "entities/graphiti.md",
-        "words": 453
+        "file": "concepts/ai-for-scientific-discovery.md",
+        "words": 1027
       },
       {
-        "file": "entities/obsidian.md",
-        "words": 441
+        "file": "concepts/model-context-protocol.md",
+        "words": 1005
       },
       {
-        "file": "_index.md",
-        "words": 436
+        "file": "concepts/rag-evaluation.md",
+        "words": 949
       },
       {
-        "file": "entities/vannevar-bush.md",
-        "words": 420
+        "file": "concepts/obsidian-plugin-ecosystem.md",
+        "words": 884
       },
       {
-        "file": "entities/memex.md",
-        "words": 412
+        "file": "concepts/knowledge-graph.md",
+        "words": 876
       },
       {
-        "file": "entities/notion.md",
-        "words": 384
+        "file": "concepts/llm-hallucination.md",
+        "words": 872
       },
       {
-        "file": "sources/matuschak-evergreen-notes.md",
-        "words": 382
+        "file": "concepts/zettelkasten.md",
+        "words": 866
+      },
+      {
+        "file": "entities/claude.md",
+        "words": 850
+      },
+      {
+        "file": "concepts/obsidian-ai-integration.md",
+        "words": 843
+      },
+      {
+        "file": "concepts/catastrophic-forgetting.md",
+        "words": 840
+      },
+      {
+        "file": "concepts/knowledge-storage-in-transformers.md",
+        "words": 840
+      },
+      {
+        "file": "concepts/attention-mechanisms.md",
+        "words": 835
+      },
+      {
+        "file": "concepts/reward-hacking.md",
+        "words": 833
+      },
+      {
+        "file": "concepts/enterprise-knowledge-management.md",
+        "words": 832
       }
     ]
   },
   "history": [
     {
-      "timestamp": "2026-04-06 00:55",
-      "total_words": 51431,
-      "total_files": 152
+      "timestamp": "2026-04-06",
+      "total_words": 493777,
+      "total_files": 1277
     }
   ]
 }

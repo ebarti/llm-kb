@@ -1042,11 +1042,34 @@ cmd_ingest() {
     auto_commit "ingest — $(echo "$urls" | cut -d' ' -f1)"
 }
 
+regen_meta() {
+    # Regenerate wiki/_meta/ files deterministically from ground truth.
+    # Runs before Claude so the LLM sees up-to-date summaries.md and
+    # after so any articles Claude touched are reflected immediately.
+    local script="$KB_DIR/tools/compile/regen_meta.py"
+    [[ -f "$script" ]] || return 0
+    (( DRY_RUN )) && return 0
+    if (( VERBOSE )); then
+        python3 "$script" || msg_warn "regen_meta exited non-zero"
+    else
+        python3 "$script" --quiet || msg_warn "regen_meta exited non-zero"
+    fi
+}
+
 cmd_compile() {
     progress "Compiling wiki from raw sources..."
     echo ""
 
+    # Refresh meta/ from ground truth so the LLM sees accurate summaries
+    # and manifest before it starts compiling.
+    progress "Regenerating wiki/_meta/ from ground truth..."
+    regen_meta
+
     run_claude "Compile/update the wiki from all raw sources. Process any new or changed raw files, update source summaries, concept articles, and the master index."
+
+    # Rebuild meta/ once more so anything Claude just created is reflected.
+    progress "Regenerating wiki/_meta/ post-compile..."
+    regen_meta
 
     auto_commit "compile wiki"
 }
