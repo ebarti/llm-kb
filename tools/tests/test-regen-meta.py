@@ -17,9 +17,11 @@ Usage: ``python3 tools/tests/test-regen-meta.py [--json]``
 from __future__ import annotations
 
 import argparse
+import contextlib
 import importlib.util
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -40,12 +42,41 @@ def _import_regen():
     return mod
 
 
-def _snapshot_meta() -> dict[str, str]:
+def _snapshot_meta(meta_dir: Path = META_DIR) -> dict[str, str]:
     out: dict[str, str] = {}
     for name in ("stats.json", "manifest.md", "summaries.md", "links.md", "freshness-report.md"):
-        p = META_DIR / name
+        p = meta_dir / name
         out[name] = p.read_text(encoding="utf-8") if p.exists() else ""
     return out
+
+
+@contextlib.contextmanager
+def _sandbox_meta(regen):
+    """Redirect ``regen.META_DIR`` to a temp copy of the real meta tree.
+
+    Tests that call ``regen.regenerate()`` must not mutate the real
+    working-tree ``wiki/_meta`` -- in particular,
+    ``freshness-report.md`` is wall-clock anchored, so a normal
+    ``regenerate()`` call on day N+1 would silently rewrite the
+    checked-in artifact. We seed a tmpdir with the existing meta
+    files (so history-preserving logic in ``stats.json`` still has
+    prior entries to read) and point the module at it for the
+    duration of the test, restoring the original on exit.
+
+    Yields the ``Path`` of the temporary meta directory.
+    """
+    original_meta_dir = regen.META_DIR
+    with TemporaryDirectory() as tmpdir:
+        tmp_meta_dir = Path(tmpdir)
+        if META_DIR.is_dir():
+            for child in META_DIR.iterdir():
+                if child.is_file():
+                    shutil.copy2(child, tmp_meta_dir / child.name)
+        regen.META_DIR = tmp_meta_dir
+        try:
+            yield tmp_meta_dir
+        finally:
+            regen.META_DIR = original_meta_dir
 
 
 def _parse_links_md(text: str) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
@@ -126,33 +157,43 @@ def test_committed_artifacts_are_up_to_date(regen) -> tuple[bool, str]:
 
 
 def test_produces_all_files(regen) -> tuple[bool, str]:
-    regen.regenerate(quiet=True)
-    missing = [
-        n
-        for n in ("stats.json", "manifest.md", "summaries.md", "links.md", "freshness-report.md")
-        if not (META_DIR / n).exists()
-    ]
+    with _sandbox_meta(regen) as tmp_meta_dir:
+        regen.regenerate(quiet=True)
+        missing = [
+            n
+            for n in ("stats.json", "manifest.md", "summaries.md", "links.md", "freshness-report.md")
+            if not (tmp_meta_dir / n).exists()
+        ]
     return (not missing), ("missing: " + ", ".join(missing) if missing else "all 5 present")
 
 
 def test_idempotent(regen) -> tuple[bool, str]:
-    regen.regenerate(quiet=True)
-    snap1 = _snapshot_meta()
-    regen.regenerate(quiet=True)
-    snap2 = _snapshot_meta()
-    diff = [n for n in snap1 if snap1[n] != snap2[n]]
+    # ``freshness-report.md`` is wall-clock anchored (see regen_meta
+    # docstring) so byte-for-byte equality across calls is only
+    # guaranteed within the same ``regenerate()`` run / same day. We
+    # exclude it from the diff and assert idempotency on the four
+    # input-derived files only.
+    ignored = {"freshness-report.md"}
+    with _sandbox_meta(regen) as tmp_meta_dir:
+        regen.regenerate(quiet=True)
+        snap1 = _snapshot_meta(tmp_meta_dir)
+        regen.regenerate(quiet=True)
+        snap2 = _snapshot_meta(tmp_meta_dir)
+    diff = [n for n in snap1 if n not in ignored and snap1[n] != snap2[n]]
     return (not diff), ("changed: " + ", ".join(diff) if diff else "byte-identical on rerun")
 
 
 def test_check_mode_clean(regen) -> tuple[bool, str]:
-    regen.regenerate(quiet=True)
-    rc = regen.regenerate(check=True, quiet=True)
+    with _sandbox_meta(regen):
+        regen.regenerate(quiet=True)
+        rc = regen.regenerate(check=True, quiet=True)
     return (rc == 0), f"--check rc={rc} (expected 0 after regen)"
 
 
 def test_manifest_covers_all_raw(regen) -> tuple[bool, str]:
-    regen.regenerate(quiet=True)
-    text = (META_DIR / "manifest.md").read_text(encoding="utf-8")
+    with _sandbox_meta(regen) as tmp_meta_dir:
+        regen.regenerate(quiet=True)
+        text = (tmp_meta_dir / "manifest.md").read_text(encoding="utf-8")
     tracked = set(re.findall(r"`raw/([^`]+)\.md`", text))
     actual = {p.stem for p in RAW_DIR.glob("*.md")}
     missing = sorted(actual - tracked)
@@ -163,8 +204,9 @@ def test_manifest_covers_all_raw(regen) -> tuple[bool, str]:
 
 
 def test_summaries_covers_all_articles(regen) -> tuple[bool, str]:
-    regen.regenerate(quiet=True)
-    text = (META_DIR / "summaries.md").read_text(encoding="utf-8")
+    with _sandbox_meta(regen) as tmp_meta_dir:
+        regen.regenerate(quiet=True)
+        text = (tmp_meta_dir / "summaries.md").read_text(encoding="utf-8")
     listed = set(re.findall(r"\[\[([^\]|]+)(?:\|[^\]]+)?\]\]", text))
 
     # Only compare against the four real article subdirectories --
@@ -184,8 +226,9 @@ def test_summaries_covers_all_articles(regen) -> tuple[bool, str]:
 
 
 def test_links_no_phantoms(regen) -> tuple[bool, str]:
-    regen.regenerate(quiet=True)
-    text = (META_DIR / "links.md").read_text(encoding="utf-8")
+    with _sandbox_meta(regen) as tmp_meta_dir:
+        regen.regenerate(quiet=True)
+        text = (tmp_meta_dir / "links.md").read_text(encoding="utf-8")
     targets: set[str] = set()
     for link in re.findall(r"\[\[([^\]|]+)(?:\|[^\]]+)?\]\]", text):
         target = link.split("#", 1)[0].strip()
@@ -206,8 +249,9 @@ def test_links_no_phantoms(regen) -> tuple[bool, str]:
 
 
 def test_stats_reflects_reality(regen) -> tuple[bool, str]:
-    regen.regenerate(quiet=True)
-    data = json.loads((META_DIR / "stats.json").read_text(encoding="utf-8"))
+    with _sandbox_meta(regen) as tmp_meta_dir:
+        regen.regenerate(quiet=True)
+        data = json.loads((tmp_meta_dir / "stats.json").read_text(encoding="utf-8"))
     reported = data["current"]["total_files"]
     actual = sum(
         1
@@ -262,9 +306,10 @@ def test_stats_preserves_existing_history(regen) -> tuple[bool, str]:
 
 
 def test_links_include_self_links(regen) -> tuple[bool, str]:
-    regen.regenerate(quiet=True)
+    with _sandbox_meta(regen) as tmp_meta_dir:
+        regen.regenerate(quiet=True)
+        text = (tmp_meta_dir / "links.md").read_text(encoding="utf-8")
     expected_self_links = _actual_self_links()
-    text = (META_DIR / "links.md").read_text(encoding="utf-8")
     declared_outgoing, _declared_incoming = _parse_links_md(text)
 
     missing = sorted(

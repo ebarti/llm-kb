@@ -14,11 +14,25 @@ from ground truth:
 Design goals
 ------------
 
-* **Deterministic.** Running twice in a row is a no-op: every emitted
-  file is byte-identical on the second invocation. To achieve this the
-  "generated at" marker written into each file is derived from the
-  inputs themselves (the latest ``last_compiled`` date across wiki
-  articles) rather than ``datetime.now()``.
+* **Deterministic (within a run / within a day).** Running twice in a
+  row is a no-op: every emitted file is byte-identical on the second
+  invocation. Four of the five outputs (``stats.json``, ``manifest.md``,
+  ``summaries.md``, ``links.md``) are fully input-derived -- their
+  "generated at" marker is the latest ``last_compiled`` date across
+  wiki articles rather than ``datetime.now()``, so they are stable
+  across arbitrary reruns as long as the inputs do not change.
+
+  ``freshness-report.md`` is the one exception: it is **wall-clock
+  anchored** to ``date.today()`` (captured once per ``regenerate()``
+  call so a single run cannot straddle midnight) because its whole
+  purpose is to surface articles that have aged out relative to *now*.
+  That means determinism for the freshness file is **idempotent within
+  the same day / run**, not across days: two runs on different
+  calendar days will produce different ``last_updated`` and
+  ``age_days`` values even if no wiki content changed. Tests that
+  assert byte-for-byte equality across runs must either stay within a
+  single ``regenerate()`` call, inject a fixed ``today_date``, or
+  exclude the freshness file.
 * **Stdlib only.** No third-party dependencies.
 * **Sorted.** Everything is emitted in sorted order by path so diffs
   are minimal and reviewable.
@@ -279,20 +293,29 @@ class WikiScan:
     The same scan feeds all five generators so we only read disk once.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, today_date: date | None = None) -> None:
         self.articles: dict[str, dict] = {}
         self.raw_files: list[Path] = []
         self.file_word_counts: dict[str, int] = {}
         self.dir_word_counts: dict[str, int] = {}
         self.total_words: int = 0
         self.total_files: int = 0
+        # today_date is the wall-clock anchor used for age-sensitive
+        # scoring (freshness). Captured once -- either injected by the
+        # caller (tests / a single regenerate() pass) or defaulted to
+        # ``date.today()`` -- so two back-to-back calls that happen to
+        # straddle midnight within the same ``regenerate()`` still
+        # agree on "today". Kept separate from generated_date so the
+        # freshness report keeps aging even when the wiki sits
+        # untouched.
+        resolved_today = today_date if today_date is not None else date.today()
+        self.today_date: date = resolved_today
         # generated_date is input-derived (latest last_compiled) and is
         # used in file headers to keep output deterministic across runs.
-        self.generated_date: date = date.today()
-        # today_date is the wall-clock anchor used for age-sensitive
-        # scoring (freshness). Kept separate so the freshness report
-        # keeps aging even when the wiki sits untouched.
-        self.today_date: date = date.today()
+        # We seed it with today_date so that empty wikis (no article
+        # has a last_compiled yet) still get a stable value during a
+        # single run.
+        self.generated_date: date = resolved_today
 
     # ----- collection --------------------------------------------------
 
@@ -684,13 +707,25 @@ OUTPUT_SPECS: list[tuple[str, str]] = [
 ]
 
 
-def regenerate(check: bool = False, quiet: bool = False) -> int:
+def regenerate(
+    check: bool = False,
+    quiet: bool = False,
+    today_date: date | None = None,
+) -> int:
     """Run the full regeneration.
 
     When ``check`` is true we compare existing files against freshly
     rendered content and return non-zero if any file would change.
+
+    ``today_date`` may be supplied to pin the wall-clock anchor (used
+    by ``freshness-report.md``) for tests or for callers that need to
+    treat a whole batch of runs as happening "now". When omitted we
+    capture ``date.today()`` exactly once here and hand it to the
+    ``WikiScan`` so no subsequent call to ``date.today()`` can observe
+    a different value mid-run.
     """
-    scan = WikiScan()
+    resolved_today = today_date if today_date is not None else date.today()
+    scan = WikiScan(today_date=resolved_today)
     scan.scan()
 
     renderers = {
