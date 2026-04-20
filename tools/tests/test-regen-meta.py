@@ -22,6 +22,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -45,6 +46,50 @@ def _snapshot_meta() -> dict[str, str]:
         p = META_DIR / name
         out[name] = p.read_text(encoding="utf-8") if p.exists() else ""
     return out
+
+
+def _parse_links_md(text: str) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
+    declared_outgoing: dict[str, set[str]] = {}
+    declared_incoming: dict[str, set[str]] = {}
+    current_article = None
+
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if line.startswith("## ") and line not in {"## Orphan Pages", "## Summary"}:
+            current_article = line[3:].strip()
+            declared_outgoing.setdefault(current_article, set())
+            declared_incoming.setdefault(current_article, set())
+        elif current_article and line.startswith("→"):
+            declared_outgoing[current_article].update(
+                link.strip()
+                for link in re.findall(r"\[\[([^\]|]+)(?:\|[^\]]+)?\]\]", line)
+            )
+        elif current_article and line.startswith("←"):
+            declared_incoming[current_article].update(
+                link.strip()
+                for link in re.findall(r"\[\[([^\]|]+)(?:\|[^\]]+)?\]\]", line)
+            )
+
+    return declared_outgoing, declared_incoming
+
+
+def _actual_self_links() -> set[str]:
+    self_links: set[str] = set()
+    for sub in ("concepts", "sources", "entities", "comparisons"):
+        directory = WIKI_DIR / sub
+        if not directory.is_dir():
+            continue
+        for article in sorted(directory.glob("*.md")):
+            article_id = f"{sub}/{article.stem}"
+            text = article.read_text(encoding="utf-8", errors="replace")
+            for link in re.findall(r"\[\[([^\]|]+)(?:\|[^\]]+)?\]\]", text):
+                target = link.split("#", 1)[0].strip()
+                if target.endswith(".md"):
+                    target = target[:-3]
+                if target == article_id:
+                    self_links.add(article_id)
+                    break
+    return self_links
 
 
 def test_produces_all_files(regen) -> tuple[bool, str]:
@@ -139,6 +184,68 @@ def test_stats_reflects_reality(regen) -> tuple[bool, str]:
     return (reported == actual), f"stats.total_files={reported} actual={actual}"
 
 
+def test_stats_preserves_existing_history(regen) -> tuple[bool, str]:
+    scan = regen.WikiScan()
+    scan.scan()
+    current_timestamp = scan.generated_date.isoformat()
+
+    with TemporaryDirectory() as tmpdir:
+        tmp_meta_dir = Path(tmpdir)
+        seed_history = [
+            {"timestamp": "2026-03-01 12:00", "total_words": 111, "total_files": 11},
+            {"timestamp": current_timestamp, "total_words": 1, "total_files": 1},
+            {"timestamp": "2026-03-15 12:00", "total_words": 222, "total_files": 22},
+        ]
+        (tmp_meta_dir / "stats.json").write_text(
+            json.dumps({"current": {}, "history": seed_history}, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+        original_meta_dir = regen.META_DIR
+        try:
+            regen.META_DIR = tmp_meta_dir
+            regen.regenerate(quiet=True)
+        finally:
+            regen.META_DIR = original_meta_dir
+
+        data = json.loads((tmp_meta_dir / "stats.json").read_text(encoding="utf-8"))
+        history = data["history"]
+        timestamps = [entry["timestamp"] for entry in history]
+
+        preserved = {"2026-03-01 12:00", "2026-03-15 12:00"}.issubset(timestamps)
+        current_entries = [entry for entry in history if entry["timestamp"] == current_timestamp]
+        replaced_snapshot = (
+            len(current_entries) == 1
+            and current_entries[0]["total_words"] == data["current"]["total_words"]
+            and current_entries[0]["total_files"] == data["current"]["total_files"]
+        )
+
+        ok = preserved and replaced_snapshot
+        detail = (
+            f"history_len={len(history)} preserved_prior={preserved} "
+            f"current_entries={len(current_entries)}"
+        )
+        return ok, detail
+
+
+def test_links_include_self_links(regen) -> tuple[bool, str]:
+    regen.regenerate(quiet=True)
+    expected_self_links = _actual_self_links()
+    text = (META_DIR / "links.md").read_text(encoding="utf-8")
+    declared_outgoing, _declared_incoming = _parse_links_md(text)
+
+    missing = sorted(
+        article_id
+        for article_id in expected_self_links
+        if article_id not in declared_outgoing.get(article_id, set())
+    )
+    return (not missing), (
+        f"{len(expected_self_links)}/{len(expected_self_links)} self-links preserved"
+        if not missing
+        else f"missing self-links for: {missing[:5]}"
+    )
+
+
 TESTS = [
     ("produces_all_five_files", test_produces_all_files),
     ("idempotent_second_run_is_noop", test_idempotent),
@@ -147,6 +254,8 @@ TESTS = [
     ("summaries_covers_all_articles", test_summaries_covers_all_articles),
     ("links_no_phantom_entries", test_links_no_phantoms),
     ("stats_matches_actual_file_count", test_stats_reflects_reality),
+    ("stats_preserves_existing_history", test_stats_preserves_existing_history),
+    ("links_include_self_links", test_links_include_self_links),
 ]
 
 

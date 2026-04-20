@@ -220,6 +220,55 @@ def _parse_iso_date(value: object) -> date | None:
         return None
 
 
+def _load_existing_stats_history() -> list[dict[str, object]]:
+    """Load the prior ``stats.json`` history, ignoring malformed entries."""
+    stats_path = META_DIR / "stats.json"
+    if not stats_path.exists():
+        return []
+    try:
+        data = json.loads(stats_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+
+    history = data.get("history", [])
+    if not isinstance(history, list):
+        return []
+
+    cleaned: list[dict[str, object]] = []
+    for entry in history:
+        if not isinstance(entry, dict):
+            continue
+        timestamp = entry.get("timestamp")
+        total_words = entry.get("total_words")
+        total_files = entry.get("total_files")
+        if not isinstance(timestamp, str):
+            continue
+        if not isinstance(total_words, int) or not isinstance(total_files, int):
+            continue
+        cleaned.append(
+            {
+                "timestamp": timestamp,
+                "total_words": total_words,
+                "total_files": total_files,
+            }
+        )
+    return cleaned
+
+
+def _merge_stats_history(
+    existing_history: list[dict[str, object]],
+    current_entry: dict[str, object],
+) -> list[dict[str, object]]:
+    """Merge the deterministic snapshot into the prior history."""
+    by_timestamp: dict[str, dict[str, object]] = {}
+    for entry in existing_history:
+        timestamp = entry["timestamp"]
+        by_timestamp[str(timestamp)] = dict(entry)
+    by_timestamp[str(current_entry["timestamp"])] = dict(current_entry)
+    timestamps = sorted(by_timestamp)
+    return [by_timestamp[timestamp] for timestamp in timestamps][-100:]
+
+
 # --------------------------------------------------------------------- #
 #  Core walker
 # --------------------------------------------------------------------- #
@@ -294,7 +343,7 @@ class WikiScan:
             for link in data["links"]:
                 # Ignore anchors / sub-headings.
                 target = link.split("#", 1)[0].strip()
-                if not target or target == article_id:
+                if not target:
                     continue
                 if target.startswith("raw/"):
                     continue
@@ -312,12 +361,19 @@ def render_stats(scan: WikiScan) -> str:
     """Render ``stats.json``.
 
     The structure matches (and supersedes) the existing ``word_count``
-    plugin -- ``current`` (snapshot) and ``history`` (single latest
-    entry). History is a single-element list keyed by ``generated_date``
-    so that reruns on the same input are idempotent.
+    plugin -- ``current`` (snapshot) and ``history`` (merged time
+    series). Prior history entries are preserved, while the current
+    deterministic snapshot replaces any existing sample with the same
+    timestamp so reruns on the same input stay idempotent.
     """
     top_files = sorted(scan.file_word_counts.items(), key=lambda kv: (-kv[1], kv[0]))[:20]
     timestamp = scan.generated_date.isoformat()
+    current_entry = {
+        "timestamp": timestamp,
+        "total_words": scan.total_words,
+        "total_files": scan.total_files,
+    }
+    history = _merge_stats_history(_load_existing_stats_history(), current_entry)
     data = {
         "current": {
             "total_words": scan.total_words,
@@ -329,13 +385,7 @@ def render_stats(scan: WikiScan) -> str:
                 for f, w in top_files
             ],
         },
-        "history": [
-            {
-                "timestamp": timestamp,
-                "total_words": scan.total_words,
-                "total_files": scan.total_files,
-            }
-        ],
+        "history": history,
     }
     return json.dumps(data, indent=2, sort_keys=False) + "\n"
 
@@ -497,7 +547,7 @@ def render_links(scan: WikiScan) -> str:
         if inc:
             lines.append("\u2190 " + ", ".join(f"[[{p}]]" for p in inc))
         else:
-            lines.append("\u2190 (no incoming wikilinks from other sources)")
+            lines.append("\u2190 (no incoming wikilinks)")
         if out:
             lines.append("\u2192 " + ", ".join(f"[[{p}]]" for p in out))
         else:
@@ -515,7 +565,7 @@ def render_links(scan: WikiScan) -> str:
     if orphans:
         lines.append("## Orphan Pages")
         lines.append("")
-        lines.append("Articles with no incoming wikilinks from other articles:")
+        lines.append("Articles with no incoming wikilinks in the article graph:")
         lines.append("")
         for o in orphans:
             lines.append(f"- [[{o}]]")
