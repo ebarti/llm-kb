@@ -56,7 +56,7 @@ DO_FEEDS=false
 DO_ALL=false
 TOPIC_FILTER=""
 DAYS_BACK=""
-# Catch-all for forward-compat flags we don't know about (e.g. --dry-run).
+# Catch-all for sub-module flags we don't parse directly (e.g. --dry-run).
 EXTRA_ARGS=()
 
 usage() {
@@ -166,6 +166,42 @@ if $DO_ALL; then
     DO_FEEDS=true
 fi
 
+# Modifier-only invocations should behave like the default topic check.
+if ! $DO_TOPICS && ! $DO_FEEDS && ! $DO_REPORT; then
+    DO_TOPICS=true
+fi
+
+MONITOR_EXTRA_ARGS=()
+RSS_EXTRA_ARGS=()
+if [[ ${#EXTRA_ARGS[@]} -gt 0 ]]; then
+    selected_modules=0
+    if $DO_TOPICS; then
+        selected_modules=$((selected_modules + 1))
+    fi
+    if $DO_FEEDS; then
+        selected_modules=$((selected_modules + 1))
+    fi
+    if $DO_REPORT; then
+        selected_modules=$((selected_modules + 1))
+    fi
+
+    if [[ $selected_modules -gt 1 ]]; then
+        echo "${RED}error:${NC} extra flags require a single target module; got: ${EXTRA_ARGS[*]}" >&2
+        exit 2
+    fi
+
+    if $DO_REPORT; then
+        echo "${RED}error:${NC} report.py does not accept extra flags: ${EXTRA_ARGS[*]}" >&2
+        exit 2
+    fi
+
+    if $DO_FEEDS; then
+        RSS_EXTRA_ARGS=("${EXTRA_ARGS[@]}")
+    else
+        MONITOR_EXTRA_ARGS=("${EXTRA_ARGS[@]}")
+    fi
+fi
+
 # --- Verify dependencies ---
 missing_modules=()
 if $DO_TOPICS && [[ ! -f "$MONITOR_PY" ]]; then
@@ -232,8 +268,8 @@ if $DO_TOPICS; then
         monitor_args+=("--topic" "$TOPIC_FILTER")
     fi
     # Forward unknown flags (e.g. --dry-run) to monitor.py.
-    if [[ ${#EXTRA_ARGS[@]} -gt 0 ]]; then
-        monitor_args+=("${EXTRA_ARGS[@]}")
+    if [[ ${#MONITOR_EXTRA_ARGS[@]} -gt 0 ]]; then
+        monitor_args+=("${MONITOR_EXTRA_ARGS[@]}")
     fi
     set +e
     python3 "$MONITOR_PY" "${monitor_args[@]}"
@@ -251,6 +287,9 @@ if $DO_FEEDS; then
     # rss.py uses --since, not --days; translate.
     if [[ -n "$DAYS_BACK" ]]; then
         rss_args+=("--since" "$DAYS_BACK")
+    fi
+    if [[ ${#RSS_EXTRA_ARGS[@]} -gt 0 ]]; then
+        rss_args+=("${RSS_EXTRA_ARGS[@]}")
     fi
     set +e
     python3 "$RSS_PY" "${rss_args[@]}"
