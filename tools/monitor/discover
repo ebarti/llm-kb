@@ -151,8 +151,7 @@ while [[ $# -gt 0 ]]; do
             done
             ;;
         *)
-            # Preserve unknown flags for forward-compat; forwarded to monitor.py
-            # only (where most pass-through flags are meaningful).
+            # Preserve unknown flags so they can be routed after parsing.
             EXTRA_ARGS+=("$1")
             shift
             ;;
