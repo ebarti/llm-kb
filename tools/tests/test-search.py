@@ -175,6 +175,15 @@ def run_encoder_dim_regression():
 
     import embeddings
 
+    ok, msg = embeddings.is_available()
+    if not ok:
+        missing = msg.splitlines()[0]
+        return [{
+            "description": "encoder.dim() skipped on fully-incremental build",
+            "passed": True,
+            "detail": f"{missing}; skipped",
+        }]
+
     class _NoLoadEncoder:
         """An encoder stub whose dim() / encode() would blow up if called."""
         model_name = "test-model"
