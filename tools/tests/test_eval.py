@@ -739,6 +739,32 @@ with mock.patch("importlib.util.spec_from_file_location", return_value=missing_l
     )
 
 
+def test_eval_scripts_help_include_descriptions() -> None:
+    cases = [
+        (RETRIEVAL_SCRIPT, "Retrieval Evaluation Harness."),
+        (GENERATION_SCRIPT, "Generation Evaluation Harness."),
+    ]
+
+    for script, expected in cases:
+        rc = subprocess.run(
+            [sys.executable, str(script), "--help"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        check(
+            f"{script.name} --help exits 0",
+            rc.returncode == 0,
+            f"exit={rc.returncode} stdout={rc.stdout[:200]} stderr={rc.stderr[:200]}",
+        )
+        check(
+            f"{script.name} --help shows module description",
+            expected in rc.stdout,
+            f"stdout={rc.stdout[:300]}",
+        )
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -758,6 +784,7 @@ TESTS = [
     test_retrieval_rejects_top_k_below_k_values,
     test_generation_script_runs,
     test_generation_import_guard_for_missing_retrieval_loader,
+    test_eval_scripts_help_include_descriptions,
 ]
 
 

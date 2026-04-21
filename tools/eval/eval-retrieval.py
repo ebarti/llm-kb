@@ -356,7 +356,7 @@ def render_ci_summary(report: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=__doc__.strip().splitlines()[0])
     parser.add_argument(
         "--goldset",
         default=str(Path(__file__).resolve().parent / "goldset.jsonl"),
