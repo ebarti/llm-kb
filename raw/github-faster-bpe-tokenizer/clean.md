@@ -6,7 +6,7 @@ date_published: 2025-01-01
 date_ingested: 2026-04-05
 tags: [tokenization, bpe, performance, rust, tiktoken, github-copilot]
 type: article
-status: raw
+status: clean
 discovered_via: search
 ---
 
