@@ -119,7 +119,7 @@ def compose_answer_mock(query: str, retrieved: list[dict]) -> dict:
 def compose_answer_anthropic(
     query: str,
     retrieved: list[dict],
-    model: str = "claude-haiku-4-5",
+    model: str = "claude-haiku-4-5-20251001",
     max_tokens: int = 800,
 ) -> dict:
     import anthropic  # type: ignore
@@ -264,7 +264,7 @@ def judge_anthropic(
     q: dict,
     composed: dict,
     retrieved: list[dict],
-    model: str = "claude-haiku-4-5",
+    model: str = "claude-haiku-4-5-20251001",
 ) -> dict:
     import anthropic  # type: ignore
 
@@ -448,20 +448,33 @@ def main() -> int:
         default="mock",
         help="mock = deterministic offline; api = Anthropic SDK (needs key)",
     )
-    parser.add_argument("--compose-model", default="claude-haiku-4-5")
-    parser.add_argument("--judge-model", default="claude-haiku-4-5")
+    parser.add_argument("--compose-model", default="claude-haiku-4-5-20251001")
+    parser.add_argument("--judge-model", default="claude-haiku-4-5-20251001")
     parser.add_argument("--output-dir", default=str(REPO_ROOT / "output"))
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
-    if args.mode == "api" and not os.environ.get("ANTHROPIC_API_KEY"):
-        print(
-            "--mode api requires ANTHROPIC_API_KEY env var. "
-            "Re-run with --mode mock for offline scoring.",
-            file=sys.stderr,
-        )
-        return 2
+    if args.mode == "api":
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            print(
+                "--mode api requires ANTHROPIC_API_KEY env var. "
+                "Re-run with --mode mock for offline scoring.",
+                file=sys.stderr,
+            )
+            return 2
+        # Preflight the optional dependency so users hit a clear error here
+        # rather than a generic ModuleNotFoundError mid-eval.
+        try:
+            import anthropic  # noqa: F401
+        except ImportError:
+            print(
+                "--mode api requires the 'anthropic' Python package. "
+                "Install it with `pip install anthropic` or re-run with "
+                "--mode mock for offline scoring.",
+                file=sys.stderr,
+            )
+            return 2
 
     goldset = load_goldset(Path(args.goldset))
     if not goldset:

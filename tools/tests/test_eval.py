@@ -342,6 +342,59 @@ def test_mrr() -> None:
     )
 
 
+def test_render_markdown_uses_report_k_values() -> None:
+    try:
+        eval_retrieval = _load_eval_retrieval()
+    except Exception as e:  # noqa: BLE001
+        check(
+            "eval-retrieval module importable",
+            False,
+            f"import failed: {e!r}",
+        )
+        return
+    report = {
+        "timestamp": "2026-01-01T00:00:00+00:00",
+        "goldset_size": 1,
+        "top_k": 3,
+        "k_values": [3],
+        "index_size": 10,
+        "aggregated_metrics": {"recall@3": 1.0, "ndcg@3": 1.0, "mrr@3": 1.0},
+        "latency_ms": {"avg": 1.0, "p95": 1.0, "max": 1.0},
+        "per_question": [
+            {
+                "id": "qmd1",
+                "type": "concept",
+                "top_results": ["a"],
+                "expected": ["a"],
+                "metrics": {"recall@3": 1.0, "ndcg@3": 1.0, "mrr@3": 1.0},
+            }
+        ],
+    }
+    md = eval_retrieval.render_markdown(report)
+    # Header must reflect the requested k=3, not hardcoded 5/10.
+    check(
+        "markdown header includes Recall@3",
+        "Recall@3" in md,
+        md,
+    )
+    check(
+        "markdown header includes NDCG@3",
+        "NDCG@3" in md,
+        md,
+    )
+    # And must NOT silently render columns for unscored ks.
+    check(
+        "markdown header omits unscored Recall@10",
+        "Recall@10" not in md,
+        md,
+    )
+    check(
+        "markdown header omits unscored NDCG@5",
+        "NDCG@5" not in md,
+        md,
+    )
+
+
 def test_render_ci_summary_uses_report_k_values() -> None:
     try:
         eval_retrieval = _load_eval_retrieval()
@@ -549,6 +602,7 @@ TESTS = [
     test_recall_at_k,
     test_dcg_and_ndcg,
     test_mrr,
+    test_render_markdown_uses_report_k_values,
     test_render_ci_summary_uses_report_k_values,
     test_retrieval_script_runs,
     test_retrieval_fail_under_uses_custom_k_values,

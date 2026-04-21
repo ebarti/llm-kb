@@ -192,7 +192,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: retrieval-eval-report
+          # Include the per-run timestamped JSON alongside the -latest.*
+          # copies so archived artifacts preserve a historical snapshot
+          # reviewers can diff across runs.
           path: |
             output/eval-retrieval-latest.json
             output/eval-retrieval-latest.md
+            output/eval-retrieval-[0-9]*.json
           if-no-files-found: warn

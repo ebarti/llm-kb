@@ -257,8 +257,18 @@ def render_markdown(report: dict) -> str:
 
     lines.append("## Per-Question Results")
     lines.append("")
-    lines.append("| ID | Type | Recall@5 | Recall@10 | NDCG@5 | First Hit Rank |")
-    lines.append("|---|---|---|---|---|---|")
+
+    # Build per-question table columns from the report's requested k-values
+    # rather than hardcoding Recall@5 / Recall@10 / NDCG@5. This keeps the
+    # markdown report faithful when callers pass custom --k-values; hardcoded
+    # columns would silently print 0.00 for metrics that were never scored.
+    k_values = sorted(set(report.get("k_values") or [5, 10]))
+    recall_headers = [f"Recall@{k}" for k in k_values]
+    ndcg_headers = [f"NDCG@{k}" for k in k_values]
+    header_cells = ["ID", "Type", *recall_headers, *ndcg_headers, "First Hit Rank"]
+    lines.append("| " + " | ".join(header_cells) + " |")
+    lines.append("|" + "|".join(["---"] * len(header_cells)) + "|")
+
     for q in report["per_question"]:
         m = q["metrics"]
         ranked = q["top_results"]
@@ -266,11 +276,16 @@ def render_markdown(report: dict) -> str:
         first_rank = next(
             (str(i + 1) for i, d in enumerate(ranked) if d in expected), "—"
         )
-        lines.append(
-            f"| {q['id']} | {q.get('type', '?')} | "
-            f"{m.get('recall@5', 0):.2f} | {m.get('recall@10', 0):.2f} | "
-            f"{m.get('ndcg@5', 0):.2f} | {first_rank} |"
-        )
+        recall_cells = [f"{m.get(f'recall@{k}', 0):.2f}" for k in k_values]
+        ndcg_cells = [f"{m.get(f'ndcg@{k}', 0):.2f}" for k in k_values]
+        row_cells = [
+            str(q["id"]),
+            str(q.get("type", "?")),
+            *recall_cells,
+            *ndcg_cells,
+            first_rank,
+        ]
+        lines.append("| " + " | ".join(row_cells) + " |")
     lines.append("")
     return "\n".join(lines)
 
