@@ -487,7 +487,11 @@ def main() -> int:
             )
             return 2
 
-    goldset = load_goldset(Path(args.goldset))
+    try:
+        goldset = load_goldset(Path(args.goldset))
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
     if not goldset:
         print("ERROR: gold set is empty.", file=sys.stderr)
         return 2

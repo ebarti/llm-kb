@@ -165,6 +165,15 @@ def load_goldset(path: Path) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def evaluate(goldset: list[dict], top_k: int, k_values: list[int]) -> dict:
+    if not k_values:
+        raise ValueError("--k-values must contain at least one integer")
+    max_requested_k = max(k_values)
+    if top_k < max_requested_k:
+        raise ValueError(
+            "--top-k must be >= max(--k-values) so retrieval depth matches "
+            "the scored/reporting metrics."
+        )
+
     index = search.get_index()
     doc_universe = set(index["docs"].keys())
 
@@ -172,7 +181,7 @@ def evaluate(goldset: list[dict], top_k: int, k_values: list[int]) -> dict:
     agg: dict[str, list[float]] = {}
     latencies: list[float] = []
 
-    max_k = max([top_k] + k_values)
+    max_k = top_k
 
     for q in goldset:
         expected = [citation_to_doc_id(c) for c in q["expected_citations"]]
@@ -409,20 +418,20 @@ def main() -> int:
         print(f"ERROR: gold-set file not found: {goldset_path}", file=sys.stderr)
         return 2
 
-    goldset = load_goldset(goldset_path)
+    try:
+        goldset = load_goldset(goldset_path)
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
     if len(goldset) == 0:
         print("ERROR: gold set is empty.", file=sys.stderr)
         return 2
-    max_requested_k = max(args.k_values)
-    if args.top_k < max_requested_k:
-        print(
-            "ERROR: --top-k must be >= max(--k-values) so retrieval depth "
-            "matches the scored/reporting metrics.",
-            file=sys.stderr,
-        )
-        return 2
 
-    report = evaluate(goldset, top_k=args.top_k, k_values=args.k_values)
+    try:
+        report = evaluate(goldset, top_k=args.top_k, k_values=args.k_values)
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
 
     # Write report files
     output_dir = Path(args.output_dir)
