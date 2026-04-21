@@ -2,13 +2,17 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 import tempfile
 import types
 import unittest
 from pathlib import Path
 from unittest import mock
 
+from tools.kb import cli as cli_mod
 from tools.kb.budget import BudgetTracker
+from tools.kb.commands import export as export_cmd, serve as serve_cmd
+from tools.kb.commands._common import CommandContext
 from tools.kb.commands.search import _parse_qmd
 from tools.kb.runner import invoke_llm
 from tools.kb.workspace import Workspace
@@ -128,6 +132,20 @@ class WorkspaceDryRunTests(unittest.TestCase):
             self.assertTrue((target / "wiki").exists())
 
 
+class GlobalOptionTests(unittest.TestCase):
+    def test_budget_must_be_positive(self) -> None:
+        with self.assertRaisesRegex(SystemExit, "positive integer"):
+            cli_mod._parse_global_options(["--budget", "0", "stats"])
+        with self.assertRaisesRegex(SystemExit, "positive integer"):
+            cli_mod._parse_global_options(["--budget=-5", "stats"])
+
+    def test_build_context_uses_kb_token_budget_only(self) -> None:
+        opts = cli_mod.GlobalOptions()
+        with mock.patch.dict("os.environ", {"KB_BUDGET": "7", "KB_TOKEN_BUDGET": "11"}, clear=False):
+            ctx = cli_mod._build_context(opts)
+        self.assertEqual(11, ctx.budget_limit)
+
+
 class WorkspaceInitTests(unittest.TestCase):
     def test_initialize_copies_templates_into_empty_destination(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -166,6 +184,40 @@ class WorkspacesCommandTests(unittest.TestCase):
             self.assertEqual(0, proc.returncode, proc.stderr)
             payload = json.loads(proc.stdout)
             self.assertEqual("workspaces", payload["command"])
+
+
+class ServeCommandTests(unittest.TestCase):
+    @mock.patch("tools.kb.commands.serve.os.execvp")
+    def test_run_serve_uses_sys_executable(self, execvp_mock: mock.Mock) -> None:
+        ctx = CommandContext(workspace=Workspace.resolve(dry_run=True))
+        execvp_mock.side_effect = OSError("boom")
+
+        result = serve_cmd.run_serve(ctx, port=9999)
+
+        self.assertFalse(result.ok)
+        execvp_mock.assert_called_once()
+        exe, argv = execvp_mock.call_args.args
+        self.assertEqual(sys.executable or "python3", exe)
+        self.assertEqual(sys.executable or "python3", argv[0])
+
+
+class ExportCommandTests(unittest.TestCase):
+    @mock.patch("tools.kb.commands.export.subprocess.run")
+    @mock.patch("tools.kb.commands.export.shutil.which", return_value="/usr/bin/pandoc")
+    def test_pdf_export_creates_output_dir(self, _which_mock: mock.Mock, run_mock: mock.Mock) -> None:
+        run_mock.return_value = types.SimpleNamespace(returncode=0, stdout="", stderr="")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "wiki").mkdir()
+            (root / "wiki" / "note.md").write_text("# Note\n", encoding="utf-8")
+            ws = Workspace(kb_home=root, kb_dir=root)
+            ctx = CommandContext(workspace=ws)
+
+            result = export_cmd.run(ctx, "pdf")
+
+            self.assertTrue((root / "output").exists())
+            self.assertTrue(result.ok)
+            self.assertEqual(str(root / "output" / "kb-export.pdf"), result.output_path)
 
 
 class WrapperIntegrationTests(unittest.TestCase):

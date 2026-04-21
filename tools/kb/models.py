@@ -2,7 +2,8 @@
 Pydantic result schemas for the kb Python CLI.
 
 Every subcommand returns one of these models so --json callers receive a
-stable, typed shape. Freeform prose never flows back out of --json mode.
+stable, typed shape. The envelope stays structured in --json mode, but some
+fields such as `message` may contain raw subprocess output or LLM text.
 """
 
 from __future__ import annotations

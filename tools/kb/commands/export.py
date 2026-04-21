@@ -23,6 +23,7 @@ def run(ctx: CommandContext, fmt: str = "site") -> ExportResult:
                 command="export", format=fmt, ok=False, exit_code=EXIT_ERROR,
                 message="build-site.py not found",
             )
+        ws.output_dir.mkdir(parents=True, exist_ok=True)
         proc = subprocess.run(
             ["python3", str(script)], capture_output=True, text=True, check=False,
             cwd=str(ws.kb_dir),
@@ -42,6 +43,7 @@ def run(ctx: CommandContext, fmt: str = "site") -> ExportResult:
                 message=f"pandoc is required for {fmt} export",
             )
         outfile = ws.output_dir / f"kb-export.{fmt}"
+        outfile.parent.mkdir(parents=True, exist_ok=True)
         md_files = sorted(
             p for p in (ws.wiki_dir).rglob("*.md")
             if "_meta" not in p.parts and p.is_file()

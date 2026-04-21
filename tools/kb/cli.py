@@ -81,6 +81,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     return int(result.exit_code)
 
 
+def _parse_budget_value(value: str, *, source: str) -> int:
+    try:
+        budget = int(value)
+    except ValueError as exc:
+        raise SystemExit(f"invalid {source} value: expected integer") from exc
+    if budget <= 0:
+        raise SystemExit(f"invalid {source} value: expected a positive integer")
+    return budget
+
+
 def _parse_global_options(argv: Sequence[str]) -> tuple[GlobalOptions, list[str]]:
     opts = GlobalOptions()
     remaining: list[str] = []
@@ -102,12 +112,7 @@ def _parse_global_options(argv: Sequence[str]) -> tuple[GlobalOptions, list[str]
             if arg == "--model":
                 opts.model = value
             elif arg == "--budget":
-                try:
-                    opts.budget = int(value)
-                except ValueError as exc:
-                    raise SystemExit(
-                        "invalid --budget value: expected integer"
-                    ) from exc
+                opts.budget = _parse_budget_value(value, source="--budget")
             elif arg in {"--dir", "-d"}:
                 opts.dir_flag = value
             else:
@@ -116,12 +121,10 @@ def _parse_global_options(argv: Sequence[str]) -> tuple[GlobalOptions, list[str]
         elif arg.startswith("--model="):
             opts.model = arg.split("=", 1)[1]
         elif arg.startswith("--budget="):
-            try:
-                opts.budget = int(arg.split("=", 1)[1])
-            except ValueError as exc:
-                raise SystemExit(
-                    "invalid --budget value: expected integer"
-                ) from exc
+            opts.budget = _parse_budget_value(
+                arg.split("=", 1)[1],
+                source="--budget",
+            )
         elif arg.startswith("--dir="):
             opts.dir_flag = arg.split("=", 1)[1]
         elif arg.startswith("--permission-mode="):
@@ -133,15 +136,10 @@ def _parse_global_options(argv: Sequence[str]) -> tuple[GlobalOptions, list[str]
 
 
 def _build_context(opts: GlobalOptions) -> CommandContext:
-    env_budget = os.environ.get("KB_BUDGET")
+    env_budget = os.environ.get("KB_TOKEN_BUDGET")
     budget_limit = opts.budget
     if budget_limit is None and env_budget:
-        try:
-            budget_limit = int(env_budget)
-        except ValueError as exc:
-            raise SystemExit(
-                "invalid KB_BUDGET value: expected integer"
-            ) from exc
+        budget_limit = _parse_budget_value(env_budget, source="KB_TOKEN_BUDGET")
 
     return CommandContext(
         workspace=Workspace.resolve(

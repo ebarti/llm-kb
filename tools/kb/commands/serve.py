@@ -36,8 +36,9 @@ def run_serve(ctx: CommandContext, port: int = 8765) -> ServeResult:
         )
 
     # Replace this process with the server so Ctrl+C behaves naturally.
+    python = sys.executable or "python3"
     try:
-        os.execvp("python3", ["python3", str(server), str(port)])
+        os.execvp(python, [python, str(server), str(port)])
     except OSError as exc:
         return ServeResult(
             command="serve",
@@ -45,7 +46,7 @@ def run_serve(ctx: CommandContext, port: int = 8765) -> ServeResult:
             exit_code=EXIT_ERROR,
             port=port,
             url=f"http://localhost:{port}",
-            message=f"failed to launch search server ({exc}); is python3 on PATH?",
+            message=f"failed to launch search server ({exc}); is Python available?",
         )
     # Unreachable on success — execvp replaces this process.
     return ServeResult(command="serve", port=port, url=f"http://localhost:{port}")
@@ -68,7 +69,8 @@ def run_mcp(ctx: CommandContext, args: Optional[list[str]] = None) -> ServeResul
             message="MCP server descriptor (not started in --json/--dry-run mode)",
         )
 
-    cmd = ["python3", str(server)] + (args or [])
+    python = sys.executable or "python3"
+    cmd = [python, str(server)] + (args or [])
     # mcp-server/server.py defaults WIKI_ROOT to os.getcwd(); without this
     # an invocation via `kb --dir <tmp> mcp` would serve the caller's
     # checkout, not the selected workspace.
