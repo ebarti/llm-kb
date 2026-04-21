@@ -1,8 +1,10 @@
-"""``kb serve`` / ``kb mcp`` — long-running subprocesses.
+"""``kb serve`` / ``kb mcp`` — long-running server commands.
 
-These commands exec into the target Python server so the CLI process
-itself is replaced — exactly like the bash kb. For JSON mode we return a
-descriptor without starting the server.
+``kb serve`` execs into the search server so the CLI process is replaced
+and Ctrl+C lands directly on the server. ``kb mcp`` intentionally stays a
+child subprocess so the caller gets a typed ``ServeResult`` with the
+server's eventual exit status. For JSON mode we return a descriptor
+without starting either server.
 """
 
 from __future__ import annotations

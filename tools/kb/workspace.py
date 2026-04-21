@@ -268,7 +268,7 @@ class Workspace:
             if (
                 src_tpl.exists()
                 and src_tpl.resolve() != dst_tpl.resolve()
-                and not dst_tpl.exists()
+                and (not dst_tpl.exists() or not any(dst_tpl.iterdir()))
             ):
                 _copy_tree(src_tpl, dst_tpl)
                 created.append(str(dst_tpl))

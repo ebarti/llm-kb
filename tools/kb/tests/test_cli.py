@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -60,6 +61,53 @@ class RunnerBudgetTests(unittest.TestCase):
         self.assertIn("hard token budgets require the Anthropic SDK backend", result.text)
         run_mock.assert_not_called()
 
+    def test_sdk_backend_caps_max_tokens_to_budget_remaining(self) -> None:
+        create = mock.Mock(
+            return_value=types.SimpleNamespace(content=[], usage={})
+        )
+        fake_client = types.SimpleNamespace(
+            messages=types.SimpleNamespace(create=create)
+        )
+        fake_anthropic = types.SimpleNamespace(Anthropic=lambda: fake_client)
+        budget = BudgetTracker(limit=100)
+        budget.add(output_tokens=60)
+
+        with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
+            result = invoke_llm(
+                "prompt",
+                model="sonnet",
+                budget=budget,
+                force_backend="sdk",
+            )
+
+        self.assertEqual("sdk", result.backend)
+        self.assertEqual(0, result.returncode)
+        create.assert_called_once()
+        self.assertEqual(40, create.call_args.kwargs["max_tokens"])
+
+    def test_sdk_backend_fails_fast_when_budget_is_exhausted(self) -> None:
+        create = mock.Mock()
+        fake_client = types.SimpleNamespace(
+            messages=types.SimpleNamespace(create=create)
+        )
+        fake_anthropic = types.SimpleNamespace(Anthropic=lambda: fake_client)
+        budget = BudgetTracker(limit=25)
+        budget.add(output_tokens=25)
+
+        with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
+            result = invoke_llm(
+                "prompt",
+                model="sonnet",
+                budget=budget,
+                force_backend="sdk",
+            )
+
+        self.assertEqual("sdk", result.backend)
+        self.assertTrue(result.budget_exceeded)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("token budget exhausted before SDK call", result.text)
+        create.assert_not_called()
+
 
 class WorkspaceDryRunTests(unittest.TestCase):
     def test_dry_run_does_not_initialize_new_workspace(self) -> None:
@@ -78,6 +126,29 @@ class WorkspaceDryRunTests(unittest.TestCase):
             target = Path(td) / "live-ws"
             Workspace.resolve(dir_flag=str(target), dry_run=False)
             self.assertTrue((target / "wiki").exists())
+
+
+class WorkspaceInitTests(unittest.TestCase):
+    def test_initialize_copies_templates_into_empty_destination(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            kb_home = root / "kb-home"
+            src_templates = kb_home / "templates"
+            src_templates.mkdir(parents=True)
+            (src_templates / "source.md").write_text(
+                "# source template\n", encoding="utf-8"
+            )
+
+            target = root / "workspace"
+            (target / ".git").mkdir(parents=True)
+
+            ws = Workspace(kb_home=kb_home, kb_dir=target)
+            ws.initialize(copy_tools=True)
+
+            self.assertEqual(
+                "# source template\n",
+                (target / "templates" / "source.md").read_text(encoding="utf-8"),
+            )
 
 
 class WorkspacesCommandTests(unittest.TestCase):

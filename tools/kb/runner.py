@@ -150,14 +150,23 @@ def _invoke_sdk(
 
     client = anthropic.Anthropic()
     sdk_model = _resolve_sdk_model(model)
+    remaining_tokens = budget.remaining()
 
     if verbose:
         print(f"[kb] sdk backend | model={sdk_model} budget={budget.limit}")
 
+    if remaining_tokens is not None and remaining_tokens <= 0:
+        return LLMResult(
+            text="ERROR: token budget exhausted before SDK call",
+            backend="sdk",
+            returncode=1,
+            budget_exceeded=True,
+        )
+
     try:
         response = client.messages.create(
             model=sdk_model,
-            max_tokens=4096,
+            max_tokens=4096 if remaining_tokens is None else int(remaining_tokens),
             messages=[{"role": "user", "content": prompt}],
         )
     except Exception as exc:  # noqa: BLE001
