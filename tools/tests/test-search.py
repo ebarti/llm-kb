@@ -105,6 +105,120 @@ def run_search(cmd, query, timeout=30):
         return str(e), latency, -1
 
 
+def run_format_pretty_regression():
+    """
+    Regression: --hybrid / --rerank results are ordered by rrf_score /
+    rerank_score but carry the original BM25 `score` (or 0.0 for vector-only
+    hits). format_pretty() must show the ordering score as the headline so the
+    displayed value matches the ranking.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import search as search_mod
+
+    tests = []
+
+    rrf_result = [{
+        "id": "concepts/a", "title": "A", "type": "concept", "tags": [],
+        "date": "", "summary": "", "path": "concepts/a.md",
+        "score": 0.0, "rrf_score": 0.0321,
+    }]
+    out = search_mod.format_pretty(rrf_result, "q")
+    tests.append({
+        "description": "format_pretty uses rrf_score as headline when present",
+        "passed": "rrf: 0.0321" in out and "score: 0.0" not in out,
+    })
+
+    rerank_result = [{
+        "id": "concepts/a", "title": "A", "type": "concept", "tags": [],
+        "date": "", "summary": "", "path": "concepts/a.md",
+        "score": 12.3, "rrf_score": 0.0321, "rerank_score": 7.89,
+    }]
+    out = search_mod.format_pretty(rerank_result, "q")
+    tests.append({
+        "description": "format_pretty prefers rerank_score over rrf_score / score",
+        "passed": "rerank: 7.89" in out and "rrf:" not in out and "score: 12.3" not in out,
+    })
+
+    bm25_result = [{
+        "id": "concepts/a", "title": "A", "type": "concept", "tags": [],
+        "date": "", "summary": "", "path": "concepts/a.md",
+        "score": 5.5,
+    }]
+    out = search_mod.format_pretty(bm25_result, "q")
+    tests.append({
+        "description": "format_pretty falls back to BM25 score when no fusion",
+        "passed": "score: 5.5" in out,
+    })
+
+    return tests
+
+
+def run_encoder_dim_regression():
+    """
+    Regression: build_or_update_index() must not force a model load when every
+    chunk hash was reused. We stub the encoder so encode()/dim() would raise if
+    called, then run a fully-cached build and expect it to complete cleanly.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    try:
+        import numpy as np  # noqa: F401
+    except ImportError:
+        return [{
+            "description": "encoder.dim() skipped on fully-incremental build",
+            "passed": True,
+            "detail": "numpy unavailable; skipped",
+        }]
+
+    import embeddings
+
+    class _NoLoadEncoder:
+        """An encoder stub whose dim() / encode() would blow up if called."""
+        model_name = "test-model"
+        calls = {"dim": 0, "encode": 0}
+
+        def dim(self):
+            type(self).calls["dim"] += 1
+            raise AssertionError("encoder.dim() must not be called on cached build")
+
+        def encode(self, texts, batch_size=32, show_progress=False):
+            type(self).calls["encode"] += 1
+            raise AssertionError("encoder.encode() must not be called on cached build")
+
+    # Hand-build a VectorIndex so we can exercise the pure-Python control flow
+    # of build_or_update_index without loading torch.
+    chunks = [{
+        "chunk_id": "concepts/a#0000", "doc_id": "concepts/a",
+        "heading_path": ["A"], "text": "body", "tokens": 2,
+        "content_hash": "deadbeef",
+    }]
+    existing = embeddings.VectorIndex(
+        vectors=np.ones((1, 4), dtype=np.float32),
+        chunks=chunks,
+        dim=4,
+        model_name="test-model",
+    )
+
+    try:
+        fresh = embeddings.build_or_update_index(
+            chunks, encoder=_NoLoadEncoder(), existing=existing, verbose=False,
+        )
+    except AssertionError as e:
+        return [{
+            "description": "encoder.dim() skipped on fully-incremental build",
+            "passed": False,
+            "detail": str(e),
+        }]
+
+    return [{
+        "description": "encoder.dim() skipped on fully-incremental build",
+        "passed": fresh.vectors.shape == (1, 4) and fresh.dim == 4,
+    }]
+
+
 def run_hybrid_pool_regression():
     """
     Regression for --top > 50 on the hybrid path: the bm25_k / vector_k pool
@@ -178,6 +292,28 @@ def run_chunker_regressions():
             ),
         },
     ]
+
+    # Regression: heading-only stub must not fall through to the "no headings"
+    # fallback and silently embed the heading line as plain text.
+    heading_only = chunk_document("concepts/stub", "# Stub\n\n## Empty\n")
+    if heading_only:
+        tests.append({
+            "description": "Heading-only doc emits no plain-text fallback chunk",
+            "passed": False,
+            "detail": f"expected 0 chunks, got {len(heading_only)}",
+        })
+    else:
+        tests.append({
+            "description": "Heading-only doc emits no plain-text fallback chunk",
+            "passed": True,
+        })
+
+    # Sanity: a headings-free doc still hits the fallback as before.
+    no_headings = chunk_document("concepts/plain", "Just a paragraph, no heading.\n")
+    tests.append({
+        "description": "Headings-free doc still chunks via fallback",
+        "passed": len(no_headings) == 1,
+    })
 
     # Vector index staleness detection (does not require numpy/transformers).
     import embeddings
@@ -264,6 +400,30 @@ def run_checks():
     else:
         results["regression_tests"].extend(hybrid_tests)
         for test in hybrid_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        pretty_tests = run_format_pretty_regression()
+    except Exception as e:
+        results["issues"].append(f"format_pretty regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(pretty_tests)
+        for test in pretty_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        dim_tests = run_encoder_dim_regression()
+    except Exception as e:
+        results["issues"].append(f"encoder.dim regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(dim_tests)
+        for test in dim_tests:
             if not test["passed"]:
                 results["issues"].append(f"Regression failed: {test['description']}")
                 results["ok"] = False

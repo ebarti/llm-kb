@@ -460,7 +460,17 @@ def format_pretty(results, query):
         return f"No results for: {query}"
     lines = [f"Search results for: \"{query}\" ({len(results)} hits)\n"]
     for i, r in enumerate(results, 1):
-        lines.append(f"  {i}. [{r['type'].upper()}] {r['title']}  (score: {r['score']})")
+        # Show the score that actually determined the ordering so the headline
+        # matches the ranking. Hybrid and reranked paths sort by rrf_score /
+        # rerank_score while leaving the BM25 `score` in place (or 0.0 for
+        # vector-only hits), which can otherwise look contradictory here.
+        if "rerank_score" in r:
+            score_label = f"rerank: {r['rerank_score']}"
+        elif "rrf_score" in r:
+            score_label = f"rrf: {r['rrf_score']}"
+        else:
+            score_label = f"score: {r['score']}"
+        lines.append(f"  {i}. [{r['type'].upper()}] {r['title']}  ({score_label})")
         if r.get("summary"):
             lines.append(f"     {r['summary'][:120]}...")
         if r.get("snippet"):

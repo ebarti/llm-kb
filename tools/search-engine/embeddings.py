@@ -332,8 +332,25 @@ def build_or_update_index(
     if to_encode_text:
         new_vecs = encoder.encode(to_encode_text, show_progress=verbose)
 
+    # Determine embedding dimension without forcing a model load on fully
+    # incremental no-op builds (every chunk hash reused). In that case we can
+    # derive `dim` from existing cached vectors or from the just-encoded batch.
+    # Only fall back to encoder.dim() when neither is available (e.g. first
+    # build against an empty chunk list).
+    dim: int
+    if new_vecs is not None:
+        dim = int(new_vecs.shape[1])
+    elif (
+        existing is not None
+        and existing.vectors.ndim == 2
+        and existing.vectors.shape[0] > 0
+        and existing.model_name == encoder.model_name
+    ):
+        dim = int(existing.vectors.shape[1])
+    else:
+        dim = encoder.dim()
+
     # Assemble the fresh vectors array in the order of `norm`.
-    dim = encoder.dim()
     vectors = np.zeros((len(norm), dim), dtype=np.float32)
     new_cursor = 0
     for i, c in enumerate(norm):

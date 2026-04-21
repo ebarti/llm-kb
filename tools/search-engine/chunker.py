@@ -289,7 +289,12 @@ def chunk_document(doc_id: str, body: str) -> list[Chunk]:
     flush_section()
 
     # Edge case: body that had no headings at all — still chunk the text.
-    if not chunks and blocks:
+    # Gate strictly on "no heading blocks were present", not just "chunks is
+    # empty". Otherwise a heading-only stub (headings with no section content)
+    # would fall through here and get its raw heading line(s) embedded as plain
+    # text with an empty heading_path, which is inconsistent with the stated
+    # chunking strategy and would skew content hashes for stub pages.
+    if not chunks and blocks and not any(b.kind == "heading" for b in blocks):
         chunks = _pack_blocks(blocks, [], doc_id, start_idx=0)
 
     return chunks
