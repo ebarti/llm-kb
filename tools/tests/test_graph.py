@@ -23,6 +23,7 @@ import sqlite3
 import tempfile
 import traceback
 import unittest
+from unittest import mock
 from pathlib import Path
 
 # Make `graph` importable when run directly.
@@ -38,7 +39,9 @@ from graph.extract import (  # noqa: E402
     extract_nodes_and_edges,
     fingerprint,
     PREDICATE_PATTERNS,
+    WINDOW_CHARS,
 )
+import graph.extract as graph_extract  # noqa: E402
 
 
 # ---------------------------------------------------------------------- #
@@ -533,6 +536,54 @@ class ExtractionTests(unittest.TestCase):
         f2 = fingerprint(self.nodes, self.edges)
         self.assertEqual(f1, f2)
 
+    def test_extraction_passes_only_window_sized_left_context(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-window-"))
+        try:
+            wiki = tmp / "wiki"
+            raw = tmp / "raw"
+            (wiki / "concepts").mkdir(parents=True)
+            raw.mkdir()
+
+            (wiki / "concepts" / "target.md").write_text(
+                """---
+title: "Target"
+type: concept
+summary: "target"
+last_compiled: 2026-04-21
+---
+""",
+                encoding="utf-8",
+            )
+            (wiki / "concepts" / "window.md").write_text(
+                f"""---
+title: "Window"
+type: concept
+summary: "window"
+last_compiled: 2026-04-21
+---
+
+{"x" * (WINDOW_CHARS + 25)}[[concepts/target]]
+""",
+                encoding="utf-8",
+            )
+
+            seen: list[str] = []
+
+            def _fake_detect_predicate(left_context: str):
+                seen.append(left_context)
+                return ("mentions", "default")
+
+            with mock.patch(
+                "graph.extract.detect_predicate",
+                side_effect=_fake_detect_predicate,
+            ):
+                graph_extract.extract_nodes_and_edges(wiki, raw_dir=raw)
+
+            self.assertEqual(len(seen), 1)
+            self.assertEqual(len(seen[0]), WINDOW_CHARS)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
 
 # ---------------------------------------------------------------------- #
 #  Store + extract integration
@@ -720,6 +771,46 @@ class VizFreshnessTests(unittest.TestCase):
             self.assertTrue(viz._wiki_is_newer_than_db(str(db), str(wiki)))
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_generate_html_uses_text_nodes_and_safe_script_json(self):
+        viz = self._load_viz()
+        graph_data = {
+            "nodes": [{
+                "id": "concepts/x",
+                "title": '</script><img src=x onerror="alert(1)">',
+                "type": "concept",
+                "summary": "<b>unsafe</b>",
+                "connections": 1,
+            }],
+            "links": [],
+        }
+
+        html_doc = viz.generate_html(graph_data)
+
+        self.assertNotIn("tt.innerHTML =", html_doc)
+        self.assertIn("tt.replaceChildren(", html_doc)
+        self.assertNotIn('</script><img src=x onerror="alert(1)">', html_doc)
+        self.assertIn(
+            '\\u003c/script\\u003e\\u003cimg src=x onerror=\\"alert(1)\\"\\u003e',
+            html_doc,
+        )
+        self.assertIn('\\u003cb\\u003eunsafe\\u003c/b\\u003e', html_doc)
+
+    def test_generate_svg_escapes_titles(self):
+        viz = self._load_viz()
+        svg = viz.generate_svg({
+            "nodes": [{
+                "id": "concepts/x",
+                "title": 'A & <B> "C"',
+                "type": "concept",
+                "summary": "",
+                "connections": 0,
+            }],
+            "links": [],
+        })
+
+        self.assertIn("A &amp; &lt;B&gt; &quot;C&quot;", svg)
+        self.assertNotIn('A & <B> "C"', svg)
 
 
 # ---------------------------------------------------------------------- #

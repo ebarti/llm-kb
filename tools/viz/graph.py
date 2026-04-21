@@ -20,6 +20,7 @@ rendered in both the HTML and SVG outputs):
     instance_of  -> #d35400 (dark orange)
 """
 
+import html
 import json
 import math
 import os
@@ -201,10 +202,22 @@ def build_graph_data(nodes, edges):
     return {"nodes": d3_nodes, "links": valid_edges}
 
 
+def _json_for_html_script(value):
+    """JSON-encode data for safe embedding in an inline <script> block."""
+    return (
+        json.dumps(value)
+        .replace("&", "\\u0026")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
+
+
 def generate_html(graph_data):
-    node_colors_js = json.dumps(NODE_COLORS)
-    edge_colors_js = json.dumps(PREDICATE_COLORS)
-    data_js = json.dumps(graph_data)
+    node_colors_js = _json_for_html_script(NODE_COLORS)
+    edge_colors_js = _json_for_html_script(PREDICATE_COLORS)
+    data_js = _json_for_html_script(graph_data)
 
     # Build legend rows — nodes by type, then edges by predicate.
     node_legend = "".join(
@@ -317,7 +330,29 @@ sim.on("tick", () => {{
 function showTooltip(e, d) {{
   const tt = document.getElementById("tooltip");
   const color = NODE_COLORS[d.type] || "#999";
-  tt.innerHTML = `<h3>${{d.title}}</h3><span class="type-badge" style="background:${{color}}">${{d.type}}</span><br><br>${{d.summary || "No summary."}}<br><br><small>${{d.connections}} connections</small>`;
+  const title = document.createElement("h3");
+  title.textContent = d.title;
+
+  const badge = document.createElement("span");
+  badge.className = "type-badge";
+  badge.style.background = color;
+  badge.textContent = d.type;
+
+  const summary = document.createTextNode(d.summary || "No summary.");
+
+  const connections = document.createElement("small");
+  connections.textContent = `${{d.connections}} connections`;
+
+  tt.replaceChildren(
+    title,
+    badge,
+    document.createElement("br"),
+    document.createElement("br"),
+    summary,
+    document.createElement("br"),
+    document.createElement("br"),
+    connections,
+  );
   tt.style.display = "block";
   tt.style.left = (e.pageX + 16) + "px";
   tt.style.top = (e.pageY - 10) + "px";
@@ -436,8 +471,9 @@ def generate_svg(graph_data):
         r = max(6, min(24, 4 + n["connections"] * 1.5))
         color = NODE_COLORS.get(n["type"], "#999")
         title = n["title"][:28] + "..." if len(n["title"]) > 30 else n["title"]
+        safe_title = html.escape(title, quote=True)
         lines.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{color}" stroke="#fff" stroke-width="1"/>')
-        lines.append(f'<text x="{x + r + 3:.1f}" y="{y + 3:.1f}" font-size="9" fill="#ccc" font-family="sans-serif">{title}</text>')
+        lines.append(f'<text x="{x + r + 3:.1f}" y="{y + 3:.1f}" font-size="9" fill="#ccc" font-family="sans-serif">{safe_title}</text>')
 
     # Legend: node types + edge predicates.
     ly = 30

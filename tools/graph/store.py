@@ -15,7 +15,7 @@ Schema (idempotent — uses CREATE TABLE IF NOT EXISTS):
         dst         TEXT NOT NULL,   -- destination node id
         predicate   TEXT NOT NULL,   -- one of PREDICATES
         provenance  TEXT,            -- 'heuristic:<pattern>', 'frontmatter:<field>',
-                                     -- 'manual', or 'default'
+                                     -- e.g. 'frontmatter:manual', or 'default'
         PRIMARY KEY (src, dst, predicate)
     );
 

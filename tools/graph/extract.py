@@ -547,7 +547,7 @@ def extract_nodes_and_edges(
                 continue
             if target.startswith("raw/"):
                 _add_raw_node(target, raw_dir, nodes)
-            left = body[: m.start()]
+            left = body[max(0, m.start() - WINDOW_CHARS): m.start()]
             predicate, provenance = detect_predicate(left)
             if (target, predicate) not in override_keys:
                 edges.append(Edge(
