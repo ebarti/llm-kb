@@ -2,7 +2,7 @@
 title: "Dataview Queries"
 type: meta
 summary: "Hand-curated reference of Dataview queries for exploring the wiki in Obsidian."
-last_compiled: 2026-04-19
+last_updated: 2026-04-19
 ---
 
 # Dataview Queries Reference
