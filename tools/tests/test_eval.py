@@ -91,8 +91,8 @@ def expect_close(actual: float, expected: float, label: str, tol: float = 1e-6) 
 # Goldset schema tests
 # ---------------------------------------------------------------------------
 
-REQUIRED_KEYS = {"question", "expected_citations"}
-RECOMMENDED_KEYS = {"expected_answer_sketch", "tags", "type", "id"}
+REQUIRED_KEYS = {"question", "expected_citations", "expected_answer_sketch"}
+RECOMMENDED_KEYS = {"tags", "type", "id"}
 
 
 def test_goldset_schema() -> None:
@@ -141,6 +141,12 @@ def test_goldset_schema() -> None:
             check(
                 f"q{line_num} at least one expected citation",
                 len(e["expected_citations"]) >= 1,
+            )
+        if "expected_answer_sketch" in e:
+            check(
+                f"q{line_num} expected_answer_sketch non-empty string",
+                isinstance(e["expected_answer_sketch"], str)
+                and bool(e["expected_answer_sketch"].strip()),
             )
         if "id" in e:
             check(
@@ -193,6 +199,47 @@ def test_expected_citations_exist() -> None:
         not missing,
         f"{len(missing)} broken — first few: {missing[:3]}",
     )
+
+
+def test_load_goldset_requires_expected_answer_sketch() -> None:
+    try:
+        eval_retrieval = _load_eval_retrieval()
+    except Exception as e:  # noqa: BLE001
+        check(
+            "eval-retrieval module importable",
+            False,
+            f"import failed: {e!r}",
+        )
+        return
+
+    with tempfile.TemporaryDirectory() as td:
+        fixture = Path(td) / "goldset.jsonl"
+        fixture.write_text(
+            json.dumps({
+                "id": "qfx-missing-sketch",
+                "question": "What is RAG?",
+                "expected_citations": [
+                    "wiki/concepts/retrieval-augmented-generation.md",
+                ],
+            })
+            + "\n",
+            encoding="utf-8",
+        )
+
+        try:
+            eval_retrieval.load_goldset(fixture)
+        except ValueError as e:
+            check(
+                "load_goldset rejects entries missing expected_answer_sketch",
+                "expected_answer_sketch" in str(e),
+                str(e),
+            )
+        else:
+            check(
+                "load_goldset rejects entries missing expected_answer_sketch",
+                False,
+                "load_goldset accepted an entry without expected_answer_sketch",
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -499,6 +546,9 @@ def test_retrieval_fail_under_uses_custom_k_values() -> None:
                 "expected_citations": [
                     "wiki/concepts/retrieval-augmented-generation.md",
                 ],
+                "expected_answer_sketch": (
+                    "RAG retrieves relevant documents at query time."
+                ),
                 "type": "concept",
             })
             + "\n",
@@ -555,6 +605,54 @@ def test_retrieval_fail_under_uses_custom_k_values() -> None:
         )
 
 
+def test_retrieval_rejects_top_k_below_k_values() -> None:
+    with tempfile.TemporaryDirectory() as td:
+        fixture = Path(td) / "goldset.jsonl"
+        fixture.write_text(
+            json.dumps({
+                "id": "qfx-topk",
+                "question": "what is retrieval augmented generation",
+                "expected_citations": [
+                    "wiki/concepts/retrieval-augmented-generation.md",
+                ],
+                "expected_answer_sketch": "RAG retrieves documents at query time.",
+            })
+            + "\n",
+            encoding="utf-8",
+        )
+
+        rc = subprocess.run(
+            [
+                sys.executable,
+                str(RETRIEVAL_SCRIPT),
+                "--goldset",
+                str(fixture),
+                "--k-values",
+                "10",
+                "--top-k",
+                "5",
+                "--output-dir",
+                td,
+                "--quiet",
+            ],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+
+        check(
+            "--top-k below requested --k-values exits 2",
+            rc.returncode == 2,
+            f"exit={rc.returncode} stdout={rc.stdout[:200]} stderr={rc.stderr[:200]}",
+        )
+        check(
+            "--top-k validation mentions requested k-values",
+            "--top-k" in rc.stderr and "--k-values" in rc.stderr,
+            f"stderr={rc.stderr[:300]}",
+        )
+
+
 def test_generation_script_runs() -> None:
     with tempfile.TemporaryDirectory() as td:
         rc = subprocess.run(
@@ -591,6 +689,51 @@ def test_generation_script_runs() -> None:
                 )
 
 
+def test_generation_import_guard_for_missing_retrieval_loader() -> None:
+    script = r"""
+import importlib.machinery
+import importlib.util
+import sys
+from pathlib import Path
+from unittest import mock
+
+path = Path("tools/eval/eval-generation.py")
+spec = importlib.util.spec_from_file_location("eval_generation_under_test", path)
+if spec is None or spec.loader is None:
+    print("could not load eval-generation.py", file=sys.stderr)
+    sys.exit(90)
+module = importlib.util.module_from_spec(spec)
+
+missing_loader = importlib.machinery.ModuleSpec("eval_retrieval", None)
+with mock.patch("importlib.util.spec_from_file_location", return_value=missing_loader):
+    try:
+        spec.loader.exec_module(module)
+    except ImportError as e:
+        if "eval-retrieval" in str(e):
+            sys.exit(0)
+        print(str(e), file=sys.stderr)
+        sys.exit(3)
+    except Exception as e:
+        print(f"{type(e).__name__}: {e}", file=sys.stderr)
+        sys.exit(4)
+    else:
+        print("missing ImportError", file=sys.stderr)
+        sys.exit(5)
+"""
+    rc = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    check(
+        "eval-generation import guard raises ImportError for missing loader",
+        rc.returncode == 0,
+        f"exit={rc.returncode} stdout={rc.stdout[:200]} stderr={rc.stderr[:200]}",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -598,6 +741,7 @@ def test_generation_script_runs() -> None:
 TESTS = [
     test_goldset_schema,
     test_expected_citations_exist,
+    test_load_goldset_requires_expected_answer_sketch,
     test_citation_to_doc_id,
     test_recall_at_k,
     test_dcg_and_ndcg,
@@ -606,7 +750,9 @@ TESTS = [
     test_render_ci_summary_uses_report_k_values,
     test_retrieval_script_runs,
     test_retrieval_fail_under_uses_custom_k_values,
+    test_retrieval_rejects_top_k_below_k_values,
     test_generation_script_runs,
+    test_generation_import_guard_for_missing_retrieval_loader,
 ]
 
 

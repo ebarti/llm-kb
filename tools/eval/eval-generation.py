@@ -56,9 +56,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import importlib.util
 
 _retrieval_path = Path(__file__).resolve().parent / "eval-retrieval.py"
-_spec = importlib.util.spec_from_file_location("eval_retrieval", _retrieval_path)
-eval_retrieval = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(eval_retrieval)  # type: ignore[union-attr]
+
+
+def _load_eval_retrieval():
+    spec = importlib.util.spec_from_file_location("eval_retrieval", _retrieval_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(
+            f"Could not load eval-retrieval module from {_retrieval_path}"
+        )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+eval_retrieval = _load_eval_retrieval()
 
 citation_to_doc_id = eval_retrieval.citation_to_doc_id
 load_goldset = eval_retrieval.load_goldset

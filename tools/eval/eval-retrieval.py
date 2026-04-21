@@ -140,10 +140,20 @@ def load_goldset(path: Path) -> list[dict]:
             # memory so downstream readers only need one shape.
             if "question" not in item and "q" in item:
                 item["question"] = item["q"]
-            if "question" not in item or "expected_citations" not in item:
+            required = ("question", "expected_citations", "expected_answer_sketch")
+            missing = [key for key in required if key not in item]
+            if missing:
                 raise ValueError(
-                    f"{path}:{line_num}: entry missing 'question' or "
-                    "'expected_citations'"
+                    f"{path}:{line_num}: entry missing required key(s): "
+                    f"{', '.join(missing)}"
+                )
+            if (
+                not isinstance(item["expected_answer_sketch"], str)
+                or not item["expected_answer_sketch"].strip()
+            ):
+                raise ValueError(
+                    f"{path}:{line_num}: 'expected_answer_sketch' must be a "
+                    "non-empty string"
                 )
             item.setdefault("id", f"q{line_num:03d}")
             items.append(item)
@@ -402,6 +412,14 @@ def main() -> int:
     goldset = load_goldset(goldset_path)
     if len(goldset) == 0:
         print("ERROR: gold set is empty.", file=sys.stderr)
+        return 2
+    max_requested_k = max(args.k_values)
+    if args.top_k < max_requested_k:
+        print(
+            "ERROR: --top-k must be >= max(--k-values) so retrieval depth "
+            "matches the scored/reporting metrics.",
+            file=sys.stderr,
+        )
         return 2
 
     report = evaluate(goldset, top_k=args.top_k, k_values=args.k_values)
