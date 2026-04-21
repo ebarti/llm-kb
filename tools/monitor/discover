@@ -75,6 +75,17 @@ Usage:
 Flags combine:
   ./tools/monitor/discover --feeds --report
   ./tools/monitor/discover --ingest --days 7 --topic 'RAG'
+
+Passing extra flags to sub-modules:
+  Unknown flags are routed to the single selected module. They are only
+  accepted when exactly one of the topic run / --feeds / --report modes
+  is active; a multi-module run (e.g. --all) rejects passthrough flags to
+  avoid ambiguity. Use '--' to separate wrapper flags from module-local
+  flags that collide with wrapper names (e.g. rss.py's own --all):
+
+  ./tools/monitor/discover --feeds -- --all     # forward --all to rss.py
+  ./tools/monitor/discover --report -- --output out.md
+  ./tools/monitor/discover -- --dry-run         # --dry-run to monitor.py
 EOF
 }
 
