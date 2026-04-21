@@ -180,16 +180,17 @@ def generate() -> Path:
             lines.append("_No wiki or raw-source changes recorded in git yet._")
             body = "\n".join(lines)
         else:
-            total_A = sum(len(v["A"]) for v in by_date.values())
-            total_M = sum(len(v["M"]) for v in by_date.values())
-            total_D = sum(len(v["D"]) for v in by_date.values())
+            dates_shown = sorted(by_date.keys(), reverse=True)[:MAX_DAYS_SHOWN]
+            total_A = sum(len(by_date[date]["A"]) for date in dates_shown)
+            total_M = sum(len(by_date[date]["M"]) for date in dates_shown)
+            total_D = sum(len(by_date[date]["D"]) for date in dates_shown)
             lines.append(
                 f"Additions: **{total_A}** · Modifications: **{total_M}** · "
-                f"Deletions: **{total_D}** across **{len(by_date)}** day(s)."
+                f"Deletions: **{total_D}** across **{len(dates_shown)}** day(s)."
             )
             lines.append("")
 
-            for date in sorted(by_date.keys(), reverse=True)[:MAX_DAYS_SHOWN]:
+            for date in dates_shown:
                 day = by_date[date]
                 lines.append(f"## {date}")
                 lines.append("")

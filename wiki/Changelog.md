@@ -2,18 +2,25 @@
 title: "Changelog"
 type: "meta"
 summary: "Auto-generated changelog of wiki additions, modifications, and deletions from git history."
-last_compiled: "2026-04-20"
+last_compiled: "2026-04-21"
 ---
 # Wiki Changelog
 
-_Auto-generated on 2026-04-20 from git history by `tools/compile/pages/gen_changelog.py`._
+_Auto-generated on 2026-04-21 from git history by `tools/compile/pages/gen_changelog.py`._
 
-Additions: **1731** · Modifications: **135** · Deletions: **1** across **3** day(s).
+Additions: **1731** · Modifications: **139** · Deletions: **1** across **4** day(s).
+
+## 2026-04-21
+
+### Updated
+- [[Dashboard]]  `(0b1fbb83)`
+- [[Graph]]  `(0b1fbb83)`
+- `wiki/_meta/queries.md`  `(d2308023)`
 
 ## 2026-04-20
 
 ### Updated
-- [[Changelog]]  `(3ee71a32)`
+- [[Changelog]]  `(9b0eaeee)`
 - [[Dashboard]]  `(3ee71a32)`
 - [[Glossary]]  `(3ee71a32)`
 - [[Graph]]  `(3ee71a32)`
