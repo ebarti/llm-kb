@@ -2,11 +2,11 @@
 title: "Graph Analysis"
 type: "meta"
 summary: "Auto-generated link-graph analysis: overview metrics, hubs, leaves, orphans, dead links."
-last_compiled: "2026-04-19"
+last_compiled: "2026-04-21"
 ---
 # Graph Analysis
 
-_Auto-generated on 2026-04-19 by `tools/compile/pages/gen_graph.py`. Computed directly from wikilinks in `wiki/{sources,concepts,entities,comparisons}`._
+_Auto-generated on 2026-04-21 by `tools/compile/pages/gen_graph.py`. Computed directly from wikilinks in `wiki/{sources,concepts,entities,comparisons}`._
 
 ## Overview
 
@@ -17,10 +17,10 @@ _Auto-generated on 2026-04-19 by `tools/compile/pages/gen_graph.py`. Computed di
 | Concept nodes | 462 |
 | Entity nodes | 270 |
 | Comparison nodes | 96 |
-| Total directed edges | 8185 |
-| Average connections per node | 6.46 |
+| Total directed edges | 8184 |
+| Average connections per node | 6.45 |
 | Orphan articles | 96 |
-| Dead-link targets | 53 |
+| Dead-link targets | 49 |
 
 ## Hub Nodes (Most Connected)
 
@@ -111,7 +111,6 @@ Articles with the highest combined incoming + outgoing link count.
 - `concepts/autonomous-weapons`
 - `concepts/computer-use-agents`
 - `concepts/continual-pretraining`
-- `concepts/domain-adaptive-pretraining\`
 - `concepts/fast-generation`
 - `concepts/fleet-orchestration`
 - `concepts/generative-ai-economics`
@@ -127,7 +126,8 @@ Articles with the highest combined incoming + outgoing link count.
 - `concepts/reinforcement-learning`
 - `concepts/selfcheckgpt`
 - `concepts/spin`
-- `concepts/synthetic-data-generation\`
 - `concepts/vision-transformer`
 - `entities/casetext`
-- _...and 23 more_
+- `entities/colqwen`
+- `entities/consensus`
+- _...and 19 more_

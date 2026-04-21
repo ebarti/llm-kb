@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Iterable, Iterator, Tuple
+from typing import Dict, Iterator, Tuple
 
 # tools/compile/pages/_common.py -> .../<repo>
 ROOT = Path(__file__).resolve().parents[3]
@@ -154,14 +154,33 @@ def write_page(output_path: Path, frontmatter: Dict[str, object], body: str) -> 
     output_path.write_text(text, encoding="utf-8")
 
 
-WIKILINK_RE = re.compile(r"\[\[([^\]|]+?)(?:\|[^\]]+?)?\]\]")
+WIKILINK_RE = re.compile(r"\[\[(.*?)\]\]")
+
+
+def _split_wikilink_payload(payload: str) -> str:
+    """Extract the target from a wikilink payload.
+
+    Markdown tables in this repo commonly escape the alias delimiter as ``\\|``
+    inside a wikilink, so treat either ``|`` or ``\\|`` as the first alias split.
+    """
+    chars: list[str] = []
+    i = 0
+    while i < len(payload):
+        ch = payload[i]
+        if ch == "\\" and i + 1 < len(payload) and payload[i + 1] == "|":
+            break
+        if ch == "|":
+            break
+        chars.append(ch)
+        i += 1
+    return "".join(chars).strip()
 
 
 def collect_wikilinks(body: str) -> list[str]:
     """Return a list of wikilink targets (normalized, no .md suffix)."""
     out = []
-    for m in WIKILINK_RE.findall(body):
-        link = m.strip()
+    for match in WIKILINK_RE.finditer(body):
+        link = _split_wikilink_payload(match.group(1))
         if link.endswith(".md"):
             link = link[:-3]
         out.append(link)

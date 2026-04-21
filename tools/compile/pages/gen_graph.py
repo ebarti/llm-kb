@@ -33,11 +33,9 @@ from _common import (
 def _build_link_graph():
     all_articles: set[str] = set()
     outgoing: dict[str, set[str]] = defaultdict(set)
-    types: dict[str, str] = {}
-    for path, meta, body in iter_articles():
+    for path, _meta, body in iter_articles():
         rel = article_rel_path(path)
         all_articles.add(rel)
-        types[rel] = str(meta.get("type") or rel.split("/", 1)[0])
         for link in collect_wikilinks(body):
             if "/" in link and not link.startswith("raw/"):
                 outgoing[rel].add(link)
@@ -45,7 +43,7 @@ def _build_link_graph():
     for src, targets in outgoing.items():
         for t in targets:
             incoming[t].add(src)
-    return all_articles, outgoing, incoming, types
+    return all_articles, outgoing, incoming
 
 
 def _counts_per_dir():
@@ -58,7 +56,7 @@ def _counts_per_dir():
 
 
 def generate() -> Path:
-    all_articles, outgoing, incoming, _types = _build_link_graph()
+    all_articles, outgoing, incoming = _build_link_graph()
     counts = _counts_per_dir()
 
     total_edges = sum(len(v) for v in outgoing.values())

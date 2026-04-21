@@ -2,11 +2,11 @@
 title: "Dashboard"
 type: "dashboard"
 summary: "Auto-generated KB status dashboard: counts, top hubs, orphans, and navigation links."
-last_compiled: "2026-04-19"
+last_compiled: "2026-04-21"
 ---
 # LLM Knowledge Base Dashboard
 
-_Auto-generated on 2026-04-19 by `tools/compile/pages/gen_dashboard.py`._
+_Auto-generated on 2026-04-21 by `tools/compile/pages/gen_dashboard.py`._
 
 ## Quick Stats
 
@@ -19,7 +19,7 @@ _Auto-generated on 2026-04-19 by `tools/compile/pages/gen_dashboard.py`._
 | Total articles | 1268 |
 | Raw files | 449 |
 | Raw files compiled | 440 / 449 |
-| Total wikilinks | 8185 |
+| Total wikilinks | 8184 |
 | Avg links per article | 6.5 |
 | Orphan articles | 96 |
 
@@ -47,11 +47,11 @@ The most connected articles in the wiki, ranked by incoming + outgoing wikilinks
 - [[sources/zhang-test-time-scaling-survey]]
 - [[sources/zettelkasten-de-introduction]]
 - [[sources/yao-tree-of-thoughts]]
-- [[sources/xenoss-vector-db-comparison]]
 - [[sources/wu-inference-scaling-laws]]
 - [[sources/world-models-race-2026]]
 - [[sources/wolfe-rlaif-reinforcement-learning-ai-feedback]]
 - [[sources/wolfe-reward-models-llm]]
+- [[sources/wolfe-llm-summarization-evolution]]
 
 ## Orphan Watch
 
