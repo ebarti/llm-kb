@@ -185,7 +185,15 @@ def _invoke_sdk(
     return LLMResult(
         text=text,
         backend="sdk",
-        usage=TokenUsage(**{k: v for k, v in budget.usage.__dict__.items()}),
+        # Explicit fields: ``**usage.__dict__`` leaks pydantic v2 private
+        # attrs (``__pydantic_fields_set__`` et al.) into the constructor,
+        # which fails validation at runtime. See review feedback on PR #23.
+        usage=TokenUsage(
+            input_tokens=budget.usage.input_tokens,
+            output_tokens=budget.usage.output_tokens,
+            cache_creation_input_tokens=budget.usage.cache_creation_input_tokens,
+            cache_read_input_tokens=budget.usage.cache_read_input_tokens,
+        ),
         returncode=0,
         budget_exceeded=budget_exceeded,
     )

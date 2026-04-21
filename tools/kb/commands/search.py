@@ -64,14 +64,32 @@ def _run_qmd(ctx: CommandContext, query: str, top_k: int, qmd_path: Path) -> Sea
         )
 
     hits = _parse_qmd(proc.stdout, top_k)
+    # Put qmd's raw stdout in ``details["raw_output"]`` (debug channel)
+    # rather than ``message``. The ``hits`` list is the structured output;
+    # leaking unstructured stdout through ``message`` in --json mode
+    # contradicts the PR's structured-JSON contract. The CLI renderer
+    # prints ``hits`` when present, and falls back to ``message`` only
+    # when hits are empty, so the fallback path still works.
+    if hits:
+        return SearchResult(
+            command="search",
+            query=query,
+            ok=True,
+            exit_code=EXIT_SUCCESS,
+            backend="qmd",
+            hits=hits,
+            details={"raw_output": proc.stdout},
+        )
+    # No parseable hits — keep raw qmd output visible for fallback rendering.
     return SearchResult(
         command="search",
         query=query,
         ok=True,
         exit_code=EXIT_SUCCESS,
         backend="qmd",
-        hits=hits,
-        message=proc.stdout,
+        hits=[],
+        message=proc.stdout if not ctx.json_output else None,
+        details={"raw_output": proc.stdout} if ctx.json_output else {},
     )
 
 

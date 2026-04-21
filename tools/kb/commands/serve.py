@@ -34,8 +34,18 @@ def run_serve(ctx: CommandContext, port: int = 8765) -> ServeResult:
         )
 
     # Replace this process with the server so Ctrl+C behaves naturally.
-    os.execvp("python3", ["python3", str(server), str(port)])
-    # Unreachable
+    try:
+        os.execvp("python3", ["python3", str(server), str(port)])
+    except OSError as exc:
+        return ServeResult(
+            command="serve",
+            ok=False,
+            exit_code=EXIT_ERROR,
+            port=port,
+            url=f"http://localhost:{port}",
+            message=f"failed to launch search server ({exc}); is python3 on PATH?",
+        )
+    # Unreachable on success — execvp replaces this process.
     return ServeResult(command="serve", port=port, url=f"http://localhost:{port}")
 
 

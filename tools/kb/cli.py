@@ -318,18 +318,25 @@ def _run_interactive(ctx: CommandContext) -> CommandResult:
             message="interactive session descriptor (not started in --json/--dry-run mode)",
         )
 
-    os.execvp(
-        "claude",
-        [
+    try:
+        os.execvp(
             "claude",
-            "--permission-mode",
-            ctx.permission_mode,
-            "--model",
-            ctx.model,
-            "--effort",
-            "max",
-        ],
-    )
+            [
+                "claude",
+                "--permission-mode",
+                ctx.permission_mode,
+                "--model",
+                ctx.model,
+                "--effort",
+                "max",
+            ],
+        )
+    except OSError as exc:
+        return error(
+            "interactive",
+            f"failed to launch Claude CLI ({exc}); is `claude` installed on PATH?",
+        )
+    # Unreachable on success — execvp replaces this process.
     return error("interactive", "failed to launch Claude CLI")
 
 

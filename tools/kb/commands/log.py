@@ -35,8 +35,10 @@ def run(ctx: CommandContext, n: int | None = 10, all_entries: bool = False) -> L
     if all_entries:
         selected = entries
     else:
-        count = max(1, n or 10)
-        selected = entries[-count:] if entries else []
+        # Default to 10 when unspecified; allow 0 to return an empty list
+        # (``kb log 0`` should be zero entries, not one).
+        count = 10 if n is None else max(0, n)
+        selected = entries[-count:] if entries and count > 0 else []
 
     rendered = ["\n".join(entry).strip() for entry in selected]
     return LogResult(

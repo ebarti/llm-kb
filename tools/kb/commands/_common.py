@@ -105,17 +105,42 @@ def run_llm_command(
             ok=False,
             exit_code=EXIT_BUDGET,
             budget_limit=ctx.budget_limit,
-            usage=TokenUsage(**exc.usage.__dict__),
+            # Rebuild from explicit fields rather than ``**usage.__dict__``:
+            # pydantic v2 keeps private attrs (``__pydantic_*``) on __dict__
+            # and those leak into the constructor and trip validation.
+            usage=TokenUsage(
+                input_tokens=exc.usage.input_tokens,
+                output_tokens=exc.usage.output_tokens,
+                cache_creation_input_tokens=exc.usage.cache_creation_input_tokens,
+                cache_read_input_tokens=exc.usage.cache_read_input_tokens,
+            ),
             model=ctx.model,
             message=str(exc),
         )
+
+    # Route raw LLM text: keep it in ``message`` for non-JSON users (the CLI
+    # renderer falls back to printing ``message`` for LLM commands), but in
+    # --json mode stash it under ``details["raw_output"]`` so the structured
+    # payload stays structured. ``details["backend"]`` is always populated.
+    raw_text = llm_result.text if llm_result.text else None
+    details: dict[str, object] = {"backend": llm_result.backend}
+    if ctx.json_output and raw_text is not None:
+        details["raw_output"] = raw_text
+        rendered_message: Optional[str] = f"{command}: backend={llm_result.backend}"
+    else:
+        rendered_message = raw_text
 
     result = LLMInvocationResult(
         command=command,
         topic=topic,
         prompt=(prompt[:400] if ctx.verbose else None),
         budget_limit=ctx.budget_limit,
-        usage=TokenUsage(**budget.usage.__dict__),
+        usage=TokenUsage(
+            input_tokens=budget.usage.input_tokens,
+            output_tokens=budget.usage.output_tokens,
+            cache_creation_input_tokens=budget.usage.cache_creation_input_tokens,
+            cache_read_input_tokens=budget.usage.cache_read_input_tokens,
+        ),
         model=ctx.model,
         ok=llm_result.returncode == 0 and not llm_result.budget_exceeded,
         exit_code=(
@@ -123,11 +148,8 @@ def run_llm_command(
             if llm_result.budget_exceeded
             else (EXIT_SUCCESS if llm_result.returncode == 0 else EXIT_ERROR)
         ),
-        # Do not truncate LLM output here — downstream rendering consumes the
-        # full text (progress updates, file paths, etc.). Any serialization
-        # bounds should be applied at the serialization site, not here.
-        message=llm_result.text if llm_result.text else None,
-        details={"backend": llm_result.backend},
+        message=rendered_message,
+        details=details,
     )
 
     # Auto-commit on success
