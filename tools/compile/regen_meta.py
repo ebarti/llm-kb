@@ -68,21 +68,13 @@ RAW_DIR = BASE_DIR / "raw"
 META_DIR = WIKI_DIR / "_meta"
 
 
-# Files directly under wiki/ that we consider articles (excluded from
-# _meta/ writes but still scanned for link graph / summary context).
-TOP_LEVEL_PSEUDO_ARTICLES = {
-    "Dashboard",
-    "Changelog",
-    "Glossary",
-    "Graph",
-    "Queries",
-    "Tags",
-    "Reading-List",
-    "_index",
-    "log",
-}
-
-ARTICLE_SUBDIRS = ("concepts", "sources", "entities", "comparisons")
+# Real article subdirectories under wiki/. Anything outside these is
+# treated as a structural / pseudo-article (Dashboard, log, _index, ...)
+# and excluded from summaries.md / orphan detection. Used consistently
+# across render_summaries() and render_links() to avoid the hazard of
+# the inlined tuple drifting out of sync.
+ARTICLE_SUBDIRS: tuple[str, ...] = ("concepts", "sources", "entities", "comparisons")
+ARTICLE_SUBDIRS_SET: frozenset[str] = frozenset(ARTICLE_SUBDIRS)
 
 WIKILINK_RE = re.compile(r"\[\[([^\]|]+?)(?:\|[^\]]*)?\]\]")
 
@@ -482,7 +474,7 @@ def render_summaries(scan: WikiScan) -> str:
     for art in scan.articles.values():
         rel = art["path"]
         top_dir = rel.split("/", 1)[0] if "/" in rel else ""
-        if top_dir not in {"concepts", "sources", "entities", "comparisons"}:
+        if top_dir not in ARTICLE_SUBDIRS_SET:
             # Root-level pseudo-articles (Dashboard, log, ...) are not
             # listed as proper summaries -- they are structural pages.
             continue
@@ -524,7 +516,7 @@ def render_summaries(scan: WikiScan) -> str:
         bucketed.update(id(a) for a in buckets.get(type_key, []))
     for art in scan.articles.values():
         top_dir = art["path"].split("/", 1)[0] if "/" in art["path"] else ""
-        if top_dir not in {"concepts", "sources", "entities", "comparisons"}:
+        if top_dir not in ARTICLE_SUBDIRS_SET:
             continue
         if id(art) in bucketed:
             continue
@@ -587,7 +579,7 @@ def render_links(scan: WikiScan) -> str:
     orphans = []
     for article_id in sorted(scan.articles.keys()):
         top_dir = article_id.split("/", 1)[0] if "/" in article_id else ""
-        if top_dir not in {"concepts", "sources", "entities", "comparisons"}:
+        if top_dir not in ARTICLE_SUBDIRS_SET:
             continue
         if not incoming.get(article_id):
             orphans.append(article_id)
