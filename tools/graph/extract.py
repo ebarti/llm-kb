@@ -71,6 +71,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator, Optional
 
+from .store import PREDICATES
+
 
 # ---------------------------------------------------------------------- #
 #  Wikilink regex
@@ -159,6 +161,15 @@ PREDICATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 
 
 WINDOW_CHARS = 50
+
+
+def _validate_predicate(predicate: str, *, source: str) -> str:
+    """Reject predicates outside the canonical graph vocabulary."""
+    if predicate not in PREDICATES:
+        raise ValueError(
+            f"invalid predicate {predicate!r}; expected one of {PREDICATES}; source={source}"
+        )
+    return predicate
 
 
 # ---------------------------------------------------------------------- #
@@ -318,7 +329,10 @@ def _extract_edges_override(fm_block: str) -> list[dict]:
         if wm:
             to = wm.group(1).strip()
         if to and pred:
-            clean.append({"to": to, "predicate": pred})
+            clean.append({
+                "to": to,
+                "predicate": _validate_predicate(pred, source=f"frontmatter:{key}"),
+            })
     return clean
 
 
@@ -468,8 +482,6 @@ def extract_nodes_and_edges(
 
     nodes: dict[str, Node] = {}
     edges: list[Edge] = []
-    overrides_per_src: dict[str, set[tuple[str, str]]] = {}
-
     # Pass 1: collect all nodes so self-links and cross-refs resolve.
     files = list(_iter_wiki_files(wiki_dir))
     parsed: dict[str, tuple[Node, str, str]] = {}
@@ -496,8 +508,6 @@ def extract_nodes_and_edges(
                 provenance="frontmatter:manual",
             ))
             override_keys.add((target, pred))
-        overrides_per_src[node_id] = override_keys
-
         # --- 2. Structural frontmatter lists ---
         # `source` (scalar) and `sources` (list) both imply `cites`.
         scalar_source = _extract_scalar(fm_block, "source")

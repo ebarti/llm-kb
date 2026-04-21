@@ -1051,11 +1051,17 @@ cmd_compile() {
     # Rebuild the typed graph store from the wiki (stdlib-only, fast).
     if [[ -x "$KB_DIR/tools/graph/gq" ]] || [[ -f "$KB_DIR/tools/graph/gq" ]]; then
         progress "Rebuilding typed graph store..."
-        if python3 "$KB_DIR/tools/graph/gq" build >/dev/null 2>&1; then
+        local graph_err
+        graph_err="$(mktemp "${TMPDIR:-/tmp}/kb-graph-build.XXXXXX")"
+        if python3 "$KB_DIR/tools/graph/gq" build >/dev/null 2>"$graph_err"; then
             msg_ok "Graph store rebuilt (.graph.db)"
         else
             msg_warn "Graph store build failed (non-fatal)"
+            if [[ -s "$graph_err" ]]; then
+                sed 's/^/    /' "$graph_err" >&2
+            fi
         fi
+        rm -f "$graph_err"
     fi
 
     auto_commit "compile wiki"

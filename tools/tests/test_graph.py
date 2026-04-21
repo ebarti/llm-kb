@@ -743,6 +743,46 @@ class VizFreshnessTests(unittest.TestCase):
         self.assertEqual(by_id["raw/paper"]["type"], "raw")
         self.assertEqual(by_id["concepts/b"]["type"], "meta")
 
+    def test_load_from_wiki_rejects_invalid_frontmatter_predicate(self):
+        viz = self._load_viz()
+        tmp = Path(tempfile.mkdtemp(prefix="viz-invalid-predicate-"))
+        try:
+            wiki = tmp / "wiki"
+            (wiki / "concepts").mkdir(parents=True)
+            (wiki / "concepts" / "a.md").write_text(
+                """---
+title: "A"
+type: concept
+summary: "a"
+last_compiled: 2026-04-21
+edges:
+  - {to: "concepts/b", predicate: "still_nope"}
+---
+
+[[concepts/b]]
+""",
+                encoding="utf-8",
+            )
+            (wiki / "concepts" / "b.md").write_text(
+                """---
+title: "B"
+type: concept
+summary: "b"
+last_compiled: 2026-04-21
+---
+""",
+                encoding="utf-8",
+            )
+            original_wiki = viz.WIKI
+            try:
+                viz.WIKI = str(wiki)
+                with self.assertRaisesRegex(ValueError, "invalid predicate"):
+                    viz.load_from_wiki()
+            finally:
+                viz.WIKI = original_wiki
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_wiki_is_newer_than_db(self):
         viz = self._load_viz()
         tmp = Path(tempfile.mkdtemp(prefix="viz-freshness-"))
