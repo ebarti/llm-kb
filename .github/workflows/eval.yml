@@ -52,7 +52,7 @@ jobs:
           echo "Repo root: $(pwd)"
 
       - name: Rebuild search index
-        run: python3 tools/search-engine/build-index.py --force
+        run: python3 tools/search-engine/build-index.py
 
       - name: Run retrieval eval
         run: |

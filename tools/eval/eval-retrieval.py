@@ -28,7 +28,6 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -52,12 +51,12 @@ def citation_to_doc_id(citation: str) -> str:
     Search indexes documents by "<subdir>/<stem>" (no "wiki/" prefix, no ".md").
     """
     c = citation.strip().strip('"').strip("'")
-    # Strip leading wiki/
-    if c.startswith("wiki/"):
-        c = c[len("wiki/"):]
     # Strip [[wikilink]] brackets if present
     if c.startswith("[[") and c.endswith("]]"):
         c = c[2:-2]
+    # Strip leading wiki/
+    if c.startswith("wiki/"):
+        c = c[len("wiki/"):]
     # Handle aliases like "concepts/foo|display"
     if "|" in c:
         c = c.split("|", 1)[0]

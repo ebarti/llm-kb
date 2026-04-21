@@ -272,6 +272,11 @@ def test_citation_to_doc_id() -> None:
         "strip wikilink brackets",
     )
     expect(
+        eval_retrieval.citation_to_doc_id("[[wiki/concepts/foo.md]]"),
+        "concepts/foo",
+        "normalize wiki-prefixed wikilink",
+    )
+    expect(
         eval_retrieval.citation_to_doc_id("concepts/foo|display"),
         "concepts/foo",
         "strip wikilink alias",
