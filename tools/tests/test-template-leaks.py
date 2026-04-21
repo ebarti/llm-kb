@@ -23,6 +23,10 @@ def load_checker():
         "check_template_leaks",
         CHECKER_PATH,
     )
+    if spec is None or spec.loader is None:
+        raise ImportError(
+            f"Unable to load checker module from {CHECKER_PATH}"
+        )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

@@ -122,7 +122,7 @@ def _is_indented_code_line(line: str) -> bool:
 
 
 def scan_file(filepath: Path):
-    """Return a list of leak record dicts with line_number, line_text, kind, and token keys."""
+    """Return a list of leak record dicts with line, text, kind, and token keys."""
     leaks = []
     try:
         text = filepath.read_text(encoding="utf-8", errors="replace")
