@@ -202,6 +202,13 @@ class HeuristicTests(unittest.TestCase):
         self.assertEqual(detect_predicate("according to ")[0], "cites")
         self.assertEqual(detect_predicate("The paper cites ")[0], "cites")
         self.assertEqual(detect_predicate("see also ")[0], "cites")
+        # Regression: the `per\s+` branch used to end in \s+ and so the
+        # outer \b[^.?!]*$ could never anchor, silently dropping `per`
+        # triggers. `per(?=\s)` with a lookahead fixes that.
+        self.assertEqual(detect_predicate("per ")[0], "cites")
+        self.assertEqual(detect_predicate("as per ")[0], "cites")
+        # Must not fire when `per` is part of a longer word.
+        self.assertEqual(detect_predicate("experiment performed with ")[0], "mentions")
 
     def test_contradicts_and_refutes(self):
         self.assertEqual(detect_predicate("this contradicts ")[0], "contradicts")
@@ -661,6 +668,29 @@ class VizFreshnessTests(unittest.TestCase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)  # type: ignore[union-attr]
         return module
+
+    def test_build_graph_data_preserves_dangling_edges(self):
+        """Edges with an endpoint missing from the nodes map should surface
+        in the viz via placeholder nodes rather than being silently dropped
+        — otherwise the reader can't spot broken wikilinks in the graph."""
+        viz = self._load_viz()
+        nodes = {
+            "concepts/a": {"title": "A", "type": "concept", "summary": ""},
+        }
+        edges = [
+            ("concepts/a", "concepts/b", "mentions"),   # tgt missing
+            ("concepts/a", "raw/paper", "cites"),        # raw/ tgt missing
+        ]
+        data = viz.build_graph_data(nodes, edges)
+        ids = {n["id"] for n in data["nodes"]}
+        self.assertIn("concepts/b", ids)
+        self.assertIn("raw/paper", ids)
+        # Both edges must still be rendered.
+        self.assertEqual(len(data["links"]), 2)
+        # Raw placeholder keeps its type so colouring stays consistent.
+        by_id = {n["id"]: n for n in data["nodes"]}
+        self.assertEqual(by_id["raw/paper"]["type"], "raw")
+        self.assertEqual(by_id["concepts/b"]["type"], "meta")
 
     def test_wiki_is_newer_than_db(self):
         viz = self._load_viz()

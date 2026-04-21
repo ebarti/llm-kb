@@ -27,10 +27,10 @@ Given a wiki directory, yields `nodes` (one per article file) and `edges`
         source / sources  -> predicate = cites      (provenance='frontmatter:sources')
         subjects          -> predicate = compares   (provenance='frontmatter:subjects')
 
-3. **Heuristic patterns** over a ±50-char window around each `[[link]]` in
-   the body. See `PREDICATE_PATTERNS` below for the exact regexes. The
-   first matching pattern wins; patterns are ordered from most specific
-   to most generic.
+3. **Heuristic patterns** over the ~50 chars of *left context* immediately
+   preceding each `[[link]]` in the body. See `PREDICATE_PATTERNS` below
+   for the exact regexes. The first matching pattern wins; patterns are
+   ordered from most specific to most generic.
 
 4. **Default** — if nothing matches, the predicate is `mentions` with
    provenance `'default'`.
@@ -39,10 +39,12 @@ Given a wiki directory, yields `nodes` (one per article file) and `edges`
 
 Each pattern fires when a trigger verb or phrase appears within ~50 chars
 BEFORE the wikilink (with the link allowed to carry a display name after
-`|`). Matching is case-insensitive. The window also includes a few chars
-AFTER the link to catch constructions like "X is a part of [[Y]]" vs.
-"[[X]] is part of Y" — the patterns are written with directional
-awareness.
+`|`). Matching is case-insensitive. Only the left-context is inspected;
+patterns such as "[[X]] is part of Y" where the trigger appears AFTER the
+link intentionally fall through to the `mentions` default — this keeps
+extraction cheap and predictable. Author-supplied `edges:` / `manual:`
+overrides in frontmatter provide an escape hatch when the heuristic
+misclassifies a right-context case.
 
     contradicts  — "contradicts", "disagrees with", "disputes"
     refutes      — "refutes", "debunks", "disproves"
@@ -116,13 +118,17 @@ PREDICATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         re.IGNORECASE,
     )),
     # Citations.
+    # NB: ``per`` uses a ``(?=\s)`` lookahead so the trailing ``\b`` after
+    # the alternation group still anchors on a word boundary — the bare
+    # ``per\s+`` form would end in whitespace and the final ``\b`` could
+    # never match (no word/non-word transition after the spaces).
     ("cites", re.compile(
         r"\b("
         r"cites?|cited|citing|"
         r"references?|referenced|referencing|"
         r"as\s+shown\s+in|as\s+described\s+in|as\s+noted\s+in|"
         r"see\s+also|"
-        r"per\s+|according\s+to"
+        r"per(?=\s)|according\s+to"
         r")\b[^.?!]*$",
         re.IGNORECASE,
     )),

@@ -162,7 +162,24 @@ def load_graph():
 #  D3 / SVG rendering
 # ---------------------------------------------------------------------- #
 def build_graph_data(nodes, edges):
-    node_ids = set(nodes.keys())
+    # The store/extractor deliberately emits edges whose endpoints aren't
+    # resolvable (e.g. dangling [[concepts/nonexistent]] links). We add
+    # lightweight placeholder nodes for any missing endpoint so that those
+    # edges still show up in the viz — otherwise the graph would silently
+    # hide exactly the broken links the reader might be hunting for.
+    nodes_out = dict(nodes)
+    for src, tgt, _pred in edges:
+        for endpoint in (src, tgt):
+            if endpoint not in nodes_out:
+                # Inherit type from a `raw/` prefix so raw-only targets
+                # keep their colour; everything else is "meta" (grey).
+                etype = "raw" if endpoint.startswith("raw/") else "meta"
+                nodes_out[endpoint] = {
+                    "title": endpoint.split("/")[-1],
+                    "type": etype,
+                    "summary": "(placeholder: referenced but no article)",
+                }
+    node_ids = set(nodes_out.keys())
     conn = {nid: 0 for nid in node_ids}
     valid_edges = []
     for src, tgt, pred in edges:
@@ -179,7 +196,7 @@ def build_graph_data(nodes, edges):
             "summary": info["summary"],
             "connections": conn.get(nid, 0),
         }
-        for nid, info in nodes.items()
+        for nid, info in nodes_out.items()
     ]
     return {"nodes": d3_nodes, "links": valid_edges}
 
