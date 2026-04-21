@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 from pathlib import Path
 
 from ..models import EXIT_ERROR, EXIT_SUCCESS, VizResult
@@ -78,8 +79,9 @@ def run(ctx: CommandContext, viz_type: str = "stats") -> VizResult:
             message=f"{script} not found in {viz_dir}",
         )
 
+    python = sys.executable or "python3"
     proc = subprocess.run(
-        ["python3", str(script_path)], capture_output=True, text=True, check=False,
+        [python, str(script_path)], capture_output=True, text=True, check=False,
         cwd=str(ws.kb_dir),
     )
     return VizResult(

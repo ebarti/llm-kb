@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime as _dt
 import shutil
 import subprocess
+import sys
 import tarfile
 from pathlib import Path
 
@@ -24,8 +25,9 @@ def run(ctx: CommandContext, fmt: str = "site") -> ExportResult:
                 message="build-site.py not found",
             )
         ws.output_dir.mkdir(parents=True, exist_ok=True)
+        python = sys.executable or "python3"
         proc = subprocess.run(
-            ["python3", str(script)], capture_output=True, text=True, check=False,
+            [python, str(script)], capture_output=True, text=True, check=False,
             cwd=str(ws.kb_dir),
         )
         return ExportResult(

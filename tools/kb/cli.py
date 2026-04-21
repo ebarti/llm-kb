@@ -75,7 +75,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 else _smart_route(ctx, " ".join(remaining).strip())
             )
     except SystemExit as exc:
-        return int(exc.code) if isinstance(exc.code, int) else EXIT_ERROR
+        if isinstance(exc.code, int):
+            return int(exc.code)
+        if exc.code is not None:
+            print(exc.code, file=sys.stderr)
+        return EXIT_ERROR
 
     _render_result(result, json_output=ctx.json_output)
     return int(result.exit_code)

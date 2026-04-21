@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import subprocess
 import sys
@@ -12,9 +14,11 @@ from unittest import mock
 from tools.kb import cli as cli_mod
 from tools.kb.budget import BudgetTracker
 from tools.kb.commands import export as export_cmd, serve as serve_cmd
+from tools.kb.commands import test_cmd as test_cmd_module, viz as viz_cmd
 from tools.kb.commands._common import CommandContext
 from tools.kb.commands.search import _parse_qmd
-from tools.kb.runner import invoke_llm
+from tools.kb.models import EXIT_ERROR
+from tools.kb.runner import DEFAULT_MAX_OUTPUT_TOKENS, invoke_llm
 from tools.kb.workspace import Workspace
 
 
@@ -89,6 +93,31 @@ class RunnerBudgetTests(unittest.TestCase):
         create.assert_called_once()
         self.assertEqual(40, create.call_args.kwargs["max_tokens"])
 
+    def test_sdk_backend_caps_large_budget_to_safe_output_limit(self) -> None:
+        create = mock.Mock(
+            return_value=types.SimpleNamespace(content=[], usage={})
+        )
+        fake_client = types.SimpleNamespace(
+            messages=types.SimpleNamespace(create=create)
+        )
+        fake_anthropic = types.SimpleNamespace(Anthropic=lambda: fake_client)
+        budget = BudgetTracker(limit=50_000)
+
+        with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
+            result = invoke_llm(
+                "prompt",
+                model="sonnet",
+                budget=budget,
+                force_backend="sdk",
+            )
+
+        self.assertEqual("sdk", result.backend)
+        self.assertEqual(0, result.returncode)
+        self.assertEqual(
+            DEFAULT_MAX_OUTPUT_TOKENS,
+            create.call_args.kwargs["max_tokens"],
+        )
+
     def test_sdk_backend_fails_fast_when_budget_is_exhausted(self) -> None:
         create = mock.Mock()
         fake_client = types.SimpleNamespace(
@@ -111,6 +140,31 @@ class RunnerBudgetTests(unittest.TestCase):
         self.assertEqual(1, result.returncode)
         self.assertIn("token budget exhausted before SDK call", result.text)
         create.assert_not_called()
+
+    @mock.patch("tools.kb.runner.shutil.which", return_value=None)
+    def test_cli_backend_reports_sdk_available_when_cli_is_forced(
+        self,
+        _which_mock: mock.Mock,
+    ) -> None:
+        budget = BudgetTracker(limit=None)
+        fake_anthropic = types.SimpleNamespace()
+
+        with mock.patch.dict(
+            "os.environ",
+            {"ANTHROPIC_API_KEY": "test-key"},
+            clear=False,
+        ):
+            with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
+                result = invoke_llm(
+                    "prompt",
+                    model="sonnet",
+                    budget=budget,
+                    force_backend="cli",
+                )
+
+        self.assertEqual("cli", result.backend)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("SDK backend is available", result.text)
 
 
 class WorkspaceDryRunTests(unittest.TestCase):
@@ -147,6 +201,16 @@ class GlobalOptionTests(unittest.TestCase):
 
 
 class WorkspaceInitTests(unittest.TestCase):
+    def test_run_init_resolves_relative_target_against_workspace_dir(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            workspace = Path(td) / "ws"
+            workspace.mkdir()
+            ctx = cli_mod._build_context(cli_mod.GlobalOptions(dir_flag=str(workspace)))
+
+            result = cli_mod.init_cmd.run_init(ctx, target="child", dry_run=True)
+
+            self.assertEqual(str((workspace / "child").resolve()), result.target)
+
     def test_initialize_copies_templates_into_empty_destination(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -203,6 +267,22 @@ class ServeCommandTests(unittest.TestCase):
 
 class ExportCommandTests(unittest.TestCase):
     @mock.patch("tools.kb.commands.export.subprocess.run")
+    def test_site_export_uses_active_python_interpreter(self, run_mock: mock.Mock) -> None:
+        run_mock.return_value = types.SimpleNamespace(returncode=0, stdout="", stderr="")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            script = root / "tools" / "export" / "build-site.py"
+            script.parent.mkdir(parents=True)
+            script.write_text("print('ok')\n", encoding="utf-8")
+            ctx = CommandContext(workspace=Workspace(kb_home=root, kb_dir=root))
+
+            result = export_cmd.run(ctx, "site")
+
+            self.assertTrue(result.ok)
+            args = run_mock.call_args.args[0]
+            self.assertEqual(sys.executable or "python3", args[0])
+
+    @mock.patch("tools.kb.commands.export.subprocess.run")
     @mock.patch("tools.kb.commands.export.shutil.which", return_value="/usr/bin/pandoc")
     def test_pdf_export_creates_output_dir(self, _which_mock: mock.Mock, run_mock: mock.Mock) -> None:
         run_mock.return_value = types.SimpleNamespace(returncode=0, stdout="", stderr="")
@@ -218,6 +298,63 @@ class ExportCommandTests(unittest.TestCase):
             self.assertTrue((root / "output").exists())
             self.assertTrue(result.ok)
             self.assertEqual(str(root / "output" / "kb-export.pdf"), result.output_path)
+
+
+class VizCommandTests(unittest.TestCase):
+    @mock.patch("tools.kb.commands.viz.subprocess.run")
+    def test_viz_uses_active_python_interpreter(self, run_mock: mock.Mock) -> None:
+        run_mock.return_value = types.SimpleNamespace(returncode=0, stdout="", stderr="")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            script = root / "tools" / "viz" / "graph.py"
+            script.parent.mkdir(parents=True)
+            script.write_text("print('ok')\n", encoding="utf-8")
+            ctx = CommandContext(workspace=Workspace(kb_home=root, kb_dir=root))
+
+            result = viz_cmd.run(ctx, "graph")
+
+            self.assertTrue(result.ok)
+            args = run_mock.call_args.args[0]
+            self.assertEqual(sys.executable or "python3", args[0])
+
+
+class TestCommandTests(unittest.TestCase):
+    @mock.patch("tools.kb.commands.test_cmd.subprocess.run")
+    def test_invalid_json_output_is_treated_as_failure(self, run_mock: mock.Mock) -> None:
+        run_mock.return_value = types.SimpleNamespace(
+            returncode=0,
+            stdout="not-json",
+            stderr="warning",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            runner = root / "tools" / "tests" / "run-all.sh"
+            runner.parent.mkdir(parents=True)
+            runner.write_text("#!/bin/bash\n", encoding="utf-8")
+            ctx = CommandContext(workspace=Workspace(kb_home=root, kb_dir=root))
+
+            result = test_cmd_module.run(ctx)
+
+            self.assertFalse(result.ok)
+            self.assertEqual(EXIT_ERROR, result.exit_code)
+            self.assertIn("did not return valid JSON", result.message or "")
+            self.assertIn("stdout:\nnot-json", result.message or "")
+            self.assertIn("stderr:\nwarning", result.message or "")
+
+
+class MainExitHandlingTests(unittest.TestCase):
+    def test_main_prints_non_integer_system_exit_messages(self) -> None:
+        stderr = io.StringIO()
+        with mock.patch.dict(
+            cli_mod._COMMANDS,
+            {"boom": lambda _ctx, _args: (_ for _ in ()).throw(SystemExit("boom"))},
+            clear=False,
+        ):
+            with contextlib.redirect_stderr(stderr):
+                exit_code = cli_mod.main(["boom"])
+
+        self.assertEqual(EXIT_ERROR, exit_code)
+        self.assertIn("boom", stderr.getvalue())
 
 
 class WrapperIntegrationTests(unittest.TestCase):

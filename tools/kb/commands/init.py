@@ -10,9 +10,18 @@ from ..workspace import Workspace
 from ._common import CommandContext
 
 
-def run_init(ctx: CommandContext, target: Optional[Path] = None, dry_run: bool = False) -> InitResult:
-    target_path = Path(target) if target else ctx.workspace.kb_dir
-    target_path = target_path.expanduser().resolve()
+def run_init(
+    ctx: CommandContext,
+    target: Optional[Path | str] = None,
+    dry_run: bool = False,
+) -> InitResult:
+    if target:
+        target_path = Path(target).expanduser()
+        if not target_path.is_absolute():
+            target_path = ctx.workspace.kb_dir / target_path
+    else:
+        target_path = ctx.workspace.kb_dir
+    target_path = target_path.resolve()
 
     if dry_run or ctx.dry_run:
         return InitResult(

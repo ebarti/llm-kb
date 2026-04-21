@@ -29,6 +29,8 @@ def run(ctx: CommandContext) -> TestResult:
     except (ValueError, json.JSONDecodeError):
         data = None
 
+    parse_error = not isinstance(data, dict)
+
     if isinstance(data, dict):
         total = int(data.get("total_suites", 0))
         passed = int(data.get("passed", 0))
@@ -42,15 +44,27 @@ def run(ctx: CommandContext) -> TestResult:
                 )
             )
 
+    message_parts: list[str] = []
+    if parse_error:
+        message_parts.append("test runner did not return valid JSON")
+        if proc.stdout:
+            message_parts.append(f"stdout:\n{proc.stdout}")
+        if proc.stderr:
+            message_parts.append(f"stderr:\n{proc.stderr}")
+
     return TestResult(
         command="test",
-        ok=(failed == 0 and proc.returncode == 0),
-        exit_code=EXIT_SUCCESS if (failed == 0 and proc.returncode == 0) else EXIT_ERROR,
+        ok=(not parse_error and failed == 0 and proc.returncode == 0),
+        exit_code=(
+            EXIT_SUCCESS
+            if (not parse_error and failed == 0 and proc.returncode == 0)
+            else EXIT_ERROR
+        ),
         suites=suites,
         total=total,
         passed=passed,
         failed=failed,
-        message=proc.stdout if not data else None,
+        message="\n\n".join(message_parts) if parse_error else None,
     )
 
 

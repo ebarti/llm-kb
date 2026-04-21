@@ -137,6 +137,7 @@ _SDK_MODEL_ALIASES = {
     "sonnet": "claude-sonnet-4-5",
     "haiku": "claude-haiku-4-5",
 }
+DEFAULT_MAX_OUTPUT_TOKENS = 4096
 
 
 def _resolve_sdk_model(name: str) -> str:
@@ -164,9 +165,12 @@ def _invoke_sdk(
         )
 
     try:
+        max_output_tokens = DEFAULT_MAX_OUTPUT_TOKENS
+        if remaining_tokens is not None:
+            max_output_tokens = min(int(remaining_tokens), DEFAULT_MAX_OUTPUT_TOKENS)
         response = client.messages.create(
             model=sdk_model,
-            max_tokens=4096 if remaining_tokens is None else int(remaining_tokens),
+            max_tokens=max_output_tokens,
             messages=[{"role": "user", "content": prompt}],
         )
     except Exception as exc:  # noqa: BLE001
@@ -246,6 +250,11 @@ def _invoke_cli(
                 "ERROR: Claude CLI not found on PATH and SDK backend "
                 "unavailable (install anthropic or ensure ANTHROPIC_API_KEY "
                 "is set correctly)."
+            )
+        elif api_key_set and sdk_importable:
+            msg = (
+                "ERROR: Claude CLI not found on PATH; SDK backend is available. "
+                "Use the SDK backend or unset the forced CLI backend."
             )
         else:
             msg = "ERROR: Claude CLI not found on PATH and no ANTHROPIC_API_KEY set."
