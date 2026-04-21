@@ -267,6 +267,90 @@ def run_hybrid_pool_regression():
     }]
 
 
+def run_rerank_pool_regression():
+    """
+    Regression for --rerank with --top > 50: search._run_hybrid() must pass the
+    widened candidate depth through to rerank_results(pool=...) so the
+    cross-encoder can reorder the entire requested window instead of silently
+    stopping at the default 50.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import types
+    import search as search_mod
+
+    calls = {}
+
+    fake_vector_index = types.SimpleNamespace(
+        model_name="stub",
+        vectors=types.SimpleNamespace(shape=(1, 4)),
+    )
+
+    embeddings_mod = types.SimpleNamespace(
+        is_available=lambda: (True, "ok"),
+        VectorIndex=types.SimpleNamespace(load=lambda: fake_vector_index),
+        vectors_are_stale=lambda *_args, **_kwargs: False,
+        Encoder=lambda _model_name: object(),
+    )
+
+    def fake_hybrid_search(*_args, **kwargs):
+        top_n = kwargs["top_n"]
+        return [
+            {"id": f"concepts/doc-{i}", "title": f"Doc {i}", "summary": ""}
+            for i in range(top_n)
+        ]
+
+    hybrid_mod = types.SimpleNamespace(hybrid_search=fake_hybrid_search)
+
+    def fake_rerank_results(query, results, reranker=None, pool=50, **_kwargs):
+        calls["pool"] = pool
+        calls["count"] = len(results)
+        return results
+
+    rerank_mod = types.SimpleNamespace(
+        is_available=lambda: (True, "ok"),
+        CrossEncoderReranker=lambda: object(),
+        rerank_results=fake_rerank_results,
+    )
+
+    original_modules = {
+        name: sys.modules.get(name)
+        for name in ("embeddings", "hybrid", "rerank")
+    }
+    sys.modules["embeddings"] = embeddings_mod
+    sys.modules["hybrid"] = hybrid_mod
+    sys.modules["rerank"] = rerank_mod
+    original_load_body = search_mod.load_body
+    original_extract_snippet = search_mod.extract_snippet
+    try:
+        search_mod.load_body = lambda _doc_id: "body"
+        search_mod.extract_snippet = lambda *_args, **_kwargs: "snippet"
+        args = types.SimpleNamespace(
+            top=75,
+            rerank=True,
+            type=None,
+            tags=None,
+            date_from=None,
+            date_to=None,
+            no_fuzzy=False,
+        )
+        results = search_mod._run_hybrid("q", {"docs": {}, "backlinks": {}}, args)
+    finally:
+        search_mod.load_body = original_load_body
+        search_mod.extract_snippet = original_extract_snippet
+        for name, module in original_modules.items():
+            if module is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = module
+
+    return [{
+        "description": "_run_hybrid forwards top > 50 to rerank pool",
+        "passed": calls.get("pool") == 75 and calls.get("count") == 75 and len(results) == 75,
+    }]
+
+
 def run_chunker_regressions():
     """Exercise chunk hashing without requiring optional ML dependencies."""
     if str(SEARCH_ENGINE_DIR) not in sys.path:
@@ -409,6 +493,18 @@ def run_checks():
     else:
         results["regression_tests"].extend(hybrid_tests)
         for test in hybrid_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        rerank_tests = run_rerank_pool_regression()
+    except Exception as e:
+        results["issues"].append(f"Rerank pool regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(rerank_tests)
+        for test in rerank_tests:
             if not test["passed"]:
                 results["issues"].append(f"Regression failed: {test['description']}")
                 results["ok"] = False

@@ -612,7 +612,12 @@ def _run_hybrid(query, index, args):
                 print(f"Reranker unavailable: {msg}", file=sys.stderr)
             else:
                 reranker = rerank_mod.CrossEncoderReranker()
-                results = rerank_mod.rerank_results(query, results, reranker=reranker)
+                results = rerank_mod.rerank_results(
+                    query,
+                    results,
+                    reranker=reranker,
+                    pool=hybrid_top,
+                )
 
     # Always attach BM25-style snippets too for readability.
     query_tokens = tokenize(query)
