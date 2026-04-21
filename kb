@@ -1048,12 +1048,16 @@ regen_meta() {
     # after so any articles Claude touched are reflected immediately.
     #
     # Returns:
-    #   0 on success, or if the script is absent, or under --dry-run
-    #   (no mutation paths). Non-zero on regen failure so callers can
-    #   abort before performing downstream mutations (e.g. auto_commit).
+    #   0 on success, or under --dry-run (no mutation path). Non-zero
+    #   if the regenerator script is missing or regeneration fails so
+    #   callers can abort before performing downstream mutations
+    #   (e.g. auto_commit).
     local script="$KB_DIR/tools/compile/regen_meta.py"
-    [[ -f "$script" ]] || return 0
     (( DRY_RUN )) && return 0
+    if [[ ! -f "$script" ]]; then
+        msg_err "Missing regen_meta script: $script"
+        return 1
+    fi
     if (( VERBOSE )); then
         python3 "$script"
     else

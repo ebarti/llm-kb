@@ -79,6 +79,22 @@ run_test "tools/fetch-url.sh exists and is executable" \
 run_test "kb responds to invocation" \
     "'$BASE_DIR/kb' 2>&1 | head -1 | grep -qi ''" "any"
 
+run_test "kb compile fails when regen_meta script is missing" \
+    "tmpdir=\$(mktemp -d)
+    cp '$BASE_DIR/kb' \"\$tmpdir/kb\"
+    chmod +x \"\$tmpdir/kb\"
+    if KB_NO_COMMIT=1 \"\$tmpdir/kb\" compile >\"\$tmpdir/out\" 2>&1; then
+        cat \"\$tmpdir/out\"
+        rm -rf \"\$tmpdir\"
+        exit 1
+    fi
+    if ! grep -q 'Missing regen_meta script:' \"\$tmpdir/out\"; then
+        cat \"\$tmpdir/out\"
+        rm -rf \"\$tmpdir\"
+        exit 1
+    fi
+    rm -rf \"\$tmpdir\""
+
 # --- search.sh responds ---
 
 run_test "search.sh basic invocation" \
