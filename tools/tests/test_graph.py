@@ -186,6 +186,13 @@ class StoreTests(unittest.TestCase):
         rows = list(self.store.query("SELECT COUNT(*) FROM edges"))
         self.assertEqual(rows[0][0], 1)
 
+    def test_query_allows_string_literals_and_scalar_functions(self):
+        rows = list(self.store.query(
+            "SELECT 'delete' AS word, replace('table', 't', 'T') AS renamed"
+        ))
+        self.assertEqual(rows[0]["word"], "delete")
+        self.assertEqual(rows[0]["renamed"], "Table")
+
     def test_predicates_exposed(self):
         # Sanity: the constant list has every predicate in the issue spec.
         expected = {
@@ -493,6 +500,10 @@ class ExtractionTests(unittest.TestCase):
                 ("sources/awesome-rag-paper", "concepts/retrieval"), set()
             ),
         )
+        self.assertEqual(
+            self.provenance[("sources/awesome-rag-paper", "concepts/rag", "cites")],
+            "frontmatter:sources",
+        )
 
     def test_frontmatter_source_scalar_maps_to_cites(self):
         # The source: field points at raw/awesome-rag-paper.
@@ -501,6 +512,12 @@ class ExtractionTests(unittest.TestCase):
             self.edge_map.get(
                 ("sources/awesome-rag-paper", "raw/awesome-rag-paper"), set()
             ),
+        )
+        self.assertEqual(
+            self.provenance[
+                ("sources/awesome-rag-paper", "raw/awesome-rag-paper", "cites")
+            ],
+            "frontmatter:source",
         )
 
     def test_frontmatter_subjects_maps_to_compares(self):
@@ -529,6 +546,14 @@ class ExtractionTests(unittest.TestCase):
         # structural and heuristic entries for the same (to, predicate).)
         key = ("concepts/override-source", "concepts/rag", "extends")
         self.assertEqual(self.provenance[key], "frontmatter:manual")
+
+    def test_edges_override_validation_uses_original_frontmatter_key(self):
+        fm_block = """
+edges:
+  - {to: "concepts/rag", predicate: "still_nope"}
+"""
+        with self.assertRaisesRegex(ValueError, r"source=frontmatter:edges"):
+            graph_extract._extract_edges_override(fm_block)
 
     def test_fingerprint_stable(self):
         nodes, edges = extract_nodes_and_edges(self.wiki, raw_dir=self.raw)
@@ -811,6 +836,15 @@ last_compiled: 2026-04-21
             self.assertTrue(viz._wiki_is_newer_than_db(str(db), str(wiki)))
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_load_from_graph_db_returns_none_when_connect_fails(self):
+        viz = self._load_viz()
+        with mock.patch.object(
+            viz.sqlite3,
+            "connect",
+            side_effect=sqlite3.OperationalError("unable to open database file"),
+        ):
+            self.assertIsNone(viz.load_from_graph_db(__file__))
 
     def test_generate_html_uses_text_nodes_and_safe_script_json(self):
         viz = self._load_viz()

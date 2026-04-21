@@ -24,7 +24,8 @@ Given a wiki directory, yields `nodes` (one per article file) and `edges`
 2. **Structural frontmatter fields** — `source`, `sources`, `subjects` are
    interpreted as typed:
 
-        source / sources  -> predicate = cites      (provenance='frontmatter:sources')
+        source            -> predicate = cites      (provenance='frontmatter:source')
+        sources           -> predicate = cites      (provenance='frontmatter:sources')
         subjects          -> predicate = compares   (provenance='frontmatter:subjects')
 
 3. **Heuristic patterns** over the ~50 chars of *left context* immediately
@@ -296,6 +297,7 @@ def _extract_edges_override(fm_block: str) -> list[dict]:
                     overrides.append({
                         "to": inline.group(1).strip(),
                         "predicate": inline.group(2).strip(),
+                        "_source_key": key,
                     })
                     continue
                 # Shorthand: - concepts/rag:extends
@@ -304,17 +306,20 @@ def _extract_edges_override(fm_block: str) -> list[dict]:
                     overrides.append({
                         "to": short.group(1).strip(),
                         "predicate": short.group(2).strip(),
+                        "_source_key": key,
                     })
                     continue
                 # Opens a key: value block (e.g. `- to: concepts/rag`).
                 # Process remainder of the line as a key: value pair.
                 kv = re.match(r"(\w+)\s*:\s*\"?([^\"]*?)\"?\s*$", body)
                 if kv:
+                    pending["_source_key"] = key
                     pending[kv.group(1)] = kv.group(2).strip()
                 continue
             # Continuation lines inside an active `- ` entry.
             kv = re.match(r"(\w+)\s*:\s*\"?([^\"]*?)\"?\s*$", stripped)
             if kv:
+                pending.setdefault("_source_key", key)
                 pending[kv.group(1)] = kv.group(2).strip()
         if pending:
             overrides.append(pending)
@@ -324,6 +329,7 @@ def _extract_edges_override(fm_block: str) -> list[dict]:
     for o in overrides:
         to = o.get("to", "").strip()
         pred = o.get("predicate", "").strip()
+        source_key = o.get("_source_key", "manual").strip() or "manual"
         # Unwrap wikilink in `to`.
         wm = re.match(r"\[\[([^\]|]+?)(?:\|[^\]]+)?\]\]\s*$", to)
         if wm:
@@ -331,7 +337,10 @@ def _extract_edges_override(fm_block: str) -> list[dict]:
         if to and pred:
             clean.append({
                 "to": to,
-                "predicate": _validate_predicate(pred, source=f"frontmatter:{key}"),
+                "predicate": _validate_predicate(
+                    pred,
+                    source=f"frontmatter:{source_key}",
+                ),
             })
     return clean
 

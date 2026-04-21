@@ -69,9 +69,10 @@ def load_from_graph_db(db_path):
     """
     if not os.path.exists(db_path):
         return None
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    conn = None
     try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
         try:
             edge_count = conn.execute("SELECT COUNT(*) AS n FROM edges").fetchone()["n"]
         except sqlite3.Error:
@@ -94,7 +95,8 @@ def load_from_graph_db(db_path):
     except sqlite3.Error:
         return None
     finally:
-        conn.close()
+        if conn is not None:
+            conn.close()
 
 
 def load_from_wiki():

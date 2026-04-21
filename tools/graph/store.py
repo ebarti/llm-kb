@@ -305,45 +305,59 @@ class GraphStore:
     #  Free-form query (read-only)
     # ------------------------------------------------------------------ #
     def query(self, sql: str, params: Sequence = ()) -> Iterator[sqlite3.Row]:
-        """Execute a read-only SQL query. Rejects anything that looks mutating.
+        """Execute a read-only SQL query.
 
-        This is deliberately conservative — the CLI `gq query` exposes this.
-        Writes happen only through `build`.
-
-        The scanner strips SQL comments (``--`` line, ``/* */`` block),
-        collapses all whitespace to single spaces, and tokenizes on
-        non-word boundaries so that `` 'WITH x AS (SELECT 1)\\nDELETE FROM
-        ...'`` cannot smuggle a DELETE past the guard.
+        The CLI `gq query` exposes this, so we keep a lightweight prefix
+        check (`SELECT` / `WITH` / `EXPLAIN`), strip comments / quoted text
+        before scanning for obviously mutating verbs, and then let SQLite
+        enforce read-only execution via `PRAGMA query_only`. That avoids
+        the old false-positives on harmless string literals and scalar
+        functions such as `SELECT 'delete'` or `SELECT replace(...)`.
         """
         if not sql or not sql.strip():
             raise ValueError("empty query")
 
-        # Strip block comments ``/* ... */`` and line comments ``-- ...``.
+        # Strip comments for the prefix check so leading `-- ...` / `/* ... */`
+        # doesn't hide the actual statement type.
         cleaned = re.sub(r"/\*.*?\*/", " ", sql, flags=re.DOTALL)
         cleaned = re.sub(r"--[^\n]*", " ", cleaned)
-        # Collapse all whitespace (including newlines, tabs) to single spaces.
-        cleaned = re.sub(r"\s+", " ", cleaned).strip().rstrip(";")
-        lowered = cleaned.lower()
-
-        if not lowered.startswith(("select ", "with ", "explain ",
-                                    "select(", "with(", "explain(")) \
-                and lowered not in ("select", "with", "explain"):
+        lowered = cleaned.lstrip().lower()
+        if not lowered.startswith(("select", "with", "explain")):
             raise ValueError(
                 "only read-only queries allowed (SELECT/WITH/EXPLAIN)"
             )
 
-        # Tokenize on non-word boundaries so keywords are matched even
-        # when surrounded by newlines, commas, parens, etc.
-        tokens = set(re.findall(r"[a-z_]+", lowered))
+        keyword_scan = re.sub(r"'(?:''|[^'])*'|\"(?:\"\"|[^\"])*\"", " ", cleaned)
         forbidden = {
             "insert", "update", "delete", "drop", "alter",
-            "create", "replace", "pragma", "attach", "detach",
+            "create", "pragma", "attach", "detach",
             "reindex", "vacuum", "truncate",
         }
-        bad = tokens & forbidden
+        bad = forbidden & set(re.findall(r"[a-z_]+", keyword_scan.lower()))
         if bad:
-            raise ValueError(f"forbidden keyword in query: {sorted(bad)[0]}")
-        return iter(self.conn.execute(sql, params))
+            raise ValueError(
+                f"forbidden keyword in query: {sorted(bad)[0]}"
+            )
+
+        query_only = int(self.conn.execute("PRAGMA query_only").fetchone()[0])
+        self.conn.execute("PRAGMA query_only = ON")
+        try:
+            rows = self.conn.execute(sql, params).fetchall()
+        except sqlite3.Error as exc:
+            message = str(exc).lower()
+            if (
+                "readonly" in message
+                or "read-only" in message
+                or "query only" in message
+                or "you can only execute one statement at a time" in message
+            ):
+                raise ValueError(
+                    "only read-only queries allowed (SELECT/WITH/EXPLAIN)"
+                ) from exc
+            raise
+        finally:
+            self.conn.execute(f"PRAGMA query_only = {query_only}")
+        return iter(rows)
 
 
 def ensure_db(db_path: str = DEFAULT_DB_PATH) -> GraphStore:
