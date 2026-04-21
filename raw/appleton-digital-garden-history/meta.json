@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "ad88ccf485c5aa59cd6041b52d40b75ce83de52815e56597b687dced9e271435",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 5135,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/appleton-digital-garden-history.md"
 }

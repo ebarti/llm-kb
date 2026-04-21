@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "a544cb7d2b1359b78b011118b4b65e1c5b0b080bd3f939b60c7d882ba218295d",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 3363,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/web-scraping-best-practices-2026.md"
 }

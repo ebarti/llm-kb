@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "5440c8ef6a15c51ccb77e5707c32dc8b43e30f5a1414c60d2a067ed676da4b8e",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 2102,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/openai-video-world-simulators.md"
 }

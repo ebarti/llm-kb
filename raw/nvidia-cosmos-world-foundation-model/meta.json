@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "67b203395debf594115d6416550c21d040063d34e0ef24ebc19f68ad81c7a382",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 2134,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/nvidia-cosmos-world-foundation-model.md"
 }

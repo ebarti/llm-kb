@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "e4f396c8c22944a14076dd8668a59fef2069e8df4d078779906fa48eff904f49",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 1596,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/stimson-america-wrong-ai-race.md"
 }

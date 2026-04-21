@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "4e4a347a60c9229f973d630158ba640fe73e1b48cdf111049347215fda3826e5",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 1949,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/improvado-claude-vs-chatgpt-vs-gemini-2026.md"
 }

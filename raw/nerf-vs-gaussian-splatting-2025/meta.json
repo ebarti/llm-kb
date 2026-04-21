@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "a3cf440b29fa080de90d081ca813d8a6b4dbe2541e73297de4f7dd816d4f81d8",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 2041,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/nerf-vs-gaussian-splatting-2025.md"
 }

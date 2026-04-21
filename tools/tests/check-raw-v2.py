@@ -112,6 +112,10 @@ def check_v2_dir(d: Path) -> list[str]:
     if raw_avail:
         if not raw_candidates:
             errs.append(f"{slug}: raw_bytes_available=true but no raw.* file present")
+        if meta.get("size_bytes_raw") is None:
+            errs.append(f"{slug}: raw_bytes_available=true but size_bytes_raw is null")
+        if meta.get("raw_extension") in (None, ""):
+            errs.append(f"{slug}: raw_bytes_available=true but raw_extension is missing")
         else:
             expected_raw = d / f"raw.{raw_ext}" if raw_ext else raw_candidates[0]
             if not expected_raw.exists():
@@ -128,6 +132,10 @@ def check_v2_dir(d: Path) -> list[str]:
         # Migrated legacy entries should have raw_bytes_available=false and sha256_raw=null
         if meta.get("sha256_raw") is not None and not raw_candidates:
             errs.append(f"{slug}: sha256_raw set but no raw.* file and not migrated")
+        if meta.get("size_bytes_raw") is not None:
+            errs.append(f"{slug}: raw_bytes_available=false but size_bytes_raw is not null")
+        if meta.get("raw_extension") is not None:
+            errs.append(f"{slug}: raw_bytes_available=false but raw_extension is not null")
         if raw_candidates and not meta.get("migrated_legacy"):
             errs.append(f"{slug}: raw.* files present but raw_bytes_available=false")
 

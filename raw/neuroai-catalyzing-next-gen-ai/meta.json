@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "3b1ebdf00ab5a83974d69b6c97f71ba27ee52afe5eaabe946fc854317d62c197",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 3066,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/neuroai-catalyzing-next-gen-ai.md"
 }

@@ -19,11 +19,11 @@ meta.json schema:
         "content_type": "html|pdf|json|txt|xml|vtt|markdown|...",
         "sha256_raw": "hex...",      # sha256 of raw.<ext> bytes, or None if not saved
         "sha256_clean": "hex...",    # sha256 of clean.md
-        "size_bytes_raw": N,         # size of raw.<ext>, or 0 if missing
+        "size_bytes_raw": N,         # size of raw.<ext>, or None if not saved
         "size_bytes_clean": N,
         "raw_bytes_available": true|false,
         "migrated_legacy": false,    # true if moved from flat raw/<slug>.md
-        "raw_extension": "html"      # empty if no raw bytes saved
+        "raw_extension": "html"      # None if no raw bytes saved
     }
 
 Idempotency: if raw/<slug>/meta.json exists and either sha256_raw matches the
@@ -175,13 +175,13 @@ def write_raw(
 
     # Write raw.<ext> if we have bytes
     raw_bytes_available = False
-    raw_final_ext = ""
+    raw_final_ext: Optional[str] = None
     # On a raw-less rewrite, preserve the prior raw blob + its metadata so we
     # never silently lose bytes we previously saved. We re-read the existing
     # meta.json and carry forward sha256_raw / size_bytes_raw / raw_extension
     # / raw_bytes_available if a real raw.<ext> still lives on disk.
     preserved_sha_raw: Optional[str] = None
-    preserved_raw_size = 0
+    preserved_raw_size: Optional[int] = None
     if raw_bytes is not None or raw_src_path is not None:
         raw_final_ext = (raw_ext or "").lstrip(".")
         if not raw_final_ext:
@@ -246,14 +246,14 @@ def write_raw(
     clean_out.write_bytes(clean_bytes)
 
     # If we're preserving a prior raw blob on a raw-less rewrite, carry its
-    # hash/size forward. Otherwise use the freshly computed values (or None/0
+    # hash/size forward. Otherwise use the freshly computed values (or None
     # when no raw bytes were ever captured).
     if preserved_sha_raw is not None:
         meta_sha_raw: Optional[str] = preserved_sha_raw
         meta_size_raw = preserved_raw_size
     else:
         meta_sha_raw = new_sha_raw
-        meta_size_raw = raw_size
+        meta_size_raw = raw_size if raw_bytes_available else None
 
     meta = {
         "slug": slug,
@@ -267,7 +267,7 @@ def write_raw(
         "size_bytes_raw": meta_size_raw,
         "size_bytes_clean": clean_size,
         "raw_bytes_available": raw_bytes_available,
-        "raw_extension": raw_final_ext,
+        "raw_extension": raw_final_ext if raw_bytes_available else None,
         "migrated_legacy": False,
     }
     if extra_meta:

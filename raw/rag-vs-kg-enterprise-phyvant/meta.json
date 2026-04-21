@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "5f51f130e88ec47f3409518bf66fedaf8ef9f0fc1becd5b83f22c50dea6cf48e",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 2917,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/rag-vs-kg-enterprise-phyvant.md"
 }

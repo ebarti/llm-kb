@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "bff9467cc4f909fad3f1862d8251c15cd5c8c5a909de153d99f17e1d89b0edf1",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 2758,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/frontiers-ai-lab-automation-scientific-discovery.md"
 }

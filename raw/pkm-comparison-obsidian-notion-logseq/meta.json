@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "7c4a6cdb50b20a50cd6f13c27e23ed5fc3b2f036b6ba85a12d94890041927763",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 2970,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/pkm-comparison-obsidian-notion-logseq.md"
 }

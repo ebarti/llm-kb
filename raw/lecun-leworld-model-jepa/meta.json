@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "b159ad6ccd0c9a5edd96fb2e05d7a94d7854f2168a7eb86ff30f3984d0d1f893",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 1453,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/lecun-leworld-model-jepa.md"
 }

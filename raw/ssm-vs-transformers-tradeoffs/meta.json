@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "2bca2b9014defacdc8305c45fa49d224950e2989bcd6e3f8c6a6c65aab30dcc5",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 3099,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/ssm-vs-transformers-tradeoffs.md"
 }

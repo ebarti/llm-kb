@@ -12,7 +12,8 @@ After:
 
 Notes:
   - No raw.<ext> is created; we never had the original bytes.
-    meta.json records sha256_raw = null and raw_bytes_available = false.
+    meta.json records sha256_raw = null, size_bytes_raw = null,
+    raw_extension = null, and raw_bytes_available = false.
   - meta.json records sha256_clean (sha256 of the .md text).
   - Existing YAML frontmatter is parsed best-effort to populate url/type/fetched_at.
   - By default, the original flat file is LEFT IN PLACE (backward-compat window).
@@ -222,10 +223,10 @@ def migrate_one(md_file: Path, *, dry_run: bool) -> dict:
         "content_type": infer_content_type(fetcher),
         "sha256_raw": None,
         "sha256_clean": sha_clean,
-        "size_bytes_raw": 0,
+        "size_bytes_raw": None,
         "size_bytes_clean": len(content_bytes),
         "raw_bytes_available": False,
-        "raw_extension": "",
+        "raw_extension": None,
         "migrated_legacy": True,
         "legacy_path": f"raw/{md_file.name}",
     }

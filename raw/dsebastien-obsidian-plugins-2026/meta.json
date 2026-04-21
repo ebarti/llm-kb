@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "a6a084f8a86c469ef3c1345ab0a77a91bfe5d6109de377db22d3a1e3d70b51e6",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 6314,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/dsebastien-obsidian-plugins-2026.md"
 }

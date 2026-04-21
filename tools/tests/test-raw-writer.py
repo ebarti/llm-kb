@@ -150,6 +150,8 @@ class TestRawWriter(unittest.TestCase):
         meta = json.loads((d / "meta.json").read_text())
         self.assertIsNone(meta["sha256_raw"])
         self.assertFalse(meta["raw_bytes_available"])
+        self.assertIsNone(meta["size_bytes_raw"])
+        self.assertIsNone(meta["raw_extension"])
 
     def test_idempotent_without_raw_bytes_on_clean_hash(self):
         result1 = raw_writer.write_raw(
@@ -243,6 +245,8 @@ class TestRawWriter(unittest.TestCase):
         meta = json.loads((d / "meta.json").read_text())
         self.assertFalse(meta["raw_bytes_available"])
         self.assertIsNone(meta["sha256_raw"])
+        self.assertIsNone(meta["size_bytes_raw"])
+        self.assertIsNone(meta["raw_extension"])
 
     def test_rewrite_replaces_raw_with_new_extension(self):
         """A subsequent raw write with a different extension must purge the
@@ -332,6 +336,8 @@ class TestMigration(unittest.TestCase):
         self.assertTrue(meta["migrated_legacy"])
         self.assertFalse(meta["raw_bytes_available"])
         self.assertIsNone(meta["sha256_raw"])
+        self.assertIsNone(meta["size_bytes_raw"])
+        self.assertIsNone(meta["raw_extension"])
         self.assertEqual(meta["url"], "https://x/y")
         self.assertEqual(meta["fetcher"], "web")
         # sha256_clean matches

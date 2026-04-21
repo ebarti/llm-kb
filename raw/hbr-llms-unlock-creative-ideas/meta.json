@@ -7,10 +7,10 @@
   "content_type": "html",
   "sha256_raw": null,
   "sha256_clean": "8fb3ece630afa923a126b1e0a88760c8eec7f039eb810a2d82f0d661a6b75a5c",
-  "size_bytes_raw": 0,
+  "size_bytes_raw": null,
   "size_bytes_clean": 2361,
   "raw_bytes_available": false,
-  "raw_extension": "",
+  "raw_extension": null,
   "migrated_legacy": true,
   "legacy_path": "raw/hbr-llms-unlock-creative-ideas.md"
 }
