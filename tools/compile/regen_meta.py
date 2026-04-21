@@ -269,8 +269,17 @@ def _merge_stats_history(
     by_timestamp: dict[str, dict[str, object]] = {}
     for entry in existing_history:
         timestamp = entry["timestamp"]
-        by_timestamp[str(timestamp)] = dict(entry)
-    by_timestamp[str(current_entry["timestamp"])] = dict(current_entry)
+        timestamp_key = _parse_iso_date(timestamp)
+        by_timestamp[
+            timestamp_key.isoformat() if timestamp_key is not None else str(timestamp)
+        ] = dict(entry)
+    current_timestamp = current_entry["timestamp"]
+    current_timestamp_key = _parse_iso_date(current_timestamp)
+    by_timestamp[
+        current_timestamp_key.isoformat()
+        if current_timestamp_key is not None
+        else str(current_timestamp)
+    ] = dict(current_entry)
     timestamps = sorted(by_timestamp)
     return [by_timestamp[timestamp] for timestamp in timestamps][-100:]
 
@@ -513,12 +522,12 @@ def render_summaries(scan: WikiScan) -> str:
     other = []
     bucketed = set()
     for type_key, _dir_hint, _header in SUMMARY_SECTIONS:
-        bucketed.update(id(a) for a in buckets.get(type_key, []))
+        bucketed.update(a["path"] for a in buckets.get(type_key, []))
     for art in scan.articles.values():
         top_dir = art["path"].split("/", 1)[0] if "/" in art["path"] else ""
         if top_dir not in ARTICLE_SUBDIRS_SET:
             continue
-        if id(art) in bucketed:
+        if art["path"] in bucketed:
             continue
         other.append(art)
     if other:

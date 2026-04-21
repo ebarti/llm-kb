@@ -256,7 +256,7 @@ def test_stats_reflects_reality(regen) -> tuple[bool, str]:
     actual = sum(
         1
         for f in WIKI_DIR.rglob("*.md")
-        if "_meta" not in f.relative_to(WIKI_DIR).parts[:1]
+        if f.relative_to(WIKI_DIR).parts[0] != "_meta"
     )
     return (reported == actual), f"stats.total_files={reported} actual={actual}"
 
@@ -268,9 +268,10 @@ def test_stats_preserves_existing_history(regen) -> tuple[bool, str]:
 
     with TemporaryDirectory() as tmpdir:
         tmp_meta_dir = Path(tmpdir)
+        legacy_same_day = f"{current_timestamp} 12:00"
         seed_history = [
             {"timestamp": "2026-03-01 12:00", "total_words": 111, "total_files": 11},
-            {"timestamp": current_timestamp, "total_words": 1, "total_files": 1},
+            {"timestamp": legacy_same_day, "total_words": 1, "total_files": 1},
             {"timestamp": "2026-03-15 12:00", "total_words": 222, "total_files": 22},
         ]
         (tmp_meta_dir / "stats.json").write_text(
@@ -291,16 +292,17 @@ def test_stats_preserves_existing_history(regen) -> tuple[bool, str]:
 
         preserved = {"2026-03-01 12:00", "2026-03-15 12:00"}.issubset(timestamps)
         current_entries = [entry for entry in history if entry["timestamp"] == current_timestamp]
+        legacy_same_day_removed = legacy_same_day not in timestamps
         replaced_snapshot = (
             len(current_entries) == 1
             and current_entries[0]["total_words"] == data["current"]["total_words"]
             and current_entries[0]["total_files"] == data["current"]["total_files"]
         )
 
-        ok = preserved and replaced_snapshot
+        ok = preserved and legacy_same_day_removed and replaced_snapshot
         detail = (
             f"history_len={len(history)} preserved_prior={preserved} "
-            f"current_entries={len(current_entries)}"
+            f"legacy_same_day_removed={legacy_same_day_removed} current_entries={len(current_entries)}"
         )
         return ok, detail
 
