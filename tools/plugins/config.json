@@ -2,9 +2,6 @@
   "enabled": [
     "word_count",
     "reading_time",
-    "backlink_updater",
-    "glossary_builder",
-    "reading_list",
-    "changelog"
+    "backlink_updater"
   ]
 }
