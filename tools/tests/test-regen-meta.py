@@ -19,11 +19,12 @@ from __future__ import annotations
 import argparse
 import contextlib
 import importlib.util
+import io
 import json
 import re
 import shutil
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from tempfile import TemporaryDirectory
 
 
@@ -326,6 +327,26 @@ def test_links_include_self_links(regen) -> tuple[bool, str]:
     )
 
 
+def test_rel_wiki_id_normalizes_windows_paths(regen) -> tuple[bool, str]:
+    original_wiki_dir = regen.WIKI_DIR
+    try:
+        regen.WIKI_DIR = PureWindowsPath("C:/kb/wiki")
+        rel = regen._rel_wiki_id(PureWindowsPath("C:/kb/wiki/concepts/rag.md"))
+    finally:
+        regen.WIKI_DIR = original_wiki_dir
+    return rel == "concepts/rag", f"_rel_wiki_id={rel!r}"
+
+
+def test_progress_output_uses_wiki_files_label(regen) -> tuple[bool, str]:
+    with _sandbox_meta(regen):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = regen.regenerate(quiet=False)
+    output = buf.getvalue()
+    ok = rc == 0 and "wiki files:" in output and "wiki articles:" not in output
+    return ok, output.splitlines()[-1] if output.strip() else "no output"
+
+
 TESTS = [
     # Preflight must run first -- subsequent tests call regenerate() and
     # would silently repair any stale committed artifacts.
@@ -339,6 +360,8 @@ TESTS = [
     ("stats_matches_actual_file_count", test_stats_reflects_reality),
     ("stats_preserves_existing_history", test_stats_preserves_existing_history),
     ("links_include_self_links", test_links_include_self_links),
+    ("rel_wiki_id_normalizes_windows_paths", test_rel_wiki_id_normalizes_windows_paths),
+    ("progress_output_uses_wiki_files_label", test_progress_output_uses_wiki_files_label),
 ]
 
 

@@ -201,7 +201,7 @@ def _iter_raw_files() -> list[Path]:
 
 def _rel_wiki_id(fp: Path) -> str:
     """Path relative to ``wiki/`` without the ``.md`` extension."""
-    return str(fp.relative_to(WIKI_DIR))[:-3]
+    return fp.relative_to(WIKI_DIR).as_posix()[:-3]
 
 
 def _content_hash(fp: Path) -> str:
@@ -330,8 +330,8 @@ class WikiScan:
             wc = count_words(body)
             raw_links = [strip_wikilinks(l) for l in extract_wikilinks(raw_text)]
 
-            rel_path = str(fp.relative_to(WIKI_DIR))
-            top_dir = rel_path.split(os.sep)[0] if os.sep in rel_path else "(root)"
+            rel_path = fp.relative_to(WIKI_DIR).as_posix()
+            top_dir = rel_path.split("/", 1)[0] if "/" in rel_path else "(root)"
             self.file_word_counts[rel_path] = wc
             self.dir_word_counts[top_dir] = self.dir_word_counts.get(top_dir, 0) + wc
             self.total_words += wc
@@ -757,7 +757,7 @@ def regenerate(
 
     if not quiet:
         print(
-            f"  [regen_meta] wiki articles: {scan.total_files} | "
+            f"  [regen_meta] wiki files: {scan.total_files} | "
             f"raw files: {len(scan.raw_files)} | "
             f"total words: {scan.total_words:,} | "
             f"generated_date: {scan.generated_date.isoformat()}"
