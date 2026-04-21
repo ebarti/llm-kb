@@ -248,10 +248,18 @@ echo "${BLUE}========================================${NC}"
 echo "${BLUE}  KB Auto-Discovery & Monitoring${NC}"
 echo "${BLUE}========================================${NC}"
 if [[ -n "$DAYS_BACK" ]]; then
-    echo "  Window: last ${DAYS_BACK} day(s)"
+    if $DO_TOPICS || $DO_FEEDS; then
+        echo "  Window: last ${DAYS_BACK} day(s)"
+    else
+        echo "  Note: --days ${DAYS_BACK} ignored for selected mode(s)"
+    fi
 fi
 if [[ -n "$TOPIC_FILTER" ]]; then
-    echo "  Topic filter: ${TOPIC_FILTER}"
+    if $DO_TOPICS; then
+        echo "  Topic filter: ${TOPIC_FILTER}"
+    else
+        echo "  Note: --topic '${TOPIC_FILTER}' ignored for selected mode(s)"
+    fi
 fi
 echo ""
 

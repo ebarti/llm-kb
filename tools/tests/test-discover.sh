@@ -32,6 +32,20 @@ assert_missing() {
     [[ ! -e "$path" ]] || fail "expected $path to be absent"
 }
 
+assert_contains() {
+    local haystack="$1"
+    local needle="$2"
+
+    [[ "$haystack" == *"$needle"* ]] || fail "expected output to contain: $needle"
+}
+
+assert_not_contains() {
+    local haystack="$1"
+    local needle="$2"
+
+    [[ "$haystack" != *"$needle"* ]] || fail "expected output to omit: $needle"
+}
+
 make_fixture() {
     local fixture
     fixture="$(mktemp -d "$TMP_ROOT/discover-fixture.XXXXXX")"
@@ -128,10 +142,33 @@ test_topic_modifier_alone_still_defaults_to_topics() {
     assert_missing "$fixture/report.ran"
 }
 
+test_header_notes_ignored_modifiers() {
+    local fixture output
+
+    fixture="$(make_fixture)"
+    output="$("$fixture/discover" --report --topic RAG --days 7)"
+    assert_contains "$output" "Note: --days 7 ignored for selected mode(s)"
+    assert_contains "$output" "Note: --topic 'RAG' ignored for selected mode(s)"
+    assert_not_contains "$output" "Window: last 7 day(s)"
+    assert_not_contains "$output" "Topic filter: RAG"
+}
+
+test_header_shows_only_active_modifiers() {
+    local fixture output
+
+    fixture="$(make_fixture)"
+    output="$("$fixture/discover" --feeds --topic RAG --days 7)"
+    assert_contains "$output" "Window: last 7 day(s)"
+    assert_contains "$output" "Note: --topic 'RAG' ignored for selected mode(s)"
+    assert_not_contains "$output" "Topic filter: RAG"
+}
+
 test_modifier_only_invocations_default_to_topics
 test_rss_passthrough_flags_are_preserved
 test_topic_modifier_does_not_activate_monitor_with_report
 test_topic_modifier_does_not_activate_monitor_with_feeds
 test_topic_modifier_alone_still_defaults_to_topics
+test_header_notes_ignored_modifiers
+test_header_shows_only_active_modifiers
 
 echo "discover regression tests passed"
