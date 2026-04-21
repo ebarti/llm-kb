@@ -96,6 +96,12 @@ test_modifier_only_invocations_default_to_topics() {
     assert_file_content "$fixture/monitor.args" '["--dry-run"]'
     assert_missing "$fixture/rss.args"
     assert_missing "$fixture/report.ran"
+
+    fixture="$(make_fixture)"
+    bash "$fixture/discover" --days 7 >/dev/null
+    assert_file_content "$fixture/monitor.args" '["--days", "7"]'
+    assert_missing "$fixture/rss.args"
+    assert_missing "$fixture/report.ran"
 }
 
 test_rss_passthrough_flags_are_preserved() {
