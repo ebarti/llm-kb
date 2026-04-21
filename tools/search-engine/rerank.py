@@ -40,7 +40,7 @@ def is_available() -> tuple[bool, str]:
 class CrossEncoderReranker:
     """
     Lazy wrapper around sentence_transformers.CrossEncoder. The model is loaded
-    on first .rerank() call so importing this module is free.
+    on first .score_pairs() call so importing this module is free.
     """
     def __init__(self, model_name: str = MODEL_NAME):
         self.model_name = model_name

@@ -523,6 +523,9 @@ def _run_hybrid(query, index, args):
     cross-encoder rerank. Emits a user-friendly error and falls back to BM25 if
     ML deps are missing.
     """
+    if not tokenize(query):
+        return []
+
     try:
         import embeddings
         import hybrid

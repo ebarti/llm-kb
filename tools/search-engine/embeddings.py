@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -165,7 +164,8 @@ class VectorIndex:
         if not _HAS_NUMPY:
             raise RuntimeError("numpy required to save VectorIndex")
         import time as _time
-        INDEX_DIR.mkdir(parents=True, exist_ok=True)
+        vectors_file.parent.mkdir(parents=True, exist_ok=True)
+        chunks_file.parent.mkdir(parents=True, exist_ok=True)
         np.save(vectors_file, self.vectors)
         # Stamp the build time so search-time staleness checks can compare
         # against wiki file mtimes the same way the BM25 index does.

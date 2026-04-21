@@ -335,7 +335,7 @@ def run_rerank_pool_regression():
             date_to=None,
             no_fuzzy=False,
         )
-        results = search_mod._run_hybrid("q", {"docs": {}, "backlinks": {}}, args)
+        results = search_mod._run_hybrid("query", {"docs": {}, "backlinks": {}}, args)
     finally:
         search_mod.load_body = original_load_body
         search_mod.extract_snippet = original_extract_snippet
@@ -349,6 +349,116 @@ def run_rerank_pool_regression():
         "description": "_run_hybrid forwards top > 50 to rerank pool",
         "passed": calls.get("pool") == 75 and calls.get("count") == 75 and len(results) == 75,
     }]
+
+
+def run_hybrid_empty_query_regression():
+    """
+    Regression: when tokenization yields no terms, _run_hybrid() should match
+    the BM25 path and return [] before touching the embeddings stack.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import types
+    import search as search_mod
+
+    calls = {"embeddings_checked": 0}
+
+    def exploding_is_available():
+        calls["embeddings_checked"] += 1
+        raise AssertionError("embeddings.is_available() should not run for empty-token queries")
+
+    original_modules = {
+        name: sys.modules.get(name)
+        for name in ("embeddings", "hybrid")
+    }
+    sys.modules["embeddings"] = types.SimpleNamespace(is_available=exploding_is_available)
+    sys.modules["hybrid"] = types.SimpleNamespace()
+
+    args = types.SimpleNamespace(
+        top=10,
+        rerank=False,
+        type=None,
+        tags=None,
+        date_from=None,
+        date_to=None,
+        no_fuzzy=False,
+    )
+
+    try:
+        results = search_mod._run_hybrid("the and or", {"docs": {}, "backlinks": {}}, args)
+    except AssertionError as e:
+        return [{
+            "description": "_run_hybrid returns [] before ML setup on empty-token queries",
+            "passed": False,
+            "detail": str(e),
+        }]
+    finally:
+        for name, module in original_modules.items():
+            if module is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = module
+
+    return [{
+        "description": "_run_hybrid returns [] before ML setup on empty-token queries",
+        "passed": results == [] and calls["embeddings_checked"] == 0,
+    }]
+
+
+def run_vector_index_save_regression():
+    """
+    Regression: VectorIndex.save() should honor custom output paths by creating
+    the parent directories of the passed files, not just the default INDEX_DIR.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    try:
+        import numpy as np
+    except ImportError:
+        return [{
+            "description": "VectorIndex.save creates custom parent directories",
+            "passed": True,
+            "detail": "numpy unavailable; skipped",
+        }]
+
+    import tempfile
+    import embeddings
+
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        vectors_file = root / "nested" / "vectors.npy"
+        chunks_file = root / "meta" / "chunks.json"
+        index = embeddings.VectorIndex(
+            vectors=np.ones((1, 3), dtype=np.float32),
+            chunks=[{
+                "chunk_id": "concepts/a#0000",
+                "doc_id": "concepts/a",
+                "heading_path": ["A"],
+                "text": "body",
+                "tokens": 2,
+                "content_hash": "deadbeef",
+            }],
+            dim=3,
+            model_name="test-model",
+        )
+
+        try:
+            index.save(vectors_file=vectors_file, chunks_file=chunks_file)
+        except Exception as e:
+            return [{
+                "description": "VectorIndex.save creates custom parent directories",
+                "passed": False,
+                "detail": str(e),
+            }]
+
+        loaded = embeddings.VectorIndex.load(vectors_file=vectors_file, chunks_file=chunks_file)
+
+        return [{
+            "description": "VectorIndex.save creates custom parent directories",
+            "passed": vectors_file.exists() and chunks_file.exists() and loaded is not None and loaded.dim == 3,
+        }]
 
 
 def run_chunker_regressions():
@@ -505,6 +615,30 @@ def run_checks():
     else:
         results["regression_tests"].extend(rerank_tests)
         for test in rerank_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        empty_query_tests = run_hybrid_empty_query_regression()
+    except Exception as e:
+        results["issues"].append(f"Hybrid empty-query regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(empty_query_tests)
+        for test in empty_query_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        save_tests = run_vector_index_save_regression()
+    except Exception as e:
+        results["issues"].append(f"VectorIndex.save regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(save_tests)
+        for test in save_tests:
             if not test["passed"]:
                 results["issues"].append(f"Regression failed: {test['description']}")
                 results["ok"] = False
