@@ -93,6 +93,10 @@ SUMMARY_SECTIONS: list[tuple[str, str, str]] = [
     ("entity", "entities", "Entities"),
     ("comparison", "comparisons", "Comparisons"),
 ]
+SUMMARY_TYPE_KEYS: frozenset[str] = frozenset(section[0] for section in SUMMARY_SECTIONS)
+SUMMARY_DIR_TO_TYPE: dict[str, str] = {
+    dir_hint: type_key for type_key, dir_hint, _header in SUMMARY_SECTIONS
+}
 
 
 # --------------------------------------------------------------------- #
@@ -261,6 +265,11 @@ def _load_existing_stats_history() -> list[dict[str, object]]:
     return cleaned
 
 
+def _stats_timestamp(snapshot_date: date) -> str:
+    """Return the deterministic stats timestamp format."""
+    return snapshot_date.strftime("%Y-%m-%d 00:00")
+
+
 def _merge_stats_history(
     existing_history: list[dict[str, object]],
     current_entry: dict[str, object],
@@ -393,11 +402,11 @@ def render_stats(scan: WikiScan) -> str:
     The structure matches (and supersedes) the existing ``word_count``
     plugin -- ``current`` (snapshot) and ``history`` (merged time
     series). Prior history entries are preserved, while the current
-    deterministic snapshot replaces any existing sample with the same
-    timestamp so reruns on the same input stay idempotent.
+    deterministic snapshot replaces/collapses any existing sample for
+    the same calendar date so reruns on the same input stay idempotent.
     """
     top_files = sorted(scan.file_word_counts.items(), key=lambda kv: (-kv[1], kv[0]))[:20]
-    timestamp = scan.generated_date.isoformat()
+    timestamp = _stats_timestamp(scan.generated_date)
     current_entry = {
         "timestamp": timestamp,
         "total_words": scan.total_words,
@@ -490,15 +499,9 @@ def render_summaries(scan: WikiScan) -> str:
         ftype = art["frontmatter"].get("type", "")
         # Normalise to directory bucket when type is missing so we
         # never drop an article on the floor.
-        dir_to_type = {
-            "sources": "source-summary",
-            "concepts": "concept",
-            "entities": "entity",
-            "comparisons": "comparison",
-        }
-        effective = ftype or dir_to_type.get(top_dir, "")
-        if effective not in {s[0] for s in SUMMARY_SECTIONS}:
-            effective = dir_to_type.get(top_dir, effective)
+        effective = ftype or SUMMARY_DIR_TO_TYPE.get(top_dir, "")
+        if effective not in SUMMARY_TYPE_KEYS:
+            effective = SUMMARY_DIR_TO_TYPE.get(top_dir, effective)
         buckets[effective].append(art)
 
     total_listed = 0
@@ -737,7 +740,8 @@ def regenerate(
         "render_freshness": render_freshness,
     }
 
-    META_DIR.mkdir(parents=True, exist_ok=True)
+    if not check:
+        META_DIR.mkdir(parents=True, exist_ok=True)
 
     changed = 0
     for name, renderer_key in OUTPUT_SPECS:

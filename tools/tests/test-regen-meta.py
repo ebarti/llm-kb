@@ -191,6 +191,19 @@ def test_check_mode_clean(regen) -> tuple[bool, str]:
     return (rc == 0), f"--check rc={rc} (expected 0 after regen)"
 
 
+def test_check_mode_does_not_create_missing_meta_dir(regen) -> tuple[bool, str]:
+    original_meta_dir = regen.META_DIR
+    with TemporaryDirectory() as tmpdir:
+        missing_meta_dir = Path(tmpdir) / "missing" / "_meta"
+        try:
+            regen.META_DIR = missing_meta_dir
+            rc = regen.regenerate(check=True, quiet=True)
+        finally:
+            regen.META_DIR = original_meta_dir
+    ok = rc == 1 and not missing_meta_dir.exists()
+    return ok, f"--check rc={rc} meta_dir_exists={missing_meta_dir.exists()}"
+
+
 def test_manifest_covers_all_raw(regen) -> tuple[bool, str]:
     with _sandbox_meta(regen) as tmp_meta_dir:
         regen.regenerate(quiet=True)
@@ -265,7 +278,7 @@ def test_stats_reflects_reality(regen) -> tuple[bool, str]:
 def test_stats_preserves_existing_history(regen) -> tuple[bool, str]:
     scan = regen.WikiScan()
     scan.scan()
-    current_timestamp = scan.generated_date.isoformat()
+    current_timestamp = regen._stats_timestamp(scan.generated_date)
 
     with TemporaryDirectory() as tmpdir:
         tmp_meta_dir = Path(tmpdir)
@@ -354,6 +367,7 @@ TESTS = [
     ("produces_all_five_files", test_produces_all_files),
     ("idempotent_second_run_is_noop", test_idempotent),
     ("check_mode_clean_after_regen", test_check_mode_clean),
+    ("check_mode_does_not_create_missing_meta_dir", test_check_mode_does_not_create_missing_meta_dir),
     ("manifest_covers_all_raw_files", test_manifest_covers_all_raw),
     ("summaries_covers_all_articles", test_summaries_covers_all_articles),
     ("links_no_phantom_entries", test_links_no_phantoms),
