@@ -212,12 +212,14 @@ class VectorIndex:
         Cosine-similarity search. Since vectors are L2-normalized, dot product
         is cosine. Returns list of (chunk_dict, score) sorted by score desc.
         """
-        if not _HAS_NUMPY or self.vectors.shape[0] == 0:
+        if not _HAS_NUMPY or self.vectors.shape[0] == 0 or top_k <= 0:
             return []
         # Support both 1-D (D,) and 2-D (1, D) query vectors.
         q = query_vec.reshape(-1) if query_vec.ndim > 1 else query_vec
         scores = self.vectors @ q  # (N,)
         k = min(top_k, scores.shape[0])
+        if k <= 0:
+            return []
         # argpartition is O(N) vs argsort's O(N log N)
         idx = np.argpartition(-scores, k - 1)[:k]
         idx = idx[np.argsort(-scores[idx])]

@@ -461,6 +461,67 @@ def run_vector_index_save_regression():
         }]
 
 
+def run_vector_index_search_limit_regression():
+    """
+    Regression: VectorIndex.search() should return [] for top_k <= 0 instead
+    of reaching np.argpartition(..., k - 1) with an invalid kth.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    try:
+        import numpy as np
+    except ImportError:
+        return [{
+            "description": "VectorIndex.search handles top_k <= 0",
+            "passed": True,
+            "detail": "numpy unavailable; skipped",
+        }]
+
+    import embeddings
+
+    index = embeddings.VectorIndex(
+        vectors=np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32),
+        chunks=[
+            {
+                "chunk_id": "concepts/a#0000",
+                "doc_id": "concepts/a",
+                "heading_path": ["A"],
+                "text": "alpha",
+                "tokens": 1,
+                "content_hash": "hash-a",
+            },
+            {
+                "chunk_id": "concepts/b#0000",
+                "doc_id": "concepts/b",
+                "heading_path": ["B"],
+                "text": "beta",
+                "tokens": 1,
+                "content_hash": "hash-b",
+            },
+        ],
+        dim=2,
+        model_name="test-model",
+    )
+    query = np.array([1.0, 0.0], dtype=np.float32)
+
+    try:
+        zero = index.search(query, top_k=0)
+        negative = index.search(query, top_k=-5)
+        positive = index.search(query, top_k=1)
+    except Exception as e:
+        return [{
+            "description": "VectorIndex.search handles top_k <= 0",
+            "passed": False,
+            "detail": str(e),
+        }]
+
+    return [{
+        "description": "VectorIndex.search handles top_k <= 0",
+        "passed": zero == [] and negative == [] and len(positive) == 1,
+    }]
+
+
 def run_chunker_regressions():
     """Exercise chunk hashing without requiring optional ML dependencies."""
     if str(SEARCH_ENGINE_DIR) not in sys.path:
@@ -639,6 +700,18 @@ def run_checks():
     else:
         results["regression_tests"].extend(save_tests)
         for test in save_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        limit_tests = run_vector_index_search_limit_regression()
+    except Exception as e:
+        results["issues"].append(f"VectorIndex.search limit regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(limit_tests)
+        for test in limit_tests:
             if not test["passed"]:
                 results["issues"].append(f"Regression failed: {test['description']}")
                 results["ok"] = False
