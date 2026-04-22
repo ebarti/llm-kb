@@ -26,6 +26,7 @@ import math
 import os
 import sys
 import sqlite3
+from pathlib import Path
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 WIKI = os.path.join(BASE, "wiki")
@@ -60,6 +61,14 @@ PREDICATE_COLORS = {
 # ---------------------------------------------------------------------- #
 #  Data loading — prefer the typed store, fall back to ad-hoc extraction.
 # ---------------------------------------------------------------------- #
+def _ensure_tools_path() -> str:
+    """Keep ``tools/`` importable without stacking duplicate sys.path entries."""
+    tools_path = os.path.join(BASE, "tools")
+    if tools_path not in sys.path:
+        sys.path.insert(0, tools_path)
+    return tools_path
+
+
 def load_from_graph_db(db_path):
     """Return (nodes dict, typed edges list) from a built .graph.db.
 
@@ -105,7 +114,7 @@ def load_from_wiki():
     We shell out to the `graph.extract` module so the viz has exactly the
     same view of predicates as `gq`.
     """
-    sys.path.insert(0, os.path.join(BASE, "tools"))
+    _ensure_tools_path()
     from graph.extract import extract_nodes_and_edges  # noqa: E402
 
     nodes_list, edges_list = extract_nodes_and_edges(WIKI)
@@ -136,16 +145,15 @@ def _wiki_is_newer_than_db(db_path: str, wiki_dir: str) -> bool:
         return True
     if not os.path.isdir(wiki_dir):
         return False
-    for root, _dirs, files in os.walk(wiki_dir):
-        for name in files:
-            if not name.endswith(".md"):
-                continue
-            full = os.path.join(root, name)
-            try:
-                if os.path.getmtime(full) > db_mtime:
-                    return True
-            except OSError:
-                continue
+    _ensure_tools_path()
+    from graph.extract import _iter_wiki_files  # noqa: E402
+
+    for path in _iter_wiki_files(Path(wiki_dir)):
+        try:
+            if os.path.getmtime(path) > db_mtime:
+                return True
+        except OSError:
+            continue
     return False
 
 

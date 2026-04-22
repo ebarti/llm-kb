@@ -99,7 +99,7 @@ class StoreTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.store.upsert_edge("a", "b", "notapredicate")
 
-    def test_upsert_edge_requires_nodes(self):
+    def test_upsert_edge_requires_non_empty_endpoints(self):
         with self.assertRaises(ValueError):
             self.store.upsert_edge("", "b", "cites")
         with self.assertRaises(ValueError):
@@ -837,6 +837,45 @@ last_compiled: 2026-04-21
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_wiki_is_newer_than_db_ignores_skipped_files(self):
+        viz = self._load_viz()
+        tmp = Path(tempfile.mkdtemp(prefix="viz-freshness-skipped-"))
+        try:
+            wiki = tmp / "wiki"
+            (wiki / "concepts").mkdir(parents=True)
+            (wiki / "_meta").mkdir()
+
+            relevant = wiki / "concepts" / "a.md"
+            relevant.write_text("concept", encoding="utf-8")
+            skipped_meta = wiki / "_meta" / "summaries.md"
+            skipped_meta.write_text("meta", encoding="utf-8")
+            skipped_index = wiki / "_index.md"
+            skipped_index.write_text("index", encoding="utf-8")
+            skipped_log = wiki / "log.md"
+            skipped_log.write_text("log", encoding="utf-8")
+            skipped_private = wiki / "concepts" / "_draft.md"
+            skipped_private.write_text("draft", encoding="utf-8")
+
+            db = tmp / ".graph.db"
+            db.write_bytes(b"")
+
+            import os as _os
+
+            base = _os.path.getmtime(db)
+            _os.utime(relevant, (base - 120, base - 120))
+            _os.utime(skipped_meta, (base + 120, base + 120))
+            _os.utime(skipped_index, (base + 120, base + 120))
+            _os.utime(skipped_log, (base + 120, base + 120))
+            _os.utime(skipped_private, (base + 120, base + 120))
+            _os.utime(db, (base, base))
+
+            self.assertFalse(viz._wiki_is_newer_than_db(str(db), str(wiki)))
+
+            _os.utime(relevant, (base + 240, base + 240))
+            self.assertTrue(viz._wiki_is_newer_than_db(str(db), str(wiki)))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_load_from_graph_db_returns_none_when_connect_fails(self):
         viz = self._load_viz()
         with mock.patch.object(
@@ -845,6 +884,50 @@ last_compiled: 2026-04-21
             side_effect=sqlite3.OperationalError("unable to open database file"),
         ):
             self.assertIsNone(viz.load_from_graph_db(__file__))
+
+    def test_load_from_wiki_does_not_duplicate_tools_path(self):
+        viz = self._load_viz()
+        tmp = Path(tempfile.mkdtemp(prefix="viz-sys-path-"))
+        try:
+            wiki = tmp / "wiki"
+            (wiki / "concepts").mkdir(parents=True)
+            (wiki / "concepts" / "a.md").write_text(
+                """---
+title: "A"
+type: concept
+summary: "a"
+last_compiled: 2026-04-22
+---
+
+[[concepts/b]]
+""",
+                encoding="utf-8",
+            )
+            (wiki / "concepts" / "b.md").write_text(
+                """---
+title: "B"
+type: concept
+summary: "b"
+last_compiled: 2026-04-22
+---
+""",
+                encoding="utf-8",
+            )
+
+            original_wiki = viz.WIKI
+            tools_path = os.path.join(viz.BASE, "tools")
+            original_sys_path = list(sys.path)
+            try:
+                sys.path[:] = [p for p in sys.path if p != tools_path]
+                viz.WIKI = str(wiki)
+                viz.load_from_wiki()
+                viz.load_from_wiki()
+                self.assertEqual(sum(p == tools_path for p in sys.path), 1)
+            finally:
+                viz.WIKI = original_wiki
+                sys.path[:] = original_sys_path
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
     def test_generate_html_uses_text_nodes_and_safe_script_json(self):
         viz = self._load_viz()
