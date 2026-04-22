@@ -114,7 +114,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --topic)
-            if [[ $# -lt 2 ]]; then
+            if [[ $# -lt 2 || "$2" == -* ]]; then
                 echo "${RED}error:${NC} --topic requires an argument" >&2
                 exit 2
             fi

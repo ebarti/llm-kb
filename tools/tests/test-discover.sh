@@ -46,6 +46,26 @@ assert_not_contains() {
     [[ "$haystack" != *"$needle"* ]] || fail "expected output to omit: $needle"
 }
 
+assert_fails_with_stderr() {
+    local expected_exit="$1"
+    local expected_stderr="$2"
+    shift 2
+
+    local stderr_file
+    stderr_file="$(mktemp "$TMP_ROOT/stderr.XXXXXX")"
+
+    set +e
+    "$@" >/dev/null 2>"$stderr_file"
+    local rc=$?
+    set -e
+
+    [[ "$rc" -eq "$expected_exit" ]] || fail "expected exit $expected_exit, got $rc"
+
+    local stderr
+    stderr="$(cat "$stderr_file")"
+    assert_contains "$stderr" "$expected_stderr"
+}
+
 make_fixture() {
     local fixture
     fixture="$(mktemp -d "$TMP_ROOT/discover-fixture.XXXXXX")"
@@ -169,6 +189,22 @@ test_header_shows_only_active_modifiers() {
     assert_not_contains "$output" "Topic filter: RAG"
 }
 
+test_argument_validation_failures() {
+    local fixture
+
+    fixture="$(make_fixture)"
+    assert_fails_with_stderr 2 "error: --topic requires an argument" \
+        "$fixture/discover" --topic
+
+    fixture="$(make_fixture)"
+    assert_fails_with_stderr 2 "error: --topic requires an argument" \
+        "$fixture/discover" --topic --report
+
+    fixture="$(make_fixture)"
+    assert_fails_with_stderr 2 "error: --days expects a positive integer (>= 1), got 'abc'" \
+        "$fixture/discover" --days abc
+}
+
 test_modifier_only_invocations_default_to_topics
 test_rss_passthrough_flags_are_preserved
 test_topic_modifier_does_not_activate_monitor_with_report
@@ -176,5 +212,6 @@ test_topic_modifier_does_not_activate_monitor_with_feeds
 test_topic_modifier_alone_still_defaults_to_topics
 test_header_notes_ignored_modifiers
 test_header_shows_only_active_modifiers
+test_argument_validation_failures
 
 echo "discover regression tests passed"
