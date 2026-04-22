@@ -456,6 +456,30 @@ class WrapperIntegrationTests(unittest.TestCase):
         self.assertEqual("stats", payload["command"])
         self.assertIn("total_wiki_files", payload)
 
+    def test_kb_wrapper_preserves_caller_cwd_for_relative_kb_dir(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "wiki" / "concepts").mkdir(parents=True)
+            (root / "wiki" / "concepts" / "only.md").write_text(
+                "# only\n",
+                encoding="utf-8",
+            )
+
+            env = os.environ.copy()
+            env["KB_DIR"] = "."
+            proc = subprocess.run(
+                [str(KB_SCRIPT), "stats", "--json"],
+                cwd=str(root),
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, proc.returncode, proc.stderr)
+            payload = json.loads(proc.stdout)
+            self.assertEqual(1, payload["total_wiki_files"])
+
 
 if __name__ == "__main__":
     unittest.main()
