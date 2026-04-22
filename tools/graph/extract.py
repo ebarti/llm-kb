@@ -399,7 +399,7 @@ def detect_predicate(left_context: str) -> tuple[str, str]:
     return "mentions", "default"
 
 
-def _iter_wiki_files(wiki_dir: Path) -> Iterator[Path]:
+def iter_wiki_files(wiki_dir: Path) -> Iterator[Path]:
     """Yield markdown files that should be treated as graph nodes.
 
     Skips `_meta/`, `_index.md`, `log.md`, and anything starting with `_`.
@@ -418,6 +418,10 @@ def _iter_wiki_files(wiki_dir: Path) -> Iterator[Path]:
         # Top-level files like Changelog.md / Dashboard.md are allowed so
         # that hub pages can still participate, but their type is 'meta'.
         yield path
+
+
+# Backward-compatible alias for any internal callers still using the old name.
+_iter_wiki_files = iter_wiki_files
 
 
 def _node_from_file(path: Path, wiki_dir: Path) -> tuple[Node, str, str]:
@@ -492,7 +496,7 @@ def extract_nodes_and_edges(
     nodes: dict[str, Node] = {}
     edges: list[Edge] = []
     # Pass 1: collect all nodes so self-links and cross-refs resolve.
-    files = list(_iter_wiki_files(wiki_dir))
+    files = list(iter_wiki_files(wiki_dir))
     parsed: dict[str, tuple[Node, str, str]] = {}
     for path in files:
         node, fm_block, body = _node_from_file(path, wiki_dir)

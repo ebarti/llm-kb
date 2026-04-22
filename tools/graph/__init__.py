@@ -20,6 +20,7 @@ from .extract import (
     extract_nodes_and_edges,
     detect_predicate,
     PREDICATE_PATTERNS,
+    iter_wiki_files,
 )
 
 __all__ = [
@@ -30,4 +31,5 @@ __all__ = [
     "extract_nodes_and_edges",
     "detect_predicate",
     "PREDICATE_PATTERNS",
+    "iter_wiki_files",
 ]

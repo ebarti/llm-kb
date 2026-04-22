@@ -416,6 +416,19 @@ def _run_gq(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def _run_kb(repo_root: Path, *args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    merged_env = os.environ.copy()
+    if env:
+        merged_env.update(env)
+    return subprocess.run(
+        ["bash", str(repo_root / "kb"), *args],
+        cwd=str(repo_root),
+        capture_output=True,
+        text=True,
+        env=merged_env,
+    )
+
+
 class ExtractionTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = Path(tempfile.mkdtemp(prefix="graph-fixture-"))
@@ -734,6 +747,74 @@ edges:
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_kb_compile_fails_when_graph_build_fails_without_existing_db(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-kb-compile-"))
+        try:
+            (tmp / "tools" / "graph").mkdir(parents=True)
+            for rel in ("kb", "tools/graph/__init__.py", "tools/graph/extract.py", "tools/graph/store.py", "tools/graph/gq"):
+                src = REPO_ROOT / rel
+                dst = tmp / rel
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dst)
+
+            fake_bin = tmp / "bin"
+            fake_bin.mkdir()
+            claude = fake_bin / "claude"
+            claude.write_text(
+                "#!/bin/sh\nexit 0\n",
+                encoding="utf-8",
+            )
+            claude.chmod(0o755)
+
+            wiki = tmp / "wiki" / "concepts"
+            wiki.mkdir(parents=True)
+            (tmp / "raw").mkdir()
+            (wiki / "a.md").write_text(
+                """---
+title: "A"
+type: concept
+summary: "a"
+last_compiled: 2026-04-22
+edges:
+  - {to: "concepts/b", predicate: "still_nope"}
+---
+
+[[concepts/b]]
+""",
+                encoding="utf-8",
+            )
+            (wiki / "b.md").write_text(
+                """---
+title: "B"
+type: concept
+summary: "b"
+last_compiled: 2026-04-22
+---
+""",
+                encoding="utf-8",
+            )
+
+            compile_run = _run_kb(
+                tmp,
+                "compile",
+                env={
+                    "PATH": f"{fake_bin}:{os.environ['PATH']}",
+                    "KB_NO_COMMIT": "1",
+                },
+            )
+            self.assertNotEqual(compile_run.returncode, 0)
+            self.assertIn(
+                "error: failed to build graph store:",
+                compile_run.stderr,
+            )
+            self.assertIn(
+                "Graph store build failed and no existing .graph.db is available",
+                compile_run.stderr,
+            )
+            self.assertFalse((tmp / ".graph.db").exists())
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
 
 class VizFreshnessTests(unittest.TestCase):
     """viz/graph.py must not render a stale DB when the wiki has moved."""
@@ -822,7 +903,6 @@ last_compiled: 2026-04-21
             db = tmp / ".graph.db"
             db.write_bytes(b"")
             import os as _os
-            import time as _time
             # Make the wiki article newer than the DB.
             past = _os.path.getmtime(db) - 60
             _os.utime(article, (past + 120, past + 120))

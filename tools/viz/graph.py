@@ -146,9 +146,9 @@ def _wiki_is_newer_than_db(db_path: str, wiki_dir: str) -> bool:
     if not os.path.isdir(wiki_dir):
         return False
     _ensure_tools_path()
-    from graph.extract import _iter_wiki_files  # noqa: E402
+    from graph.extract import iter_wiki_files  # noqa: E402
 
-    for path in _iter_wiki_files(Path(wiki_dir)):
+    for path in iter_wiki_files(Path(wiki_dir)):
         try:
             if os.path.getmtime(path) > db_mtime:
                 return True
@@ -161,7 +161,7 @@ def load_graph():
     # Prefer the prebuilt DB, but fall back to live extraction when the
     # wiki has been edited since the DB was written. Without this the
     # viz renders a silently stale graph whenever the DB rebuild was
-    # skipped or failed (kb compile treats that as non-fatal).
+    # skipped or failed and no last-good DB was preserved.
     if not _wiki_is_newer_than_db(GRAPH_DB, WIKI):
         data = load_from_graph_db(GRAPH_DB)
         if data is not None:
