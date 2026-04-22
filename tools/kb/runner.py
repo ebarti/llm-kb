@@ -240,7 +240,7 @@ def _invoke_sdk(
             cache_creation_input_tokens=budget.usage.cache_creation_input_tokens,
             cache_read_input_tokens=budget.usage.cache_read_input_tokens,
         ),
-        returncode=0,
+        returncode=1 if budget_exceeded else 0,
         budget_exceeded=budget_exceeded,
     )
 

@@ -142,6 +142,33 @@ class RunnerBudgetTests(unittest.TestCase):
         self.assertIn("token budget exhausted before SDK call", result.text)
         create.assert_not_called()
 
+    def test_sdk_backend_returns_nonzero_when_response_crosses_budget(self) -> None:
+        create = mock.Mock(
+            return_value=types.SimpleNamespace(
+                content=[types.SimpleNamespace(text="partial response")],
+                usage={"output_tokens": 120},
+            )
+        )
+        fake_client = types.SimpleNamespace(
+            messages=types.SimpleNamespace(create=create)
+        )
+        fake_anthropic = types.SimpleNamespace(Anthropic=lambda: fake_client)
+        budget = BudgetTracker(limit=100)
+
+        with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
+            result = invoke_llm(
+                "prompt",
+                model="sonnet",
+                budget=budget,
+                force_backend="sdk",
+            )
+
+        self.assertEqual("sdk", result.backend)
+        self.assertTrue(result.budget_exceeded)
+        self.assertEqual(1, result.returncode)
+        self.assertEqual("partial response", result.text)
+        self.assertEqual(120, result.usage.output_tokens)
+
     @mock.patch("tools.kb.runner.shutil.which", return_value=None)
     def test_cli_backend_reports_sdk_available_when_cli_is_forced(
         self,

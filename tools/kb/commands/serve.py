@@ -71,9 +71,10 @@ def run_mcp(ctx: CommandContext, args: Optional[list[str]] = None) -> ServeResul
 
     python = sys.executable or "python3"
     cmd = [python, str(server)] + (args or [])
-    # mcp-server/server.py defaults WIKI_ROOT to os.getcwd(); without this
-    # an invocation via `kb --dir <tmp> mcp` would serve the caller's
-    # checkout, not the selected workspace.
+    # ``cwd`` already points the server at the selected workspace because
+    # mcp-server/server.py defaults ``WIKI_ROOT`` to ``os.getcwd()``.
+    # Keep the env override as explicit redundancy so the target root stays
+    # pinned even if the server startup path changes later.
     env = os.environ.copy()
     env["WIKI_ROOT"] = str(ws.kb_dir)
     proc = subprocess.run(cmd, check=False, cwd=str(ws.kb_dir), env=env)
