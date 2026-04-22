@@ -49,12 +49,20 @@ def _build_vectors(docs, force):
         import embeddings
         from chunker import chunk_document
     except ImportError as e:
-        print(f"\nVector index build skipped: {e}", file=sys.stderr)
+        print(
+            f"\nVector index build unavailable: {e}\n"
+            "Requested --vectors/--vectors-only mode requires optional ML dependencies.",
+            file=sys.stderr,
+        )
         return 1
 
     ok, msg = embeddings.is_available()
     if not ok:
-        print(f"\nVector index build skipped: {msg}", file=sys.stderr)
+        print(
+            f"\nVector index build unavailable: {msg}\n"
+            "Requested --vectors/--vectors-only mode requires optional ML dependencies.",
+            file=sys.stderr,
+        )
         return 1
 
     print("\nChunking documents...")

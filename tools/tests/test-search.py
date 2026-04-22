@@ -522,6 +522,93 @@ def run_vector_index_search_limit_regression():
     }]
 
 
+def run_rerank_nonpositive_pool_regression():
+    """
+    Regression: rerank_results() should treat non-positive pools as a no-op
+    instead of slicing with Python's negative-index semantics and reranking an
+    unintended portion of the list.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import rerank
+
+    class _StubReranker:
+        def __init__(self):
+            self.calls = 0
+
+        def score_pairs(self, pairs):
+            self.calls += 1
+            return [1.0 for _ in pairs]
+
+    base_results = [
+        {"id": "concepts/a", "title": "A", "summary": "alpha"},
+        {"id": "concepts/b", "title": "B", "summary": "beta"},
+    ]
+    reranker = _StubReranker()
+    zero = rerank.rerank_results(
+        "query", [dict(r) for r in base_results], reranker=reranker, pool=0,
+    )
+    negative = rerank.rerank_results(
+        "query", [dict(r) for r in base_results], reranker=reranker, pool=-3,
+    )
+
+    return [{
+        "description": "rerank_results treats pool <= 0 as a no-op",
+        "passed": (
+            zero == base_results
+            and negative == base_results
+            and reranker.calls == 0
+            and all("rerank_score" not in r for r in zero + negative)
+        ),
+    }]
+
+
+def run_build_vectors_missing_deps_regression():
+    """
+    Regression: _build_vectors() exits non-zero when vector deps are missing,
+    but it should report that state as unavailable/error rather than calling it
+    a skipped build.
+    """
+    import contextlib
+    import importlib.util
+    import io
+    import types
+
+    module_path = SEARCH_ENGINE_DIR / "build-index.py"
+    spec = importlib.util.spec_from_file_location("build_index_regression", module_path)
+    build_index_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(build_index_mod)
+
+    original_modules = {
+        name: sys.modules.get(name)
+        for name in ("embeddings", "chunker")
+    }
+    sys.modules["embeddings"] = types.SimpleNamespace(
+        is_available=lambda: (False, "optional deps missing")
+    )
+    sys.modules["chunker"] = types.SimpleNamespace(
+        chunk_document=lambda *_args, **_kwargs: []
+    )
+
+    stderr = io.StringIO()
+    try:
+        with contextlib.redirect_stderr(stderr):
+            rc = build_index_mod._build_vectors([], force=False)
+    finally:
+        for name, module in original_modules.items():
+            if module is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = module
+
+    message = stderr.getvalue().lower()
+    return [{
+        "description": "_build_vectors reports missing deps as unavailable error",
+        "passed": rc == 1 and "unavailable" in message and "skipped" not in message,
+    }]
+
+
 def run_chunker_regressions():
     """Exercise chunk hashing without requiring optional ML dependencies."""
     if str(SEARCH_ENGINE_DIR) not in sys.path:
@@ -712,6 +799,30 @@ def run_checks():
     else:
         results["regression_tests"].extend(limit_tests)
         for test in limit_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        rerank_bound_tests = run_rerank_nonpositive_pool_regression()
+    except Exception as e:
+        results["issues"].append(f"Rerank non-positive pool regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(rerank_bound_tests)
+        for test in rerank_bound_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        build_vectors_tests = run_build_vectors_missing_deps_regression()
+    except Exception as e:
+        results["issues"].append(f"build-index missing-deps regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(build_vectors_tests)
+        for test in build_vectors_tests:
             if not test["passed"]:
                 results["issues"].append(f"Regression failed: {test['description']}")
                 results["ok"] = False

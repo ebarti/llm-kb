@@ -99,6 +99,10 @@ def rerank_results(
     if not results:
         return results
 
+    pool = max(int(pool), 0)
+    if pool == 0:
+        return list(results)
+
     if reranker is None:
         reranker = CrossEncoderReranker()
 
