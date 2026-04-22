@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -166,6 +167,71 @@ class RunnerBudgetTests(unittest.TestCase):
         self.assertEqual(1, result.returncode)
         self.assertIn("SDK backend is available", result.text)
 
+    @mock.patch("tools.kb.runner._invoke_cli")
+    @mock.patch(
+        "tools.kb.runner._sdk_import_error",
+        return_value=ImportError("missing anthropic"),
+    )
+    def test_forced_sdk_backend_does_not_fallback_to_cli_when_unavailable(
+        self,
+        _sdk_import_error_mock: mock.Mock,
+        invoke_cli_mock: mock.Mock,
+    ) -> None:
+        result = invoke_llm(
+            "prompt",
+            model="sonnet",
+            budget=BudgetTracker(limit=None),
+            force_backend="sdk",
+        )
+
+        self.assertEqual("sdk", result.backend)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("forced SDK backend is unavailable", result.text)
+        invoke_cli_mock.assert_not_called()
+
+    @mock.patch("tools.kb.runner._invoke_cli")
+    def test_invalid_force_backend_env_fails_fast(self, invoke_cli_mock: mock.Mock) -> None:
+        with mock.patch.dict("os.environ", {"KB_FORCE_BACKEND": "bogus"}, clear=False):
+            result = invoke_llm(
+                "prompt",
+                model="sonnet",
+                budget=BudgetTracker(limit=None),
+            )
+
+        self.assertEqual("cli", result.backend)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("invalid KB_FORCE_BACKEND value 'bogus'", result.text)
+        invoke_cli_mock.assert_not_called()
+
+    @mock.patch("tools.kb.runner.shutil.which", return_value="/usr/bin/claude")
+    @mock.patch(
+        "tools.kb.runner._sdk_import_error",
+        return_value=RuntimeError("broken anthropic"),
+    )
+    @mock.patch("tools.kb.runner.subprocess.run")
+    def test_auto_backend_falls_back_to_cli_on_broken_sdk_import(
+        self,
+        run_mock: mock.Mock,
+        _sdk_import_error_mock: mock.Mock,
+        _which_mock: mock.Mock,
+    ) -> None:
+        run_mock.return_value = types.SimpleNamespace(
+            stdout="ok",
+            stderr="",
+            returncode=0,
+        )
+
+        with mock.patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=False):
+            result = invoke_llm(
+                "prompt",
+                model="sonnet",
+                budget=BudgetTracker(limit=None),
+            )
+
+        self.assertEqual("cli", result.backend)
+        self.assertEqual(0, result.returncode)
+        run_mock.assert_called_once()
+
 
 class WorkspaceDryRunTests(unittest.TestCase):
     def test_dry_run_does_not_initialize_new_workspace(self) -> None:
@@ -184,6 +250,24 @@ class WorkspaceDryRunTests(unittest.TestCase):
             target = Path(td) / "live-ws"
             Workspace.resolve(dir_flag=str(target), dry_run=False)
             self.assertTrue((target / "wiki").exists())
+
+    def test_relative_parent_dir_is_treated_as_path_not_workspace_name(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            nested = root / "base" / "child"
+            nested.mkdir(parents=True)
+            home = root / "home"
+            home.mkdir()
+            previous_cwd = Path.cwd()
+            try:
+                os.chdir(nested)
+                with mock.patch("pathlib.Path.home", return_value=home):
+                    ws = Workspace.resolve(dir_flag="..", dry_run=True)
+            finally:
+                os.chdir(previous_cwd)
+
+        self.assertEqual((root / "base").resolve(), ws.kb_dir)
+        self.assertFalse(str(ws.kb_dir).startswith(str(home / "kb-workspaces")))
 
 
 class GlobalOptionTests(unittest.TestCase):

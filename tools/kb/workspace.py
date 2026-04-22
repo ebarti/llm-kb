@@ -110,6 +110,18 @@ _No concept articles yet. Run `./kb research "<topic>"` to get started._
 """
 
 
+def _is_path_like(dir_flag: str) -> bool:
+    dir_path = Path(dir_flag)
+    return (
+        dir_path.is_absolute()
+        or dir_flag.startswith("~")
+        or dir_flag.startswith(".")
+        or any(
+            sep and sep in dir_flag for sep in (os.sep, os.altsep, "/", "\\")
+        )
+    )
+
+
 @dataclass
 class Workspace:
     """A resolved workspace pairing an install location with an active KB."""
@@ -153,7 +165,7 @@ class Workspace:
 
         # Step 2: --dir/-d flag overrides
         if dir_flag:
-            if "/" in dir_flag or dir_flag.startswith("~") or dir_flag == ".":
+            if _is_path_like(dir_flag):
                 base_dir = Path(dir_flag).expanduser()
             else:
                 base_dir = Path.home() / "kb-workspaces" / dir_flag

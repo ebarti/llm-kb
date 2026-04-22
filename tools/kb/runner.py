@@ -31,6 +31,8 @@ from typing import Any, Optional
 from .budget import BudgetExceeded, BudgetTracker
 from .models import TokenUsage
 
+_SUPPORTED_BACKENDS = {"cli", "sdk"}
+
 
 @dataclass
 class LLMResult:
@@ -83,19 +85,34 @@ def invoke_llm(
             backend="dry-run",
         )
 
-    backend = force_backend or _auto_backend()
+    try:
+        forced_backend = _normalize_forced_backend(force_backend)
+    except ValueError as exc:
+        return LLMResult(
+            text=f"ERROR: {exc}",
+            backend="cli",
+            returncode=1,
+        )
+
+    backend = forced_backend or _auto_backend()
 
     if backend == "sdk":
-        try:
+        sdk_import_error = _sdk_import_error()
+        if sdk_import_error is not None:
+            if forced_backend == "sdk":
+                return LLMResult(
+                    text=f"ERROR: forced SDK backend is unavailable: {sdk_import_error}",
+                    backend="sdk",
+                    returncode=1,
+                )
+            backend = "cli"
+        else:
             return _invoke_sdk(
                 prompt=prompt,
                 model=model,
                 budget=budget,
                 verbose=verbose,
             )
-        except ImportError:
-            # Fall through to CLI if SDK isn't actually importable
-            backend = "cli"
 
     return _invoke_cli(
         prompt=prompt,
@@ -112,15 +129,31 @@ def invoke_llm(
 # --------------------------------------------------------------------------- #
 
 
+def _normalize_forced_backend(force_backend: Optional[str]) -> Optional[str]:
+    selected = (
+        force_backend if force_backend is not None else os.environ.get("KB_FORCE_BACKEND")
+    )
+    if not selected:
+        return None
+    if selected not in _SUPPORTED_BACKENDS:
+        supported = ", ".join(sorted(_SUPPORTED_BACKENDS))
+        raise ValueError(
+            f"invalid KB_FORCE_BACKEND value {selected!r}; expected one of: {supported}"
+        )
+    return selected
+
+
+def _sdk_import_error() -> Optional[Exception]:
+    try:
+        import anthropic  # noqa: F401
+    except Exception as exc:  # noqa: BLE001
+        return exc
+    return None
+
+
 def _auto_backend() -> str:
-    if os.environ.get("KB_FORCE_BACKEND"):
-        return os.environ["KB_FORCE_BACKEND"]
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        try:
-            import anthropic  # noqa: F401
-            return "sdk"
-        except ImportError:
-            pass
+    if os.environ.get("ANTHROPIC_API_KEY") and _sdk_import_error() is None:
+        return "sdk"
     if shutil.which("claude"):
         return "cli"
     # No SDK key, no CLI — default to cli so error is clear
@@ -239,11 +272,7 @@ def _invoke_cli(
 
     if not shutil.which("claude"):
         api_key_set = bool(os.environ.get("ANTHROPIC_API_KEY"))
-        try:
-            import anthropic  # type: ignore  # noqa: F401
-            sdk_importable = True
-        except ImportError:
-            sdk_importable = False
+        sdk_importable = _sdk_import_error() is None
 
         if api_key_set and not sdk_importable:
             msg = (
