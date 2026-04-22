@@ -118,6 +118,16 @@ def scan_text(content: Optional[str] = None, raw_content: Optional[str] = None):
         return CHECKER.scan_file(sample)
 
 
+def scan_missing_file():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        missing = Path(tmpdir) / "missing.md"
+        try:
+            CHECKER.scan_file(missing)
+        except OSError as exc:
+            return type(exc).__name__
+        return None
+
+
 def run_checks():
     cases = []
     ok = True
@@ -141,6 +151,19 @@ def run_checks():
             }
         )
 
+    missing_file_error = scan_missing_file()
+    missing_file_passed = missing_file_error is not None
+    if not missing_file_passed:
+        ok = False
+    cases.append(
+        {
+            "name": "raises_oserror_for_missing_file",
+            "passed": missing_file_passed,
+            "expected": "OSError",
+            "actual": missing_file_error or "no exception",
+        }
+    )
+
     return {
         "ok": ok,
         "cases": cases,
@@ -157,8 +180,10 @@ def print_report(result):
         symbol = "\033[32m✓\033[0m" if case["passed"] else "\033[31m✗\033[0m"
         print(f"  {symbol} {case['name']}")
         if not case["passed"]:
-            print(f"      expected: {case['expected_tokens']}")
-            print(f"      actual:   {case['actual_tokens']}")
+            expected = case.get("expected_tokens", case.get("expected"))
+            actual = case.get("actual_tokens", case.get("actual"))
+            print(f"      expected: {expected}")
+            print(f"      actual:   {actual}")
 
     print()
     if result["ok"]:
