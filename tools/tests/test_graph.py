@@ -716,8 +716,10 @@ edges:
             failed_build = _run_gq(
                 "--db", str(db), "build", "--wiki", str(wiki), "--raw", str(raw)
             )
-            self.assertNotEqual(failed_build.returncode, 0)
+            self.assertEqual(failed_build.returncode, 2)
+            self.assertIn("error: failed to build graph store:", failed_build.stderr)
             self.assertIn("invalid predicate", failed_build.stderr)
+            self.assertNotIn("Traceback", failed_build.stderr)
 
             conn = sqlite3.connect(db)
             self.assertEqual(
@@ -884,6 +886,37 @@ last_compiled: 2026-04-21
             side_effect=sqlite3.OperationalError("unable to open database file"),
         ):
             self.assertIsNone(viz.load_from_graph_db(__file__))
+
+    def test_load_from_graph_db_reads_non_empty_db(self):
+        viz = self._load_viz()
+        tmp = Path(tempfile.mkdtemp(prefix="viz-db-load-"))
+        try:
+            db = tmp / ".graph.db"
+            conn = sqlite3.connect(db)
+            conn.execute(
+                "CREATE TABLE nodes (id TEXT PRIMARY KEY, type TEXT, title TEXT, path TEXT, summary TEXT)"
+            )
+            conn.execute(
+                "CREATE TABLE edges (src TEXT NOT NULL, dst TEXT NOT NULL, predicate TEXT NOT NULL, provenance TEXT)"
+            )
+            conn.execute(
+                "INSERT INTO nodes (id, type, title, path, summary) VALUES (?, ?, ?, ?, ?)",
+                ("concepts/a", "concept", "A", "", "summary"),
+            )
+            conn.execute(
+                "INSERT INTO edges (src, dst, predicate, provenance) VALUES (?, ?, ?, ?)",
+                ("concepts/a", "concepts/b", "mentions", "default"),
+            )
+            conn.commit()
+            conn.close()
+
+            data = viz.load_from_graph_db(str(db))
+            assert data is not None
+            nodes, edges = data
+            self.assertEqual(nodes["concepts/a"]["title"], "A")
+            self.assertEqual(edges, [("concepts/a", "concepts/b", "mentions")])
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
     def test_load_from_wiki_does_not_duplicate_tools_path(self):
         viz = self._load_viz()

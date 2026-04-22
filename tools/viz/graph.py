@@ -83,10 +83,10 @@ def load_from_graph_db(db_path):
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         try:
-            edge_count = conn.execute("SELECT COUNT(*) AS n FROM edges").fetchone()["n"]
+            has_edges = conn.execute("SELECT 1 FROM edges LIMIT 1").fetchone()
         except sqlite3.Error:
             return None
-        if not edge_count:
+        if not has_edges:
             return None
 
         nodes = {}

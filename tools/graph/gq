@@ -84,19 +84,22 @@ def cmd_build(args: argparse.Namespace) -> int:
         print(f"wiki directory not found: {wiki_dir}", file=sys.stderr)
         return 2
 
-    nodes, edges = extract_nodes_and_edges(wiki_dir, raw_dir=raw_dir)
     db_path = Path(args.db).resolve()
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp_name = tempfile.mkstemp(
-        prefix=f".{db_path.name}.",
-        suffix=".tmp",
-        dir=str(db_path.parent),
-    )
-    os.close(fd)
-    tmp_path = Path(tmp_name)
+    tmp_path: Path | None = None
 
     try:
+        nodes, edges = extract_nodes_and_edges(wiki_dir, raw_dir=raw_dir)
+        fd, tmp_name = tempfile.mkstemp(
+            prefix=f".{db_path.name}.",
+            suffix=".tmp",
+            dir=str(db_path.parent),
+        )
+        os.close(fd)
+        tmp_path = Path(tmp_name)
+
         store = ensure_db(str(tmp_path))
+        store_ok = False
         try:
             for n in nodes:
                 store.upsert_node(
@@ -104,14 +107,16 @@ def cmd_build(args: argparse.Namespace) -> int:
                 )
             for e in edges:
                 store.upsert_edge(e.src, e.dst, e.predicate, provenance=e.provenance)
-            store.commit()
+            store_ok = True
         finally:
-            store.close()
+            store.close(commit=store_ok)
 
         os.replace(tmp_path, db_path)
-    except Exception:
-        _cleanup_sqlite_artifacts(tmp_path)
-        raise
+    except Exception as exc:
+        if tmp_path is not None:
+            _cleanup_sqlite_artifacts(tmp_path)
+        print(f"error: failed to build graph store: {exc}", file=sys.stderr)
+        return 2
 
     if args.json:
         _print_json({
