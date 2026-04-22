@@ -25,8 +25,8 @@ from typing import Iterable
 # BGE-small has 512 max. 300 leaves slack for the heading breadcrumb.
 TARGET_TOKENS = 300
 
-# Hard ceiling: if a single leaf section exceeds this, we soft-split on paragraph
-# boundaries. We never split inside code fences or tables.
+# Hard ceiling: if a single leaf section exceeds this, it may be emitted as a
+# single oversized chunk. We never split inside code fences or tables.
 MAX_TOKENS = 600
 
 # Precompiled patterns

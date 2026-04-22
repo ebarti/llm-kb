@@ -140,8 +140,9 @@ def hybrid_search(
     **bm25_kwargs,
 ) -> list:
     """
-    Run BM25 and dense retrieval in parallel, fuse with RRF, and return the
-    top-N fused results decorated with BM25 metadata.
+    Run BM25 retrieval and, when configured, dense retrieval, fuse the result
+    lists with RRF, and return the top-N fused results decorated with BM25
+    metadata.
 
     Args:
         query: raw query string.
