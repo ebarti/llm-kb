@@ -147,6 +147,18 @@ def _collect_existing_wiki_paths() -> set[str]:
     return paths
 
 
+def _latest_hash_by_path(items: list[tuple[str, str]]) -> dict[str, str]:
+    """Deduplicate same-day file entries by path, keeping the newest hash.
+
+    `git log` yields newest commits first, so the first hash seen for a path is
+    the most recent one for that day.
+    """
+    latest: dict[str, str] = {}
+    for path, h in items:
+        latest.setdefault(path, h)
+    return latest
+
+
 def generate() -> Path:
     commits = _parse_git_log()
     existing = _collect_existing_wiki_paths()
@@ -181,9 +193,9 @@ def generate() -> Path:
             body = "\n".join(lines)
         else:
             dates_shown = sorted(by_date.keys(), reverse=True)[:MAX_DAYS_SHOWN]
-            total_A = sum(len(by_date[date]["A"]) for date in dates_shown)
-            total_M = sum(len(by_date[date]["M"]) for date in dates_shown)
-            total_D = sum(len(by_date[date]["D"]) for date in dates_shown)
+            total_A = sum(len(_latest_hash_by_path(by_date[date]["A"])) for date in dates_shown)
+            total_M = sum(len(_latest_hash_by_path(by_date[date]["M"])) for date in dates_shown)
+            total_D = sum(len(_latest_hash_by_path(by_date[date]["D"])) for date in dates_shown)
             lines.append(
                 f"Additions: **{total_A}** · Modifications: **{total_M}** · "
                 f"Deletions: **{total_D}** across **{len(dates_shown)}** day(s)."
@@ -214,25 +226,25 @@ def generate() -> Path:
                         if not items:
                             continue
                         lines.append(f"### {title}")
-                        # Sort by path for stability
-                        for path, h in sorted(set(items)):
+                        latest_additions = _latest_hash_by_path(items)
+                        for path in sorted(latest_additions):
+                            h = latest_additions[path]
                             lines.append(f"- {_file_to_wikilink(path, existing)}  `({h})`")
                         lines.append("")
 
                 if day["M"]:
                     lines.append("### Updated")
-                    # Deduplicate path, keep only most-recent commit hash
-                    seen_path_to_hash: dict[str, str] = {}
-                    for path, h in day["M"]:
-                        seen_path_to_hash.setdefault(path, h)
-                    for path in sorted(seen_path_to_hash):
-                        h = seen_path_to_hash[path]
+                    latest_updates = _latest_hash_by_path(day["M"])
+                    for path in sorted(latest_updates):
+                        h = latest_updates[path]
                         lines.append(f"- {_file_to_wikilink(path, existing)}  `({h})`")
                     lines.append("")
 
                 if day["D"]:
                     lines.append("### Removed")
-                    for path, h in sorted(set(day["D"])):
+                    latest_deletions = _latest_hash_by_path(day["D"])
+                    for path in sorted(latest_deletions):
+                        h = latest_deletions[path]
                         lines.append(f"- ~~`{path}`~~  `({h})`")
                     lines.append("")
 

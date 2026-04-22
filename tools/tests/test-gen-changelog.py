@@ -69,6 +69,12 @@ def run_checks():
     try:
         synthetic_commits = [
             {
+                "hash": "ddd44444",
+                "date": "2024-01-03",
+                "subject": "fourth",
+                "files": [("A", "wiki/concepts/c.md")],
+            },
+            {
                 "hash": "aaa11111",
                 "date": "2024-01-03",
                 "subject": "third",
@@ -103,6 +109,12 @@ def run_checks():
             dates_rendered = [
                 line[3:] for line in text.splitlines() if line.startswith("## ")
             ]
+            c_additions = [
+                line for line in text.splitlines() if line == "- `wiki/concepts/c.md`  `(ddd44444)`"
+            ]
+            stale_c_additions = [
+                line for line in text.splitlines() if line == "- `wiki/concepts/c.md`  `(aaa11111)`"
+            ]
 
         add(
             "summary_totals_follow_dates_shown_limit",
@@ -113,6 +125,16 @@ def run_checks():
             "only_dates_shown_are_rendered",
             json.dumps(["2024-01-03", "2024-01-02"]),
             json.dumps(dates_rendered),
+        )
+        add(
+            "same_day_additions_are_deduped_by_path",
+            "1",
+            str(len(c_additions)),
+        )
+        add(
+            "same_day_additions_keep_newest_hash",
+            "0",
+            str(len(stale_c_additions)),
         )
     finally:
         gen._parse_git_log = original_parse_git_log
