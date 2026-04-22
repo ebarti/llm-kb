@@ -3,8 +3,9 @@
 Retrieval Evaluation Harness.
 
 For each Q in tools/eval/goldset.jsonl, call the BM25 search and score the
-top-k results against the hand-labeled expected_citations. Reports Recall@5,
-Recall@10, NDCG@5, and MRR, both per-question and aggregated.
+top-k results against the hand-labeled expected_citations. Reports Recall@k
+and NDCG@k for each requested `--k-values` (default: 5 10), plus MRR at the
+configured `--top-k`, both per-question and aggregated.
 
 Output is written to:
   output/eval-retrieval-<timestamp>.json  (machine-readable full report)

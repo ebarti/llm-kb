@@ -30,6 +30,7 @@ EVAL_DIR = REPO_ROOT / "tools" / "eval"
 GOLDSET = EVAL_DIR / "goldset.jsonl"
 RETRIEVAL_SCRIPT = EVAL_DIR / "eval-retrieval.py"
 GENERATION_SCRIPT = EVAL_DIR / "eval-generation.py"
+EVAL_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "eval.yml"
 WIKI_DIR = REPO_ROOT / "wiki"
 
 
@@ -765,6 +766,43 @@ def test_eval_scripts_help_include_descriptions() -> None:
         )
 
 
+def test_retrieval_docstring_mentions_configurable_metrics() -> None:
+    try:
+        eval_retrieval = _load_eval_retrieval()
+    except Exception as e:  # noqa: BLE001
+        check(
+            "eval-retrieval module importable",
+            False,
+            f"import failed: {e!r}",
+        )
+        return
+
+    doc = eval_retrieval.__doc__ or ""
+    check(
+        "eval-retrieval docstring mentions --k-values",
+        "--k-values" in doc,
+        doc[:300],
+    )
+    check(
+        "eval-retrieval docstring describes MRR at --top-k",
+        "MRR at the" in doc and "--top-k" in doc,
+        doc[:300],
+    )
+
+
+def test_eval_workflow_grants_issue_comment_permissions() -> None:
+    check("eval workflow exists", EVAL_WORKFLOW.exists(), f"{EVAL_WORKFLOW} missing")
+    if not EVAL_WORKFLOW.exists():
+        return
+
+    text = EVAL_WORKFLOW.read_text(encoding="utf-8")
+    check(
+        "eval workflow grants issues: write",
+        "issues: write" in text,
+        "workflow comments use github.rest.issues.* but issues: write is missing",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -785,6 +823,8 @@ TESTS = [
     test_generation_script_runs,
     test_generation_import_guard_for_missing_retrieval_loader,
     test_eval_scripts_help_include_descriptions,
+    test_retrieval_docstring_mentions_configurable_metrics,
+    test_eval_workflow_grants_issue_comment_permissions,
 ]
 
 
