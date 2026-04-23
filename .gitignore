@@ -7,3 +7,10 @@ __pycache__/
 .idea/
 tools/search-engine/.index/
 
+# Workspace data lives under $KB_WORKSPACES (default ~/kb-workspaces/), not in the repo.
+# These directories are for standalone workspaces only; the install dir must stay code-only.
+/wiki/
+/raw/
+/output/
+/Clippings/
+
