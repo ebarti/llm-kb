@@ -15,6 +15,7 @@ Usage: python3 tools/tests/check-quality.py [--json]
 """
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
@@ -22,6 +23,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 WIKI_DIR = BASE_DIR / "wiki"
+TEMPLATE_LEAK_CHECKER_PATH = BASE_DIR / "tools" / "tests" / "check-template-leaks.py"
 
 WIKILINK_RE = re.compile(r"\[\[([^\]|]+?)(?:\|[^\]]+?)?\]\]")
 
@@ -52,6 +54,20 @@ EXPECTED_SECTIONS = {
 }
 
 MIN_WORD_COUNT = 50
+
+
+def load_template_leak_checker():
+    spec = importlib.util.spec_from_file_location(
+        "check_template_leaks",
+        TEMPLATE_LEAK_CHECKER_PATH,
+    )
+    if spec is None or spec.loader is None:
+        raise ImportError(
+            f"Unable to load checker module from {TEMPLATE_LEAK_CHECKER_PATH}"
+        )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def parse_frontmatter(text):
@@ -162,7 +178,32 @@ def score_article(filepath):
     return result
 
 
+def apply_template_leak_flags(articles, leak_result):
+    article_map = {article["path"]: article for article in articles}
+    global_flags = []
+
+    for rel_path, leaks in sorted(leak_result["leaks_by_file"].items()):
+        article_path = rel_path
+        if article_path.startswith("wiki/"):
+            article_path = article_path[len("wiki/"):]
+        if article_path.endswith(".md"):
+            article_path = article_path[:-3]
+        unique_tokens = ", ".join(sorted({leak["token"] for leak in leaks}))
+
+        article = article_map.get(article_path)
+        if article is not None:
+            article["flags"].append(f"Template placeholder leaks: {unique_tokens}")
+            continue
+
+        global_flags.append(
+            f"Template placeholder leaks in {rel_path}: {unique_tokens}"
+        )
+
+    return global_flags
+
+
 def run_checks():
+    template_leak_checker = load_template_leak_checker()
     articles = []
     for subdir in ["concepts", "sources", "comparisons", "entities"]:
         dirpath = WIKI_DIR / subdir
@@ -171,7 +212,10 @@ def run_checks():
                 if f.suffix == ".md":
                     articles.append(score_article(f))
 
-    total_flags = sum(len(a["flags"]) for a in articles)
+    template_leak_result = template_leak_checker.run_checks()
+    global_flags = apply_template_leak_flags(articles, template_leak_result)
+
+    total_flags = sum(len(a["flags"]) for a in articles) + len(global_flags)
     avg_overall = round(sum(a["scores"]["overall"] for a in articles) / len(articles), 1) if articles else 0
     avg_words = round(sum(a["scores"]["word_count"] for a in articles) / len(articles), 1) if articles else 0
 
@@ -180,8 +224,14 @@ def run_checks():
         "total_flags": total_flags,
         "avg_quality_score": avg_overall,
         "avg_word_count": avg_words,
+        "global_flags": global_flags,
+        "template_leak_check": {
+            "ok": template_leak_result["ok"],
+            "files_with_leaks": template_leak_result["files_with_leaks"],
+            "total_leaks": template_leak_result["total_leaks"],
+        },
         "articles": articles,
-        "ok": total_flags == 0,
+        "ok": total_flags == 0 and template_leak_result["ok"],
     }
 
 
@@ -193,6 +243,11 @@ def print_report(result):
     print(f"Avg quality score: {result['avg_quality_score']}%")
     print(f"Avg word count: {result['avg_word_count']}")
     print(f"Total flags: {result['total_flags']}")
+    print(
+        "Template leak check: "
+        f"{result['template_leak_check']['total_leaks']} leak(s) in "
+        f"{result['template_leak_check']['files_with_leaks']} file(s)"
+    )
     print()
 
     # Print per-article summary
@@ -215,6 +270,11 @@ def print_report(result):
             print(f"\n  {a['path']}:")
             for flag in a["flags"]:
                 print(f"    - {flag}")
+
+    if result["global_flags"]:
+        print(f"\n--- Global Flags ---")
+        for flag in result["global_flags"]:
+            print(f"  - {flag}")
 
     print()
     if result["ok"]:
