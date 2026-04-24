@@ -33,7 +33,8 @@ _KB_START_TIME=$(date +%s)
 
 # ─── Environment & Defaults ──────────────────────────────────────────────────
 KB_HOME="$(cd "$(dirname "$0")" && pwd)"   # Where kb is installed (tools, CLAUDE.md master copy)
-KB_DIR="${KB_DIR:-$KB_HOME}"               # Active workspace (overridable via --dir or KB_DIR)
+KB_WORKSPACES="${KB_WORKSPACES:-$HOME/kb-workspaces}"  # Base dir holding named workspaces
+KB_DIR="${KB_DIR:-$KB_WORKSPACES/default}" # Active workspace (overridable via --dir or KB_DIR)
 KB_MODEL="${KB_MODEL:-opus}"
 KB_PERMISSION_MODE="${KB_PERMISSION_MODE:-bypassPermissions}"
 KB_NO_COMMIT="${KB_NO_COMMIT:-0}"
@@ -233,7 +234,7 @@ LOGO
     echo ""
 
     echo -e "${BOLD}FLAGS${RESET}"
-    echo -e "  ${YELLOW}--dir${RESET}, ${YELLOW}-d${RESET} <name|path>       Target a workspace (name → ~/kb-workspaces/<name>; auto-creates if new)"
+    echo -e "  ${YELLOW}--dir${RESET}, ${YELLOW}-d${RESET} <name|path>       Target a workspace (name → \$KB_WORKSPACES/<name>; auto-creates if new)"
     echo -e "  ${YELLOW}--verbose${RESET}, ${YELLOW}-v${RESET}              Show detailed output"
     echo -e "  ${YELLOW}--dry-run${RESET}                  Show what would be done"
     echo -e "  ${YELLOW}--model${RESET} <model>            Override Claude model (default: ${KB_MODEL})"
@@ -243,9 +244,10 @@ LOGO
     echo ""
 
     echo -e "${BOLD}ENVIRONMENT VARIABLES${RESET}"
-    echo -e "  ${DIM}KB_MODEL${RESET}             Claude model (default: sonnet)"
+    echo -e "  ${DIM}KB_MODEL${RESET}             Claude model (default: ${KB_MODEL})"
     echo -e "  ${DIM}KB_PERMISSION_MODE${RESET}   Permission mode (default: bypassPermissions)"
-    echo -e "  ${DIM}KB_DIR${RESET}               Knowledge base directory (default: script dir)"
+    echo -e "  ${DIM}KB_WORKSPACES${RESET}        Base dir for named workspaces (default: \$HOME/kb-workspaces)"
+    echo -e "  ${DIM}KB_DIR${RESET}               Active workspace (default: \$KB_WORKSPACES/default)"
     echo -e "  ${DIM}KB_NO_COMMIT${RESET}         Skip git commits if set to 1"
     echo -e "  ${DIM}KB_BUDGET${RESET}            Max turns for Claude"
     echo ""
@@ -270,7 +272,7 @@ LOGO
 # ─── new (create a named workspace) ─────────────────────────────────────────
 cmd_new() {
     local name="${1:?Usage: kb new <name> [path]}"
-    local base="${2:-$HOME/kb-workspaces}"
+    local base="${2:-$KB_WORKSPACES}"
     local target="$base/$name"
     header "Creating workspace: $name"
     msg "Location: $target"
@@ -285,25 +287,27 @@ cmd_new() {
 # ─── list workspaces ────────────────────────────────────────────────────────
 cmd_workspaces() {
     header "Knowledge Base Workspaces"
-    local base="${1:-$HOME/kb-workspaces}"
+    local base="${1:-$KB_WORKSPACES}"
 
-    # Always show the install-location workspace
-    local install_count
-    install_count=$(find "$KB_HOME/wiki" -name '*.md' -type f 2>/dev/null | wc -l | tr -d ' ')
-    printf "  ${CYAN}%-30s${RESET} %6s articles  %s\n" "(default)" "$install_count" "$KB_HOME"
-
-    # Show named workspaces
+    local any=0
     if [[ -d "$base" ]]; then
         for dir in "$base"/*/; do
             [[ -d "$dir/wiki" ]] || continue
-            local name count
+            local name count label
             name=$(basename "$dir")
             count=$(find "$dir/wiki" -name '*.md' -type f 2>/dev/null | wc -l | tr -d ' ')
-            printf "  ${GREEN}%-30s${RESET} %6s articles  %s\n" "$name" "$count" "$dir"
+            label="$name"
+            [[ "$name" == "default" ]] && label="$name (default)"
+            printf "  ${GREEN}%-30s${RESET} %6s articles  %s\n" "$label" "$count" "$dir"
+            any=1
         done
     fi
+    if (( ! any )); then
+        msg_info "No workspaces yet in ${BOLD}$base${RESET}"
+    fi
     echo ""
-    msg_info "Use ${GREEN}--dir <path>${RESET} to target a workspace, or ${GREEN}kb new <name>${RESET} to create one"
+    msg_info "Active: ${BOLD}$KB_DIR${RESET}"
+    msg_info "Use ${GREEN}--dir <name|path>${RESET} to target a workspace, or ${GREEN}kb new <name>${RESET} to create one"
 }
 
 # ─── init ────────────────────────────────────────────────────────────────────
@@ -1042,11 +1046,52 @@ cmd_ingest() {
     auto_commit "ingest — $(echo "$urls" | cut -d' ' -f1)"
 }
 
+regen_meta() {
+    # Regenerate wiki/_meta/ files deterministically from ground truth.
+    # Runs before Claude so the LLM sees up-to-date summaries.md and
+    # after so any articles Claude touched are reflected immediately.
+    #
+    # Returns:
+    #   0 on success, or under --dry-run (no mutation path). Non-zero
+    #   if the regenerator script is missing or regeneration fails so
+    #   callers can abort before performing downstream mutations
+    #   (e.g. auto_commit).
+    local script="$KB_DIR/tools/compile/regen_meta.py"
+    (( DRY_RUN )) && return 0
+    if [[ ! -f "$script" ]]; then
+        msg_err "Missing regen_meta script: $script"
+        return 1
+    fi
+    if (( VERBOSE )); then
+        python3 "$script"
+    else
+        python3 "$script" --quiet
+    fi
+}
+
 cmd_compile() {
     progress "Compiling wiki from raw sources..."
     echo ""
 
+    # Refresh meta/ from ground truth so the LLM sees accurate summaries
+    # and manifest before it starts compiling. A non-zero exit here means
+    # the meta files may be inconsistent with ground truth -- fail the
+    # whole compile rather than proceeding with stale / partial state.
+    progress "Regenerating wiki/_meta/ from ground truth..."
+    if ! regen_meta; then
+        msg_err "regen_meta failed during pre-compile; aborting compile"
+        return 1
+    fi
+
     run_claude "Compile/update the wiki from all raw sources. Process any new or changed raw files, update source summaries, concept articles, and the master index."
+
+    # Rebuild meta/ once more so anything Claude just created is reflected.
+    # Same failure policy: do not auto_commit on top of a broken regen.
+    progress "Regenerating wiki/_meta/ post-compile..."
+    if ! regen_meta; then
+        msg_err "regen_meta failed post-compile; skipping auto-commit"
+        return 1
+    fi
 
     if (( DRY_RUN )); then
         msg_info "Would run: python3 tools/compile/pages/generate_all.py"
@@ -1212,31 +1257,53 @@ main() {
     parse_flags "$@"
     set -- "${_ARGS[@]+"${_ARGS[@]}"}"
 
-    # Resolve --dir: bare name → workspace under base dir; path → use as-is
+    # Resolve --dir: bare name → workspace under KB_WORKSPACES; path → use as-is
     if [[ -n "${DIR_REQUEST:-}" ]]; then
         if [[ "$DIR_REQUEST" != */* ]]; then
-            DIR_REQUEST="$HOME/kb-workspaces/$DIR_REQUEST"
+            DIR_REQUEST="$KB_WORKSPACES/$DIR_REQUEST"
         fi
         mkdir -p "$DIR_REQUEST"
         KB_DIR="$(cd "$DIR_REQUEST" && pwd)"
-        if [[ ! -d "$KB_DIR/wiki" ]]; then
-            msg_info "New workspace detected — initializing ${BOLD}$KB_DIR${RESET}"
-            cmd_init "$KB_DIR"
-        fi
     fi
 
-    # Ensure we're in the KB directory
-    cd "$KB_DIR"
-
-    # No arguments = help
+    # No arguments = help (skip workspace resolution entirely)
     if [[ $# -eq 0 ]]; then
         cmd_help
         exit 0
     fi
 
-    # Ensure directories exist (except for init which creates them)
-    if [[ "${1:-}" != "init" ]]; then
-        ensure_dirs
+    # Commands that do not need a workspace (skip install-dir guard + auto-init)
+    local skip_workspace=0
+    case "${1:-}" in
+        -h|--help|help|new|workspaces|ws) skip_workspace=1 ;;
+    esac
+
+    if (( ! skip_workspace )); then
+        # Refuse to treat the install dir as a workspace — it is code, not data
+        if [[ "$KB_DIR" == "$KB_HOME" ]]; then
+            msg_err "KB_DIR must not equal the install dir ($KB_HOME)."
+            msg_info "Run inside a workspace instead, e.g.:"
+            echo -e "  ${GREEN}kb --dir ai${RESET}         ${DIM}# use ~/kb-workspaces/ai${RESET}"
+            echo -e "  ${GREEN}kb new <name>${RESET}       ${DIM}# create a new workspace${RESET}"
+            echo -e "  ${GREEN}kb workspaces${RESET}       ${DIM}# list available workspaces${RESET}"
+            exit 1
+        fi
+
+        # Auto-init the active workspace on first use
+        if [[ ! -d "$KB_DIR/wiki" && "${1:-}" != "init" ]]; then
+            mkdir -p "$KB_DIR"
+            KB_DIR="$(cd "$KB_DIR" && pwd)"
+            msg_info "New workspace — initializing ${BOLD}$KB_DIR${RESET}"
+            cmd_init "$KB_DIR"
+        fi
+
+        # Ensure we're in the KB directory
+        cd "$KB_DIR"
+
+        # Ensure directories exist (except for init which creates them)
+        if [[ "${1:-}" != "init" ]]; then
+            ensure_dirs
+        fi
     fi
 
     # Route command
