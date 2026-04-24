@@ -193,6 +193,28 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(rows[0]["word"], "delete")
         self.assertEqual(rows[0]["renamed"], "Table")
 
+    def test_query_allows_quoted_identifiers_containing_verbs(self):
+        """Backtick and bracket identifiers that happen to contain a
+        mutating verb as their name must not trigger the read-only guard.
+        SQLite accepts both `foo` and [foo] identifier quote styles."""
+        # Backtick-quoted identifier named like a mutating verb.
+        rows = list(self.store.query(
+            "SELECT `delete` FROM (SELECT 1 AS `delete`)"
+        ))
+        self.assertEqual(rows[0][0], 1)
+        # Bracket-quoted identifier named like a mutating verb.
+        rows = list(self.store.query(
+            "SELECT [update] FROM (SELECT 2 AS [update])"
+        ))
+        self.assertEqual(rows[0][0], 2)
+        # Mixing both with a real read from edges.
+        self.store.upsert_edge("a", "b", "cites")
+        rows = list(self.store.query(
+            "SELECT src AS `insert`, dst AS [drop] FROM edges"
+        ))
+        self.assertEqual(rows[0]["insert"], "a")
+        self.assertEqual(rows[0]["drop"], "b")
+
     def test_predicates_exposed(self):
         # Sanity: the constant list has every predicate in the issue spec.
         expected = {
@@ -812,6 +834,66 @@ last_compiled: 2026-04-22
                 compile_run.stderr,
             )
             self.assertFalse((tmp / ".graph.db").exists())
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_build_rejects_wiki_path_that_is_a_file(self):
+        """`gq build` must emit a clear error (not a traceback) when the
+        --wiki path exists but is a regular file, not a directory."""
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-file-wiki-"))
+        try:
+            fake_wiki = tmp / "wiki.md"
+            fake_wiki.write_text("not a directory", encoding="utf-8")
+            (tmp / "raw").mkdir()
+            db = tmp / ".graph.db"
+
+            result = _run_gq(
+                "--db", str(db),
+                "build",
+                "--wiki", str(fake_wiki),
+                "--raw", str(tmp / "raw"),
+            )
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn("wiki path is not a directory", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertFalse(db.exists())
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_cleanup_sqlite_artifacts_tolerates_missing_and_raising_unlinks(self):
+        """`_cleanup_sqlite_artifacts` must not propagate unlink errors so
+        they can't mask the original build failure. The `gq` script has no
+        `.py` extension so we load it via `SourceFileLoader`."""
+        from importlib.machinery import SourceFileLoader
+
+        loader = SourceFileLoader("gq_module", str(GQ))
+        gq_module = loader.load_module()  # type: ignore[deprecated]
+
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cleanup-"))
+        try:
+            # Happy path: only the main file exists; sidecars are missing.
+            main = tmp / ".graph.db.tmp"
+            main.write_text("fake", encoding="utf-8")
+            gq_module._cleanup_sqlite_artifacts(main)
+            self.assertFalse(main.exists())
+
+            # Missing-main case must not raise either (all sidecars absent).
+            ghost = tmp / ".no-such.db.tmp"
+            gq_module._cleanup_sqlite_artifacts(ghost)  # no exception
+
+            # Simulate unlink() raising OSError — cleanup must swallow it.
+            boom = tmp / ".graph.db.tmp"
+            boom.write_text("fake", encoding="utf-8")
+            original_unlink = Path.unlink
+
+            def raising_unlink(self, *a, **kw):
+                raise OSError("simulated permission error")
+
+            try:
+                Path.unlink = raising_unlink  # type: ignore[method-assign]
+                gq_module._cleanup_sqlite_artifacts(boom)  # must not raise
+            finally:
+                Path.unlink = original_unlink  # type: ignore[method-assign]
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
