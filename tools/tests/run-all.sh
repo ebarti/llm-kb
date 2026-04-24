@@ -86,6 +86,12 @@ run_suite "Content Quality Check" \
 run_suite "Search Engine Tests" \
     "python3 '$SCRIPT_DIR/test-search.py'"
 
+run_suite "Raw Layout Validator" \
+    "python3 '$SCRIPT_DIR/check-raw-v2.py'"
+
+run_suite "Raw Writer Tests" \
+    "python3 '$SCRIPT_DIR/test-raw-writer.py'"
+
 run_suite "Smoke Tests" \
     "bash '$SCRIPT_DIR/smoke-test.sh'"
 

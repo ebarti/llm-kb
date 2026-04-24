@@ -216,7 +216,7 @@ AUTHOR_NAME="${AUTHOR_NAME:-$USERNAME}"
 
 # --- Generate output filename ---
 SAFE_NAME=$(echo "${USERNAME}-${TWEET_ID}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | cut -c1-80)
-OUTPUT_FILE="$RAW_DIR/tweet-${SAFE_NAME}.md"
+SLUG="tweet-${SAFE_NAME}"
 
 # --- Build content sections ---
 MEDIA_SECTION=""
@@ -241,8 +241,10 @@ $(echo "$QUOTE_TEXT" | sed 's/^/> /')
 "
 fi
 
-# --- Write output ---
-cat > "$OUTPUT_FILE" << HEREDOC
+# --- Compose clean.md ---
+CLEAN_FILE=$(mktemp /tmp/tweet-clean-XXXXXX.md)
+trap "rm -f '$CLEAN_FILE'" EXIT
+cat > "$CLEAN_FILE" << HEREDOC
 ---
 title: "Tweet by @${USERNAME} (${TWEET_ID})"
 source: "$CANONICAL_URL"
@@ -270,7 +272,53 @@ $CONTENT
 ${MEDIA_SECTION}${QUOTE_SECTION}
 HEREDOC
 
+# --- Persist API JSON as raw bytes if we got it ---
+RAW_BYTES_FILE=""
+RAW_EXT=""
+CONTENT_TYPE="text"
+if [ -n "${FX_JSON:-}" ]; then
+    RAW_BYTES_FILE=$(mktemp /tmp/tweet-raw-XXXXXX.json)
+    echo "$FX_JSON" > "$RAW_BYTES_FILE"
+    RAW_EXT="json"
+    CONTENT_TYPE="json"
+elif [ -n "${VX_JSON:-}" ]; then
+    RAW_BYTES_FILE=$(mktemp /tmp/tweet-raw-XXXXXX.json)
+    echo "$VX_JSON" > "$RAW_BYTES_FILE"
+    RAW_EXT="json"
+    CONTENT_TYPE="json"
+fi
+
+RAW_ARGS=()
+if [ -n "$RAW_BYTES_FILE" ]; then
+    RAW_ARGS+=(--raw-path "$RAW_BYTES_FILE" --raw-ext "$RAW_EXT")
+fi
+
+EXTRA_META=$(python3 - <<PYEOF
+import json
+print(json.dumps({
+    "username": "$USERNAME",
+    "tweet_id": "$TWEET_ID",
+    "author_name": """$AUTHOR_NAME""".replace('"', r'\"'),
+    "fetch_method": "$METHOD",
+    "date_published": "${DATE_PUBLISHED:-}",
+    "likes": "${LIKES:-}",
+    "retweets": "${RETWEETS:-}",
+}))
+PYEOF
+)
+
+python3 "$PROJECT_DIR/tools/ingest/_raw_writer.py" \
+    --slug "$SLUG" \
+    --url "$CANONICAL_URL" \
+    --fetcher tweet \
+    --clean-path "$CLEAN_FILE" \
+    --content-type "$CONTENT_TYPE" \
+    --extra-meta-json "$EXTRA_META" \
+    "${RAW_ARGS[@]}" >/dev/null
+
+[ -n "$RAW_BYTES_FILE" ] && rm -f "$RAW_BYTES_FILE"
+rm -f "$CLEAN_FILE"
+
 echo ""
-echo "Saved to: $OUTPUT_FILE"
-echo "File size: $(wc -c < "$OUTPUT_FILE" | tr -d ' ') bytes"
+echo "Saved to: $RAW_DIR/$SLUG/"
 echo "Fetch method: $METHOD"

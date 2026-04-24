@@ -180,14 +180,16 @@ SAFE_TITLE=$(echo "$TITLE" | \
     sed 's/  \+/ /g; s/^ //; s/ $//' | \
     tr ' ' '-' | \
     cut -c1-80)
-OUTPUT_FILE="$RAW_DIR/yt-${SAFE_TITLE:-$VIDEO_ID}.md"
+SLUG="yt-${SAFE_TITLE:-$VIDEO_ID}"
 
 # --- Format transcript into paragraphs ---
 # Split roughly every 3-4 sentences for readability
 FORMATTED_TRANSCRIPT=$(echo "$TRANSCRIPT" | fold -s -w 500 | sed 's/^[[:space:]]*//')
 
-# --- Write output ---
-cat > "$OUTPUT_FILE" << HEREDOC
+# --- Compose clean.md ---
+CLEAN_FILE=$(mktemp /tmp/yt-clean-XXXXXX.md)
+trap "rm -f '$CLEAN_FILE'" EXIT
+cat > "$CLEAN_FILE" << HEREDOC
 ---
 title: "$(echo "$TITLE" | sed 's/"/\\"/g')"
 source: "$CANONICAL_URL"
@@ -213,7 +215,47 @@ transcript_method: $METHOD
 $FORMATTED_TRANSCRIPT
 HEREDOC
 
+# --- Persist page HTML as raw bytes if we have it ---
+RAW_BYTES_FILE=""
+RAW_EXT=""
+CONTENT_TYPE="transcript"
+if [ -n "${PAGE_HTML:-}" ]; then
+    RAW_BYTES_FILE=$(mktemp /tmp/yt-raw-XXXXXX.html)
+    echo "$PAGE_HTML" > "$RAW_BYTES_FILE"
+    RAW_EXT="html"
+    CONTENT_TYPE="html"
+fi
+
+RAW_ARGS=()
+if [ -n "$RAW_BYTES_FILE" ]; then
+    RAW_ARGS+=(--raw-path "$RAW_BYTES_FILE" --raw-ext "$RAW_EXT")
+fi
+
+EXTRA_META=$(python3 - <<PYEOF
+import json
+print(json.dumps({
+    "title": """$TITLE""".replace('"', r'\"'),
+    "video_id": "$VIDEO_ID",
+    "channel": """${CHANNEL:-}""".replace('"', r'\"'),
+    "date_published": "${DATE_PUBLISHED:-}",
+    "duration": "${DURATION:-}",
+    "transcript_method": "$METHOD",
+}))
+PYEOF
+)
+
+python3 "$PROJECT_DIR/tools/ingest/_raw_writer.py" \
+    --slug "$SLUG" \
+    --url "$CANONICAL_URL" \
+    --fetcher youtube \
+    --clean-path "$CLEAN_FILE" \
+    --content-type "$CONTENT_TYPE" \
+    --extra-meta-json "$EXTRA_META" \
+    "${RAW_ARGS[@]}" >/dev/null
+
+[ -n "$RAW_BYTES_FILE" ] && rm -f "$RAW_BYTES_FILE"
+rm -f "$CLEAN_FILE"
+
 echo ""
-echo "Saved to: $OUTPUT_FILE"
-echo "File size: $(wc -c < "$OUTPUT_FILE" | tr -d ' ') bytes"
+echo "Saved to: $RAW_DIR/$SLUG/"
 echo "Transcript method: $METHOD"
