@@ -157,7 +157,6 @@ def _build_context(opts: GlobalOptions) -> CommandContext:
         json_output=opts.json_output,
         permission_mode=opts.permission_mode
         or os.environ.get("KB_PERMISSION_MODE", "bypassPermissions"),
-        force_backend=os.environ.get("KB_FORCE_BACKEND"),
     )
 
 

@@ -10,6 +10,7 @@ import tempfile
 import types
 import unittest
 from pathlib import Path
+from typing import Optional
 from unittest import mock
 
 from tools.kb import cli as cli_mod
@@ -19,7 +20,7 @@ from tools.kb.commands import test_cmd as test_cmd_module, viz as viz_cmd
 from tools.kb.commands._common import CommandContext
 from tools.kb.commands.search import _parse_qmd
 from tools.kb.models import EXIT_ERROR
-from tools.kb.runner import DEFAULT_MAX_OUTPUT_TOKENS, invoke_llm
+from tools.kb.runner import invoke_llm
 from tools.kb.workspace import Workspace
 
 
@@ -54,210 +55,211 @@ class QmdParseTests(unittest.TestCase):
         self.assertIn("Softmax attention", hits[0].snippet or "")
 
 
-class RunnerBudgetTests(unittest.TestCase):
-    @mock.patch("tools.kb.runner.subprocess.run")
-    def test_cli_backend_rejects_hard_budgets(self, run_mock: mock.Mock) -> None:
-        result = invoke_llm(
-            "prompt",
-            model="sonnet",
-            budget=BudgetTracker(limit=1000),
-            force_backend="cli",
-        )
+def _make_fake_agent_sdk():
+    """Build a fake ``claude_agent_sdk`` module.
 
-        self.assertEqual("cli", result.backend)
-        self.assertTrue(result.budget_exceeded)
-        self.assertEqual(1, result.returncode)
-        self.assertIn("hard token budgets require the Anthropic SDK backend", result.text)
-        run_mock.assert_not_called()
+    Returns (module, sequence, captured, FakeAssistantMessage, FakeResultMessage).
+    Tests mutate ``sequence`` to control what ``query()`` yields and inspect
+    ``captured`` to assert on the options/prompt that the runner passed in.
+    """
 
-    def test_sdk_backend_caps_max_tokens_to_budget_remaining(self) -> None:
-        create = mock.Mock(
-            return_value=types.SimpleNamespace(content=[], usage={})
-        )
-        fake_client = types.SimpleNamespace(
-            messages=types.SimpleNamespace(create=create)
-        )
-        fake_anthropic = types.SimpleNamespace(Anthropic=lambda: fake_client)
-        budget = BudgetTracker(limit=100)
-        budget.add(output_tokens=60)
+    class FakeAssistantMessage:
+        def __init__(self, text: str) -> None:
+            self.content = [types.SimpleNamespace(text=text)]
 
-        with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
-            result = invoke_llm(
-                "prompt",
-                model="sonnet",
-                budget=budget,
-                force_backend="sdk",
+    class FakeResultMessage:
+        def __init__(
+            self,
+            *,
+            result: str = "",
+            usage: Optional[dict] = None,
+            is_error: bool = False,
+            subtype: Optional[str] = None,
+        ) -> None:
+            self.result = result
+            self.usage = usage or {}
+            self.is_error = is_error
+            self.subtype = subtype
+
+    captured: dict = {}
+
+    class FakeOptions:
+        def __init__(self, **kwargs) -> None:
+            captured["options"] = kwargs
+
+    sequence: list = []
+
+    async def query(prompt, options):  # noqa: ARG001 — options must be accepted
+        captured["prompt"] = prompt
+        for msg in sequence:
+            yield msg
+
+    module = types.SimpleNamespace(
+        query=query,
+        ClaudeAgentOptions=FakeOptions,
+        AssistantMessage=FakeAssistantMessage,
+        ResultMessage=FakeResultMessage,
+    )
+    return module, sequence, captured, FakeAssistantMessage, FakeResultMessage
+
+
+class RunnerAgentBackendTests(unittest.TestCase):
+    def test_agent_backend_returns_final_text_and_usage(self) -> None:
+        module, seq, captured, Am, Rm = _make_fake_agent_sdk()
+        seq.append(Am("streamed chunk "))
+        seq.append(
+            Rm(
+                result="final answer",
+                usage={"input_tokens": 10, "output_tokens": 7},
             )
+        )
 
-        self.assertEqual("sdk", result.backend)
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict(
+                "os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=False
+            ):
+                result = invoke_llm(
+                    "prompt",
+                    model="sonnet",
+                    budget=BudgetTracker(limit=None),
+                )
+
+        self.assertEqual("agent", result.backend)
         self.assertEqual(0, result.returncode)
-        create.assert_called_once()
-        self.assertEqual(40, create.call_args.kwargs["max_tokens"])
+        self.assertEqual("final answer", result.text)
+        self.assertEqual(10, result.usage.input_tokens)
+        self.assertEqual(7, result.usage.output_tokens)
+        self.assertEqual("prompt", captured["prompt"])
+        self.assertEqual("claude-sonnet-4-6", captured["options"]["model"])
+        self.assertEqual("bypassPermissions", captured["options"]["permission_mode"])
 
-    def test_sdk_backend_caps_large_budget_to_safe_output_limit(self) -> None:
-        create = mock.Mock(
-            return_value=types.SimpleNamespace(content=[], usage={})
-        )
-        fake_client = types.SimpleNamespace(
-            messages=types.SimpleNamespace(create=create)
-        )
-        fake_anthropic = types.SimpleNamespace(Anthropic=lambda: fake_client)
-        budget = BudgetTracker(limit=50_000)
+    def test_agent_backend_falls_back_to_assistant_text_when_result_empty(self) -> None:
+        module, seq, _captured, Am, Rm = _make_fake_agent_sdk()
+        seq.append(Am("partial "))
+        seq.append(Am("output"))
+        seq.append(Rm(result="", usage={"output_tokens": 3}))
 
-        with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
-            result = invoke_llm(
-                "prompt",
-                model="sonnet",
-                budget=budget,
-                force_backend="sdk",
-            )
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict(
+                "os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=False
+            ):
+                result = invoke_llm(
+                    "prompt",
+                    model="sonnet",
+                    budget=BudgetTracker(limit=None),
+                )
 
-        self.assertEqual("sdk", result.backend)
         self.assertEqual(0, result.returncode)
-        self.assertEqual(
-            DEFAULT_MAX_OUTPUT_TOKENS,
-            create.call_args.kwargs["max_tokens"],
-        )
+        self.assertEqual("partial output", result.text)
 
-    def test_sdk_backend_fails_fast_when_budget_is_exhausted(self) -> None:
-        create = mock.Mock()
-        fake_client = types.SimpleNamespace(
-            messages=types.SimpleNamespace(create=create)
-        )
-        fake_anthropic = types.SimpleNamespace(Anthropic=lambda: fake_client)
-        budget = BudgetTracker(limit=25)
-        budget.add(output_tokens=25)
-
-        with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
-            result = invoke_llm(
-                "prompt",
-                model="sonnet",
-                budget=budget,
-                force_backend="sdk",
-            )
-
-        self.assertEqual("sdk", result.backend)
-        self.assertTrue(result.budget_exceeded)
-        self.assertEqual(1, result.returncode)
-        self.assertIn("token budget exhausted before SDK call", result.text)
-        create.assert_not_called()
-
-    def test_sdk_backend_returns_nonzero_when_response_crosses_budget(self) -> None:
-        create = mock.Mock(
-            return_value=types.SimpleNamespace(
-                content=[types.SimpleNamespace(text="partial response")],
-                usage={"output_tokens": 120},
-            )
-        )
-        fake_client = types.SimpleNamespace(
-            messages=types.SimpleNamespace(create=create)
-        )
-        fake_anthropic = types.SimpleNamespace(Anthropic=lambda: fake_client)
+    def test_agent_backend_flags_budget_exceeded_when_response_crosses_cap(self) -> None:
+        module, seq, _captured, Am, Rm = _make_fake_agent_sdk()
+        seq.append(Am("some text"))
+        seq.append(Rm(result="some text", usage={"output_tokens": 120}))
         budget = BudgetTracker(limit=100)
 
-        with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
-            result = invoke_llm(
-                "prompt",
-                model="sonnet",
-                budget=budget,
-                force_backend="sdk",
-            )
-
-        self.assertEqual("sdk", result.backend)
-        self.assertTrue(result.budget_exceeded)
-        self.assertEqual(1, result.returncode)
-        self.assertEqual("partial response", result.text)
-        self.assertEqual(120, result.usage.output_tokens)
-
-    @mock.patch("tools.kb.runner.shutil.which", return_value=None)
-    def test_cli_backend_reports_sdk_available_when_cli_is_forced(
-        self,
-        _which_mock: mock.Mock,
-    ) -> None:
-        budget = BudgetTracker(limit=None)
-        fake_anthropic = types.SimpleNamespace()
-
-        with mock.patch.dict(
-            "os.environ",
-            {"ANTHROPIC_API_KEY": "test-key"},
-            clear=False,
-        ):
-            with mock.patch.dict("sys.modules", {"anthropic": fake_anthropic}):
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict(
+                "os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=False
+            ):
                 result = invoke_llm(
                     "prompt",
                     model="sonnet",
                     budget=budget,
-                    force_backend="cli",
                 )
 
-        self.assertEqual("cli", result.backend)
+        self.assertEqual("agent", result.backend)
+        self.assertTrue(result.budget_exceeded)
         self.assertEqual(1, result.returncode)
-        self.assertIn("SDK backend is available", result.text)
+        self.assertEqual("some text", result.text)
+        self.assertEqual(120, result.usage.output_tokens)
 
-    @mock.patch("tools.kb.runner._invoke_cli")
-    @mock.patch(
-        "tools.kb.runner._sdk_import_error",
-        return_value=ImportError("missing anthropic"),
-    )
-    def test_forced_sdk_backend_does_not_fallback_to_cli_when_unavailable(
-        self,
-        _sdk_import_error_mock: mock.Mock,
-        invoke_cli_mock: mock.Mock,
-    ) -> None:
+    def test_agent_backend_fails_fast_when_budget_already_exhausted(self) -> None:
+        module, _seq, captured, _Am, _Rm = _make_fake_agent_sdk()
+        budget = BudgetTracker(limit=25)
+        budget.add(output_tokens=25)
+
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict(
+                "os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=False
+            ):
+                result = invoke_llm(
+                    "prompt",
+                    model="sonnet",
+                    budget=budget,
+                )
+
+        self.assertEqual("agent", result.backend)
+        self.assertTrue(result.budget_exceeded)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("token budget exhausted before agent call", result.text)
+        self.assertNotIn("prompt", captured)  # query() was never called
+
+    def test_agent_backend_errors_without_api_key(self) -> None:
+        module, _seq, _captured, _Am, _Rm = _make_fake_agent_sdk()
+
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict("os.environ", {}, clear=True):
+                result = invoke_llm(
+                    "prompt",
+                    model="sonnet",
+                    budget=BudgetTracker(limit=None),
+                )
+
+        self.assertEqual("agent", result.backend)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("ANTHROPIC_API_KEY", result.text)
+
+    def test_agent_backend_errors_when_sdk_not_installed(self) -> None:
+        # Force-import failure by stubbing claude_agent_sdk with a non-module.
+        with mock.patch("tools.kb.runner._missing_sdk_error", return_value=ImportError("nope")):
+            with mock.patch.dict(
+                "os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=False
+            ):
+                result = invoke_llm(
+                    "prompt",
+                    model="sonnet",
+                    budget=BudgetTracker(limit=None),
+                )
+
+        self.assertEqual("agent", result.backend)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("claude-agent-sdk", result.text)
+
+    def test_agent_backend_surfaces_agent_reported_error(self) -> None:
+        module, seq, _captured, _Am, Rm = _make_fake_agent_sdk()
+        seq.append(
+            Rm(
+                result="",
+                usage={"input_tokens": 5, "output_tokens": 0},
+                is_error=True,
+                subtype="error_during_execution",
+            )
+        )
+
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict(
+                "os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=False
+            ):
+                result = invoke_llm(
+                    "prompt",
+                    model="sonnet",
+                    budget=BudgetTracker(limit=None),
+                )
+
+        self.assertEqual("agent", result.backend)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("error_during_execution", result.text)
+
+    def test_dry_run_short_circuits_agent_call(self) -> None:
         result = invoke_llm(
             "prompt",
             model="sonnet",
             budget=BudgetTracker(limit=None),
-            force_backend="sdk",
+            dry_run=True,
         )
-
-        self.assertEqual("sdk", result.backend)
-        self.assertEqual(1, result.returncode)
-        self.assertIn("forced SDK backend is unavailable", result.text)
-        invoke_cli_mock.assert_not_called()
-
-    @mock.patch("tools.kb.runner._invoke_cli")
-    def test_invalid_force_backend_env_fails_fast(self, invoke_cli_mock: mock.Mock) -> None:
-        with mock.patch.dict("os.environ", {"KB_FORCE_BACKEND": "bogus"}, clear=False):
-            result = invoke_llm(
-                "prompt",
-                model="sonnet",
-                budget=BudgetTracker(limit=None),
-            )
-
-        self.assertEqual("cli", result.backend)
-        self.assertEqual(1, result.returncode)
-        self.assertIn("invalid KB_FORCE_BACKEND value 'bogus'", result.text)
-        invoke_cli_mock.assert_not_called()
-
-    @mock.patch("tools.kb.runner.shutil.which", return_value="/usr/bin/claude")
-    @mock.patch(
-        "tools.kb.runner._sdk_import_error",
-        return_value=RuntimeError("broken anthropic"),
-    )
-    @mock.patch("tools.kb.runner.subprocess.run")
-    def test_auto_backend_falls_back_to_cli_on_broken_sdk_import(
-        self,
-        run_mock: mock.Mock,
-        _sdk_import_error_mock: mock.Mock,
-        _which_mock: mock.Mock,
-    ) -> None:
-        run_mock.return_value = types.SimpleNamespace(
-            stdout="ok",
-            stderr="",
-            returncode=0,
-        )
-
-        with mock.patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=False):
-            result = invoke_llm(
-                "prompt",
-                model="sonnet",
-                budget=BudgetTracker(limit=None),
-            )
-
-        self.assertEqual("cli", result.backend)
-        self.assertEqual(0, result.returncode)
-        run_mock.assert_called_once()
+        self.assertEqual("dry-run", result.backend)
+        self.assertIn("DRY RUN", result.text)
 
 
 class WorkspaceDryRunTests(unittest.TestCase):

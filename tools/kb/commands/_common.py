@@ -40,7 +40,6 @@ class CommandContext:
     verbose: bool = False
     json_output: bool = False
     permission_mode: str = "bypassPermissions"
-    force_backend: Optional[str] = None
 
     def new_budget(self) -> BudgetTracker:
         return BudgetTracker(limit=self.budget_limit)
@@ -95,8 +94,8 @@ def run_llm_command(
             budget=budget,
             dry_run=False,
             permission_mode=ctx.permission_mode,
-            force_backend=ctx.force_backend,
             verbose=ctx.verbose,
+            cwd=str(ctx.workspace.kb_dir),
         )
     except BudgetExceeded as exc:
         return LLMInvocationResult(
