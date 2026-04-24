@@ -89,6 +89,9 @@ run_suite "Search Engine Tests" \
 run_suite "Eval Harness Tests" \
     "python3 '$SCRIPT_DIR/test_eval.py'"
 
+run_suite "Meta Regenerator Tests" \
+    "python3 '$SCRIPT_DIR/test-regen-meta.py'"
+
 run_suite "Smoke Tests" \
     "bash '$SCRIPT_DIR/smoke-test.sh'"
 
