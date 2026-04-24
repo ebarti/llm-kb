@@ -82,6 +82,22 @@ run_test "discover wrapper regression checks" \
 run_test "kb responds to invocation" \
     "'$BASE_DIR/kb' 2>&1 | head -1 | grep -qi ''" "any"
 
+run_test "kb compile fails when regen_meta script is missing" \
+    "tmpdir=\$(mktemp -d)
+    cp '$BASE_DIR/kb' \"\$tmpdir/kb\"
+    chmod +x \"\$tmpdir/kb\"
+    if KB_NO_COMMIT=1 \"\$tmpdir/kb\" compile >\"\$tmpdir/out\" 2>&1; then
+        cat \"\$tmpdir/out\"
+        rm -rf \"\$tmpdir\"
+        exit 1
+    fi
+    if ! grep -q 'Missing regen_meta script:' \"\$tmpdir/out\"; then
+        cat \"\$tmpdir/out\"
+        rm -rf \"\$tmpdir\"
+        exit 1
+    fi
+    rm -rf \"\$tmpdir\""
+
 # --- search.sh responds ---
 
 run_test "search.sh basic invocation" \
@@ -129,6 +145,14 @@ for pyfile in "$BASE_DIR"/tools/monitor/*.py; do
     if [[ -f "$pyfile" ]]; then
         fname=$(basename "$pyfile")
         run_test "monitor/$fname syntax check" \
+            "python3 -m py_compile '$pyfile'" "any"
+    fi
+done
+
+for pyfile in "$BASE_DIR"/tools/compile/*.py; do
+    if [[ -f "$pyfile" ]]; then
+        fname=$(basename "$pyfile")
+        run_test "compile/$fname syntax check" \
             "python3 -m py_compile '$pyfile'" "any"
     fi
 done

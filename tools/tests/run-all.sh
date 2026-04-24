@@ -92,6 +92,9 @@ run_suite "Raw Layout Validator" \
 run_suite "Raw Writer Tests" \
     "python3 '$SCRIPT_DIR/test-raw-writer.py'"
 
+run_suite "Meta Regenerator Tests" \
+    "python3 '$SCRIPT_DIR/test-regen-meta.py'"
+
 run_suite "Smoke Tests" \
     "bash '$SCRIPT_DIR/smoke-test.sh'"
 
