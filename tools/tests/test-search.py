@@ -522,6 +522,188 @@ def run_vector_index_search_limit_regression():
     }]
 
 
+def run_embeddings_dedup_regression():
+    """
+    Regression: build_or_update_index() must encode each distinct content_hash
+    at most once per build, even when the same hash appears multiple times in
+    the input (e.g. identical chunks across docs or repeated sections). The
+    deduped vector must also be replicated to every matching row in the output
+    so downstream search has the correct alignment.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    try:
+        import numpy as np
+    except ImportError:
+        return [{
+            "description": "build_or_update_index dedupes duplicate hashes within one build",
+            "passed": True,
+            "detail": "numpy unavailable; skipped",
+        }]
+
+    import embeddings
+
+    ok, msg = embeddings.is_available()
+    if not ok:
+        missing = msg.splitlines()[0]
+        return [{
+            "description": "build_or_update_index dedupes duplicate hashes within one build",
+            "passed": True,
+            "detail": f"{missing}; skipped",
+        }]
+
+    class _CountingEncoder:
+        """Hash-aware stub that returns a distinct vector per call and counts inputs."""
+        model_name = "test-model"
+
+        def __init__(self):
+            self.calls = 0
+            self.total_inputs = 0
+            self.last_texts = None
+
+        def dim(self):
+            return 4
+
+        def encode(self, texts, batch_size=32, show_progress=False):
+            texts = list(texts)
+            self.calls += 1
+            self.total_inputs += len(texts)
+            self.last_texts = texts
+            # One unique row per input text -- enough to check alignment.
+            return np.array(
+                [[float(i + 1), 0.0, 0.0, 0.0] for i in range(len(texts))],
+                dtype=np.float32,
+            )
+
+    # Three chunks, two of which share the same content_hash. Different
+    # chunk_ids / heading_path, but the cache key is the hash.
+    chunks = [
+        {
+            "chunk_id": "concepts/a#0000", "doc_id": "concepts/a",
+            "heading_path": ["A"], "text": "body", "tokens": 2,
+            "content_hash": "dup-hash",
+        },
+        {
+            "chunk_id": "concepts/b#0000", "doc_id": "concepts/b",
+            "heading_path": ["B"], "text": "body", "tokens": 2,
+            "content_hash": "dup-hash",
+        },
+        {
+            "chunk_id": "concepts/c#0000", "doc_id": "concepts/c",
+            "heading_path": ["C"], "text": "unique", "tokens": 2,
+            "content_hash": "unique-hash",
+        },
+    ]
+
+    encoder = _CountingEncoder()
+    fresh = embeddings.build_or_update_index(
+        chunks, encoder=encoder, existing=None, verbose=False,
+    )
+
+    # Expect only 2 texts encoded (one per unique hash), and the two dup-hash
+    # rows in the output must share the same vector.
+    unique_texts_encoded = encoder.total_inputs == 2
+    rows_for_dups_match = bool(np.allclose(fresh.vectors[0], fresh.vectors[1]))
+    unique_row_distinct = not bool(np.allclose(fresh.vectors[0], fresh.vectors[2]))
+    right_shape = fresh.vectors.shape == (3, 4)
+
+    return [{
+        "description": "build_or_update_index dedupes duplicate hashes within one build",
+        "passed": unique_texts_encoded and rows_for_dups_match and unique_row_distinct and right_shape,
+        "detail": (
+            f"encoder_inputs={encoder.total_inputs}, "
+            f"dup_rows_equal={rows_for_dups_match}, "
+            f"unique_distinct={unique_row_distinct}, "
+            f"shape={fresh.vectors.shape}"
+        ),
+    }]
+
+
+def run_hybrid_vector_filter_skip_regression():
+    """
+    Regression: hybrid_search() must not run the full-index filter scan
+    (_filter_doc_ids) when every filter kwarg is falsy. search._run_hybrid
+    always forwards doc_type=/tags=/date_from=/date_to=/fuzzy= as kwargs, so
+    the pre-fix "if bm25_kwargs:" gate was always true.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import types
+    import hybrid as hybrid_mod
+
+    calls = {"filter": 0}
+    original_filter = hybrid_mod._filter_doc_ids
+
+    def tracking_filter(*args, **kwargs):
+        calls["filter"] += 1
+        return original_filter(*args, **kwargs)
+
+    # Fake BM25 + dense pieces: both return a single matching doc so RRF has
+    # something to fuse and the vector-path code is exercised.
+    def fake_bm25(query, index, top_n=10, **kwargs):
+        return [{
+            "id": "concepts/a", "title": "A", "type": "concept",
+            "score": 1.0, "path": "concepts/a.md", "tags": [],
+            "date": "", "summary": "", "links": [], "related": [],
+            "sources": [], "backlinks": [],
+        }]
+
+    class _FakeVec:
+        # Needs a .shape[0] > 0 and a .search that returns chunk tuples.
+        class _S:
+            shape = (1, 4)
+        vectors = _S()
+
+        def search(self, q_vec, top_k=20):
+            return [({
+                "chunk_id": "concepts/a#0000", "doc_id": "concepts/a",
+                "heading_path": ["A"], "text": "body",
+            }, 0.9)]
+
+    class _FakeEncoder:
+        def encode(self, texts):
+            # Returns a 1-D stub vector; hybrid_search reshapes as needed.
+            class _Arr:
+                ndim = 1
+                def reshape(self, *_a, **_k):
+                    return self
+            return [_Arr()]
+
+    idx = {"docs": {"concepts/a": {"type": "concept"}}, "backlinks": {}}
+
+    hybrid_mod._filter_doc_ids = tracking_filter
+    try:
+        # Case 1: all filters None -> must not call _filter_doc_ids.
+        hybrid_mod.hybrid_search(
+            "q", idx,
+            vector_index=_FakeVec(), encoder=_FakeEncoder(),
+            top_n=5, bm25_k=5, vector_k=5,
+            bm25_search=fake_bm25,
+            doc_type=None, tags=None, date_from=None, date_to=None, fuzzy=True,
+        )
+        after_noop = calls["filter"]
+
+        # Case 2: an active filter -> must call _filter_doc_ids exactly once.
+        hybrid_mod.hybrid_search(
+            "q", idx,
+            vector_index=_FakeVec(), encoder=_FakeEncoder(),
+            top_n=5, bm25_k=5, vector_k=5,
+            bm25_search=fake_bm25,
+            doc_type="concept", tags=None, date_from=None, date_to=None, fuzzy=True,
+        )
+        after_active = calls["filter"]
+    finally:
+        hybrid_mod._filter_doc_ids = original_filter
+
+    return [{
+        "description": "hybrid_search skips _filter_doc_ids when no active filters",
+        "passed": after_noop == 0 and after_active == 1,
+        "detail": f"noop_calls={after_noop}, active_calls={after_active}",
+    }]
+
+
 def run_rerank_nonpositive_pool_regression():
     """
     Regression: rerank_results() should treat non-positive pools as a no-op
@@ -799,6 +981,30 @@ def run_checks():
     else:
         results["regression_tests"].extend(limit_tests)
         for test in limit_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        dedup_tests = run_embeddings_dedup_regression()
+    except Exception as e:
+        results["issues"].append(f"Embeddings dedup regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(dedup_tests)
+        for test in dedup_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        hybrid_filter_tests = run_hybrid_vector_filter_skip_regression()
+    except Exception as e:
+        results["issues"].append(f"Hybrid filter-skip regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(hybrid_filter_tests)
+        for test in hybrid_filter_tests:
             if not test["passed"]:
                 results["issues"].append(f"Regression failed: {test['description']}")
                 results["ok"] = False

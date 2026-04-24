@@ -316,14 +316,23 @@ def build_or_update_index(
                     hash_to_vec[h] = existing.vectors[i]
 
     # Partition: which chunks need fresh encoding vs. can be copied.
+    # Deduplicate by content_hash within this build too: if the same hash
+    # appears multiple times in `norm` (same text across docs, or repeated
+    # sections) we only encode it once and share the vector across all
+    # matching rows. Previously we only dedup'd against the *prior* cache,
+    # so fresh builds re-encoded identical chunks redundantly.
     to_encode_idx: list = []
     to_encode_text: list = []
+    scheduled: dict = {}  # content_hash -> position within to_encode_text
     for i, c in enumerate(norm):
-        if c["content_hash"] not in hash_to_vec:
-            to_encode_idx.append(i)
-            bc = " > ".join(c.get("heading_path") or [])
-            text = f"{bc}\n\n{c['text']}" if bc else c["text"]
-            to_encode_text.append(text)
+        h = c["content_hash"]
+        if h in hash_to_vec or h in scheduled:
+            continue
+        scheduled[h] = len(to_encode_text)
+        to_encode_idx.append(i)
+        bc = " > ".join(c.get("heading_path") or [])
+        text = f"{bc}\n\n{c['text']}" if bc else c["text"]
+        to_encode_text.append(text)
 
     if verbose:
         reused = len(norm) - len(to_encode_idx)
@@ -352,16 +361,18 @@ def build_or_update_index(
     else:
         dim = encoder.dim()
 
-    # Assemble the fresh vectors array in the order of `norm`.
+    # Assemble the fresh vectors array in the order of `norm`. For freshly
+    # encoded rows we look up the encoded position via `scheduled[hash]`
+    # rather than a running cursor, so duplicate hashes reuse the same row
+    # instead of walking past the batch.
     vectors = np.zeros((len(norm), dim), dtype=np.float32)
-    new_cursor = 0
     for i, c in enumerate(norm):
-        cached = hash_to_vec.get(c["content_hash"])
+        h = c["content_hash"]
+        cached = hash_to_vec.get(h)
         if cached is not None:
             vectors[i] = cached
         else:
-            vectors[i] = new_vecs[new_cursor]
-            new_cursor += 1
+            vectors[i] = new_vecs[scheduled[h]]
 
     return VectorIndex(
         vectors=vectors,

@@ -180,8 +180,23 @@ def hybrid_search(
         # Apply the same filters BM25 applied: since vector index doesn't know
         # about types/tags/dates, we filter against the BM25 doc metadata here.
         vector_hits_rolled = chunks_to_doc_ranking(raw_chunks)
-        if bm25_kwargs:
-            allowed = _filter_doc_ids(index, **bm25_kwargs)
+        # Only run the doc-id filter scan when at least one filter value is
+        # actually truthy. The caller in search._run_hybrid always forwards
+        # doc_type/tags/date_from/date_to as kwargs (often None), so a bare
+        # `if bm25_kwargs:` check would force a full index scan on every
+        # hybrid query even when no filter was supplied.
+        doc_type = bm25_kwargs.get("doc_type")
+        tags = bm25_kwargs.get("tags")
+        date_from = bm25_kwargs.get("date_from")
+        date_to = bm25_kwargs.get("date_to")
+        if doc_type or tags or date_from or date_to:
+            allowed = _filter_doc_ids(
+                index,
+                doc_type=doc_type,
+                tags=tags,
+                date_from=date_from,
+                date_to=date_to,
+            )
             vector_hits_rolled = [r for r in vector_hits_rolled if r["id"] in allowed]
         vector_hits = vector_hits_rolled
         chunk_snippets = {
