@@ -130,11 +130,17 @@ def test_committed_artifacts_are_up_to_date(regen) -> tuple[bool, str]:
     mutates META_DIR, so a stale checked-in artifact surfaces as a real
     failure instead of being silently repaired.
 
+    Skipped when ``META_DIR`` does not exist (e.g. running from the install
+    dir where ``wiki/`` is gitignored -- only workspace invocations carry
+    live meta files to check).
+
     ``freshness-report.md`` is excluded because its ``last_updated`` /
     ``age_days`` values are anchored to wall-clock ``date.today()`` by
     design, so a day-over-day drift is expected and handled by its own
     regeneration on compile.
     """
+    if not META_DIR.exists():
+        return True, "skipped (no wiki/_meta/ in install dir -- workspace-only check)"
     targets = ("stats.json", "manifest.md", "summaries.md", "links.md")
     scan = regen.WikiScan()
     scan.scan()
