@@ -327,7 +327,23 @@ class GraphStore:
                 "only read-only queries allowed (SELECT/WITH/EXPLAIN)"
             )
 
-        keyword_scan = re.sub(r"'(?:''|[^'])*'|\"(?:\"\"|[^\"])*\"", " ", cleaned)
+        # Neutralize string literals and quoted identifiers before scanning
+        # for mutating verbs. SQLite accepts four quote styles — dropping
+        # their contents prevents false positives like `SELECT \`delete\``
+        # or `SELECT [delete]` where the mutating verb is actually an
+        # identifier name, not an operation.
+        #   'foo'   — SQL string literal
+        #   "foo"   — SQL identifier (or string literal in some contexts)
+        #   `foo`   — MySQL-style identifier (SQLite-compatible)
+        #   [foo]   — MSSQL-style identifier (SQLite-compatible)
+        keyword_scan = re.sub(
+            r"'(?:''|[^'])*'"          # 'single-quoted'
+            r"|\"(?:\"\"|[^\"])*\""    # "double-quoted"
+            r"|`(?:``|[^`])*`"         # `backtick-quoted`
+            r"|\[[^\]]*\]",            # [bracket-quoted]
+            " ",
+            cleaned,
+        )
         forbidden = {
             "insert", "update", "delete", "drop", "alter",
             "create", "pragma", "attach", "detach",
