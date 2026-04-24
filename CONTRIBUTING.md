@@ -9,8 +9,20 @@
 ```bash
 git clone git@github.com:ebarti/llm-kb.git ~/Github/llm-kb
 cd ~/Github/llm-kb
+```
 
-# The search index is gitignored — rebuild locally
+Workspace data (wiki/, raw/, output/) lives under `$KB_WORKSPACES`
+(default `~/kb-workspaces/`), never inside this repo. Create one with:
+
+```bash
+./kb new <name>                  # → ~/kb-workspaces/<name>
+./kb --dir <name> research "..." # target it explicitly
+```
+
+Build the search index inside a workspace (not the repo):
+
+```bash
+cd ~/kb-workspaces/<name>
 python3 tools/search-engine/build-index.py
 ```
 
