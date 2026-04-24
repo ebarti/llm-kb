@@ -74,6 +74,9 @@ run_test "tools/search.sh exists and is executable" \
 run_test "tools/fetch-url.sh exists and is executable" \
     "test -x '$BASE_DIR/tools/fetch-url.sh'"
 
+run_test "discover wrapper regression checks" \
+    "bash '$BASE_DIR/tools/tests/test-discover.sh'"
+
 # --- kb responds to help/basic invocation ---
 
 run_test "kb responds to invocation" \
