@@ -135,7 +135,27 @@ def run_checks():
     all_articles, outgoing, incoming = build_actual_graph(files)
 
     issues = []
-    results = {}
+    results = {
+        "dead_links": [],
+        "self_links": [],
+        "orphans": [],
+        "metrics": {
+            "total_articles": 0,
+            "total_edges": 0,
+            "density": 0,
+            "avg_out_degree": 0,
+            "avg_in_degree": 0,
+            "connected_components": 0,
+            "largest_component_size": 0,
+        },
+        "links_md_stale": [],
+        "links_md_missing": [],
+        "issues": [],
+        "ok": True,
+    }
+
+    if not files:
+        return results
 
     # --- Dead links ---
     dead_links = []

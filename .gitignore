@@ -6,6 +6,15 @@ __pycache__/
 .env
 .idea/
 tools/search-engine/.index/
+tools/monitor/.logs/
+tools/monitor/.state/
+
+# Workspace data lives under $KB_WORKSPACES (default ~/kb-workspaces/), not in the repo.
+# These directories are for standalone workspaces only; the install dir must stay code-only.
+/wiki/
+/raw/
+/output/
+/Clippings/
 
 # Typed graph store (rebuilt on compile)
 .graph.db
