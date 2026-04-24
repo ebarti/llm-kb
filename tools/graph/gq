@@ -83,6 +83,9 @@ def cmd_build(args: argparse.Namespace) -> int:
     if not wiki_dir.exists():
         print(f"wiki directory not found: {wiki_dir}", file=sys.stderr)
         return 2
+    if not wiki_dir.is_dir():
+        print(f"wiki path is not a directory: {wiki_dir}", file=sys.stderr)
+        return 2
 
     db_path = Path(args.db).resolve()
     db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -132,10 +135,16 @@ def cmd_build(args: argparse.Namespace) -> int:
 
 
 def _cleanup_sqlite_artifacts(db_path: Path) -> None:
+    # Best-effort cleanup of the tmp DB + its sidecar journal/WAL files.
+    # Failures here (e.g. races, permission issues) must not mask the
+    # original build error that triggered cleanup, so each unlink is
+    # tolerant of missing files and OS errors.
     for extra in ("", "-journal", "-wal", "-shm"):
         candidate = Path(f"{db_path}{extra}")
-        if candidate.exists():
-            candidate.unlink()
+        try:
+            candidate.unlink(missing_ok=True)
+        except OSError:
+            pass
 
 
 def cmd_stats(args: argparse.Namespace) -> int:
