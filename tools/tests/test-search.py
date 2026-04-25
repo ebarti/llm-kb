@@ -19,6 +19,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SEARCH_SCRIPT = BASE_DIR / "tools" / "search-engine" / "search.py"
 SEARCH_SH = BASE_DIR / "tools" / "search.sh"
+SEARCH_ENGINE_DIR = BASE_DIR / "tools" / "search-engine"
 
 # Test cases: (query, expected_substring_in_output)
 # We check that the output contains at least one expected term
@@ -104,11 +105,803 @@ def run_search(cmd, query, timeout=30):
         return str(e), latency, -1
 
 
+def run_format_pretty_regression():
+    """
+    Regression: --hybrid / --rerank results are ordered by rrf_score /
+    rerank_score but carry the original BM25 `score` (or 0.0 for vector-only
+    hits). format_pretty() must show the ordering score as the headline so the
+    displayed value matches the ranking.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import search as search_mod
+
+    tests = []
+
+    rrf_result = [{
+        "id": "concepts/a", "title": "A", "type": "concept", "tags": [],
+        "date": "", "summary": "", "path": "concepts/a.md",
+        "score": 0.0, "rrf_score": 0.0321,
+    }]
+    out = search_mod.format_pretty(rrf_result, "q")
+    tests.append({
+        "description": "format_pretty uses rrf_score as headline when present",
+        "passed": "rrf: 0.0321" in out and "score: 0.0" not in out,
+    })
+
+    rerank_result = [{
+        "id": "concepts/a", "title": "A", "type": "concept", "tags": [],
+        "date": "", "summary": "", "path": "concepts/a.md",
+        "score": 12.3, "rrf_score": 0.0321, "rerank_score": 7.89,
+    }]
+    out = search_mod.format_pretty(rerank_result, "q")
+    tests.append({
+        "description": "format_pretty prefers rerank_score over rrf_score / score",
+        "passed": "rerank: 7.89" in out and "rrf:" not in out and "score: 12.3" not in out,
+    })
+
+    bm25_result = [{
+        "id": "concepts/a", "title": "A", "type": "concept", "tags": [],
+        "date": "", "summary": "", "path": "concepts/a.md",
+        "score": 5.5,
+    }]
+    out = search_mod.format_pretty(bm25_result, "q")
+    tests.append({
+        "description": "format_pretty falls back to BM25 score when no fusion",
+        "passed": "score: 5.5" in out,
+    })
+
+    return tests
+
+
+def run_encoder_dim_regression():
+    """
+    Regression: build_or_update_index() must not force a model load when every
+    chunk hash was reused. We stub the encoder so encode()/dim() would raise if
+    called, then run a fully-cached build and expect it to complete cleanly.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    try:
+        import numpy as np  # noqa: F401
+    except ImportError:
+        return [{
+            "description": "encoder.dim() skipped on fully-incremental build",
+            "passed": True,
+            "detail": "numpy unavailable; skipped",
+        }]
+
+    import embeddings
+
+    ok, msg = embeddings.is_available()
+    if not ok:
+        missing = msg.splitlines()[0]
+        return [{
+            "description": "encoder.dim() skipped on fully-incremental build",
+            "passed": True,
+            "detail": f"{missing}; skipped",
+        }]
+
+    class _NoLoadEncoder:
+        """An encoder stub whose dim() / encode() would blow up if called."""
+        model_name = "test-model"
+        calls = {"dim": 0, "encode": 0}
+
+        def dim(self):
+            type(self).calls["dim"] += 1
+            raise AssertionError("encoder.dim() must not be called on cached build")
+
+        def encode(self, texts, batch_size=32, show_progress=False):
+            type(self).calls["encode"] += 1
+            raise AssertionError("encoder.encode() must not be called on cached build")
+
+    # Hand-build a VectorIndex so we can exercise the pure-Python control flow
+    # of build_or_update_index without loading torch.
+    chunks = [{
+        "chunk_id": "concepts/a#0000", "doc_id": "concepts/a",
+        "heading_path": ["A"], "text": "body", "tokens": 2,
+        "content_hash": "deadbeef",
+    }]
+    existing = embeddings.VectorIndex(
+        vectors=np.ones((1, 4), dtype=np.float32),
+        chunks=chunks,
+        dim=4,
+        model_name="test-model",
+    )
+
+    try:
+        fresh = embeddings.build_or_update_index(
+            chunks, encoder=_NoLoadEncoder(), existing=existing, verbose=False,
+        )
+    except AssertionError as e:
+        return [{
+            "description": "encoder.dim() skipped on fully-incremental build",
+            "passed": False,
+            "detail": str(e),
+        }]
+
+    return [{
+        "description": "encoder.dim() skipped on fully-incremental build",
+        "passed": fresh.vectors.shape == (1, 4) and fresh.dim == 4,
+    }]
+
+
+def run_hybrid_pool_regression():
+    """
+    Regression for --top > 50 on the hybrid path: the bm25_k / vector_k pool
+    must widen to at least `top_n` so results aren't silently capped at 50.
+    Exercises hybrid.hybrid_search with an injected stub bm25 and no dense
+    retrieval so we don't need numpy / sentence-transformers available.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import hybrid
+
+    calls = {}
+
+    def fake_bm25(query, index, top_n=10, **kwargs):
+        calls["top_n"] = top_n
+        return [
+            {"id": f"concepts/doc-{i}", "title": f"Doc {i}", "type": "concept",
+             "score": 100.0 - i, "path": f"concepts/doc-{i}.md", "tags": [],
+             "date": "", "summary": "", "links": [], "related": [],
+             "sources": [], "backlinks": []}
+            for i in range(top_n)
+        ]
+
+    idx = {"docs": {}, "backlinks": {}}
+    requested_top = 75
+    hybrid.hybrid_search(
+        "q", idx,
+        vector_index=None, encoder=None,
+        top_n=requested_top,
+        bm25_k=requested_top, vector_k=requested_top,
+        bm25_search=fake_bm25,
+    )
+    return [{
+        "description": "hybrid_search forwards top > 50 to bm25_k pool",
+        "passed": calls.get("top_n") == requested_top,
+    }]
+
+
+def run_rerank_pool_regression():
+    """
+    Regression for --rerank with --top > 50: search._run_hybrid() must pass the
+    widened candidate depth through to rerank_results(pool=...) so the
+    cross-encoder can reorder the entire requested window instead of silently
+    stopping at the default 50.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import types
+    import search as search_mod
+
+    calls = {}
+
+    fake_vector_index = types.SimpleNamespace(
+        model_name="stub",
+        vectors=types.SimpleNamespace(shape=(1, 4)),
+    )
+
+    embeddings_mod = types.SimpleNamespace(
+        is_available=lambda: (True, "ok"),
+        VectorIndex=types.SimpleNamespace(load=lambda: fake_vector_index),
+        vectors_are_stale=lambda *_args, **_kwargs: False,
+        Encoder=lambda _model_name: object(),
+    )
+
+    def fake_hybrid_search(*_args, **kwargs):
+        top_n = kwargs["top_n"]
+        return [
+            {"id": f"concepts/doc-{i}", "title": f"Doc {i}", "summary": ""}
+            for i in range(top_n)
+        ]
+
+    hybrid_mod = types.SimpleNamespace(hybrid_search=fake_hybrid_search)
+
+    def fake_rerank_results(query, results, reranker=None, pool=50, **_kwargs):
+        calls["pool"] = pool
+        calls["count"] = len(results)
+        return results
+
+    rerank_mod = types.SimpleNamespace(
+        is_available=lambda: (True, "ok"),
+        CrossEncoderReranker=lambda: object(),
+        rerank_results=fake_rerank_results,
+    )
+
+    original_modules = {
+        name: sys.modules.get(name)
+        for name in ("embeddings", "hybrid", "rerank")
+    }
+    sys.modules["embeddings"] = embeddings_mod
+    sys.modules["hybrid"] = hybrid_mod
+    sys.modules["rerank"] = rerank_mod
+    original_load_body = search_mod.load_body
+    original_extract_snippet = search_mod.extract_snippet
+    try:
+        search_mod.load_body = lambda _doc_id: "body"
+        search_mod.extract_snippet = lambda *_args, **_kwargs: "snippet"
+        args = types.SimpleNamespace(
+            top=75,
+            rerank=True,
+            type=None,
+            tags=None,
+            date_from=None,
+            date_to=None,
+            no_fuzzy=False,
+        )
+        results = search_mod._run_hybrid("query", {"docs": {}, "backlinks": {}}, args)
+    finally:
+        search_mod.load_body = original_load_body
+        search_mod.extract_snippet = original_extract_snippet
+        for name, module in original_modules.items():
+            if module is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = module
+
+    return [{
+        "description": "_run_hybrid forwards top > 50 to rerank pool",
+        "passed": calls.get("pool") == 75 and calls.get("count") == 75 and len(results) == 75,
+    }]
+
+
+def run_hybrid_empty_query_regression():
+    """
+    Regression: when tokenization yields no terms, _run_hybrid() should match
+    the BM25 path and return [] before touching the embeddings stack.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import types
+    import search as search_mod
+
+    calls = {"embeddings_checked": 0}
+
+    def exploding_is_available():
+        calls["embeddings_checked"] += 1
+        raise AssertionError("embeddings.is_available() should not run for empty-token queries")
+
+    original_modules = {
+        name: sys.modules.get(name)
+        for name in ("embeddings", "hybrid")
+    }
+    sys.modules["embeddings"] = types.SimpleNamespace(is_available=exploding_is_available)
+    sys.modules["hybrid"] = types.SimpleNamespace()
+
+    args = types.SimpleNamespace(
+        top=10,
+        rerank=False,
+        type=None,
+        tags=None,
+        date_from=None,
+        date_to=None,
+        no_fuzzy=False,
+    )
+
+    try:
+        results = search_mod._run_hybrid("the and or", {"docs": {}, "backlinks": {}}, args)
+    except AssertionError as e:
+        return [{
+            "description": "_run_hybrid returns [] before ML setup on empty-token queries",
+            "passed": False,
+            "detail": str(e),
+        }]
+    finally:
+        for name, module in original_modules.items():
+            if module is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = module
+
+    return [{
+        "description": "_run_hybrid returns [] before ML setup on empty-token queries",
+        "passed": results == [] and calls["embeddings_checked"] == 0,
+    }]
+
+
+def run_vector_index_save_regression():
+    """
+    Regression: VectorIndex.save() should honor custom output paths by creating
+    the parent directories of the passed files, not just the default INDEX_DIR.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    try:
+        import numpy as np
+    except ImportError:
+        return [{
+            "description": "VectorIndex.save creates custom parent directories",
+            "passed": True,
+            "detail": "numpy unavailable; skipped",
+        }]
+
+    import tempfile
+    import embeddings
+
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        vectors_file = root / "nested" / "vectors.npy"
+        chunks_file = root / "meta" / "chunks.json"
+        index = embeddings.VectorIndex(
+            vectors=np.ones((1, 3), dtype=np.float32),
+            chunks=[{
+                "chunk_id": "concepts/a#0000",
+                "doc_id": "concepts/a",
+                "heading_path": ["A"],
+                "text": "body",
+                "tokens": 2,
+                "content_hash": "deadbeef",
+            }],
+            dim=3,
+            model_name="test-model",
+        )
+
+        try:
+            index.save(vectors_file=vectors_file, chunks_file=chunks_file)
+        except Exception as e:
+            return [{
+                "description": "VectorIndex.save creates custom parent directories",
+                "passed": False,
+                "detail": str(e),
+            }]
+
+        loaded = embeddings.VectorIndex.load(vectors_file=vectors_file, chunks_file=chunks_file)
+
+        return [{
+            "description": "VectorIndex.save creates custom parent directories",
+            "passed": vectors_file.exists() and chunks_file.exists() and loaded is not None and loaded.dim == 3,
+        }]
+
+
+def run_vector_index_search_limit_regression():
+    """
+    Regression: VectorIndex.search() should return [] for top_k <= 0 instead
+    of reaching np.argpartition(..., k - 1) with an invalid kth.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    try:
+        import numpy as np
+    except ImportError:
+        return [{
+            "description": "VectorIndex.search handles top_k <= 0",
+            "passed": True,
+            "detail": "numpy unavailable; skipped",
+        }]
+
+    import embeddings
+
+    index = embeddings.VectorIndex(
+        vectors=np.array([[1.0, 0.0], [0.0, 1.0]], dtype=np.float32),
+        chunks=[
+            {
+                "chunk_id": "concepts/a#0000",
+                "doc_id": "concepts/a",
+                "heading_path": ["A"],
+                "text": "alpha",
+                "tokens": 1,
+                "content_hash": "hash-a",
+            },
+            {
+                "chunk_id": "concepts/b#0000",
+                "doc_id": "concepts/b",
+                "heading_path": ["B"],
+                "text": "beta",
+                "tokens": 1,
+                "content_hash": "hash-b",
+            },
+        ],
+        dim=2,
+        model_name="test-model",
+    )
+    query = np.array([1.0, 0.0], dtype=np.float32)
+
+    try:
+        zero = index.search(query, top_k=0)
+        negative = index.search(query, top_k=-5)
+        positive = index.search(query, top_k=1)
+    except Exception as e:
+        return [{
+            "description": "VectorIndex.search handles top_k <= 0",
+            "passed": False,
+            "detail": str(e),
+        }]
+
+    return [{
+        "description": "VectorIndex.search handles top_k <= 0",
+        "passed": zero == [] and negative == [] and len(positive) == 1,
+    }]
+
+
+def run_embeddings_dedup_regression():
+    """
+    Regression: build_or_update_index() must encode each distinct content_hash
+    at most once per build, even when the same hash appears multiple times in
+    the input (e.g. identical chunks across docs or repeated sections). The
+    deduped vector must also be replicated to every matching row in the output
+    so downstream search has the correct alignment.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    try:
+        import numpy as np
+    except ImportError:
+        return [{
+            "description": "build_or_update_index dedupes duplicate hashes within one build",
+            "passed": True,
+            "detail": "numpy unavailable; skipped",
+        }]
+
+    import embeddings
+
+    ok, msg = embeddings.is_available()
+    if not ok:
+        missing = msg.splitlines()[0]
+        return [{
+            "description": "build_or_update_index dedupes duplicate hashes within one build",
+            "passed": True,
+            "detail": f"{missing}; skipped",
+        }]
+
+    class _CountingEncoder:
+        """Hash-aware stub that returns a distinct vector per call and counts inputs."""
+        model_name = "test-model"
+
+        def __init__(self):
+            self.calls = 0
+            self.total_inputs = 0
+            self.last_texts = None
+
+        def dim(self):
+            return 4
+
+        def encode(self, texts, batch_size=32, show_progress=False):
+            texts = list(texts)
+            self.calls += 1
+            self.total_inputs += len(texts)
+            self.last_texts = texts
+            # One unique row per input text -- enough to check alignment.
+            return np.array(
+                [[float(i + 1), 0.0, 0.0, 0.0] for i in range(len(texts))],
+                dtype=np.float32,
+            )
+
+    # Three chunks, two of which share the same content_hash. Different
+    # chunk_ids / heading_path, but the cache key is the hash.
+    chunks = [
+        {
+            "chunk_id": "concepts/a#0000", "doc_id": "concepts/a",
+            "heading_path": ["A"], "text": "body", "tokens": 2,
+            "content_hash": "dup-hash",
+        },
+        {
+            "chunk_id": "concepts/b#0000", "doc_id": "concepts/b",
+            "heading_path": ["B"], "text": "body", "tokens": 2,
+            "content_hash": "dup-hash",
+        },
+        {
+            "chunk_id": "concepts/c#0000", "doc_id": "concepts/c",
+            "heading_path": ["C"], "text": "unique", "tokens": 2,
+            "content_hash": "unique-hash",
+        },
+    ]
+
+    encoder = _CountingEncoder()
+    fresh = embeddings.build_or_update_index(
+        chunks, encoder=encoder, existing=None, verbose=False,
+    )
+
+    # Expect only 2 texts encoded (one per unique hash), and the two dup-hash
+    # rows in the output must share the same vector.
+    unique_texts_encoded = encoder.total_inputs == 2
+    rows_for_dups_match = bool(np.allclose(fresh.vectors[0], fresh.vectors[1]))
+    unique_row_distinct = not bool(np.allclose(fresh.vectors[0], fresh.vectors[2]))
+    right_shape = fresh.vectors.shape == (3, 4)
+
+    return [{
+        "description": "build_or_update_index dedupes duplicate hashes within one build",
+        "passed": unique_texts_encoded and rows_for_dups_match and unique_row_distinct and right_shape,
+        "detail": (
+            f"encoder_inputs={encoder.total_inputs}, "
+            f"dup_rows_equal={rows_for_dups_match}, "
+            f"unique_distinct={unique_row_distinct}, "
+            f"shape={fresh.vectors.shape}"
+        ),
+    }]
+
+
+def run_hybrid_vector_filter_skip_regression():
+    """
+    Regression: hybrid_search() must not run the full-index filter scan
+    (_filter_doc_ids) when every filter kwarg is falsy. search._run_hybrid
+    always forwards doc_type=/tags=/date_from=/date_to=/fuzzy= as kwargs, so
+    the pre-fix "if bm25_kwargs:" gate was always true.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import types
+    import hybrid as hybrid_mod
+
+    calls = {"filter": 0}
+    original_filter = hybrid_mod._filter_doc_ids
+
+    def tracking_filter(*args, **kwargs):
+        calls["filter"] += 1
+        return original_filter(*args, **kwargs)
+
+    # Fake BM25 + dense pieces: both return a single matching doc so RRF has
+    # something to fuse and the vector-path code is exercised.
+    def fake_bm25(query, index, top_n=10, **kwargs):
+        return [{
+            "id": "concepts/a", "title": "A", "type": "concept",
+            "score": 1.0, "path": "concepts/a.md", "tags": [],
+            "date": "", "summary": "", "links": [], "related": [],
+            "sources": [], "backlinks": [],
+        }]
+
+    class _FakeVec:
+        # Needs a .shape[0] > 0 and a .search that returns chunk tuples.
+        class _S:
+            shape = (1, 4)
+        vectors = _S()
+
+        def search(self, q_vec, top_k=20):
+            return [({
+                "chunk_id": "concepts/a#0000", "doc_id": "concepts/a",
+                "heading_path": ["A"], "text": "body",
+            }, 0.9)]
+
+    class _FakeEncoder:
+        def encode(self, texts):
+            # Returns a 1-D stub vector; hybrid_search reshapes as needed.
+            class _Arr:
+                ndim = 1
+                def reshape(self, *_a, **_k):
+                    return self
+            return [_Arr()]
+
+    idx = {"docs": {"concepts/a": {"type": "concept"}}, "backlinks": {}}
+
+    hybrid_mod._filter_doc_ids = tracking_filter
+    try:
+        # Case 1: all filters None -> must not call _filter_doc_ids.
+        hybrid_mod.hybrid_search(
+            "q", idx,
+            vector_index=_FakeVec(), encoder=_FakeEncoder(),
+            top_n=5, bm25_k=5, vector_k=5,
+            bm25_search=fake_bm25,
+            doc_type=None, tags=None, date_from=None, date_to=None, fuzzy=True,
+        )
+        after_noop = calls["filter"]
+
+        # Case 2: an active filter -> must call _filter_doc_ids exactly once.
+        hybrid_mod.hybrid_search(
+            "q", idx,
+            vector_index=_FakeVec(), encoder=_FakeEncoder(),
+            top_n=5, bm25_k=5, vector_k=5,
+            bm25_search=fake_bm25,
+            doc_type="concept", tags=None, date_from=None, date_to=None, fuzzy=True,
+        )
+        after_active = calls["filter"]
+    finally:
+        hybrid_mod._filter_doc_ids = original_filter
+
+    return [{
+        "description": "hybrid_search skips _filter_doc_ids when no active filters",
+        "passed": after_noop == 0 and after_active == 1,
+        "detail": f"noop_calls={after_noop}, active_calls={after_active}",
+    }]
+
+
+def run_rerank_nonpositive_pool_regression():
+    """
+    Regression: rerank_results() should treat non-positive pools as a no-op
+    instead of slicing with Python's negative-index semantics and reranking an
+    unintended portion of the list.
+    """
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    import rerank
+
+    class _StubReranker:
+        def __init__(self):
+            self.calls = 0
+
+        def score_pairs(self, pairs):
+            self.calls += 1
+            return [1.0 for _ in pairs]
+
+    base_results = [
+        {"id": "concepts/a", "title": "A", "summary": "alpha"},
+        {"id": "concepts/b", "title": "B", "summary": "beta"},
+    ]
+    reranker = _StubReranker()
+    zero = rerank.rerank_results(
+        "query", [dict(r) for r in base_results], reranker=reranker, pool=0,
+    )
+    negative = rerank.rerank_results(
+        "query", [dict(r) for r in base_results], reranker=reranker, pool=-3,
+    )
+
+    return [{
+        "description": "rerank_results treats pool <= 0 as a no-op",
+        "passed": (
+            zero == base_results
+            and negative == base_results
+            and reranker.calls == 0
+            and all("rerank_score" not in r for r in zero + negative)
+        ),
+    }]
+
+
+def run_build_vectors_missing_deps_regression():
+    """
+    Regression: _build_vectors() exits non-zero when vector deps are missing,
+    but it should report that state as unavailable/error rather than calling it
+    a skipped build.
+    """
+    import contextlib
+    import importlib.util
+    import io
+    import types
+
+    module_path = SEARCH_ENGINE_DIR / "build-index.py"
+    spec = importlib.util.spec_from_file_location("build_index_regression", module_path)
+    build_index_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(build_index_mod)
+
+    original_modules = {
+        name: sys.modules.get(name)
+        for name in ("embeddings", "chunker")
+    }
+    sys.modules["embeddings"] = types.SimpleNamespace(
+        is_available=lambda: (False, "optional deps missing")
+    )
+    sys.modules["chunker"] = types.SimpleNamespace(
+        chunk_document=lambda *_args, **_kwargs: []
+    )
+
+    stderr = io.StringIO()
+    try:
+        with contextlib.redirect_stderr(stderr):
+            rc = build_index_mod._build_vectors([], force=False)
+    finally:
+        for name, module in original_modules.items():
+            if module is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = module
+
+    message = stderr.getvalue().lower()
+    return [{
+        "description": "_build_vectors reports missing deps as unavailable error",
+        "passed": rc == 1 and "unavailable" in message and "skipped" not in message,
+    }]
+
+
+def run_chunker_regressions():
+    """Exercise chunk hashing without requiring optional ML dependencies."""
+    if str(SEARCH_ENGINE_DIR) not in sys.path:
+        sys.path.insert(0, str(SEARCH_ENGINE_DIR))
+
+    from chunker import chunk_document
+
+    alpha = chunk_document("concepts/alpha", "# Alpha\n\nShared paragraph.")
+    beta = chunk_document("concepts/beta", "# Beta\n\nShared paragraph.")
+    alpha_clone = chunk_document("concepts/alpha-clone", "# Alpha\n\nShared paragraph.")
+
+    if len(alpha) != 1 or len(beta) != 1 or len(alpha_clone) != 1:
+        raise AssertionError("Expected one chunk per synthetic document")
+
+    alpha_chunk = alpha[0]
+    beta_chunk = beta[0]
+    alpha_clone_chunk = alpha_clone[0]
+
+    tests = [
+        {
+            "description": "Chunk hash changes when heading breadcrumb changes",
+            "passed": (
+                alpha_chunk.embed_text != beta_chunk.embed_text
+                and alpha_chunk.content_hash != beta_chunk.content_hash
+            ),
+        },
+        {
+            "description": "Chunk hash stays stable for identical encoder input",
+            "passed": (
+                alpha_chunk.embed_text == alpha_clone_chunk.embed_text
+                and alpha_chunk.content_hash == alpha_clone_chunk.content_hash
+            ),
+        },
+    ]
+
+    # Regression: heading-only stub must not fall through to the "no headings"
+    # fallback and silently embed the heading line as plain text.
+    heading_only = chunk_document("concepts/stub", "# Stub\n\n## Empty\n")
+    if heading_only:
+        tests.append({
+            "description": "Heading-only doc emits no plain-text fallback chunk",
+            "passed": False,
+            "detail": f"expected 0 chunks, got {len(heading_only)}",
+        })
+    else:
+        tests.append({
+            "description": "Heading-only doc emits no plain-text fallback chunk",
+            "passed": True,
+        })
+
+    # Sanity: a headings-free doc still hits the fallback as before.
+    no_headings = chunk_document("concepts/plain", "Just a paragraph, no heading.\n")
+    tests.append({
+        "description": "Headings-free doc still chunks via fallback",
+        "passed": len(no_headings) == 1,
+    })
+
+    # Vector index staleness detection (does not require numpy/transformers).
+    import embeddings
+    import tempfile
+    import os
+
+    with tempfile.TemporaryDirectory() as td:
+        wiki = Path(td)
+        (wiki / "concepts").mkdir()
+        art = wiki / "concepts" / "foo.md"
+        art.write_text("# Foo\n")
+
+        class _Stub:
+            class _Vecs:
+                shape = (1, 8)
+            vectors = _Vecs()
+            built_at = 0.0  # predates the stamp
+
+        tests.append({
+            "description": "vectors_are_stale: None treated as stale",
+            "passed": embeddings.vectors_are_stale(None, wiki) is True,
+        })
+        tests.append({
+            "description": "vectors_are_stale: built_at=0 treated as stale",
+            "passed": embeddings.vectors_are_stale(_Stub(), wiki) is True,
+        })
+
+        class _Fresh:
+            class _Vecs:
+                shape = (1, 8)
+            vectors = _Vecs()
+            built_at = art.stat().st_mtime + 3600
+
+        tests.append({
+            "description": "vectors_are_stale: fresh built_at treated as current",
+            "passed": embeddings.vectors_are_stale(_Fresh(), wiki) is False,
+        })
+
+        # Touch the article into the future to simulate wiki edit after build.
+        future = _Fresh.built_at + 7200
+        os.utime(art, (future, future))
+        tests.append({
+            "description": "vectors_are_stale: wiki edit after build marks stale",
+            "passed": embeddings.vectors_are_stale(_Fresh(), wiki) is True,
+        })
+
+    return tests
+
+
 def run_checks():
     cmd = find_search_command()
     results = {
         "search_engine_found": cmd is not None,
         "search_command": " ".join(cmd) if cmd else None,
+        "regression_tests": [],
         "query_tests": [],
         "edge_case_tests": [],
         "latency_stats": {},
@@ -120,6 +913,149 @@ def run_checks():
         results["issues"].append("Search engine not found (tools/search-engine/search.py or tools/search.sh)")
         results["ok"] = False
         return results
+
+    try:
+        results["regression_tests"] = run_chunker_regressions()
+    except Exception as e:
+        results["issues"].append(f"Chunk regression checks failed to run: {e}")
+        results["ok"] = False
+    else:
+        for test in results["regression_tests"]:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        hybrid_tests = run_hybrid_pool_regression()
+    except Exception as e:
+        results["issues"].append(f"Hybrid pool regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(hybrid_tests)
+        for test in hybrid_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        rerank_tests = run_rerank_pool_regression()
+    except Exception as e:
+        results["issues"].append(f"Rerank pool regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(rerank_tests)
+        for test in rerank_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        empty_query_tests = run_hybrid_empty_query_regression()
+    except Exception as e:
+        results["issues"].append(f"Hybrid empty-query regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(empty_query_tests)
+        for test in empty_query_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        save_tests = run_vector_index_save_regression()
+    except Exception as e:
+        results["issues"].append(f"VectorIndex.save regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(save_tests)
+        for test in save_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        limit_tests = run_vector_index_search_limit_regression()
+    except Exception as e:
+        results["issues"].append(f"VectorIndex.search limit regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(limit_tests)
+        for test in limit_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        dedup_tests = run_embeddings_dedup_regression()
+    except Exception as e:
+        results["issues"].append(f"Embeddings dedup regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(dedup_tests)
+        for test in dedup_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        hybrid_filter_tests = run_hybrid_vector_filter_skip_regression()
+    except Exception as e:
+        results["issues"].append(f"Hybrid filter-skip regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(hybrid_filter_tests)
+        for test in hybrid_filter_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        rerank_bound_tests = run_rerank_nonpositive_pool_regression()
+    except Exception as e:
+        results["issues"].append(f"Rerank non-positive pool regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(rerank_bound_tests)
+        for test in rerank_bound_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        build_vectors_tests = run_build_vectors_missing_deps_regression()
+    except Exception as e:
+        results["issues"].append(f"build-index missing-deps regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(build_vectors_tests)
+        for test in build_vectors_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        pretty_tests = run_format_pretty_regression()
+    except Exception as e:
+        results["issues"].append(f"format_pretty regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(pretty_tests)
+        for test in pretty_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
+
+    try:
+        dim_tests = run_encoder_dim_regression()
+    except Exception as e:
+        results["issues"].append(f"encoder.dim regression failed to run: {e}")
+        results["ok"] = False
+    else:
+        results["regression_tests"].extend(dim_tests)
+        for test in dim_tests:
+            if not test["passed"]:
+                results["issues"].append(f"Regression failed: {test['description']}")
+                results["ok"] = False
 
     latencies = []
 
@@ -184,6 +1120,11 @@ def print_report(result):
         return
 
     print(f"\nCommand: {result['search_command']}")
+
+    print("\n--- Regression Tests ---")
+    for t in result["regression_tests"]:
+        symbol = "\033[32m✓\033[0m" if t["passed"] else "\033[31m✗\033[0m"
+        print(f"  {symbol} {t['description']}")
 
     print("\n--- Query Tests ---")
     for t in result["query_tests"]:
