@@ -92,6 +92,9 @@ run_suite "Template Placeholder Leaks" \
 run_suite "Search Engine Tests" \
     "python3 '$SCRIPT_DIR/test-search.py'"
 
+run_suite "Changelog Generator Tests" \
+    "python3 '$SCRIPT_DIR/test-gen-changelog.py'"
+
 run_suite "Raw Layout Validator" \
     "python3 '$SCRIPT_DIR/check-raw-v2.py'"
 
