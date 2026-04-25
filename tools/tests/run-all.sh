@@ -83,11 +83,20 @@ run_suite "Index Validator" \
 run_suite "Content Quality Check" \
     "python3 '$SCRIPT_DIR/check-quality.py'"
 
+run_suite "Template Leak Checker Tests" \
+    "python3 '$SCRIPT_DIR/test-template-leaks.py'"
+
+run_suite "Template Placeholder Leaks" \
+    "python3 '$SCRIPT_DIR/check-template-leaks.py'"
+
 run_suite "Search Engine Tests" \
     "python3 '$SCRIPT_DIR/test-search.py'"
 
 run_suite "Typed Graph Tests" \
     "python3 '$SCRIPT_DIR/test_graph.py'"
+
+run_suite "Eval Harness Tests" \
+    "python3 '$SCRIPT_DIR/test_eval.py'"
 
 run_suite "Meta Regenerator Tests" \
     "python3 '$SCRIPT_DIR/test-regen-meta.py'"

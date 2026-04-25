@@ -778,15 +778,31 @@ edges:
                 dst = tmp / rel
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dst)
-
-            fake_bin = tmp / "bin"
-            fake_bin.mkdir()
-            claude = fake_bin / "claude"
-            claude.write_text(
-                "#!/bin/sh\nexit 0\n",
+            # The kb shim delegates to the Python CLI; copy it into the temp tree.
+            shutil.copytree(
+                REPO_ROOT / "tools" / "kb",
+                tmp / "tools" / "kb",
+                dirs_exist_ok=True,
+            )
+            # Stub out runner.py so the LLM step always succeeds without
+            # requiring claude-agent-sdk or ANTHROPIC_API_KEY.
+            (tmp / "tools" / "kb" / "runner.py").write_text(
+                "from .models import TokenUsage\n"
+                "from dataclasses import dataclass, field\n"
+                "\n"
+                "@dataclass\n"
+                "class LLMResult:\n"
+                "    text: str = ''\n"
+                "    backend: str = 'stub'\n"
+                "    usage: TokenUsage = field(default_factory=TokenUsage)\n"
+                "    returncode: int = 0\n"
+                "    budget_exceeded: bool = False\n"
+                "\n"
+                "def invoke_llm(prompt, *, model='opus', budget, dry_run=False,\n"
+                "               permission_mode='bypassPermissions', verbose=False, cwd=None):\n"
+                "    return LLMResult(text='stub', returncode=0)\n",
                 encoding="utf-8",
             )
-            claude.chmod(0o755)
 
             wiki = tmp / "wiki" / "concepts"
             wiki.mkdir(parents=True)
@@ -820,7 +836,6 @@ last_compiled: 2026-04-22
                 tmp,
                 "compile",
                 env={
-                    "PATH": f"{fake_bin}:{os.environ['PATH']}",
                     "KB_NO_COMMIT": "1",
                 },
             )
