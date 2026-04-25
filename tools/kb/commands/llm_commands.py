@@ -62,11 +62,17 @@ def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
     proc = subprocess.run(
         ["python3", str(generate_all)],
         cwd=str(ctx.workspace.kb_dir),
+        capture_output=True,
+        text=True,
     )
     if proc.returncode != 0:
         result.ok = False
         result.exit_code = EXIT_ERROR
-        result.message = "generate_all.py failed; decoration pages not updated"
+        diag = (proc.stderr or proc.stdout or "").strip()
+        result.message = (
+            f"generate_all.py failed; decoration pages not updated"
+            + (f":\n{diag}" if diag else "")
+        )
         return result
 
     # Auto-commit the full compile output (LLM changes + decoration pages).
