@@ -211,7 +211,7 @@ SAFE_TITLE=$(echo "$TITLE" | \
     sed 's/  \+/ /g; s/^ //; s/ $//' | \
     tr ' ' '-' | \
     cut -c1-80)
-OUTPUT_FILE="$RAW_DIR/arxiv-${SAFE_TITLE:-$ARXIV_ID}.md"
+SLUG="arxiv-${SAFE_TITLE:-$ARXIV_ID}"
 
 # Format authors as YAML list
 AUTHORS_YAML=""
@@ -231,8 +231,9 @@ for cat in "${CAT_ARRAY[@]}"; do
 "
 done
 
-# --- Write output ---
-cat > "$OUTPUT_FILE" << HEREDOC
+# --- Compose clean.md ---
+CLEAN_FILE=$(mktemp /tmp/arxiv-clean-XXXXXX.md)
+cat > "$CLEAN_FILE" << HEREDOC
 ---
 title: "$(echo "$TITLE" | sed 's/"/\\"/g')"
 source: "https://arxiv.org/abs/${ARXIV_ID}"
@@ -270,6 +271,39 @@ $ABSTRACT
 $FULL_TEXT
 HEREDOC
 
+# --- Persist PDF bytes if we have them ---
+RAW_ARGS=()
+CONTENT_TYPE="pdf"
+if [ -s "$PDF_PATH" ]; then
+    RAW_ARGS+=(--raw-path "$PDF_PATH" --raw-ext "pdf")
+else
+    CONTENT_TYPE=""
+fi
+
+EXTRA_META=$(python3 - <<PYEOF
+import json
+print(json.dumps({
+    "title": """$TITLE""".replace('"', r'\"'),
+    "arxiv_id": "$ARXIV_ID",
+    "authors": """$AUTHORS""".replace('"', r'\"'),
+    "date_published": "${PUBLISHED:-}",
+    "primary_category": "$PRIMARY_CAT",
+    "extraction_method": "$EXTRACTION_METHOD",
+    "api_url": "$API_URL",
+}))
+PYEOF
+)
+
+python3 "$PROJECT_DIR/tools/ingest/_raw_writer.py" \
+    --slug "$SLUG" \
+    --url "https://arxiv.org/abs/${ARXIV_ID}" \
+    --fetcher arxiv \
+    --clean-path "$CLEAN_FILE" \
+    --content-type "$CONTENT_TYPE" \
+    --extra-meta-json "$EXTRA_META" \
+    "${RAW_ARGS[@]}" >/dev/null
+
+rm -f "$CLEAN_FILE"
+
 echo ""
-echo "Saved to: $OUTPUT_FILE"
-echo "File size: $(wc -c < "$OUTPUT_FILE" | tr -d ' ') bytes"
+echo "Saved to: $RAW_DIR/$SLUG/"

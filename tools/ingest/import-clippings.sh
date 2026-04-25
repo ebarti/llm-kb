@@ -44,128 +44,146 @@ find "$CLIPPINGS_DIR" -maxdepth 2 -name "*.md" -type f | sort | while IFS= read 
     BASENAME=$(basename "$CLIP_FILE" .md)
     echo "Processing: $BASENAME"
 
-    # Generate a safe output filename
+    # Generate a safe slug
     SAFE_NAME=$(echo "$BASENAME" | \
         tr '[:upper:]' '[:lower:]' | \
         sed 's/[^a-z0-9 @_-]//g' | \
         sed 's/  \+/ /g; s/^ //; s/ $//' | \
         tr ' ' '-' | \
         cut -c1-80)
-    OUTPUT_FILE="$RAW_DIR/clip-${SAFE_NAME}.md"
+    SLUG="clip-${SAFE_NAME}"
+    TARGET_DIR="$RAW_DIR/$SLUG"
 
-    # Check if already imported
-    if [ -f "$OUTPUT_FILE" ]; then
-        echo "  SKIP: Already exists at $OUTPUT_FILE"
+    # Check if already imported (both new layout and legacy flat file)
+    if [ -d "$TARGET_DIR" ] && [ -f "$TARGET_DIR/clean.md" ]; then
+        echo "  SKIP: Already exists at $TARGET_DIR/"
+        SKIPPED=$((SKIPPED + 1))
+        continue
+    fi
+    if [ -f "$RAW_DIR/${SLUG}.md" ]; then
+        echo "  SKIP: Legacy flat file exists at $RAW_DIR/${SLUG}.md"
         SKIPPED=$((SKIPPED + 1))
         continue
     fi
 
-    # Read the clipping file and normalize frontmatter
-    python3 << PYEOF
+    # Build the normalised clean.md in a temp file, then persist via the writer
+    python3 - "$CLIP_FILE" "$BASENAME" "$TODAY" "$SLUG" "$PROJECT_DIR" <<'PYEOF'
+import json
 import re
+import subprocess
 import sys
-from datetime import date
+import tempfile
+from pathlib import Path
 
-input_path = """$CLIP_FILE"""
-output_path = """$OUTPUT_FILE"""
-today = "$TODAY"
+input_path, basename, today, slug, project_dir = sys.argv[1:6]
 
-try:
-    with open(input_path, 'r', encoding='utf-8', errors='replace') as f:
-        content = f.read()
+with open(input_path, 'r', encoding='utf-8', errors='replace') as f:
+    content = f.read()
 
-    # Parse existing frontmatter
-    frontmatter = {}
-    body = content
+frontmatter = {}
+body = content
+fm_match = re.match(r'^---\s*\n(.*?)\n---\s*\n(.*)', content, re.DOTALL)
+if fm_match:
+    fm_text = fm_match.group(1)
+    body = fm_match.group(2)
+    current_key = None
+    for line in fm_text.split('\n'):
+        stripped = line.strip()
+        if stripped.startswith('-') and current_key:
+            val = stripped.lstrip('-').strip().strip('"').strip("'")
+            val = re.sub(r'\[\[(@?[^\]]+)\]\]', r'\1', val)
+            if val:
+                existing = frontmatter.get(current_key, '')
+                frontmatter[current_key] = (existing + ', ' + val).lstrip(', ')
+            continue
+        if ':' in stripped and not stripped.startswith('#'):
+            key, _, value = stripped.partition(':')
+            key = key.strip().lower()
+            value = value.strip().strip('"').strip("'")
+            value = re.sub(r'\[\[(@?[^\]]+)\]\]', r'\1', value)
+            current_key = key
+            if value and value != '(null)':
+                frontmatter[key] = value
+            elif not value:
+                frontmatter.setdefault(key, '')
+        else:
+            current_key = None
 
-    fm_match = re.match(r'^---\s*\n(.*?)\n---\s*\n(.*)', content, re.DOTALL)
-    if fm_match:
-        fm_text = fm_match.group(1)
-        body = fm_match.group(2)
+title = frontmatter.get('title', basename)
+source = frontmatter.get('source', frontmatter.get('url', frontmatter.get('link', '')))
+author = frontmatter.get('author', frontmatter.get('authors', frontmatter.get('creator', '')))
+if isinstance(author, str):
+    author = re.sub(r'^\s*-\s*', '', author)
+published = frontmatter.get('published', frontmatter.get('date_published',
+            frontmatter.get('date', frontmatter.get('created', ''))))
+description = frontmatter.get('description', frontmatter.get('excerpt', ''))
 
-        # Simple YAML-like parsing for common fields
-        current_key = None
-        for line in fm_text.split('\n'):
-            stripped = line.strip()
-            # Continuation list item (e.g. "  - value")
-            if stripped.startswith('-') and current_key:
-                val = stripped.lstrip('-').strip().strip('"').strip("'")
-                val = re.sub(r'\[\[(@?[^\]]+)\]\]', r'\1', val)
-                if val:
-                    existing = frontmatter.get(current_key, '')
-                    frontmatter[current_key] = (existing + ', ' + val).lstrip(', ')
-                continue
-            if ':' in stripped and not stripped.startswith('#'):
-                key, _, value = stripped.partition(':')
-                key = key.strip().lower()
-                value = value.strip().strip('"').strip("'")
-                # Handle Obsidian wikilink format [[@name]]
-                value = re.sub(r'\[\[(@?[^\]]+)\]\]', r'\1', value)
-                current_key = key
-                if value and value != '(null)':
-                    frontmatter[key] = value
-                elif not value:
-                    # Key with no inline value; list items may follow
-                    frontmatter.setdefault(key, '')
-            else:
-                current_key = None
+content_type = 'article'
+if source:
+    if 'youtube.com' in source or 'youtu.be' in source:
+        content_type = 'youtube'
+    elif 'twitter.com' in source or 'x.com' in source:
+        content_type = 'tweet'
+    elif 'arxiv.org' in source:
+        content_type = 'arxiv'
+    elif 'github.com' in source:
+        content_type = 'github'
 
-    # Map Obsidian clipper fields to our standard format
-    title = frontmatter.get('title', '$BASENAME')
-    source = frontmatter.get('source', frontmatter.get('url', frontmatter.get('link', '')))
-    author = frontmatter.get('author', frontmatter.get('authors', frontmatter.get('creator', '')))
-    # Handle author lists
-    if isinstance(author, str):
-        author = re.sub(r'^\s*-\s*', '', author)
+tags_raw = frontmatter.get('tags', '')
+tags = ['clipping']
+if tags_raw:
+    for t in re.split(r'[,\n]', tags_raw):
+        t = t.strip().strip('-').strip().strip('"').strip("'")
+        if t and t not in tags:
+            tags.append(t)
 
-    published = frontmatter.get('published', frontmatter.get('date_published',
-                frontmatter.get('date', frontmatter.get('created', ''))))
-    description = frontmatter.get('description', frontmatter.get('excerpt', ''))
+# Write normalised clean.md to a temp file
+clean_path = Path(tempfile.mkstemp(suffix='.md', prefix='clip-clean-')[1])
+lines = [
+    '---',
+    f'title: "{title}"',
+    f'source: "{source}"',
+    f'author: "{author}"',
+    f'date_published: {published}',
+    f'date_ingested: {today}',
+]
+if description:
+    lines.append(f'description: "{description[:200]}"')
+lines.append(f'tags: [{", ".join(tags)}]')
+lines.append(f'type: {content_type}')
+lines.append('status: raw')
+lines.append('imported_from: clippings')
+lines.append('---')
+lines.append('')
+lines.append(body)
+clean_path.write_text('\n'.join(lines), encoding='utf-8')
 
-    # Detect type from source URL
-    content_type = 'article'
-    if source:
-        if 'youtube.com' in source or 'youtu.be' in source:
-            content_type = 'youtube'
-        elif 'twitter.com' in source or 'x.com' in source:
-            content_type = 'tweet'
-        elif 'arxiv.org' in source:
-            content_type = 'arxiv'
-        elif 'github.com' in source:
-            content_type = 'github'
+extra_meta = json.dumps({
+    "title": title,
+    "author": str(author or ''),
+    "date_published": str(published or ''),
+    "imported_from": "clippings",
+    "original_file": input_path,
+})
 
-    # Collect original tags
-    tags_raw = frontmatter.get('tags', '')
-    tags = ['clipping']
-    if tags_raw:
-        # Handle both comma-separated and YAML list formats
-        for t in re.split(r'[,\n]', tags_raw):
-            t = t.strip().strip('-').strip().strip('"').strip("'")
-            if t and t not in tags:
-                tags.append(t)
-
-    # Write normalized output
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write('---\n')
-        f.write(f'title: "{title}"\n')
-        f.write(f'source: "{source}"\n')
-        f.write(f'author: "{author}"\n')
-        f.write(f'date_published: {published}\n')
-        f.write(f'date_ingested: {today}\n')
-        if description:
-            f.write(f'description: "{description[:200]}"\n')
-        f.write(f'tags: [{", ".join(tags)}]\n')
-        f.write(f'type: {content_type}\n')
-        f.write(f'status: raw\n')
-        f.write(f'imported_from: clippings\n')
-        f.write('---\n\n')
-        f.write(body)
-
-    print(f"  OK: {output_path}")
-
-except Exception as e:
-    print(f"  ERROR: {e}", file=sys.stderr)
+writer = Path(project_dir) / "tools/ingest/_raw_writer.py"
+# Clipping files ARE the original bytes (user already saved them) — pass as raw.md
+result = subprocess.run([
+    "python3", str(writer),
+    "--slug", slug,
+    "--url", str(source or ''),
+    "--fetcher", "clippings",
+    "--clean-path", str(clean_path),
+    "--raw-path", input_path,
+    "--raw-ext", "md",
+    "--content-type", "markdown",
+    "--extra-meta-json", extra_meta,
+], capture_output=True, text=True)
+clean_path.unlink(missing_ok=True)
+if result.returncode not in (0, 2):
+    print(f"  ERROR: {result.stderr}", file=sys.stderr)
     sys.exit(1)
+print(f"  OK: raw/{slug}/")
 PYEOF
 
     if [ $? -eq 0 ]; then
