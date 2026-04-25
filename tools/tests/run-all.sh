@@ -92,6 +92,9 @@ run_suite "Template Placeholder Leaks" \
 run_suite "Search Engine Tests" \
     "python3 '$SCRIPT_DIR/test-search.py'"
 
+run_suite "Eval Harness Tests" \
+    "python3 '$SCRIPT_DIR/test_eval.py'"
+
 run_suite "Meta Regenerator Tests" \
     "python3 '$SCRIPT_DIR/test-regen-meta.py'"
 
