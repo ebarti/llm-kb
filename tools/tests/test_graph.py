@@ -784,6 +784,14 @@ edges:
                 tmp / "tools" / "kb",
                 dirs_exist_ok=True,
             )
+            # Compile runs decoration-page generators before the graph rebuild;
+            # copy them into the temp tree so they don't fail with a missing
+            # ``generate_all.py`` and short-circuit the graph step under test.
+            shutil.copytree(
+                REPO_ROOT / "tools" / "compile",
+                tmp / "tools" / "compile",
+                dirs_exist_ok=True,
+            )
             # Stub out runner.py so the LLM step always succeeds without
             # requiring claude-agent-sdk or ANTHROPIC_API_KEY.
             (tmp / "tools" / "kb" / "runner.py").write_text(

@@ -197,10 +197,11 @@ SAFE_TITLE=$(echo "$TITLE" | \
     sed 's/  \+/ /g; s/^ //; s/ $//' | \
     tr ' ' '-' | \
     cut -c1-80)
-OUTPUT_FILE="$RAW_DIR/pdf-${SAFE_TITLE:-$ORIGINAL_NAME}.md"
+SLUG="pdf-${SAFE_TITLE:-$ORIGINAL_NAME}"
 
-# --- Write output ---
-cat > "$OUTPUT_FILE" << HEREDOC
+# --- Compose clean.md ---
+CLEAN_FILE=$(mktemp /tmp/pdf-clean-XXXXXX.md)
+cat > "$CLEAN_FILE" << HEREDOC
 ---
 title: "$(echo "$TITLE" | sed 's/"/\\"/g')"
 source: "$SOURCE_URL"
@@ -225,7 +226,32 @@ extraction_method: $METHOD
 $TEXT
 HEREDOC
 
+EXTRA_META=$(python3 - <<PYEOF
+import json
+print(json.dumps({
+    "title": """$TITLE""".replace('"', r'\"'),
+    "author": """${AUTHOR:-}""".replace('"', r'\"'),
+    "pages": "${PAGE_COUNT:-}",
+    "extraction_method": "$METHOD",
+    "creation_date": "${CREATION_DATE:-}",
+}))
+PYEOF
+)
+
+# --- Persist PDF bytes via writer ---
+python3 "$PROJECT_DIR/tools/ingest/_raw_writer.py" \
+    --slug "$SLUG" \
+    --url "$SOURCE_URL" \
+    --fetcher pdf \
+    --clean-path "$CLEAN_FILE" \
+    --raw-path "$PDF_PATH" \
+    --raw-ext pdf \
+    --content-type pdf \
+    --extra-meta-json "$EXTRA_META" \
+    >/dev/null
+
+rm -f "$CLEAN_FILE"
+
 echo ""
-echo "Saved to: $OUTPUT_FILE"
-echo "File size: $(wc -c < "$OUTPUT_FILE" | tr -d ' ') bytes"
+echo "Saved to: $RAW_DIR/$SLUG/"
 echo "Extraction method: $METHOD"

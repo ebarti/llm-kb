@@ -95,6 +95,15 @@ run_suite "Search Engine Tests" \
 run_suite "Typed Graph Tests" \
     "python3 '$SCRIPT_DIR/test_graph.py'"
 
+run_suite "Changelog Generator Tests" \
+    "python3 '$SCRIPT_DIR/test-gen-changelog.py'"
+
+run_suite "Raw Layout Validator" \
+    "python3 '$SCRIPT_DIR/check-raw-v2.py'"
+
+run_suite "Raw Writer Tests" \
+    "python3 '$SCRIPT_DIR/test-raw-writer.py'"
+
 run_suite "Eval Harness Tests" \
     "python3 '$SCRIPT_DIR/test_eval.py'"
 

@@ -26,6 +26,26 @@ RAW_DIR = BASE_DIR / "raw"
 WIKILINK_RE = re.compile(r"\[\[([^\]|]+?)(?:\|[^\]]+?)?\]\]")
 
 
+def normalize_raw_reference(ref):
+    """Normalise raw references to a slug stem."""
+    ref = ref.strip()
+    if not ref.startswith("raw/"):
+        return None
+
+    path = ref[4:]
+    if path.endswith("/clean.md"):
+        path = path[:-9]
+    elif path.endswith("/clean"):
+        path = path[:-6]
+    elif path.endswith(".md"):
+        path = path[:-3]
+
+    parts = [part for part in path.split("/") if part]
+    if len(parts) == 1:
+        return parts[0]
+    return None
+
+
 def collect_wiki_articles():
     """Collect all article paths (relative to wiki/, no .md)."""
     articles = set()
@@ -39,10 +59,16 @@ def collect_wiki_articles():
 
 
 def collect_raw_files():
-    """Collect all raw file stems."""
+    """Collect all raw source slugs from legacy files and v2 directories."""
     if not RAW_DIR.is_dir():
         return set()
-    return {f.stem for f in RAW_DIR.iterdir() if f.suffix == ".md"}
+    raw_sources = set()
+    for entry in RAW_DIR.iterdir():
+        if entry.is_file() and entry.suffix == ".md":
+            raw_sources.add(entry.stem)
+        elif entry.is_dir() and (entry / "clean.md").exists():
+            raw_sources.add(entry.name)
+    return raw_sources
 
 
 def extract_wikilinks(filepath):
@@ -61,13 +87,16 @@ def extract_wikilinks(filepath):
 
 
 def extract_manifest_raw_files(filepath):
-    """Extract raw file references from manifest.md."""
+    """Extract raw source slugs from manifest.md."""
     if not filepath.exists():
         return set()
     text = filepath.read_text(encoding="utf-8", errors="replace")
-    # Pattern: `raw/something.md`
-    pattern = re.compile(r"`raw/([^`]+?)\.md`")
-    return set(pattern.findall(text))
+    raw_sources = set()
+    for ref in re.findall(r"`(raw/[^`]+)`", text):
+        slug = normalize_raw_reference(ref)
+        if slug:
+            raw_sources.add(slug)
+    return raw_sources
 
 
 def run_checks():

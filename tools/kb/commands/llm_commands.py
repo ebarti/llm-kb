@@ -9,7 +9,11 @@ updated without touching runtime logic.
 
 from __future__ import annotations
 
-from ..models import LLMInvocationResult
+import dataclasses
+import subprocess
+
+from ..git_util import auto_commit
+from ..models import EXIT_ERROR, LLMInvocationResult
 from . import prompts
 from ._common import CommandContext, run_llm_command
 
@@ -36,13 +40,48 @@ def ingest(ctx: CommandContext, urls: list[str]) -> LLMInvocationResult:
 
 
 def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
-    return run_llm_command(
-        ctx,
+    # Run the LLM compile step without auto-committing so we can run the
+    # decoration-page generators first and include their output in the same
+    # commit.
+    no_commit_ctx = dataclasses.replace(ctx, no_commit=True)
+    result = run_llm_command(
+        no_commit_ctx,
         command="compile",
         topic=None,
         prompt_builder=lambda: prompts.COMPILE_PROMPT,
         commit_label="compile wiki",
     )
+
+    if not result.ok or ctx.dry_run:
+        return result
+
+    # Run decoration-page generators (Dashboard, Graph, Tags, Glossary,
+    # Changelog) using the workspace copy so --dir <workspace> writes to the
+    # right place.
+    generate_all = ctx.workspace.kb_dir / "tools" / "compile" / "pages" / "generate_all.py"
+    proc = subprocess.run(
+        ["python3", str(generate_all)],
+        cwd=str(ctx.workspace.kb_dir),
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        result.ok = False
+        result.exit_code = EXIT_ERROR
+        diag = (proc.stderr or proc.stdout or "").strip()
+        result.message = (
+            f"generate_all.py failed; decoration pages not updated"
+            + (f":\n{diag}" if diag else "")
+        )
+        return result
+
+    # Auto-commit the full compile output (LLM changes + decoration pages).
+    if not ctx.no_commit:
+        committed = auto_commit(ctx.workspace.kb_dir, "compile wiki", dry_run=False)
+        result.committed = committed
+        result.commit_label = "compile wiki" if committed else None
+
+    return result
 
 
 def ask(ctx: CommandContext, question: str) -> LLMInvocationResult:
