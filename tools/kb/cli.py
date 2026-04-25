@@ -213,7 +213,7 @@ def _rebuild_graph_store(ctx: CommandContext, result: LLMInvocationResult) -> LL
                 stdout=subprocess.DEVNULL,
                 stderr=graph_err_fh,
             )
-    except Exception as exc:  # pragma: no cover
+    except (OSError, subprocess.SubprocessError) as exc:  # pragma: no cover
         proc = None
         graph_err_path.write_text(str(exc))
 
