@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 # qmd — Quick Markdown search for the LLM knowledge base wiki
 # Designed to be called by Claude CLI as a tool.
-# Usage: ./qmd "query" [--type concept|source|entity|comparison] [--top N]
+#
+# Usage:
+#   ./qmd "query"                                     BM25 search (default)
+#   ./qmd "query" --hybrid                            BM25 + dense-vector RRF
+#   ./qmd "query" --hybrid --rerank                   Hybrid + cross-encoder
+#   ./qmd "query" --type concept|source|entity|comparison
+#   ./qmd "query" --top N
+#   ./qmd "query" --tags tag1 tag2
+#   ./qmd "query" --date-from 2026-01-01 --date-to 2026-12-31
+#
+# Hybrid and rerank modes require optional ML deps:
+#   pip install -r tools/search-engine/requirements-ml.txt
 #
 # Output is concise markdown optimized for LLM consumption.
 
@@ -11,12 +22,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SEARCH_PY="${SCRIPT_DIR}/search.py"
 
 if [ $# -eq 0 ]; then
-    echo "Usage: qmd <query> [--type TYPE] [--top N]"
-    echo ""
-    echo "Search the wiki knowledge base."
-    echo ""
-    echo "Types: concept, source, entity, comparison"
-    echo "Default: returns top 10 results across all types."
+    cat <<'EOF'
+Usage: qmd <query> [--hybrid] [--rerank] [--type TYPE] [--top N] [--tags T1 T2]
+                   [--date-from YYYY-MM-DD] [--date-to YYYY-MM-DD]
+
+Search the wiki knowledge base.
+
+Modes:
+  (default)           BM25 lexical ranking
+  --hybrid            BM25 + dense-vector retrieval fused via RRF
+  --rerank            Apply cross-encoder rerank (implies --hybrid)
+
+Filters:
+  --type              concept | source | entity | comparison
+  --tags T1 T2 ...    restrict to articles carrying any of these tags
+  --date-from, --date-to    restrict by last_compiled / last_updated
+
+Defaults: top 10 results across all types, LLM-friendly output.
+EOF
     exit 1
 fi
 

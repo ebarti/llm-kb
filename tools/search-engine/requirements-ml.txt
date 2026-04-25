@@ -1,0 +1,26 @@
+# Optional ML dependencies for hybrid retrieval.
+#
+# The base search engine (BM25) has ZERO external dependencies -- see
+# requirements.txt. Install this file ONLY if you want:
+#   - qmd --hybrid    (BM25 + dense-vector retrieval via RRF fusion)
+#   - qmd --rerank    (cross-encoder reranking on top of hybrid)
+#
+# Install:
+#   pip install -r tools/search-engine/requirements-ml.txt
+#
+# Offline use:
+# -----------
+# On first run sentence-transformers downloads model weights to
+# ~/.cache/huggingface. After that the system is fully offline. To pre-download
+# on a connected machine and rsync the cache to an air-gapped host, see:
+#   https://huggingface.co/docs/huggingface_hub/guides/download
+#
+# Environment overrides:
+#   KB_EMBED_MODEL      override retriever model (default: BAAI/bge-small-en-v1.5)
+#   KB_RERANK_MODEL     override reranker model (default: BAAI/bge-reranker-v2-m3)
+#   KB_EMBED_VERBOSE=1  enable sentence_transformers INFO logging
+
+numpy>=1.24
+sentence-transformers>=2.7
+# torch is a transitive dep of sentence-transformers and will be pulled in.
+# Pin an explicit version here if you need a particular CUDA/CPU build.
