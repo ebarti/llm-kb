@@ -232,9 +232,12 @@ fi
 
 # --- Generate output ---
 SAFE_NAME=$(echo "${OWNER}-${REPO}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
-OUTPUT_FILE="$RAW_DIR/gh-${SAFE_NAME}.md"
+SLUG="gh-${SAFE_NAME}"
 
-cat > "$OUTPUT_FILE" << HEREDOC
+# --- Compose clean.md ---
+CLEAN_FILE=$(mktemp /tmp/gh-clean-XXXXXX.md)
+trap "rm -f '$CLEAN_FILE'" EXIT
+cat > "$CLEAN_FILE" << HEREDOC
 ---
 title: "${OWNER}/${REPO}"
 source: "https://github.com/${OWNER}/${REPO}"
@@ -285,6 +288,40 @@ ${KEY_FILES_MD:+## Key Configuration Files
 $KEY_FILES_MD}
 HEREDOC
 
+# --- Persist the repo JSON payload as raw bytes (not the full repo contents) ---
+RAW_BYTES_FILE=$(mktemp /tmp/gh-raw-XXXXXX.json)
+trap "rm -f '$CLEAN_FILE' '$RAW_BYTES_FILE'" EXIT
+echo "$REPO_JSON" > "$RAW_BYTES_FILE"
+
+EXTRA_META=$(python3 - <<PYEOF
+import json
+print(json.dumps({
+    "title": "${OWNER}/${REPO}",
+    "owner": "$OWNER",
+    "repo": "$REPO",
+    "default_branch": "$DEFAULT_BRANCH",
+    "stars": "$STARS",
+    "forks": "$FORKS",
+    "language": "$LANGUAGE",
+    "license": "$LICENSE",
+    "date_created": "${CREATED:-}",
+    "date_pushed": "${PUSHED:-}",
+}))
+PYEOF
+)
+
+python3 "$PROJECT_DIR/tools/ingest/_raw_writer.py" \
+    --slug "$SLUG" \
+    --url "https://github.com/${OWNER}/${REPO}" \
+    --fetcher github \
+    --clean-path "$CLEAN_FILE" \
+    --raw-path "$RAW_BYTES_FILE" \
+    --raw-ext json \
+    --content-type json \
+    --extra-meta-json "$EXTRA_META" \
+    >/dev/null
+
+rm -f "$CLEAN_FILE" "$RAW_BYTES_FILE"
+
 echo ""
-echo "Saved to: $OUTPUT_FILE"
-echo "File size: $(wc -c < "$OUTPUT_FILE" | tr -d ' ') bytes"
+echo "Saved to: $RAW_DIR/$SLUG/"

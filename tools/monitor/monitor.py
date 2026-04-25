@@ -46,26 +46,49 @@ def load_topics():
         return json.load(f)
 
 
+def normalize_raw_reference(ref):
+    """Normalise raw manifest entries to a slug stem."""
+    ref = ref.strip()
+    if not ref.startswith("raw/"):
+        return None
+
+    path = ref[4:]
+    if path.endswith("/clean.md"):
+        path = path[:-9]
+    elif path.endswith("/clean"):
+        path = path[:-6]
+    elif path.endswith(".md"):
+        path = path[:-3]
+
+    parts = [part for part in path.split("/") if part]
+    if len(parts) == 1:
+        return parts[0]
+    return None
+
+
 def load_manifest_urls():
-    """Extract URLs/source identifiers already in the manifest."""
+    """Extract raw source slugs already tracked in the manifest."""
     known = set()
     if not MANIFEST_FILE.exists():
         return known
-    text = MANIFEST_FILE.read_text()
-    # Extract raw file stems — these correspond to ingested sources
-    for m in re.finditer(r'`raw/([\w\-]+)\.md`', text):
-        known.add(m.group(1).lower())
+    text = MANIFEST_FILE.read_text(encoding="utf-8", errors="replace")
+    for ref in re.findall(r'`(raw/[^`]+)`', text):
+        slug = normalize_raw_reference(ref)
+        if slug:
+            known.add(slug.lower())
     return known
 
 
 def load_raw_filenames():
-    """Get all raw file stems so we can skip already-ingested content."""
+    """Get all raw source slugs from legacy files and v2 directories."""
     raw_dir = KB_DIR / "raw"
     stems = set()
     if raw_dir.exists():
-        for f in raw_dir.iterdir():
-            if f.suffix == ".md":
-                stems.add(f.stem.lower())
+        for entry in raw_dir.iterdir():
+            if entry.is_file() and entry.suffix == ".md":
+                stems.add(entry.stem.lower())
+            elif entry.is_dir() and (entry / "clean.md").exists():
+                stems.add(entry.name.lower())
     return stems
 
 

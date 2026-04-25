@@ -1,9 +1,9 @@
 #!/bin/bash
-# fetch-url.sh — Fetch a URL and convert to markdown
+# fetch-url.sh — Fetch a URL and convert to markdown (v2 layout)
 # Usage: ./tools/fetch-url.sh <url> [output_name]
 #
-# Fetches the raw HTML/text from a URL and saves it to raw/
-# Claude then processes this into clean markdown
+# Saves the raw HTML as raw/<slug>/raw.html and a cleaned markdown
+# as raw/<slug>/clean.md, plus meta.json with provenance.
 
 set -euo pipefail
 
@@ -15,67 +15,58 @@ if [ -z "$URL" ]; then
     exit 1
 fi
 
-# Derive a filename from the URL if not provided
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+RAW_DIR="$PROJECT_DIR/raw"
+
+# Derive a slug from the URL if not provided
 if [ -z "$OUTPUT_NAME" ]; then
     OUTPUT_NAME=$(echo "$URL" | sed 's|https\?://||' | sed 's|[^a-zA-Z0-9]|_|g' | sed 's|_\+|_|g' | sed 's|_$||' | cut -c1-80)
 fi
+SLUG="$OUTPUT_NAME"
 
-RAW_DIR="$(cd "$(dirname "$0")/.." && pwd)/raw"
-mkdir -p "$RAW_DIR"
-
-OUTPUT_FILE="$RAW_DIR/${OUTPUT_NAME}.md"
-IMAGES_DIR="$RAW_DIR/${OUTPUT_NAME}_images"
+mkdir -p "$RAW_DIR/$SLUG"
+IMAGES_DIR="$RAW_DIR/$SLUG/images"
 
 # Fetch the page content
 echo "Fetching: $URL"
 
-# Try to get clean text content. We use multiple approaches:
-# 1. Try readability-cli if available
-# 2. Fall back to curl + basic extraction
-CONTENT=""
+RAW_HTML_FILE="$(mktemp /tmp/fetch-XXXXXX.html)"
+trap "rm -f '$RAW_HTML_FILE'" EXIT
 
-# Use curl to get raw HTML
-RAW_HTML=$(curl -sL --max-time 30 --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" "$URL" 2>/dev/null || true)
+HTTP_CODE=$(curl -sL --max-time 30 -o "$RAW_HTML_FILE" -w '%{http_code}' \
+    --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" \
+    "$URL" 2>/dev/null || echo "000")
 
-if [ -z "$RAW_HTML" ]; then
-    echo "ERROR: Failed to fetch $URL"
+if [ ! -s "$RAW_HTML_FILE" ]; then
+    echo "ERROR: Failed to fetch $URL (HTTP $HTTP_CODE)"
     exit 1
 fi
 
-# Try to extract text content using textutil if available (macOS)
-# Otherwise just save the raw HTML for Claude to process
-TEMP_HTML=$(mktemp /tmp/fetch-XXXXXX.html)
-echo "$RAW_HTML" > "$TEMP_HTML"
+RAW_HTML=$(cat "$RAW_HTML_FILE")
 
-# Try pandoc first (best HTML→MD conversion)
+# Convert HTML → markdown. Try pandoc → textutil → sed fallback.
+CONTENT=""
 if command -v pandoc &>/dev/null; then
-    CONTENT=$(pandoc -f html -t markdown --wrap=none "$TEMP_HTML" 2>/dev/null || true)
+    CONTENT=$(pandoc -f html -t markdown --wrap=none "$RAW_HTML_FILE" 2>/dev/null || true)
 fi
-
-# Fall back to textutil (macOS built-in)
 if [ -z "$CONTENT" ] && command -v textutil &>/dev/null; then
     TEMP_TXT=$(mktemp /tmp/fetch-XXXXXX.txt)
-    textutil -convert txt -output "$TEMP_TXT" "$TEMP_HTML" 2>/dev/null || true
-    if [ -f "$TEMP_TXT" ]; then
+    if textutil -convert txt -output "$TEMP_TXT" "$RAW_HTML_FILE" 2>/dev/null; then
         CONTENT=$(cat "$TEMP_TXT")
-        rm -f "$TEMP_TXT"
     fi
+    rm -f "$TEMP_TXT"
 fi
-
-# Last resort: strip HTML tags with sed
 if [ -z "$CONTENT" ]; then
-    CONTENT=$(sed 's/<[^>]*>//g; s/&nbsp;/ /g; s/&amp;/\&/g; s/&lt;/</g; s/&gt;/>/g; s/&quot;/"/g' "$TEMP_HTML" | sed '/^[[:space:]]*$/d')
+    CONTENT=$(sed 's/<[^>]*>//g; s/&nbsp;/ /g; s/&amp;/\&/g; s/&lt;/</g; s/&gt;/>/g; s/&quot;/"/g' "$RAW_HTML_FILE" | sed '/^[[:space:]]*$/d')
 fi
 
-rm -f "$TEMP_HTML"
+# Title
+TITLE=$(echo "$RAW_HTML" | grep -oi '<title>[^<]*</title>' | head -1 | sed 's/<[^>]*>//g' || echo "$SLUG")
 
-# Extract page title from HTML
-TITLE=$(echo "$RAW_HTML" | grep -oi '<title>[^<]*</title>' | head -1 | sed 's/<[^>]*>//g' || echo "$OUTPUT_NAME")
-
-# Try to download images referenced in the page
+# Download referenced images (best-effort)
 mkdir -p "$IMAGES_DIR"
 IMAGE_URLS=$(echo "$RAW_HTML" | grep -oP 'src="(https?://[^"]+\.(jpg|jpeg|png|gif|webp|svg))"' | sed 's/src="//;s/"$//' | head -20 || true)
-
 IMAGE_COUNT=0
 if [ -n "$IMAGE_URLS" ]; then
     while IFS= read -r img_url; do
@@ -87,17 +78,13 @@ if [ -n "$IMAGE_URLS" ]; then
         fi
     done <<< "$IMAGE_URLS"
 fi
+[ "$IMAGE_COUNT" -eq 0 ] && rmdir "$IMAGES_DIR" 2>/dev/null || true
 
-# Remove images dir if empty
-if [ "$IMAGE_COUNT" -eq 0 ]; then
-    rmdir "$IMAGES_DIR" 2>/dev/null || true
-fi
-
-# Get current date
 TODAY=$(date +%Y-%m-%d)
 
-# Write the output file with frontmatter
-cat > "$OUTPUT_FILE" << HEREDOC
+# Compose clean.md
+CLEAN_FILE=$(mktemp /tmp/clean-XXXXXX.md)
+cat > "$CLEAN_FILE" << HEREDOC
 ---
 title: "${TITLE//\"/\\\"}"
 source: "$URL"
@@ -112,8 +99,21 @@ status: raw
 $CONTENT
 HEREDOC
 
-echo "Saved to: $OUTPUT_FILE"
+# Persist via the shared writer
+python3 "$PROJECT_DIR/tools/ingest/_raw_writer.py" \
+    --slug "$SLUG" \
+    --url "$URL" \
+    --fetcher web \
+    --clean-path "$CLEAN_FILE" \
+    --raw-path "$RAW_HTML_FILE" \
+    --raw-ext html \
+    --content-type html \
+    --extra-meta-json "{\"title\": \"${TITLE//\"/\\\"}\", \"http_code\": \"$HTTP_CODE\"}" \
+    >/dev/null
+
+rm -f "$CLEAN_FILE"
+
+echo "Saved to: $RAW_DIR/$SLUG/"
 if [ "$IMAGE_COUNT" -gt 0 ]; then
     echo "Downloaded $IMAGE_COUNT images to: $IMAGES_DIR/"
 fi
-echo "File size: $(wc -c < "$OUTPUT_FILE" | tr -d ' ') bytes"
