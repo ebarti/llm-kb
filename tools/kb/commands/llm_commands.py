@@ -72,18 +72,35 @@ def research(ctx: CommandContext, topic: str) -> LLMInvocationResult:
 
 def ingest(ctx: CommandContext, urls: list[str]) -> LLMInvocationResult:
     urls_str = " ".join(urls)
+    commit_label = f"ingest — {urls[0] if urls else 'urls'}"
     before_raw = _raw_snapshot(ctx)
-    return run_llm_command(
-        ctx,
+    no_commit_ctx = dataclasses.replace(ctx, no_commit=True)
+    result = run_llm_command(
+        no_commit_ctx,
         command="ingest",
         topic=urls_str,
         prompt_builder=lambda: prompts.INGEST_PROMPT.format(urls=urls_str),
-        commit_label=f"ingest — {urls[0] if urls else 'urls'}",
+        commit_label=commit_label,
         pre_hook="pre_ingest",
         pre_hook_args=urls,
         post_hook="post_ingest",
         post_hook_args=lambda: _new_raw_file_args(ctx, before_raw, urls),
     )
+
+    if not result.ok or ctx.dry_run:
+        return result
+
+    post_compile = run_plugin_hook(ctx, "post_compile")
+    _append_hook_detail(result, post_compile)
+    if not post_compile.ok:
+        return _mark_hook_failure(result, post_compile)
+
+    if not ctx.no_commit:
+        committed = auto_commit(ctx.workspace.kb_dir, commit_label, dry_run=False)
+        result.committed = committed
+        result.commit_label = commit_label if committed else None
+
+    return result
 
 
 def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:

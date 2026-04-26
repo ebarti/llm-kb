@@ -411,40 +411,104 @@ class PluginHookTests(unittest.TestCase):
         self.assertIn("bad hook", result.message or "")
         invoke_mock.assert_not_called()
 
-    def test_ingest_hooks_receive_urls_then_new_raw_paths(self) -> None:
-        calls: list[tuple[str, list[str]]] = []
+    def test_ingest_runs_post_compile_before_commit(self) -> None:
+        calls: list[tuple[str, object]] = []
 
-        def fake_hook(_ctx, hook_name, args=None):
+        def fake_ingest_hook(_ctx, hook_name, args=None):
             calls.append((hook_name, self._hook_args(args)))
             return PluginHookResult(hook=hook_name, ok=True)
 
         def fake_invoke(prompt, **kwargs):  # noqa: ARG001
             root = Path(kwargs["cwd"])
+            calls.append(("llm", []))
             (root / "raw" / "article.md").write_text(
                 "---\ntitle: Article\n---\n",
                 encoding="utf-8",
             )
+            (root / "wiki" / "concepts" / "article.md").write_text(
+                "---\ntitle: Article\n---\n\n# Article\n",
+                encoding="utf-8",
+            )
             return LLMResult(text="ingested", backend="fake")
 
+        def fake_post_compile(ctx, hook_name, args=None):  # noqa: ARG001
+            calls.append((hook_name, self._hook_args(args)))
+            article = ctx.workspace.wiki_dir / "concepts" / "article.md"
+            article.write_text(
+                article.read_text(encoding="utf-8").replace(
+                    "---\n\n# Article",
+                    "reading_time: \"1 min\"\n---\n\n# Article",
+                ),
+                encoding="utf-8",
+            )
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        def fake_commit(kb_dir, label, dry_run=False):  # noqa: ARG001
+            article = Path(kb_dir) / "wiki" / "concepts" / "article.md"
+            calls.append(("commit", "reading_time" in article.read_text(encoding="utf-8")))
+            return True
+
         with tempfile.TemporaryDirectory() as td:
-            ctx = self._ctx(Path(td))
+            ctx = self._ctx(Path(td), no_commit=False)
             with mock.patch(
                 "tools.kb.commands._common.run_plugin_hook",
-                side_effect=fake_hook,
+                side_effect=fake_ingest_hook,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.run_plugin_hook",
+                side_effect=fake_post_compile,
             ), mock.patch(
                 "tools.kb.commands._common.invoke_llm",
                 side_effect=fake_invoke,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.auto_commit",
+                side_effect=fake_commit,
             ):
                 result = llm_commands.ingest(ctx, ["https://example.com/a"])
 
         self.assertTrue(result.ok)
+        self.assertTrue(result.committed)
         self.assertEqual(
             [
                 ("pre_ingest", ["https://example.com/a"]),
+                ("llm", []),
                 ("post_ingest", ["raw/article.md"]),
+                ("post_compile", []),
+                ("commit", True),
             ],
             calls,
         )
+        self.assertEqual(
+            ["pre_ingest", "post_ingest", "post_compile"],
+            [item["hook"] for item in result.details["hooks"]],
+        )
+
+    def test_ingest_post_compile_failure_skips_commit(self) -> None:
+        def fake_ingest_hook(_ctx, hook_name, args=None):  # noqa: ARG001
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td), no_commit=False)
+            with mock.patch(
+                "tools.kb.commands._common.run_plugin_hook",
+                side_effect=fake_ingest_hook,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.run_plugin_hook",
+                return_value=PluginHookResult(
+                    hook="post_compile",
+                    ok=False,
+                    exit_code=1,
+                    output="frontmatter plugin failed",
+                ),
+            ), mock.patch(
+                "tools.kb.commands._common.invoke_llm",
+                return_value=LLMResult(text="ingested", backend="fake"),
+            ), mock.patch("tools.kb.commands.llm_commands.auto_commit") as commit_mock:
+                result = llm_commands.ingest(ctx, ["https://example.com/a"])
+
+        self.assertFalse(result.ok)
+        self.assertEqual(EXIT_ERROR, result.exit_code)
+        self.assertIn("frontmatter plugin failed", result.message or "")
+        commit_mock.assert_not_called()
 
     def test_ask_and_lint_run_query_and_lint_hooks(self) -> None:
         calls: list[tuple[str, list[str]]] = []
