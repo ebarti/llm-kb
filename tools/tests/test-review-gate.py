@@ -17,7 +17,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(BASE_DIR))
 
 from tools.compile import review  # noqa: E402
+from tools.kb.commands import llm_commands  # noqa: E402
 from tools.kb.commands._common import CommandContext, run_llm_command  # noqa: E402
+from tools.kb.models import LLMInvocationResult  # noqa: E402
 from tools.kb.runner import LLMResult  # noqa: E402
 from tools.kb.workspace import Workspace  # noqa: E402
 
@@ -322,6 +324,89 @@ Too short.
         self.assertIn("compile_review", result.details)
         self.assertEqual(1, result.details["compile_review"]["candidates"])
         self.assertFalse((self.root / "wiki" / "_index.md").exists())
+
+    def _write_fake_generate_all(self, body: str) -> None:
+        script = self.root / "tools" / "compile" / "pages" / "generate_all.py"
+        script.parent.mkdir(parents=True, exist_ok=True)
+        script.write_text(body, encoding="utf-8")
+
+    @mock.patch("tools.kb.commands.llm_commands.auto_commit")
+    @mock.patch("tools.kb.commands.llm_commands.run_llm_command")
+    def test_compile_wiki_rejects_invalid_post_decoration_write(
+        self,
+        run_llm_mock,
+        auto_commit_mock,
+    ) -> None:
+        self._write_fake_generate_all(
+            textwrap.dedent(
+                """\
+                from pathlib import Path
+
+                Path("wiki").mkdir(exist_ok=True)
+                Path("wiki/_index.md").write_text("# Index\\n\\nLeaked {{summary}}\\n")
+                """
+            )
+        )
+        run_llm_mock.return_value = LLMInvocationResult(
+            command="compile",
+            ok=True,
+            exit_code=0,
+            details={},
+            message="compile finished",
+        )
+        ctx = CommandContext(workspace=Workspace(kb_home=self.root, kb_dir=self.root))
+
+        result = llm_commands.compile_wiki(ctx)
+
+        self.assertFalse(result.ok)
+        self.assertIn("post-decoration compile review rejected", result.message or "")
+        self.assertIn("post_decoration_review", result.details)
+        self.assertEqual(1, result.details["post_decoration_review"]["candidates"])
+        self.assertFalse((self.root / "wiki" / "_index.md").exists())
+        self.assertEqual(
+            1,
+            len(list((self.root / "wiki" / ".pending").rglob("_index.md"))),
+        )
+        auto_commit_mock.assert_not_called()
+
+    @mock.patch("tools.kb.commands.llm_commands.auto_commit")
+    @mock.patch("tools.kb.commands.llm_commands.run_llm_command")
+    def test_compile_wiki_accepts_valid_post_decoration_write_before_commit(
+        self,
+        run_llm_mock,
+        auto_commit_mock,
+    ) -> None:
+        self._write_fake_generate_all(
+            textwrap.dedent(
+                """\
+                from pathlib import Path
+
+                Path("wiki").mkdir(exist_ok=True)
+                Path("wiki/Dashboard.md").write_text("# Dashboard\\n\\nGenerated summary.\\n")
+                """
+            )
+        )
+        run_llm_mock.return_value = LLMInvocationResult(
+            command="compile",
+            ok=True,
+            exit_code=0,
+            details={},
+            message="compile finished",
+        )
+        auto_commit_mock.return_value = True
+        ctx = CommandContext(workspace=Workspace(kb_home=self.root, kb_dir=self.root))
+
+        result = llm_commands.compile_wiki(ctx)
+
+        self.assertTrue(result.ok, result.message)
+        self.assertIn("post_decoration_review", result.details)
+        self.assertEqual(1, result.details["post_decoration_review"]["candidates"])
+        self.assertTrue((self.root / "wiki" / "Dashboard.md").exists())
+        auto_commit_mock.assert_called_once_with(
+            self.root,
+            "compile wiki",
+            dry_run=False,
+        )
 
 
 if __name__ == "__main__":

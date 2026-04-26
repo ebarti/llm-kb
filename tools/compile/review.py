@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Review gate for LLM-authored wiki article writes.
+"""Review gate for LLM-authored wiki markdown writes.
 
 The compiler writes markdown directly into ``wiki/``. This module snapshots
-canonical article files before an LLM command runs, validates changed articles
-afterward, and quarantines rejected drafts before they can be committed.
+reviewable markdown files before a compile phase runs, validates changed wiki
+writes afterward, and quarantines rejected drafts before they can be committed.
 """
 
 from __future__ import annotations
@@ -204,7 +204,7 @@ LLMReviewer = Callable[[ArticleCandidate, str, ReviewerConfig], LLMReviewDecisio
 
 
 def snapshot_articles(wiki_dir: Path) -> dict[str, str]:
-    """Return current canonical wiki article contents keyed by wiki-relative path."""
+    """Return current reviewable wiki markdown keyed by wiki-relative path."""
     snapshot: dict[str, str] = {}
     for path in iter_article_paths(wiki_dir):
         try:
@@ -261,7 +261,7 @@ def review_wiki_writes(
     config: Optional[ReviewerConfig] = None,
     llm_reviewer: Optional[LLMReviewer] = None,
 ) -> ReviewOutcome:
-    """Validate changed canonical wiki articles and quarantine rejected drafts."""
+    """Validate changed wiki markdown writes and quarantine rejected drafts."""
     cfg = config or ReviewerConfig.from_env()
     kb_dir = Path(kb_dir)
     wiki_dir = kb_dir / "wiki"

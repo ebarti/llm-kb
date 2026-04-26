@@ -171,7 +171,7 @@ def run_llm_command(
 
     if not review_outcome.ok:
         review_message = (
-            "compile review rejected wiki article writes:\n"
+            "compile review rejected wiki writes:\n"
             + review_outcome.rejection_summary()
         )
         result.message = (
