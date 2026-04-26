@@ -28,6 +28,7 @@ class RawSource:
     prompt_path: str
     path: Path
     sha256: str
+    content_sha256: str
     layout: str
 
 
@@ -105,17 +106,20 @@ def discover_raw_sources(kb_dir: Path) -> list[RawSource]:
                     prompt_path=f"raw/{item.name}/clean.md",
                     path=item,
                     sha256=_hash_v2_source(item),
+                    content_sha256=_hash_file(item / "clean.md"),
                     layout="v2",
                 )
             )
         elif item.is_file() and item.suffix == ".md":
             key = f"raw/{item.name}"
+            digest = _hash_file(item)
             sources.append(
                 RawSource(
                     key=key,
                     prompt_path=key,
                     path=item,
-                    sha256=_hash_file(item),
+                    sha256=digest,
+                    content_sha256=digest,
                     layout="legacy",
                 )
             )
@@ -177,7 +181,7 @@ def scoped_compile_prompt(sources: list[RawSource]) -> str:
 
 
 def snapshot_wiki_outputs(kb_dir: Path) -> dict[str, str]:
-    """Return content hashes for files under wiki/ that can be compiler outputs."""
+    """Return content/mtime fingerprints for possible compiler outputs."""
 
     wiki_dir = Path(kb_dir) / "wiki"
     if not wiki_dir.is_dir():
@@ -187,7 +191,8 @@ def snapshot_wiki_outputs(kb_dir: Path) -> dict[str, str]:
         rel = fp.relative_to(kb_dir).as_posix()
         if rel == MANIFEST_REL_PATH:
             continue
-        snapshot[rel] = _hash_file(fp)
+        stat = fp.stat()
+        snapshot[rel] = f"{_hash_file(fp)}:{stat.st_mtime_ns}"
     return snapshot
 
 
@@ -211,10 +216,16 @@ def build_updated_manifest(
         prior = _normalise_entry(plan.manifest.get(source.key))
         source_output = _source_summary_output(source)
         has_source_output = source_output in available_output_set
-        if source.key in compiled_keys and has_source_output:
+        source_output_changed = source_output in changed_output_paths
+        content_changed = _source_content_changed(prior, source)
+        can_advance = has_source_output and (
+            not content_changed or source_output_changed
+        )
+        if source.key in compiled_keys and can_advance:
             outputs = sorted(set(prior["outputs"]) | {source_output})
             updated[source.key] = {
                 "sha256": source.sha256,
+                "content_sha256": source.content_sha256,
                 "last_compiled": compiled_at,
                 "compiler_version": plan.compiler_version,
                 "outputs": outputs,
@@ -232,6 +243,8 @@ def build_current_manifest(plan: CompilePlan) -> dict[str, dict[str, Any]]:
     for source in plan.sources:
         prior = _normalise_entry(plan.manifest.get(source.key))
         if prior["sha256"]:
+            if prior["sha256"] == source.sha256 and not prior["content_sha256"]:
+                prior["content_sha256"] = source.content_sha256
             current[source.key] = prior
     return current
 
@@ -263,6 +276,10 @@ def _compile_reasons(
 
     if entry.get("sha256") != source.sha256:
         reasons.append("sha256-changed")
+    prior_content_sha = entry.get("content_sha256")
+    if isinstance(prior_content_sha, str) and prior_content_sha:
+        if prior_content_sha != source.content_sha256:
+            reasons.append("content-sha256-changed")
     if entry.get("compiler_version") != compiler_version:
         reasons.append("compiler-version-changed")
 
@@ -290,6 +307,14 @@ def _compile_reasons(
     return reasons
 
 
+def _source_content_changed(entry: dict[str, Any], source: RawSource) -> bool:
+    prior_content_sha = entry.get("content_sha256")
+    if isinstance(prior_content_sha, str) and prior_content_sha:
+        return prior_content_sha != source.content_sha256
+    prior_sha = entry.get("sha256")
+    return not isinstance(prior_sha, str) or prior_sha != source.sha256
+
+
 def _source_summary_output(source: RawSource) -> str:
     if source.layout == "v2":
         slug = source.key.removeprefix("raw/").rstrip("/")
@@ -306,6 +331,11 @@ def _normalise_entry(entry: Any) -> dict[str, Any]:
         outputs = []
     return {
         "sha256": entry.get("sha256") if isinstance(entry.get("sha256"), str) else "",
+        "content_sha256": (
+            entry.get("content_sha256")
+            if isinstance(entry.get("content_sha256"), str)
+            else ""
+        ),
         "last_compiled": (
             entry.get("last_compiled")
             if isinstance(entry.get("last_compiled"), str)
