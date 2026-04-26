@@ -10,6 +10,8 @@ import argparse
 import hashlib
 import io
 import json
+import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -176,6 +178,74 @@ class QueueCommandTests(unittest.TestCase):
             payload = json.loads(archived.read_text(encoding="utf-8"))
             self.assertEqual("duplicate", payload["rejection_reason"])
             self.assertEqual("rejected", payload["status"])
+
+    def test_named_dir_queue_list_uses_kb_workspaces(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td) / "custom-workspaces"
+            workspace = base / "named"
+            queue_store.enqueue_discovered_sources(
+                workspace,
+                [{"topic": "Queue", "url": "https://example.com/named"}],
+                fetcher=lambda _url: fetch_result_for(b"named workspace article"),
+            )
+
+            env = os.environ.copy()
+            env["KB_WORKSPACES"] = str(base)
+            proc = subprocess.run(
+                [str(REPO_ROOT / "kb"), "--dir", "named", "queue", "list", "--json"],
+                cwd=str(REPO_ROOT),
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, proc.returncode, proc.stderr)
+            payload = json.loads(proc.stdout)
+            self.assertEqual(str(workspace.resolve() / ".queue"), payload["queue_dir"])
+            self.assertEqual(1, len(payload["items"]))
+            self.assertEqual("https://example.com/named", payload["items"][0]["url"])
+
+    def test_named_dir_queue_reject_uses_kb_workspaces(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td) / "custom-workspaces"
+            workspace = base / "named"
+            enqueued = queue_store.enqueue_discovered_sources(
+                workspace,
+                [{"topic": "Queue", "url": "https://example.com/reject-named"}],
+                fetcher=lambda _url: fetch_result_for(b"reject named workspace"),
+            )
+            item_id = enqueued.created[0]["id"]
+
+            env = os.environ.copy()
+            env["KB_WORKSPACES"] = str(base)
+            proc = subprocess.run(
+                [
+                    str(REPO_ROOT / "kb"),
+                    "--dir",
+                    "named",
+                    "queue",
+                    "reject",
+                    item_id[:8],
+                    "--reason",
+                    "outside scope",
+                    "--json",
+                ],
+                cwd=str(REPO_ROOT),
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, proc.returncode, proc.stderr)
+            payload = json.loads(proc.stdout)
+            self.assertEqual(str(workspace.resolve() / ".queue"), payload["queue_dir"])
+            self.assertFalse((workspace / ".queue" / f"{item_id}.json").exists())
+            rejected = workspace / ".queue" / ".rejected" / f"{item_id}.json"
+            self.assertTrue(rejected.exists())
+            archived = json.loads(rejected.read_text(encoding="utf-8"))
+            self.assertEqual("outside scope", archived["rejection_reason"])
 
 
 def main() -> int:
