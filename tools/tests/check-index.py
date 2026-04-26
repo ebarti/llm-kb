@@ -6,7 +6,7 @@ Verifies that all index/meta files are complete and consistent.
 Checks:
   - wiki/_index.md lists ALL articles
   - wiki/_meta/summaries.md has entries for ALL articles
-  - wiki/_meta/manifest.md lists ALL raw files
+  - wiki/_meta/manifest.json lists ALL raw files
   - Finds articles missing from index
   - Finds index entries pointing to nonexistent files
 
@@ -87,11 +87,23 @@ def extract_wikilinks(filepath):
 
 
 def extract_manifest_raw_files(filepath):
-    """Extract raw source slugs from manifest.md."""
+    """Extract raw source slugs from manifest.json, with manifest.md fallback."""
     if not filepath.exists():
         return set()
-    text = filepath.read_text(encoding="utf-8", errors="replace")
     raw_sources = set()
+    if filepath.suffix == ".json":
+        try:
+            data = json.loads(filepath.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            data = {}
+        if isinstance(data, dict):
+            for ref in data:
+                slug = normalize_raw_reference(ref)
+                if slug:
+                    raw_sources.add(slug)
+            return raw_sources
+
+    text = filepath.read_text(encoding="utf-8", errors="replace")
     for ref in re.findall(r"`(raw/[^`]+)`", text):
         slug = normalize_raw_reference(ref)
         if slug:
@@ -146,8 +158,10 @@ def run_checks():
     if phantom_in_summaries:
         issues.append(f"{len(phantom_in_summaries)} phantom entry/entries in summaries.md")
 
-    # --- Check manifest.md ---
-    manifest_file = WIKI_DIR / "_meta" / "manifest.md"
+    # --- Check manifest.json ---
+    manifest_file = WIKI_DIR / "_meta" / "manifest.json"
+    if not manifest_file.exists():
+        manifest_file = WIKI_DIR / "_meta" / "manifest.md"
     manifest_raws = extract_manifest_raw_files(manifest_file)
 
     missing_from_manifest = sorted(raw_files - manifest_raws)
@@ -161,9 +175,9 @@ def run_checks():
         "phantom_entries": phantom_in_manifest,
     }
     if missing_from_manifest:
-        issues.append(f"{len(missing_from_manifest)} raw file(s) missing from manifest.md")
+        issues.append(f"{len(missing_from_manifest)} raw file(s) missing from manifest")
     if phantom_in_manifest:
-        issues.append(f"{len(phantom_in_manifest)} phantom entry/entries in manifest.md")
+        issues.append(f"{len(phantom_in_manifest)} phantom entry/entries in manifest")
 
     results["issues"] = issues
     results["ok"] = len(issues) == 0

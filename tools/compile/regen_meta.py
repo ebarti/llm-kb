@@ -196,11 +196,16 @@ def _iter_wiki_md_files() -> list[Path]:
 
 
 def _iter_raw_files() -> list[Path]:
-    """All ``.md`` files directly under ``raw/``, sorted."""
+    """All raw sources, including legacy ``raw/*.md`` and v2 directories."""
     if not RAW_DIR.is_dir():
         return []
-    return sorted((p for p in RAW_DIR.iterdir() if p.suffix == ".md"),
-                  key=lambda p: p.name)
+    sources: list[Path] = []
+    for p in RAW_DIR.iterdir():
+        if p.is_file() and p.suffix == ".md":
+            sources.append(p)
+        elif p.is_dir() and (p / "clean.md").is_file():
+            sources.append(p)
+    return sorted(sources, key=lambda p: p.name)
 
 
 def _rel_wiki_id(fp: Path) -> str:
@@ -209,12 +214,37 @@ def _rel_wiki_id(fp: Path) -> str:
 
 
 def _content_hash(fp: Path) -> str:
-    """Short sha256 of ``fp``'s raw bytes."""
+    """Short sha256 of a legacy raw file or v2 raw bundle."""
     h = hashlib.sha256()
-    with fp.open("rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            h.update(chunk)
+    if fp.is_dir():
+        paths = [fp / "clean.md"]
+        paths.extend(sorted(fp.glob("raw.*")))
+        for path in paths:
+            h.update(path.relative_to(fp).as_posix().encode("utf-8"))
+            h.update(b"\0")
+            with path.open("rb") as f:
+                for chunk in iter(lambda: f.read(8192), b""):
+                    h.update(chunk)
+            h.update(b"\0")
+    else:
+        with fp.open("rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                h.update(chunk)
     return h.hexdigest()[:12]
+
+
+def _raw_source_ref(fp: Path) -> str:
+    if fp.is_dir():
+        return f"raw/{fp.name}/"
+    return f"raw/{fp.name}"
+
+
+def _raw_source_size(fp: Path) -> int:
+    if fp.is_dir():
+        paths = [fp / "clean.md"]
+        paths.extend(sorted(fp.glob("raw.*")))
+        return sum(path.stat().st_size for path in paths if path.exists())
+    return fp.stat().st_size
 
 
 def _parse_iso_date(value: object) -> date | None:
@@ -455,9 +485,9 @@ def render_manifest(scan: WikiScan) -> str:
         "|----------|------|--------------|",
     ]
     for fp in scan.raw_files:
-        size = fp.stat().st_size
+        size = _raw_source_size(fp)
         h = _content_hash(fp)
-        lines.append(f"| `raw/{fp.name}` | `{h}` | {size} |")
+        lines.append(f"| `{_raw_source_ref(fp)}` | `{h}` | {size} |")
     lines.append("")
     return "\n".join(lines)
 

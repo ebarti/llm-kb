@@ -12,8 +12,10 @@ from __future__ import annotations
 import dataclasses
 import subprocess
 
+from tools.compile import manifest as compile_manifest
+
 from ..git_util import auto_commit
-from ..models import EXIT_ERROR, LLMInvocationResult
+from ..models import EXIT_ERROR, EXIT_SUCCESS, LLMInvocationResult
 from . import prompts
 from ._common import CommandContext, run_llm_command
 
@@ -40,20 +42,75 @@ def ingest(ctx: CommandContext, urls: list[str]) -> LLMInvocationResult:
 
 
 def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
+    regen_meta = ctx.workspace.kb_home / "tools" / "compile" / "regen_meta.py"
+    if not regen_meta.exists():
+        return LLMInvocationResult(
+            command="compile",
+            topic=None,
+            ok=False,
+            exit_code=EXIT_ERROR,
+            dry_run=ctx.dry_run,
+            budget_limit=ctx.budget_limit,
+            model=ctx.model,
+            message=f"Missing regen_meta script: {regen_meta}",
+        )
+
+    plan = compile_manifest.plan_compile(ctx.workspace.kb_dir)
+
+    if plan.is_noop:
+        manifest_written = False
+        if not ctx.dry_run and (plan.sources or plan.manifest):
+            manifest_written = compile_manifest.save_manifest_if_changed(
+                ctx.workspace.kb_dir,
+                compile_manifest.build_current_manifest(plan),
+            )
+
+        details = compile_manifest.describe_plan(plan)
+        details.update(
+            {
+                "noop": True,
+                "llm_skipped": True,
+                "manifest_written": manifest_written,
+            }
+        )
+        return LLMInvocationResult(
+            command="compile",
+            topic=None,
+            ok=True,
+            exit_code=EXIT_SUCCESS,
+            dry_run=ctx.dry_run,
+            budget_limit=ctx.budget_limit,
+            model=ctx.model,
+            message="compile: no changed raw sources; LLM skipped",
+            details=details,
+        )
+
     # Run the LLM compile step without auto-committing so we can run the
     # decoration-page generators first and include their output in the same
     # commit.
     no_commit_ctx = dataclasses.replace(ctx, no_commit=True)
+    before_outputs = compile_manifest.snapshot_wiki_outputs(ctx.workspace.kb_dir)
     result = run_llm_command(
         no_commit_ctx,
         command="compile",
         topic=None,
-        prompt_builder=lambda: prompts.COMPILE_PROMPT,
+        prompt_builder=lambda: compile_manifest.scoped_compile_prompt(
+            plan.changed_sources
+        ),
         commit_label="compile wiki",
     )
+    result.details = {
+        **(result.details or {}),
+        **compile_manifest.describe_plan(plan),
+        "noop": False,
+        "llm_skipped": False,
+    }
 
     if not result.ok or ctx.dry_run:
         return result
+
+    after_llm_outputs = compile_manifest.snapshot_wiki_outputs(ctx.workspace.kb_dir)
+    output_paths = compile_manifest.changed_outputs(before_outputs, after_llm_outputs)
 
     # Run decoration-page generators (Dashboard, Graph, Tags, Glossary,
     # Changelog) using the workspace copy so --dir <workspace> writes to the
@@ -74,6 +131,22 @@ def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
             + (f":\n{diag}" if diag else "")
         )
         return result
+
+    manifest_written = compile_manifest.save_manifest_if_changed(
+        ctx.workspace.kb_dir,
+        compile_manifest.build_updated_manifest(
+            plan,
+            compiled_sources=plan.changed_sources,
+            changed_output_paths=output_paths,
+            compiled_at=compile_manifest.utc_now(),
+        ),
+    )
+    result.details.update(
+        {
+            "outputs": output_paths,
+            "manifest_written": manifest_written,
+        }
+    )
 
     # Auto-commit the full compile output (LLM changes + decoration pages).
     if not ctx.no_commit:
