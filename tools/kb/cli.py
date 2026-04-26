@@ -180,9 +180,79 @@ def _run_ingest(ctx: CommandContext, args: Sequence[str]) -> LLMInvocationResult
     return llm_commands.ingest(ctx, ns.urls)
 
 
+def _rebuild_graph_store(ctx: CommandContext, result: LLMInvocationResult) -> LLMInvocationResult:
+    """Rebuild the typed graph store after a successful LLM compile.
+
+    Mirrors the bash ``kb compile`` graph-rebuild block:
+    - If ``tools/graph/gq`` is absent, skip silently.
+    - If the build fails and a last-good ``.graph.db`` exists, warn and continue.
+    - If the build fails and no ``.graph.db`` exists, emit an error and return a
+      failed result so ``kb compile`` propagates a non-zero exit code.
+    """
+    import subprocess
+    import tempfile
+    from pathlib import Path
+
+    kb_dir = Path(ctx.workspace.kb_dir)
+    gq = kb_dir / "tools" / "graph" / "gq"
+
+    if not gq.exists():
+        return result
+
+    had_graph_db = (kb_dir / ".graph.db").exists()
+
+    fd, graph_err_name = tempfile.mkstemp(prefix="kb-graph-build.")
+    graph_err_path = Path(graph_err_name)
+    os.close(fd)
+
+    try:
+        with graph_err_path.open("w") as graph_err_fh:
+            proc = subprocess.run(
+                [sys.executable, str(gq), "build"],
+                cwd=str(kb_dir),
+                stdout=subprocess.DEVNULL,
+                stderr=graph_err_fh,
+            )
+    except (OSError, subprocess.SubprocessError) as exc:  # pragma: no cover
+        proc = None
+        graph_err_path.write_text(str(exc))
+
+    stderr_text = graph_err_path.read_text().strip()
+    try:
+        graph_err_path.unlink()
+    except OSError:
+        pass
+
+    if proc is not None and proc.returncode == 0:
+        return result
+
+    if stderr_text:
+        print(stderr_text, file=sys.stderr)
+
+    if had_graph_db:
+        print(
+            "Graph store build failed (non-fatal; keeping existing .graph.db)",
+            file=sys.stderr,
+        )
+        return result
+
+    print(
+        "Graph store build failed and no existing .graph.db is available",
+        file=sys.stderr,
+    )
+    from .models import EXIT_ERROR as _EXIT_ERROR
+
+    result.ok = False
+    result.exit_code = _EXIT_ERROR
+    return result
+
+
 def _run_compile(ctx: CommandContext, args: Sequence[str]) -> LLMInvocationResult:
     _parse_command("kb compile", args, lambda p: None)
-    return llm_commands.compile_wiki(ctx)
+    result = llm_commands.compile_wiki(ctx)
+    if result.ok and not ctx.dry_run:
+        result = _rebuild_graph_store(ctx, result)
+    return result
 
 
 def _run_ask(ctx: CommandContext, args: Sequence[str]) -> LLMInvocationResult:

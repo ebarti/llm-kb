@@ -1,129 +1,244 @@
 #!/usr/bin/env python3
-"""Knowledge Graph Generator - Interactive D3.js force-directed graph + static SVG."""
+"""Knowledge Graph Generator — interactive D3.js + static SVG.
 
+Now reads from the typed graph store (`.graph.db`). Each edge carries a
+predicate, and the output color-codes edges accordingly. If the graph DB
+is absent or empty, we fall back to building it on the fly from the wiki/
+directory.
+
+Edge color scheme (kept in sync with PREDICATE_COLORS below and the legend
+rendered in both the HTML and SVG outputs):
+
+    cites        -> #4a90d9 (blue)     strong, directional (source citation)
+    mentions     -> #7f8c8d (grey)     default/generic link
+    compares     -> #9b59b6 (purple)
+    implements   -> #1abc9c (teal)
+    extends      -> #16a085 (dark teal)
+    contradicts  -> #e74c3c (red)
+    refutes      -> #c0392b (dark red)
+    part_of      -> #f39c12 (orange)
+    instance_of  -> #d35400 (dark orange)
+"""
+
+import html
 import json
-import os
-import re
-import sys
 import math
+import os
+import sys
+import sqlite3
+from pathlib import Path
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 WIKI = os.path.join(BASE, "wiki")
 OUTPUT = os.path.join(BASE, "output", "images")
+GRAPH_DB = os.path.join(BASE, ".graph.db")
 
-COLORS = {
+# Node-type colors (nodes are colored by type).
+NODE_COLORS = {
     "source-summary": "#4a90d9",
     "source": "#4a90d9",
     "concept": "#2ecc71",
     "entity": "#e67e22",
     "comparison": "#9b59b6",
+    "raw": "#34495e",
     "meta": "#95a5a6",
 }
 
-TYPE_DIRS = {
-    "sources": "source-summary",
-    "concepts": "concept",
-    "entities": "entity",
-    "comparisons": "comparison",
+# Edge colors by predicate.
+PREDICATE_COLORS = {
+    "cites":        "#4a90d9",
+    "mentions":     "#7f8c8d",
+    "compares":     "#9b59b6",
+    "implements":   "#1abc9c",
+    "extends":      "#16a085",
+    "contradicts":  "#e74c3c",
+    "refutes":      "#c0392b",
+    "part_of":      "#f39c12",
+    "instance_of":  "#d35400",
 }
 
 
-def parse_frontmatter(text):
-    """Extract YAML frontmatter as a dict (simple parser, no pyyaml needed)."""
-    fm = {}
-    m = re.match(r"^---\s*\n(.*?)\n---", text, re.DOTALL)
-    if not m:
-        return fm
-    for line in m.group(1).split("\n"):
-        if ":" in line:
-            key, val = line.split(":", 1)
-            key = key.strip()
-            val = val.strip().strip('"').strip("'")
-            fm[key] = val
-    return fm
+# ---------------------------------------------------------------------- #
+#  Data loading — prefer the typed store, fall back to ad-hoc extraction.
+# ---------------------------------------------------------------------- #
+def _ensure_tools_path() -> str:
+    """Keep ``tools/`` importable without stacking duplicate sys.path entries."""
+    tools_path = os.path.join(BASE, "tools")
+    if tools_path not in sys.path:
+        sys.path.insert(0, tools_path)
+    return tools_path
 
 
-def extract_wikilinks(text):
-    """Return set of wikilink targets from body text (after frontmatter)."""
-    body = re.sub(r"^---.*?---", "", text, count=1, flags=re.DOTALL)
-    return set(re.findall(r"\[\[([^\]|]+?)(?:\|[^\]]+)?\]\]", body))
+def load_from_graph_db(db_path):
+    """Return (nodes dict, typed edges list) from a built .graph.db.
 
-
-def normalise(link):
-    """Normalise a wikilink target to a relative wiki path without .md."""
-    link = link.strip()
-    if link.startswith("wiki/"):
-        link = link[5:]
-    # Remove raw/ prefix links -- they point outside the wiki
-    if link.startswith("raw/"):
+    Returns None if the DB is missing, empty, or unreadable for any reason
+    (schema missing, corruption, locked, etc.) so the caller can fall back
+    to live extraction rather than render a silently broken graph.
+    """
+    if not os.path.exists(db_path):
         return None
-    return link
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        try:
+            has_edges = conn.execute("SELECT 1 FROM edges LIMIT 1").fetchone()
+        except sqlite3.Error:
+            return None
+        if not has_edges:
+            return None
 
-
-def scan_wiki():
-    """Scan all wiki markdown files, return nodes dict and edges list."""
-    nodes = {}  # id -> {title, type, summary, links_out}
-    edges = []  # (source_id, target_id)
-
-    for dirpath, _, filenames in os.walk(WIKI):
-        for fn in filenames:
-            if not fn.endswith(".md"):
-                continue
-            fpath = os.path.join(dirpath, fn)
-            rel = os.path.relpath(fpath, WIKI).replace(".md", "")
-            # skip _meta, _index, log
-            parent = rel.split("/")[0]
-            if parent.startswith("_") or rel in ("log",):
-                continue
-
-            text = open(fpath, encoding="utf-8").read()
-            fm = parse_frontmatter(text)
-            wikilinks = extract_wikilinks(text)
-
-            node_type = fm.get("type", TYPE_DIRS.get(parent, "concept"))
-            nodes[rel] = {
-                "title": fm.get("title", fn.replace(".md", "")),
-                "type": node_type,
-                "summary": fm.get("summary", ""),
+        nodes = {}
+        for row in conn.execute("SELECT * FROM nodes"):
+            nodes[row["id"]] = {
+                "title": row["title"] or row["id"].split("/")[-1],
+                "type": row["type"] or "concept",
+                "summary": row["summary"] or "",
             }
 
-            for link in wikilinks:
-                target = normalise(link)
-                if target and target != rel:
-                    edges.append((rel, target))
+        edges = []
+        for row in conn.execute("SELECT src, dst, predicate FROM edges"):
+            edges.append((row["src"], row["dst"], row["predicate"]))
+        return nodes, edges
+    except sqlite3.Error:
+        return None
+    finally:
+        if conn is not None:
+            conn.close()
 
+
+def load_from_wiki():
+    """Build nodes + edges directly from wiki/ when the DB isn't available.
+
+    We shell out to the `graph.extract` module so the viz has exactly the
+    same view of predicates as `gq`.
+    """
+    _ensure_tools_path()
+    from graph.extract import extract_nodes_and_edges  # noqa: E402
+
+    nodes_list, edges_list = extract_nodes_and_edges(WIKI)
+    nodes = {
+        n.id: {
+            "title": n.title or n.id.split("/")[-1],
+            "type": n.type or "concept",
+            "summary": n.summary or "",
+        }
+        for n in nodes_list
+    }
+    edges = [(e.src, e.dst, e.predicate) for e in edges_list]
     return nodes, edges
 
 
+def _wiki_is_newer_than_db(db_path: str, wiki_dir: str) -> bool:
+    """Return True when any ``.md`` file under ``wiki_dir`` has a more
+    recent mtime than the graph DB. Used to detect when ``kb compile``
+    has updated articles but the graph rebuild was skipped or failed,
+    so the viz falls back to live extraction instead of rendering
+    silently stale nodes/edges.
+    """
+    if not os.path.exists(db_path):
+        return True
+    try:
+        db_mtime = os.path.getmtime(db_path)
+    except OSError:
+        return True
+    if not os.path.isdir(wiki_dir):
+        return False
+    _ensure_tools_path()
+    from graph.extract import iter_wiki_files  # noqa: E402
+
+    for path in iter_wiki_files(Path(wiki_dir)):
+        try:
+            if os.path.getmtime(path) > db_mtime:
+                return True
+        except OSError:
+            continue
+    return False
+
+
+def load_graph():
+    # Prefer the prebuilt DB, but fall back to live extraction when the
+    # wiki has been edited since the DB was written. Without this the
+    # viz renders a silently stale graph whenever the DB rebuild was
+    # skipped or failed and no last-good DB was preserved.
+    if not _wiki_is_newer_than_db(GRAPH_DB, WIKI):
+        data = load_from_graph_db(GRAPH_DB)
+        if data is not None:
+            return data
+    return load_from_wiki()
+
+
+# ---------------------------------------------------------------------- #
+#  D3 / SVG rendering
+# ---------------------------------------------------------------------- #
 def build_graph_data(nodes, edges):
-    """Build D3-compatible graph JSON."""
-    node_ids = set(nodes.keys())
-    # Count connections per node
+    # The store/extractor deliberately emits edges whose endpoints aren't
+    # resolvable (e.g. dangling [[concepts/nonexistent]] links). We add
+    # lightweight placeholder nodes for any missing endpoint so that those
+    # edges still show up in the viz — otherwise the graph would silently
+    # hide exactly the broken links the reader might be hunting for.
+    nodes_out = dict(nodes)
+    for src, tgt, _pred in edges:
+        for endpoint in (src, tgt):
+            if endpoint not in nodes_out:
+                # Inherit type from a `raw/` prefix so raw-only targets
+                # keep their colour; everything else is "meta" (grey).
+                etype = "raw" if endpoint.startswith("raw/") else "meta"
+                nodes_out[endpoint] = {
+                    "title": endpoint.split("/")[-1],
+                    "type": etype,
+                    "summary": "(placeholder: referenced but no article)",
+                }
+    node_ids = set(nodes_out.keys())
     conn = {nid: 0 for nid in node_ids}
     valid_edges = []
-    for src, tgt in edges:
+    for src, tgt, pred in edges:
         if src in node_ids and tgt in node_ids:
-            conn[src] = conn.get(src, 0) + 1
-            conn[tgt] = conn.get(tgt, 0) + 1
-            valid_edges.append({"source": src, "target": tgt})
+            conn[src] += 1
+            conn[tgt] += 1
+            valid_edges.append({"source": src, "target": tgt, "predicate": pred})
 
-    d3_nodes = []
-    for nid, info in nodes.items():
-        d3_nodes.append({
+    d3_nodes = [
+        {
             "id": nid,
             "title": info["title"],
             "type": info["type"],
             "summary": info["summary"],
             "connections": conn.get(nid, 0),
-        })
-
+        }
+        for nid, info in nodes_out.items()
+    ]
     return {"nodes": d3_nodes, "links": valid_edges}
 
 
+def _json_for_html_script(value):
+    """JSON-encode data for safe embedding in an inline <script> block."""
+    return (
+        json.dumps(value)
+        .replace("&", "\\u0026")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
+
+
 def generate_html(graph_data):
-    """Generate self-contained interactive HTML with D3.js."""
-    colors_js = json.dumps(COLORS)
-    data_js = json.dumps(graph_data)
+    node_colors_js = _json_for_html_script(NODE_COLORS)
+    edge_colors_js = _json_for_html_script(PREDICATE_COLORS)
+    data_js = _json_for_html_script(graph_data)
+
+    # Build legend rows — nodes by type, then edges by predicate.
+    node_legend = "".join(
+        f'<div class="legend-item"><div class="legend-dot" style="background:{c}"></div> {t}</div>'
+        for t, c in NODE_COLORS.items()
+        if t not in ("source", "meta")
+    )
+    edge_legend = "".join(
+        f'<div class="legend-item"><div class="legend-bar" style="background:{c}"></div> {p}</div>'
+        for p, c in PREDICATE_COLORS.items()
+    )
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -142,12 +257,14 @@ body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
 #tooltip h3 {{ margin-bottom: 4px; font-size: 15px; }}
 #tooltip .type-badge {{ display: inline-block; padding: 1px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 6px; color: #fff; }}
 svg {{ width: 100vw; height: 100vh; }}
-.link {{ stroke-opacity: 0.3; }}
+.link {{ stroke-opacity: 0.5; }}
 .node circle {{ stroke: #fff; stroke-width: 1.5; cursor: pointer; }}
 .node text {{ font-size: 10px; fill: #ccc; pointer-events: none; }}
-.legend {{ position: fixed; bottom: 12px; left: 12px; background: #16213e; border: 1px solid #444; border-radius: 8px; padding: 10px 14px; z-index: 10; font-size: 12px; }}
+.legend {{ position: fixed; bottom: 12px; left: 12px; background: #16213e; border: 1px solid #444; border-radius: 8px; padding: 10px 14px; z-index: 10; font-size: 12px; max-width: 220px; }}
+.legend h4 {{ font-size: 11px; margin: 4px 0 2px 0; text-transform: uppercase; letter-spacing: 0.5px; color: #888; }}
 .legend-item {{ display: flex; align-items: center; gap: 6px; margin: 3px 0; }}
 .legend-dot {{ width: 10px; height: 10px; border-radius: 50%; }}
+.legend-bar {{ width: 16px; height: 3px; border-radius: 2px; }}
 </style>
 </head>
 <body>
@@ -161,19 +278,27 @@ svg {{ width: 100vw; height: 100vh; }}
 </div>
 <div id="tooltip"></div>
 <div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#4a90d9"></div> Sources</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#2ecc71"></div> Concepts</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#e67e22"></div> Entities</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div> Comparisons</div>
+  <h4>Nodes</h4>
+  {node_legend}
+  <h4>Edges (predicates)</h4>
+  {edge_legend}
 </div>
 <svg></svg>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-const COLORS = {colors_js};
+const NODE_COLORS = {node_colors_js};
+const EDGE_COLORS = {edge_colors_js};
 const graph = {data_js};
 const width = window.innerWidth, height = window.innerHeight;
 
 const svg = d3.select("svg").attr("viewBox", [0, 0, width, height]);
+svg.append("defs").selectAll("marker")
+  .data(Object.keys(EDGE_COLORS)).join("marker")
+  .attr("id", d => "arrow-" + d)
+  .attr("viewBox", "0 -5 10 10").attr("refX", 18).attr("refY", 0)
+  .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient", "auto")
+  .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", d => EDGE_COLORS[d]);
+
 const g = svg.append("g");
 
 const zoom = d3.zoom().scaleExtent([0.1, 8]).on("zoom", (e) => g.attr("transform", e.transform));
@@ -189,14 +314,17 @@ function nodeRadius(d) {{ return Math.max(6, Math.min(24, 4 + d.connections * 1.
 
 const link = g.append("g").selectAll("line")
   .data(graph.links).join("line")
-  .attr("class", "link").attr("stroke", "#555").attr("stroke-width", 1);
+  .attr("class", "link")
+  .attr("stroke", d => EDGE_COLORS[d.predicate] || "#555")
+  .attr("stroke-width", d => d.predicate === "mentions" ? 0.8 : 1.5)
+  .attr("marker-end", d => EDGE_COLORS[d.predicate] ? "url(#arrow-" + d.predicate + ")" : null);
 
 const node = g.append("g").selectAll("g")
   .data(graph.nodes).join("g").attr("class", "node");
 
 node.append("circle")
   .attr("r", d => nodeRadius(d))
-  .attr("fill", d => COLORS[d.type] || "#999")
+  .attr("fill", d => NODE_COLORS[d.type] || "#999")
   .on("mouseover", showTooltip).on("mouseout", hideTooltip)
   .call(d3.drag().on("start", dragStart).on("drag", dragging).on("end", dragEnd));
 
@@ -211,8 +339,30 @@ sim.on("tick", () => {{
 
 function showTooltip(e, d) {{
   const tt = document.getElementById("tooltip");
-  const color = COLORS[d.type] || "#999";
-  tt.innerHTML = `<h3>${{d.title}}</h3><span class="type-badge" style="background:${{color}}">${{d.type}}</span><br><br>${{d.summary || "No summary."}}<br><br><small>${{d.connections}} connections</small>`;
+  const color = NODE_COLORS[d.type] || "#999";
+  const title = document.createElement("h3");
+  title.textContent = d.title;
+
+  const badge = document.createElement("span");
+  badge.className = "type-badge";
+  badge.style.background = color;
+  badge.textContent = d.type;
+
+  const summary = document.createTextNode(d.summary || "No summary.");
+
+  const connections = document.createElement("small");
+  connections.textContent = `${{d.connections}} connections`;
+
+  tt.replaceChildren(
+    title,
+    badge,
+    document.createElement("br"),
+    document.createElement("br"),
+    summary,
+    document.createElement("br"),
+    document.createElement("br"),
+    connections,
+  );
   tt.style.display = "block";
   tt.style.left = (e.pageX + 16) + "px";
   tt.style.top = (e.pageY - 10) + "px";
@@ -223,19 +373,17 @@ function dragStart(e, d) {{ if (!e.active) sim.alphaTarget(0.3).restart(); d.fx 
 function dragging(e, d) {{ d.fx = e.x; d.fy = e.y; }}
 function dragEnd(e, d) {{ if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }}
 
-// Search
 document.getElementById("search").addEventListener("input", function() {{
   const q = this.value.toLowerCase();
   node.style("opacity", d => (!q || d.title.toLowerCase().includes(q) || d.id.toLowerCase().includes(q)) ? 1 : 0.1);
   link.style("opacity", d => {{
-    if (!q) return 1;
+    if (!q) return 0.5;
     const sMatch = d.source.title.toLowerCase().includes(q) || d.source.id.toLowerCase().includes(q);
     const tMatch = d.target.title.toLowerCase().includes(q) || d.target.id.toLowerCase().includes(q);
     return (sMatch || tMatch) ? 0.6 : 0.05;
   }});
 }});
 
-// Filter
 let activeType = "all";
 document.querySelectorAll(".filter-btn").forEach(btn => {{
   btn.addEventListener("click", function() {{
@@ -244,7 +392,7 @@ document.querySelectorAll(".filter-btn").forEach(btn => {{
     activeType = this.dataset.type;
     node.style("opacity", d => (activeType === "all" || d.type === activeType) ? 1 : 0.08);
     link.style("opacity", d => {{
-      if (activeType === "all") return 1;
+      if (activeType === "all") return 0.5;
       return (d.source.type === activeType || d.target.type === activeType) ? 0.5 : 0.03;
     }});
   }});
@@ -255,14 +403,11 @@ document.querySelectorAll(".filter-btn").forEach(btn => {{
 
 
 def generate_svg(graph_data):
-    """Generate a static SVG of the knowledge graph using simple force simulation."""
     nodes = graph_data["nodes"]
     links = graph_data["links"]
     W, H = 1200, 900
 
-    # Build index
-    idx = {n["id"]: i for i, n in enumerate(nodes)}
-    # Simple circular layout with type grouping
+    # Circular layout with type grouping.
     type_groups = {}
     for n in nodes:
         type_groups.setdefault(n["type"], []).append(n)
@@ -278,10 +423,8 @@ def generate_svg(graph_data):
             n["y"] = cy + r * math.sin(a)
         angle += 2 * math.pi / max(len(type_groups), 1)
 
-    # Simple force iterations
     pos = {n["id"]: [n["x"], n["y"]] for n in nodes}
     for _ in range(80):
-        # Repulsion
         ids = list(pos.keys())
         for i in range(len(ids)):
             for j in range(i + 1, len(ids)):
@@ -295,7 +438,6 @@ def generate_svg(graph_data):
                 pos[ids[j]][0] -= fx
                 pos[ids[j]][1] -= fy
 
-        # Attraction along links
         for lnk in links:
             sid = lnk["source"] if isinstance(lnk["source"], str) else lnk["source"]["id"]
             tid = lnk["target"] if isinstance(lnk["target"], str) else lnk["target"]["id"]
@@ -311,48 +453,67 @@ def generate_svg(graph_data):
             pos[tid][0] -= fx
             pos[tid][1] -= fy
 
-        # Center gravity
         for nid in pos:
             pos[nid][0] += (cx - pos[nid][0]) * 0.01
             pos[nid][1] += (cy - pos[nid][1]) * 0.01
 
-    # Build SVG
     lines = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">']
     lines.append(f'<rect width="{W}" height="{H}" fill="#1a1a2e"/>')
 
-    # Edges
     for lnk in links:
         sid = lnk["source"] if isinstance(lnk["source"], str) else lnk["source"]["id"]
         tid = lnk["target"] if isinstance(lnk["target"], str) else lnk["target"]["id"]
+        pred = lnk.get("predicate", "mentions")
         if sid in pos and tid in pos:
-            lines.append(f'<line x1="{pos[sid][0]:.1f}" y1="{pos[sid][1]:.1f}" x2="{pos[tid][0]:.1f}" y2="{pos[tid][1]:.1f}" stroke="#555" stroke-opacity="0.3" stroke-width="1"/>')
+            color = PREDICATE_COLORS.get(pred, "#555")
+            opacity = 0.2 if pred == "mentions" else 0.55
+            width = 0.8 if pred == "mentions" else 1.4
+            lines.append(
+                f'<line x1="{pos[sid][0]:.1f}" y1="{pos[sid][1]:.1f}" '
+                f'x2="{pos[tid][0]:.1f}" y2="{pos[tid][1]:.1f}" '
+                f'stroke="{color}" stroke-opacity="{opacity}" stroke-width="{width}"/>'
+            )
 
-    # Nodes
     for n in nodes:
         if n["id"] not in pos:
             continue
         x, y = pos[n["id"]]
         r = max(6, min(24, 4 + n["connections"] * 1.5))
-        color = COLORS.get(n["type"], "#999")
+        color = NODE_COLORS.get(n["type"], "#999")
         title = n["title"][:28] + "..." if len(n["title"]) > 30 else n["title"]
+        safe_title = html.escape(title, quote=True)
         lines.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{color}" stroke="#fff" stroke-width="1"/>')
-        lines.append(f'<text x="{x + r + 3:.1f}" y="{y + 3:.1f}" font-size="9" fill="#ccc" font-family="sans-serif">{title}</text>')
+        lines.append(f'<text x="{x + r + 3:.1f}" y="{y + 3:.1f}" font-size="9" fill="#ccc" font-family="sans-serif">{safe_title}</text>')
 
-    # Legend
-    ly = H - 100
-    for i, (typ, color) in enumerate(COLORS.items()):
-        if typ in ("meta",):
+    # Legend: node types + edge predicates.
+    ly = 30
+    lines.append(f'<text x="20" y="{ly}" font-size="12" fill="#fff" font-family="sans-serif" font-weight="bold">Nodes</text>')
+    ly += 18
+    for typ, color in NODE_COLORS.items():
+        if typ in ("source", "meta"):
             continue
-        lines.append(f'<circle cx="30" cy="{ly + i * 18}" r="5" fill="{color}"/>')
-        lines.append(f'<text x="42" y="{ly + i * 18 + 4}" font-size="11" fill="#ccc" font-family="sans-serif">{typ}</text>')
+        lines.append(f'<circle cx="30" cy="{ly}" r="5" fill="{color}"/>')
+        lines.append(f'<text x="42" y="{ly + 4}" font-size="11" fill="#ccc" font-family="sans-serif">{typ}</text>')
+        ly += 18
+
+    ly += 8
+    lines.append(f'<text x="20" y="{ly}" font-size="12" fill="#fff" font-family="sans-serif" font-weight="bold">Edges (predicate)</text>')
+    ly += 18
+    for pred, color in PREDICATE_COLORS.items():
+        lines.append(f'<line x1="22" y1="{ly}" x2="40" y2="{ly}" stroke="{color}" stroke-width="2"/>')
+        lines.append(f'<text x="46" y="{ly + 4}" font-size="11" fill="#ccc" font-family="sans-serif">{pred}</text>')
+        ly += 16
 
     lines.append("</svg>")
     return "\n".join(lines)
 
 
+# ---------------------------------------------------------------------- #
+#  Main
+# ---------------------------------------------------------------------- #
 def main():
     os.makedirs(OUTPUT, exist_ok=True)
-    nodes, edges = scan_wiki()
+    nodes, edges = load_graph()
     graph_data = build_graph_data(nodes, edges)
 
     html_path = os.path.join(OUTPUT, "knowledge-graph.html")
@@ -365,7 +526,12 @@ def main():
         f.write(generate_svg(graph_data))
     print(f"Generated: {svg_path}")
 
+    by_pred = {}
+    for e in graph_data["links"]:
+        by_pred[e["predicate"]] = by_pred.get(e["predicate"], 0) + 1
     print(f"  {len(graph_data['nodes'])} nodes, {len(graph_data['links'])} links")
+    for pred, n in sorted(by_pred.items(), key=lambda x: -x[1]):
+        print(f"    {pred}: {n}")
 
 
 if __name__ == "__main__":

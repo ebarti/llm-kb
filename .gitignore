@@ -16,6 +16,12 @@ tools/monitor/.state/
 /output/
 /Clippings/
 
+# Typed graph store (rebuilt on compile)
+.graph.db
+.graph.db-journal
+.graph.db-wal
+.graph.db-shm
+
 # Eval harness produces fresh reports each run in CI; do not commit volatile
 # artifacts (timestamps, per-question latencies, ranked lists). Historical
 # timestamped snapshots are also ignored since CI uploads them as artifacts.
