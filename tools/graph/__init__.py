@@ -18,9 +18,14 @@ from .store import (
 )
 from .extract import (
     extract_nodes_and_edges,
+    extract_graph,
+    rebuild_entity_pages,
     detect_predicate,
     PREDICATE_PATTERNS,
     iter_wiki_files,
+    EntityAlias,
+    Fact,
+    GraphExtraction,
 )
 
 __all__ = [
@@ -29,7 +34,12 @@ __all__ = [
     "DEFAULT_PREDICATE",
     "DEFAULT_DB_PATH",
     "extract_nodes_and_edges",
+    "extract_graph",
+    "rebuild_entity_pages",
     "detect_predicate",
     "PREDICATE_PATTERNS",
     "iter_wiki_files",
+    "EntityAlias",
+    "Fact",
+    "GraphExtraction",
 ]

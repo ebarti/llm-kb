@@ -36,8 +36,10 @@ sys.path.insert(0, str(TOOLS_DIR))
 from graph.store import GraphStore, PREDICATES, DEFAULT_PREDICATE  # noqa: E402
 from graph.extract import (  # noqa: E402
     detect_predicate,
+    extract_graph,
     extract_nodes_and_edges,
     fingerprint,
+    rebuild_entity_pages,
     PREDICATE_PATTERNS,
     WINDOW_CHARS,
 )
@@ -224,6 +226,42 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(set(PREDICATES), expected)
         self.assertEqual(DEFAULT_PREDICATE, "mentions")
 
+    def test_entity_aliases_and_facts(self):
+        self.store.upsert_entity_alias("karpathy", "Andrej Karpathy")
+        self.store.upsert_entity_alias("karpathy", "Karpathy")
+        self.store.upsert_fact(
+            "karpathy",
+            "role",
+            "AI educator",
+            "entities/andrej-karpathy#frontmatter:role",
+        )
+        self.store.upsert_fact(
+            "karpathy",
+            "role",
+            "AI educator",
+            "entities/andrej-karpathy#frontmatter:role",
+        )
+
+        self.assertEqual(self.store.count("entity_aliases"), 2)
+        self.assertEqual(self.store.count("facts"), 1)
+        self.assertEqual(self.store.resolve_entity_id("karpathy"), "karpathy")
+        self.assertEqual(self.store.resolve_entity_id("KARPATHY"), "karpathy")
+
+        facts = self.store.facts_for_entity("karpathy")
+        self.assertEqual(facts[0]["attribute"], "role")
+        self.assertEqual(facts[0]["value"], "AI educator")
+
+    def test_reset_clears_entity_tables(self):
+        self.store.upsert_node("a")
+        self.store.upsert_edge("a", "b", "mentions")
+        self.store.upsert_entity_alias("karpathy", "Karpathy")
+        self.store.upsert_fact("karpathy", "role", "AI educator", "source")
+        self.store.reset()
+        self.assertEqual(self.store.count("nodes"), 0)
+        self.assertEqual(self.store.count("edges"), 0)
+        self.assertEqual(self.store.count("entity_aliases"), 0)
+        self.assertEqual(self.store.count("facts"), 0)
+
 
 # ---------------------------------------------------------------------- #
 #  Heuristic tests
@@ -374,6 +412,21 @@ last_compiled: 2026-04-01
 ## Overview
 Tool.
 """,
+    "wiki/entities/andrej-karpathy.md": """---
+title: "Andrej Karpathy"
+type: entity
+entity_type: person
+canonical_id: karpathy
+aliases: ["Karpathy", "Andrej Karpathy"]
+role: "AI educator"
+affiliation: "OpenAI"
+summary: "Researcher and educator associated with neural networks and LLMs"
+last_compiled: 2026-04-01
+---
+
+## Overview
+Karpathy is tracked under a manual canonical ID.
+""",
     "wiki/sources/awesome-rag-paper.md": """---
 title: "Source: Awesome RAG Paper"
 type: source-summary
@@ -386,6 +439,19 @@ summary: "A paper"
 ## Key Points
 
 - This paper cites [[concepts/retrieval]] and extends [[concepts/rag]].
+""",
+    "wiki/sources/karpathy-llm-knowledge-bases.md": """---
+title: "Source: Karpathy LLM Knowledge Bases"
+type: source-summary
+source: "[[raw/karpathy-llm-knowledge-bases]]"
+last_compiled: 2026-04-01
+summary: "Notes on Karpathy discussing LLM knowledge bases"
+---
+
+## Key Points
+
+Andrej Karpathy is an AI educator at OpenAI. Karpathy describes how LLMs
+can use knowledge bases. The article also references [[entities/andrej-karpathy]].
 """,
     "wiki/comparisons/rag-vs-long-context.md": """---
 title: "RAG vs Long Context"
@@ -418,6 +484,14 @@ summary: "raw paper"
 ---
 
 Body of the raw paper.
+""",
+    "raw/karpathy-llm-knowledge-bases.md": """---
+title: "Karpathy LLM Knowledge Bases"
+source: "https://example.com/karpathy-kb"
+summary: "raw Karpathy source"
+---
+
+Body of the Karpathy source.
 """,
 }
 
@@ -457,7 +531,9 @@ class ExtractionTests(unittest.TestCase):
         _write_fixture(self.tmp)
         self.wiki = self.tmp / "wiki"
         self.raw = self.tmp / "raw"
-        self.nodes, self.edges = extract_nodes_and_edges(self.wiki, raw_dir=self.raw)
+        self.extraction = extract_graph(self.wiki, raw_dir=self.raw)
+        self.nodes = self.extraction.nodes
+        self.edges = self.extraction.edges
         self.edge_map: dict[tuple[str, str], set[str]] = {}
         for e in self.edges:
             self.edge_map.setdefault((e.src, e.dst), set()).add(e.predicate)
@@ -472,9 +548,84 @@ class ExtractionTests(unittest.TestCase):
         ids = {n.id for n in self.nodes}
         self.assertIn("concepts/rag", ids)
         self.assertIn("entities/langchain", ids)
+        self.assertIn("entities/andrej-karpathy", ids)
+        self.assertIn("entities/karpathy", ids)
         self.assertIn("sources/awesome-rag-paper", ids)
         self.assertIn("comparisons/rag-vs-long-context", ids)
         self.assertIn("raw/awesome-rag-paper", ids)
+
+    def test_entity_aliases_from_manual_canonical_id(self):
+        aliases = {
+            (a.canonical_id, a.alias) for a in self.extraction.entity_aliases
+        }
+        self.assertIn(("karpathy", "Andrej Karpathy"), aliases)
+        self.assertIn(("karpathy", "Karpathy"), aliases)
+        self.assertIn(("karpathy", "karpathy"), aliases)
+
+    def test_entity_facts_from_frontmatter_and_mentions(self):
+        facts = {
+            (f.entity_id, f.attribute, f.value, f.source)
+            for f in self.extraction.facts
+        }
+        self.assertIn(
+            (
+                "karpathy",
+                "role",
+                "AI educator",
+                "entities/andrej-karpathy#frontmatter:role",
+            ),
+            facts,
+        )
+        self.assertIn(
+            (
+                "karpathy",
+                "affiliation",
+                "OpenAI",
+                "entities/andrej-karpathy#frontmatter:affiliation",
+            ),
+            facts,
+        )
+        self.assertTrue(any(
+            f.entity_id == "karpathy"
+            and f.attribute == "mention"
+            and f.source.startswith("sources/karpathy-llm-knowledge-bases#")
+            for f in self.extraction.facts
+        ))
+
+    def test_entity_mentions_resolve_to_canonical_node(self):
+        self.assertIn(
+            "mentions",
+            self.edge_map.get(
+                ("sources/karpathy-llm-knowledge-bases", "entities/karpathy"),
+                set(),
+            ),
+        )
+
+    def test_rebuild_entity_pages_is_deterministic_and_safe(self):
+        written = rebuild_entity_pages(
+            self.wiki,
+            self.extraction,
+            today="2026-04-26",
+        )
+        generated = self.wiki / "entities" / "karpathy.md"
+        self.assertIn(generated.resolve(), [p.resolve() for p in written])
+        first = generated.read_text(encoding="utf-8")
+        self.assertIn("generated_by: graph", first)
+        self.assertIn("canonical_id: \"karpathy\"", first)
+
+        second_written = rebuild_entity_pages(
+            self.wiki,
+            self.extraction,
+            today="2026-04-26",
+        )
+        self.assertEqual(second_written, [])
+        self.assertEqual(first, generated.read_text(encoding="utf-8"))
+
+        manual = self.wiki / "entities" / "andrej-karpathy.md"
+        self.assertIn(
+            "manual canonical ID",
+            manual.read_text(encoding="utf-8"),
+        )
 
     def test_heuristic_extends(self):
         # "RAG builds on [[concepts/retrieval]] and extends [[concepts/language-models]]"
@@ -653,17 +804,23 @@ class IntegrationTests(unittest.TestCase):
         self.tmp = Path(tempfile.mkdtemp(prefix="graph-int-"))
         _write_fixture(self.tmp)
         self.db = str(self.tmp / ".graph.db")
-        nodes, edges = extract_nodes_and_edges(
+        extraction = extract_graph(
             self.tmp / "wiki", raw_dir=self.tmp / "raw"
         )
         self.store = GraphStore(self.db)
         self.store.init_schema()
-        for n in nodes:
+        for n in extraction.nodes:
             self.store.upsert_node(
                 n.id, type=n.type, title=n.title, path=n.path, summary=n.summary
             )
-        for e in edges:
+        for e in extraction.edges:
             self.store.upsert_edge(e.src, e.dst, e.predicate, provenance=e.provenance)
+        for alias in extraction.entity_aliases:
+            self.store.upsert_entity_alias(alias.canonical_id, alias.alias)
+        for fact in extraction.facts:
+            self.store.upsert_fact(
+                fact.entity_id, fact.attribute, fact.value, fact.source
+            )
         self.store.commit()
 
     def tearDown(self) -> None:
@@ -685,8 +842,80 @@ class IntegrationTests(unittest.TestCase):
         self.assertIn("concepts/rag", dsts)
         self.assertIn("concepts/retrieval", dsts)
 
+    def test_entity_resolution_via_store(self):
+        self.assertEqual(self.store.resolve_entity_id("Karpathy"), "karpathy")
+        facts = self.store.facts_for_entity("karpathy")
+        attrs = {(r["attribute"], r["value"]) for r in facts}
+        self.assertIn(("role", "AI educator"), attrs)
+        self.assertIn(("affiliation", "OpenAI"), attrs)
+
 
 class CliBuildTests(unittest.TestCase):
+    def test_build_populates_entity_tables_and_rebuilds_entity_page(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-entities-"))
+        try:
+            _write_fixture(tmp)
+            db = tmp / ".graph.db"
+            result = _run_gq(
+                "--db", str(db), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("entity aliases:", result.stdout)
+            self.assertIn("facts:", result.stdout)
+
+            conn = sqlite3.connect(db)
+            aliases = set(conn.execute(
+                "SELECT canonical_id, alias FROM entity_aliases"
+            ).fetchall())
+            facts = set(conn.execute(
+                "SELECT entity_id, attribute, value FROM facts"
+            ).fetchall())
+            conn.close()
+            self.assertIn(("karpathy", "Karpathy"), aliases)
+            self.assertIn(("karpathy", "Andrej Karpathy"), aliases)
+            self.assertIn(("karpathy", "role", "AI educator"), facts)
+            self.assertIn(("karpathy", "affiliation", "OpenAI"), facts)
+
+            generated = tmp / "wiki" / "entities" / "karpathy.md"
+            self.assertTrue(generated.exists())
+            text = generated.read_text(encoding="utf-8")
+            self.assertIn("generated_by: graph", text)
+            self.assertIn("canonical_id: \"karpathy\"", text)
+            self.assertIn("| role | AI educator |", text)
+            self.assertIn("[[sources/karpathy-llm-knowledge-bases]]", text)
+
+            manual = tmp / "wiki" / "entities" / "andrej-karpathy.md"
+            self.assertIn(
+                "Karpathy is tracked under a manual canonical ID.",
+                manual.read_text(encoding="utf-8"),
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_entity_show_cli_lists_sources_attributes_and_provenance(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-entity-show-"))
+        try:
+            _write_fixture(tmp)
+            db = tmp / ".graph.db"
+            build = _run_gq(
+                "--db", str(db), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(build.returncode, 0, build.stderr)
+
+            result = _run_gq("--db", str(db), "entity", "show", "karpathy")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("entity: karpathy", result.stdout)
+            self.assertIn("aliases:", result.stdout)
+            self.assertIn("sources/karpathy-llm-knowledge-bases", result.stdout)
+            self.assertIn("attributes:", result.stdout)
+            self.assertIn("role", result.stdout)
+            self.assertIn("AI educator", result.stdout)
+            self.assertIn("affiliation", result.stdout)
+            self.assertIn("OpenAI", result.stdout)
+            self.assertIn("frontmatter:role", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_build_preserves_last_good_db_on_failure(self):
         tmp = Path(tempfile.mkdtemp(prefix="graph-cli-"))
         try:

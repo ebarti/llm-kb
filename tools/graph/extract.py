@@ -67,10 +67,12 @@ The default `mentions` covers generic wikilinks and prose references.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
-from typing import Iterator, Optional
+from typing import Iterable, Iterator, Optional
 
 from .store import PREDICATES
 
@@ -236,6 +238,80 @@ def _extract_list(fm_block: str, key: str) -> list[str]:
     return cleaned
 
 
+def _split_flow_list(value: str) -> list[str]:
+    """Parse a small YAML-ish flow list into scalar strings."""
+    value = value.strip()
+    if value.startswith("[") and value.endswith("]"):
+        value = value[1:-1]
+    if not value.strip():
+        return []
+
+    out: list[str] = []
+    token = ""
+    quote = ""
+    escape = False
+    for ch in value:
+        if escape:
+            token += ch
+            escape = False
+            continue
+        if ch == "\\" and quote:
+            escape = True
+            continue
+        if quote:
+            if ch == quote:
+                quote = ""
+            else:
+                token += ch
+            continue
+        if ch in ("'", '"'):
+            quote = ch
+            continue
+        if ch == ",":
+            item = token.strip()
+            if item:
+                out.append(item)
+            token = ""
+            continue
+        token += ch
+    item = token.strip()
+    if item:
+        out.append(item)
+    return [x.strip().strip('"').strip("'") for x in out if x.strip()]
+
+
+def _extract_string_list(fm_block: str, key: str) -> list[str]:
+    """Extract a scalar/list frontmatter field as plain strings.
+
+    This intentionally supports only the small YAML subset used in wiki
+    frontmatter: scalar, flow list, and block list.
+    """
+    out: list[str] = []
+    m = re.search(rf"(?m)^{re.escape(key)}\s*:\s*(.*?)\s*$", fm_block)
+    if m and m.group(1).strip():
+        raw_value = m.group(1).strip()
+        if raw_value.startswith("["):
+            out.extend(_split_flow_list(raw_value))
+        else:
+            out.append(raw_value.strip().strip('"').strip("'"))
+        return [x for x in out if x]
+
+    block_m = re.search(rf"(?m)^{re.escape(key)}\s*:\s*$", fm_block)
+    if not block_m:
+        return []
+    tail = fm_block[block_m.end():]
+    for line in tail.splitlines():
+        sline = line.strip()
+        if not sline:
+            continue
+        if not sline.startswith("-"):
+            break
+        token = sline.lstrip("-").strip().strip('"').strip("'")
+        if token:
+            out.append(token)
+    return out
+
+
 def _extract_scalar(fm_block: str, key: str) -> str:
     """Extract a single-line scalar field, with quotes stripped."""
     m = re.search(
@@ -253,6 +329,102 @@ def _extract_scalar(fm_block: str, key: str) -> str:
     # Scalar source may be `"[[raw/foo]]"` — unwrap wikilink.
     wm = re.match(r"\[\[([^\]|]+?)(?:\|[^\]]+)?\]\]\s*$", val)
     return wm.group(1).strip() if wm else val
+
+
+def _slugify_entity_id(value: str) -> str:
+    """Convert a title/path/manual ID into a stable canonical entity ID."""
+    raw = _normalise_link(value) or value.strip()
+    if raw.startswith("entities/"):
+        raw = raw[len("entities/") :]
+    raw = raw.rsplit("/", 1)[-1]
+    raw = raw.lower()
+    raw = re.sub(r"[^a-z0-9]+", "-", raw)
+    return raw.strip("-")
+
+
+def _display_from_slug(slug: str) -> str:
+    return " ".join(part.capitalize() for part in slug.split("-") if part)
+
+
+def _clean_fact_value(value: str) -> str:
+    value = re.sub(r"\[\[([^\]|]+)\|([^\]]+)\]\]", r"\2", value)
+    value = re.sub(r"\[\[([^\]|]+)\]\]", r"\1", value)
+    value = re.sub(r"\[([^\]]+)\]\([^\)]+\)", r"\1", value)
+    value = re.sub(r"\s+", " ", value).strip(" .;:,")
+    # Keep heuristic facts short enough to be useful in generated pages.
+    return value[:120].strip(" .;:,")
+
+
+def _parse_inline_mapping(text: str) -> dict[str, str]:
+    """Parse a tiny `{key: value, ...}` frontmatter mapping."""
+    body = text.strip()
+    if body.startswith("{") and body.endswith("}"):
+        body = body[1:-1]
+    out: dict[str, str] = {}
+    for part in _split_flow_list(body):
+        if ":" not in part:
+            continue
+        key, value = part.split(":", 1)
+        out[key.strip()] = value.strip().strip('"').strip("'")
+    return out
+
+
+def _extract_fact_overrides(fm_block: str) -> list[dict[str, str]]:
+    """Extract manual facts from frontmatter.
+
+    Supported forms:
+
+        facts:
+          - {attribute: "role", value: "AI educator"}
+          - attribute: affiliation
+            value: OpenAI
+          - role: AI educator
+    """
+    block_m = re.search(r"(?m)^facts\s*:\s*$", fm_block)
+    if not block_m:
+        return []
+
+    entries: list[dict[str, str]] = []
+    pending: dict[str, str] = {}
+    tail = fm_block[block_m.end():]
+    for line in tail.splitlines():
+        sline = line.rstrip()
+        if not sline:
+            continue
+        if not (sline.startswith("  ") or sline.startswith("\t") or sline.lstrip().startswith("-")):
+            break
+        stripped = sline.strip()
+        if stripped.startswith("- "):
+            if pending:
+                entries.append(pending)
+                pending = {}
+            body = stripped[2:].strip()
+            if body.startswith("{"):
+                entries.append(_parse_inline_mapping(body))
+                continue
+            if ":" in body:
+                key, value = body.split(":", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key in {"attribute", "value", "source"}:
+                    pending[key] = value
+                else:
+                    entries.append({"attribute": key, "value": value})
+                continue
+        elif ":" in stripped:
+            key, value = stripped.split(":", 1)
+            pending[key.strip()] = value.strip().strip('"').strip("'")
+    if pending:
+        entries.append(pending)
+
+    clean: list[dict[str, str]] = []
+    for entry in entries:
+        attr = entry.get("attribute", "").strip()
+        value = entry.get("value", "").strip()
+        source = entry.get("source", "").strip()
+        if attr and value:
+            clean.append({"attribute": attr, "value": value, "source": source})
+    return clean
 
 
 def _extract_edges_override(fm_block: str) -> list[dict]:
@@ -365,6 +537,28 @@ class Edge:
     provenance: str = ""
 
 
+@dataclass
+class EntityAlias:
+    canonical_id: str
+    alias: str
+
+
+@dataclass
+class Fact:
+    entity_id: str
+    attribute: str
+    value: str
+    source: str
+
+
+@dataclass
+class GraphExtraction:
+    nodes: list[Node]
+    edges: list[Edge]
+    entity_aliases: list[EntityAlias]
+    facts: list[Fact]
+
+
 def _normalise_link(target: str) -> Optional[str]:
     """Normalise a wikilink target to a canonical node id, or None to skip."""
     if not target:
@@ -404,7 +598,7 @@ def iter_wiki_files(wiki_dir: Path) -> Iterator[Path]:
 
     Skips `_meta/`, `_index.md`, `log.md`, and anything starting with `_`.
     """
-    for path in wiki_dir.rglob("*.md"):
+    for path in sorted(wiki_dir.rglob("*.md"), key=lambda p: p.as_posix()):
         rel = path.relative_to(wiki_dir)
         # Skip meta paths.
         top = rel.parts[0]
@@ -472,11 +666,247 @@ def _add_raw_node(
     )
 
 
-def extract_nodes_and_edges(
+def _source_ref(node_id: str, provenance: str) -> str:
+    return f"{node_id}#{provenance}" if provenance else node_id
+
+
+def _canonical_entity_id(node: Node, fm_block: str) -> str:
+    manual = _extract_scalar(fm_block, "canonical_id")
+    if manual:
+        return _slugify_entity_id(manual)
+    if node.id.startswith("entities/"):
+        return _slugify_entity_id(node.id[len("entities/") :])
+    return _slugify_entity_id(node.id)
+
+
+def _entity_aliases_for(
+    node: Node,
+    fm_block: str,
+    canonical_id: str,
+) -> list[EntityAlias]:
+    raw_aliases = [
+        canonical_id,
+        _display_from_slug(canonical_id),
+        node.title,
+        _display_from_slug(node.id.rsplit("/", 1)[-1]),
+    ]
+    raw_aliases.extend(_extract_string_list(fm_block, "alias"))
+    raw_aliases.extend(_extract_string_list(fm_block, "aliases"))
+
+    entity_type = _extract_scalar(fm_block, "entity_type").lower()
+    if entity_type == "person":
+        title_bits = [x for x in re.split(r"\s+", node.title.strip()) if x]
+        if len(title_bits) > 1:
+            raw_aliases.append(title_bits[-1])
+
+    aliases: list[EntityAlias] = []
+    seen: set[str] = set()
+    for alias in raw_aliases:
+        clean = _clean_fact_value(alias)
+        if not clean:
+            continue
+        if clean in seen:
+            continue
+        seen.add(clean)
+        aliases.append(EntityAlias(canonical_id=canonical_id, alias=clean))
+    return aliases
+
+
+def _entity_facts_for(
+    node: Node,
+    fm_block: str,
+    canonical_id: str,
+) -> list[Fact]:
+    facts: list[Fact] = []
+
+    def add(attribute: str, value: str, provenance: str) -> None:
+        clean = _clean_fact_value(value)
+        if clean:
+            facts.append(Fact(
+                entity_id=canonical_id,
+                attribute=attribute,
+                value=clean,
+                source=_source_ref(node.id, provenance),
+            ))
+
+    add("name", node.title, "frontmatter:title")
+    for key in (
+        "entity_type",
+        "summary",
+        "role",
+        "affiliation",
+        "url",
+        "website",
+        "notable_for",
+    ):
+        value = _extract_scalar(fm_block, key)
+        if value:
+            add(key, value, f"frontmatter:{key}")
+
+    for entry in _extract_fact_overrides(fm_block):
+        source = entry.get("source") or f"frontmatter:facts:{entry['attribute']}"
+        add(entry["attribute"], entry["value"], source)
+
+    return facts
+
+
+def _resolve_entity_target(
+    target: str,
+    entity_node_to_canonical: dict[str, str],
+) -> str:
+    if target.startswith("entities/"):
+        canonical = entity_node_to_canonical.get(target)
+        if canonical:
+            return f"entities/{canonical}"
+        return f"entities/{_slugify_entity_id(target)}"
+    return target
+
+
+def _ensure_canonical_entity_nodes(
+    wiki_dir: Path,
+    nodes: dict[str, Node],
+    aliases: Iterable[EntityAlias],
+    facts: Iterable[Fact],
+) -> None:
+    titles: dict[str, str] = {}
+    summaries: dict[str, str] = {}
+    for fact in facts:
+        if fact.attribute == "name":
+            titles.setdefault(fact.entity_id, fact.value)
+        elif fact.attribute == "summary":
+            summaries.setdefault(fact.entity_id, fact.value)
+    for alias in aliases:
+        titles.setdefault(alias.canonical_id, alias.alias)
+
+    for canonical_id in sorted(titles):
+        node_id = f"entities/{canonical_id}"
+        existing = nodes.get(node_id)
+        title = titles.get(canonical_id) or _display_from_slug(canonical_id)
+        summary = summaries.get(canonical_id) or f"Entity profile for {title}."
+        path = str(wiki_dir / "entities" / f"{canonical_id}.md")
+        if existing is None:
+            nodes[node_id] = Node(
+                id=node_id,
+                type="entity",
+                title=title,
+                path=path,
+                summary=summary,
+            )
+        else:
+            existing.type = existing.type or "entity"
+            existing.title = existing.title or title
+            existing.path = existing.path or path
+            existing.summary = existing.summary or summary
+
+
+def _sentence_around(text: str, start: int, end: int) -> str:
+    left = max(text.rfind(".", 0, start), text.rfind("\n", 0, start))
+    right_dot = text.find(".", end)
+    right_newline = text.find("\n", end)
+    candidates = [x for x in (right_dot, right_newline) if x != -1]
+    right = min(candidates) if candidates else len(text)
+    return text[left + 1:right]
+
+
+def _extract_mention_attribute_facts(
+    sentence: str,
+    alias: str,
+    canonical_id: str,
+    source_ref: str,
+) -> list[Fact]:
+    facts: list[Fact] = []
+    escaped = re.escape(alias)
+    patterns = [
+        (
+            re.compile(
+                rf"\b{escaped}\b\s+(?:is|was)\s+(?:an?\s+|the\s+)?"
+                rf"(?P<role>[A-Za-z][^.,;\n]{{2,80}}?)\s+"
+                rf"(?:at|with|for)\s+(?P<affiliation>[A-Z][A-Za-z0-9&.' -]{{1,80}})",
+                re.IGNORECASE,
+            ),
+            ("role", "affiliation"),
+        ),
+        (
+            re.compile(
+                rf"\b{escaped}\b\s+(?:is|was)\s+(?:an?\s+|the\s+)?"
+                rf"(?P<role>[A-Za-z][^.,;\n]{{2,80}})",
+                re.IGNORECASE,
+            ),
+            ("role",),
+        ),
+        (
+            re.compile(
+                rf"\b{escaped}\b\s+(?:works|worked)\s+(?:at|for)\s+"
+                rf"(?P<affiliation>[A-Z][A-Za-z0-9&.' -]{{1,80}})",
+                re.IGNORECASE,
+            ),
+            ("affiliation",),
+        ),
+        (
+            re.compile(
+                rf"\b{escaped}\b\s+(?:is|was)\s+affiliated\s+with\s+"
+                rf"(?P<affiliation>[A-Z][A-Za-z0-9&.' -]{{1,80}})",
+                re.IGNORECASE,
+            ),
+            ("affiliation",),
+        ),
+    ]
+    for pattern, attributes in patterns:
+        match = pattern.search(sentence)
+        if not match:
+            continue
+        for attribute in attributes:
+            value = _clean_fact_value(match.group(attribute))
+            if value:
+                facts.append(Fact(
+                    entity_id=canonical_id,
+                    attribute=attribute,
+                    value=value,
+                    source=source_ref,
+                ))
+        break
+    return facts
+
+
+def _dedupe_nodes(nodes: Iterable[Node]) -> list[Node]:
+    return sorted(nodes, key=lambda n: n.id)
+
+
+def _dedupe_edges(edges: Iterable[Edge]) -> list[Edge]:
+    seen: dict[tuple[str, str, str], Edge] = {}
+    for edge in edges:
+        seen[(edge.src, edge.dst, edge.predicate)] = edge
+    return sorted(seen.values(), key=lambda e: (e.src, e.predicate, e.dst))
+
+
+def _dedupe_aliases(aliases: Iterable[EntityAlias]) -> list[EntityAlias]:
+    seen: dict[str, EntityAlias] = {}
+    for alias in aliases:
+        if alias.canonical_id and alias.alias:
+            seen[alias.alias] = alias
+    return sorted(
+        seen.values(),
+        key=lambda a: (a.canonical_id, a.alias.casefold(), a.alias),
+    )
+
+
+def _dedupe_facts(facts: Iterable[Fact]) -> list[Fact]:
+    seen: dict[tuple[str, str, str, str], Fact] = {}
+    for fact in facts:
+        key = (fact.entity_id, fact.attribute, fact.value, fact.source)
+        if all(key):
+            seen[key] = fact
+    return sorted(
+        seen.values(),
+        key=lambda f: (f.entity_id, f.attribute, f.value, f.source),
+    )
+
+
+def extract_graph(
     wiki_dir: str | Path,
     raw_dir: Optional[str | Path] = None,
-) -> tuple[list[Node], list[Edge]]:
-    """Walk the wiki and return typed nodes + edges.
+) -> GraphExtraction:
+    """Walk the wiki and return typed graph rows plus entity facts.
 
     Edge resolution:
 
@@ -489,12 +919,19 @@ def extract_nodes_and_edges(
     (so that dangling links are visible in the graph) — but only if the
     target is well-formed. Targets under `raw/` are auto-added as nodes of
     type `raw` when the file exists on disk.
+
+    Entity pages seed alias and fact rows. References to entity pages are
+    normalized to ``entities/<canonical_id>``; bare alias mentions in
+    non-entity articles also emit ``mentions`` edges and mention facts.
     """
     wiki_dir = Path(wiki_dir).resolve()
     raw_dir = Path(raw_dir).resolve() if raw_dir else wiki_dir.parent / "raw"
 
     nodes: dict[str, Node] = {}
     edges: list[Edge] = []
+    entity_aliases: list[EntityAlias] = []
+    facts: list[Fact] = []
+    entity_node_to_canonical: dict[str, str] = {}
     # Pass 1: collect all nodes so self-links and cross-refs resolve.
     files = list(iter_wiki_files(wiki_dir))
     parsed: dict[str, tuple[Node, str, str]] = {}
@@ -502,6 +939,28 @@ def extract_nodes_and_edges(
         node, fm_block, body = _node_from_file(path, wiki_dir)
         parsed[node.id] = (node, fm_block, body)
         nodes[node.id] = node
+        if node.id.startswith("entities/"):
+            canonical_id = _canonical_entity_id(node, fm_block)
+            if canonical_id:
+                entity_node_to_canonical[node.id] = canonical_id
+                entity_node_to_canonical[f"entities/{canonical_id}"] = canonical_id
+                entity_aliases.extend(
+                    _entity_aliases_for(node, fm_block, canonical_id)
+                )
+                facts.extend(_entity_facts_for(node, fm_block, canonical_id))
+
+    _ensure_canonical_entity_nodes(wiki_dir, nodes, entity_aliases, facts)
+
+    alias_patterns = sorted(
+        (
+            (alias, canonical_id)
+            for alias, canonical_id in (
+                (a.alias, a.canonical_id) for a in _dedupe_aliases(entity_aliases)
+            )
+            if len(alias) >= 3
+        ),
+        key=lambda item: (-len(item[0]), item[0].casefold(), item[1]),
+    )
 
     # Pass 2: emit edges.
     for node_id, (node, fm_block, body) in parsed.items():
@@ -512,6 +971,7 @@ def extract_nodes_and_edges(
             pred = entry["predicate"]
             if not target or target == node_id:
                 continue
+            target = _resolve_entity_target(target, entity_node_to_canonical)
             if target.startswith("raw/"):
                 _add_raw_node(target, raw_dir, nodes)
             edges.append(Edge(
@@ -527,6 +987,7 @@ def extract_nodes_and_edges(
         if scalar_source:
             target = _normalise_link(scalar_source)
             if target and target != node_id:
+                target = _resolve_entity_target(target, entity_node_to_canonical)
                 if target.startswith("raw/"):
                     _add_raw_node(target, raw_dir, nodes)
                 if (target, "cites") not in override_keys:
@@ -541,6 +1002,7 @@ def extract_nodes_and_edges(
             target = _normalise_link(t)
             if not target or target == node_id:
                 continue
+            target = _resolve_entity_target(target, entity_node_to_canonical)
             if target.startswith("raw/"):
                 _add_raw_node(target, raw_dir, nodes)
             if (target, "cites") not in override_keys:
@@ -555,6 +1017,7 @@ def extract_nodes_and_edges(
             target = _normalise_link(t)
             if not target or target == node_id:
                 continue
+            target = _resolve_entity_target(target, entity_node_to_canonical)
             if (target, "compares") not in override_keys:
                 edges.append(Edge(
                     src=node_id,
@@ -568,6 +1031,8 @@ def extract_nodes_and_edges(
             target = _normalise_link(m.group(1))
             if not target or target == node_id:
                 continue
+            original_target = target
+            target = _resolve_entity_target(target, entity_node_to_canonical)
             if target.startswith("raw/"):
                 _add_raw_node(target, raw_dir, nodes)
             left = body[max(0, m.start() - WINDOW_CHARS): m.start()]
@@ -579,8 +1044,230 @@ def extract_nodes_and_edges(
                     predicate=predicate,
                     provenance=provenance,
                 ))
+            if original_target.startswith("entities/"):
+                canonical_id = target[len("entities/") :]
+                alias = m.group(2) or m.group(1).rsplit("/", 1)[-1]
+                facts.append(Fact(
+                    entity_id=canonical_id,
+                    attribute="mention",
+                    value=_clean_fact_value(alias),
+                    source=_source_ref(node_id, "wikilink"),
+                ))
 
-    return list(nodes.values()), edges
+        # --- 4. Bare alias mentions in non-entity articles ---
+        if node.type != "entity":
+            seen_mentions: set[tuple[str, str]] = set()
+            for alias, canonical_id in alias_patterns:
+                pattern = re.compile(
+                    rf"(?<![A-Za-z0-9_/-]){re.escape(alias)}(?![A-Za-z0-9_/-])",
+                    re.IGNORECASE,
+                )
+                for match in pattern.finditer(body):
+                    mention_key = (canonical_id, alias.casefold())
+                    if mention_key in seen_mentions:
+                        continue
+                    seen_mentions.add(mention_key)
+                    dst = f"entities/{canonical_id}"
+                    edges.append(Edge(
+                        src=node_id,
+                        dst=dst,
+                        predicate="mentions",
+                        provenance=f"entity_mention:{alias}",
+                    ))
+                    source = _source_ref(node_id, f"mention:{alias}")
+                    facts.append(Fact(
+                        entity_id=canonical_id,
+                        attribute="mention",
+                        value=body[match.start():match.end()],
+                        source=source,
+                    ))
+                    sentence = _sentence_around(body, match.start(), match.end())
+                    facts.extend(
+                        _extract_mention_attribute_facts(
+                            sentence,
+                            body[match.start():match.end()],
+                            canonical_id,
+                            source,
+                        )
+                    )
+
+    return GraphExtraction(
+        nodes=_dedupe_nodes(nodes.values()),
+        edges=_dedupe_edges(edges),
+        entity_aliases=_dedupe_aliases(entity_aliases),
+        facts=_dedupe_facts(facts),
+    )
+
+
+def extract_nodes_and_edges(
+    wiki_dir: str | Path,
+    raw_dir: Optional[str | Path] = None,
+) -> tuple[list[Node], list[Edge]]:
+    """Backward-compatible typed node/edge extraction API."""
+    result = extract_graph(wiki_dir, raw_dir=raw_dir)
+    return result.nodes, result.edges
+
+
+def _yaml_quote(value: str) -> str:
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def _source_article(source: str) -> tuple[str, str]:
+    article, sep, provenance = source.partition("#")
+    return article, provenance if sep else ""
+
+
+def _is_generated_entity_page(path: Path) -> bool:
+    if not path.exists():
+        return True
+    text = path.read_text(encoding="utf-8", errors="replace")
+    fm_block, _ = _split_frontmatter(text)
+    return _extract_scalar(fm_block, "generated_by") == "graph"
+
+
+def _facts_by_entity(facts: Iterable[Fact]) -> dict[str, list[Fact]]:
+    grouped: dict[str, list[Fact]] = {}
+    for fact in facts:
+        grouped.setdefault(fact.entity_id, []).append(fact)
+    for entity_id in grouped:
+        grouped[entity_id] = sorted(
+            grouped[entity_id],
+            key=lambda f: (f.attribute, f.value, f.source),
+        )
+    return grouped
+
+
+def _aliases_by_entity(aliases: Iterable[EntityAlias]) -> dict[str, list[str]]:
+    grouped: dict[str, list[str]] = {}
+    for alias in aliases:
+        grouped.setdefault(alias.canonical_id, []).append(alias.alias)
+    for entity_id, values in grouped.items():
+        deduped = sorted(set(values), key=lambda x: (x.casefold(), x))
+        grouped[entity_id] = deduped
+    return grouped
+
+
+def _first_fact(facts: list[Fact], attribute: str) -> str:
+    for fact in facts:
+        if fact.attribute == attribute:
+            return fact.value
+    return ""
+
+
+def _render_entity_page(
+    canonical_id: str,
+    aliases: list[str],
+    facts: list[Fact],
+    today: str,
+) -> str:
+    title = _first_fact(facts, "name") or (aliases[0] if aliases else "")
+    if not title:
+        title = _display_from_slug(canonical_id)
+    entity_type = _first_fact(facts, "entity_type") or "unknown"
+    summary = (
+        _first_fact(facts, "summary")
+        or f"Auto-generated entity profile for {title}."
+    )
+
+    aliases = sorted(set([canonical_id, *aliases]), key=lambda x: (x.casefold(), x))
+    alias_yaml = "[" + ", ".join(_yaml_quote(a) for a in aliases) + "]"
+
+    lines = [
+        "---",
+        f"title: {_yaml_quote(title)}",
+        "type: entity",
+        f"entity_type: {_yaml_quote(entity_type)}",
+        f"canonical_id: {_yaml_quote(canonical_id)}",
+        f"aliases: {alias_yaml}",
+        "generated_by: graph",
+        f"last_compiled: {today}",
+        f"summary: {_yaml_quote(summary)}",
+        "---",
+        "",
+        "## Overview",
+        "",
+        summary,
+        "",
+        "## Key Facts",
+        "",
+    ]
+
+    excluded = {"name", "entity_type", "summary", "mention"}
+    fact_rows = [f for f in facts if f.attribute not in excluded]
+    if fact_rows:
+        lines.extend([
+            "| Attribute | Value | Source |",
+            "|-----------|-------|--------|",
+        ])
+        for fact in fact_rows:
+            article, provenance = _source_article(fact.source)
+            source_link = f"[[{article}]]"
+            source_text = (
+                f"{source_link} ({provenance})" if provenance else source_link
+            )
+            lines.append(
+                f"| {fact.attribute} | {fact.value} | {source_text} |"
+            )
+    else:
+        lines.append("- No attributes recorded yet.")
+
+    lines.extend(["", "## Mentions", ""])
+    mention_rows = [f for f in facts if f.attribute == "mention"]
+    if mention_rows:
+        seen: set[tuple[str, str, str]] = set()
+        for fact in mention_rows:
+            article, provenance = _source_article(fact.source)
+            key = (article, fact.value, provenance)
+            if key in seen:
+                continue
+            seen.add(key)
+            suffix = f" ({provenance})" if provenance else ""
+            lines.append(f"- [[{article}]] - {fact.value}{suffix}")
+    else:
+        lines.append("- No source mentions recorded yet.")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def rebuild_entity_pages(
+    wiki_dir: str | Path,
+    extraction: GraphExtraction,
+    *,
+    today: str | None = None,
+) -> list[Path]:
+    """Create/update graph-generated canonical entity pages.
+
+    Existing hand-authored pages are not overwritten. A page is considered
+    graph-owned only when its frontmatter has ``generated_by: graph``.
+    """
+    wiki_dir = Path(wiki_dir).resolve()
+    entities_dir = wiki_dir / "entities"
+    if not wiki_dir.exists() or not wiki_dir.is_dir():
+        return []
+
+    today_value = today or os.environ.get("KB_TODAY") or date.today().isoformat()
+    aliases = _aliases_by_entity(extraction.entity_aliases)
+    facts = _facts_by_entity(extraction.facts)
+    entity_ids = sorted(set(aliases) | set(facts))
+    written: list[Path] = []
+
+    for canonical_id in entity_ids:
+        page = entities_dir / f"{canonical_id}.md"
+        if not _is_generated_entity_page(page):
+            continue
+        content = _render_entity_page(
+            canonical_id,
+            aliases.get(canonical_id, []),
+            facts.get(canonical_id, []),
+            today_value,
+        )
+        page.parent.mkdir(parents=True, exist_ok=True)
+        old = page.read_text(encoding="utf-8") if page.exists() else None
+        if old != content:
+            page.write_text(content, encoding="utf-8")
+            written.append(page)
+    return written
 
 
 # ---------------------------------------------------------------------- #

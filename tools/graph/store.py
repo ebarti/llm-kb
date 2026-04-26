@@ -24,6 +24,26 @@ Schema (idempotent — uses CREATE TABLE IF NOT EXISTS):
     CREATE INDEX IF NOT EXISTS idx_edges_predicate ON edges(predicate);
     CREATE INDEX IF NOT EXISTS idx_nodes_type ON nodes(type);
 
+    CREATE TABLE entity_aliases (
+        canonical_id TEXT NOT NULL,
+        alias        TEXT NOT NULL UNIQUE
+    );
+
+    CREATE TABLE facts (
+        entity_id TEXT NOT NULL,
+        attribute TEXT NOT NULL,
+        value     TEXT NOT NULL,
+        source    TEXT NOT NULL,
+        PRIMARY KEY (entity_id, attribute, value, source)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_entity_aliases_canonical
+        ON entity_aliases(canonical_id);
+    CREATE INDEX IF NOT EXISTS idx_entity_aliases_alias_nocase
+        ON entity_aliases(alias COLLATE NOCASE);
+    CREATE INDEX IF NOT EXISTS idx_facts_entity ON facts(entity_id);
+    CREATE INDEX IF NOT EXISTS idx_facts_source ON facts(source);
+
 Stdlib only — no sqlalchemy, no pip packages.
 """
 
@@ -136,11 +156,42 @@ class GraphStore:
             "CREATE INDEX IF NOT EXISTS idx_edges_predicate ON edges(predicate)"
         )
         cur.execute("CREATE INDEX IF NOT EXISTS idx_nodes_type ON nodes(type)")
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS entity_aliases (
+                canonical_id TEXT NOT NULL,
+                alias        TEXT NOT NULL UNIQUE
+            )
+            """
+        )
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS facts (
+                entity_id TEXT NOT NULL,
+                attribute TEXT NOT NULL,
+                value     TEXT NOT NULL,
+                source    TEXT NOT NULL,
+                PRIMARY KEY (entity_id, attribute, value, source)
+            )
+            """
+        )
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS idx_entity_aliases_canonical "
+            "ON entity_aliases(canonical_id)"
+        )
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS idx_entity_aliases_alias_nocase "
+            "ON entity_aliases(alias COLLATE NOCASE)"
+        )
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_facts_entity ON facts(entity_id)")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_facts_source ON facts(source)")
         self.conn.commit()
 
     def reset(self) -> None:
-        """Drop all rows from both tables. Used by `gq build` before rebuilding."""
+        """Drop all graph rows. Used by `gq build` before rebuilding."""
         cur = self.conn.cursor()
+        cur.execute("DELETE FROM facts")
+        cur.execute("DELETE FROM entity_aliases")
         cur.execute("DELETE FROM edges")
         cur.execute("DELETE FROM nodes")
         self.conn.commit()
@@ -200,6 +251,47 @@ class GraphStore:
             (src, dst, predicate, provenance),
         )
 
+    def upsert_entity_alias(self, canonical_id: str, alias: str) -> None:
+        """Insert or update an entity alias -> canonical ID mapping."""
+        canonical_id = canonical_id.strip()
+        alias = alias.strip()
+        if not canonical_id or not alias:
+            raise ValueError("entity alias requires non-empty canonical_id and alias")
+        self.conn.execute(
+            """
+            INSERT INTO entity_aliases (canonical_id, alias)
+            VALUES (?, ?)
+            ON CONFLICT(alias) DO UPDATE SET
+                canonical_id = excluded.canonical_id
+            """,
+            (canonical_id, alias),
+        )
+
+    def upsert_fact(
+        self,
+        entity_id: str,
+        attribute: str,
+        value: str,
+        source: str,
+    ) -> None:
+        """Insert a deduplicated entity fact with source/provenance text."""
+        entity_id = entity_id.strip()
+        attribute = attribute.strip()
+        value = value.strip()
+        source = source.strip()
+        if not entity_id or not attribute or not value or not source:
+            raise ValueError(
+                "fact requires non-empty entity_id, attribute, value, and source"
+            )
+        self.conn.execute(
+            """
+            INSERT INTO facts (entity_id, attribute, value, source)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(entity_id, attribute, value, source) DO NOTHING
+            """,
+            (entity_id, attribute, value, source),
+        )
+
     def commit(self) -> None:
         self.conn.commit()
 
@@ -225,6 +317,19 @@ class GraphStore:
                 provenance=r.get("provenance", ""),
             )
 
+    def upsert_entity_aliases(self, rows: Iterable[dict]) -> None:
+        for r in rows:
+            self.upsert_entity_alias(r["canonical_id"], r["alias"])
+
+    def upsert_facts(self, rows: Iterable[dict]) -> None:
+        for r in rows:
+            self.upsert_fact(
+                r["entity_id"],
+                r["attribute"],
+                r["value"],
+                r["source"],
+            )
+
     # ------------------------------------------------------------------ #
     #  Queries
     # ------------------------------------------------------------------ #
@@ -242,11 +347,84 @@ class GraphStore:
             )
         )
 
+    def all_entity_aliases(self) -> list[sqlite3.Row]:
+        return list(
+            self.conn.execute(
+                "SELECT * FROM entity_aliases ORDER BY canonical_id, lower(alias), alias"
+            )
+        )
+
+    def all_facts(self) -> list[sqlite3.Row]:
+        return list(
+            self.conn.execute(
+                "SELECT * FROM facts ORDER BY entity_id, attribute, value, source"
+            )
+        )
+
     def count(self, table: str) -> int:
-        if table not in ("nodes", "edges"):
+        if table not in ("nodes", "edges", "entity_aliases", "facts"):
             raise ValueError(f"unknown table: {table!r}")
         row = self.conn.execute(f"SELECT COUNT(*) AS n FROM {table}").fetchone()
         return int(row["n"])
+
+    def resolve_entity_id(self, query: str) -> Optional[str]:
+        """Resolve an alias or canonical ID to its canonical entity ID."""
+        value = query.strip()
+        if not value:
+            return None
+        row = self.conn.execute(
+            """
+            SELECT canonical_id
+            FROM entity_aliases
+            WHERE alias = ? COLLATE NOCASE
+            ORDER BY CASE WHEN alias = ? THEN 0 ELSE 1 END, canonical_id
+            LIMIT 1
+            """,
+            (value, value),
+        ).fetchone()
+        if row is not None:
+            return str(row["canonical_id"])
+
+        canonical = value
+        if canonical.startswith("entities/"):
+            canonical = canonical[len("entities/") :]
+        if canonical.endswith(".md"):
+            canonical = canonical[:-3]
+        row = self.conn.execute(
+            "SELECT 1 FROM facts WHERE entity_id = ? LIMIT 1",
+            (canonical,),
+        ).fetchone()
+        if row is not None:
+            return canonical
+        row = self.conn.execute(
+            "SELECT 1 FROM entity_aliases WHERE canonical_id = ? LIMIT 1",
+            (canonical,),
+        ).fetchone()
+        return canonical if row is not None else None
+
+    def aliases_for_entity(self, canonical_id: str) -> list[sqlite3.Row]:
+        cur = self.conn.execute(
+            """
+            SELECT canonical_id, alias
+            FROM entity_aliases
+            WHERE canonical_id = ?
+            ORDER BY lower(alias), alias
+            """,
+            (canonical_id,),
+        )
+        return list(cur)
+
+    def facts_for_entity(self, canonical_id: str) -> list[sqlite3.Row]:
+        cur = self.conn.execute(
+            """
+            SELECT entity_id, attribute, value, source
+            FROM facts
+            WHERE entity_id = ?
+            ORDER BY attribute, value, source
+            """,
+            (canonical_id,),
+        )
+        return list(cur)
 
     def predicate_counts(self) -> list[tuple[str, int]]:
         rows = self.conn.execute(
