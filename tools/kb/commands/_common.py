@@ -11,7 +11,9 @@ lint, slides, report, compare, entity, discover, freeform).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Optional
+import subprocess
+import sys
+from typing import Callable, Optional, Sequence
 
 from ..budget import BudgetExceeded, BudgetTracker
 from ..git_util import auto_commit
@@ -45,12 +47,100 @@ class CommandContext:
         return BudgetTracker(limit=self.budget_limit)
 
 
+@dataclass
+class PluginHookResult:
+    """Result from invoking one plugin hook through the framework CLI."""
+
+    hook: str
+    ok: bool
+    exit_code: int = 0
+    output: str = ""
+    skipped: bool = False
+
+    def as_detail(self) -> dict[str, object]:
+        return {
+            "hook": self.hook,
+            "ok": self.ok,
+            "exit_code": self.exit_code,
+            "output": self.output,
+            "skipped": self.skipped,
+        }
+
+
 # --------------------------------------------------------------------------- #
 #  LLM command helper
 # --------------------------------------------------------------------------- #
 
 
 PromptBuilder = Callable[[], str]
+HookArgs = Sequence[str] | Callable[[], Sequence[str]]
+
+
+def _resolve_hook_args(args: HookArgs | None) -> list[str]:
+    if args is None:
+        return []
+    resolved = args() if callable(args) else args
+    return [str(arg) for arg in resolved]
+
+
+def _append_message(existing: Optional[str], extra: str) -> str:
+    if existing:
+        return f"{existing.rstrip()}\n{extra}"
+    return extra
+
+
+def run_plugin_hook(
+    ctx: CommandContext,
+    hook_name: str,
+    args: HookArgs | None = None,
+) -> PluginHookResult:
+    """Run one plugin hook against the active workspace.
+
+    The plugin framework computes its root from the location of
+    ``framework.py``, so invoke the workspace copy rather than importing the
+    install copy. Capturing output keeps ``--json`` callers parseable; normal
+    terminal callers still see plugin output before the command result.
+    """
+    hook_args = _resolve_hook_args(args)
+    if ctx.dry_run:
+        return PluginHookResult(hook=hook_name, ok=True, skipped=True)
+
+    framework = ctx.workspace.kb_dir / "tools" / "plugins" / "framework.py"
+    if not framework.exists():
+        return PluginHookResult(
+            hook=hook_name,
+            ok=True,
+            skipped=True,
+            output=f"[plugin] Framework not found at {framework}; skipped {hook_name}",
+        )
+
+    proc = subprocess.run(
+        [sys.executable or "python3", str(framework), "run", hook_name, *hook_args],
+        cwd=str(ctx.workspace.kb_dir),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    output = "\n".join(
+        part.rstrip()
+        for part in (proc.stdout, proc.stderr)
+        if part and part.strip()
+    )
+    if output and not ctx.json_output:
+        print(output)
+    return PluginHookResult(
+        hook=hook_name,
+        ok=proc.returncode == 0,
+        exit_code=proc.returncode,
+        output=output,
+    )
+
+
+def _plugin_hook_failed_message(hook_result: PluginHookResult) -> str:
+    message = f"plugin hook '{hook_result.hook}' failed"
+    if hook_result.output:
+        message += f":\n{hook_result.output}"
+    return message
 
 
 def run_llm_command(
@@ -60,6 +150,10 @@ def run_llm_command(
     topic: Optional[str],
     prompt_builder: PromptBuilder,
     commit_label: str,
+    pre_hook: str | None = None,
+    pre_hook_args: HookArgs | None = None,
+    post_hook: str | None = None,
+    post_hook_args: HookArgs | None = None,
 ) -> LLMInvocationResult:
     """Boilerplate used by every LLM-invoking subcommand.
 
@@ -84,6 +178,22 @@ def run_llm_command(
         )
 
     ctx.workspace.ensure_dirs()
+    hook_details: list[dict[str, object]] = []
+    if pre_hook:
+        pre_result = run_plugin_hook(ctx, pre_hook, pre_hook_args)
+        hook_details.append(pre_result.as_detail())
+        if not pre_result.ok:
+            return LLMInvocationResult(
+                command=command,
+                topic=topic,
+                ok=False,
+                exit_code=EXIT_ERROR,
+                budget_limit=ctx.budget_limit,
+                model=ctx.model,
+                message=_plugin_hook_failed_message(pre_result),
+                details={"hooks": hook_details},
+            )
+
     budget = ctx.new_budget()
 
     try:
@@ -115,6 +225,7 @@ def run_llm_command(
             ),
             model=ctx.model,
             message=str(exc),
+            details={"hooks": hook_details} if hook_details else {},
         )
 
     # Route raw LLM text: keep it in ``message`` for non-JSON users (the CLI
@@ -150,6 +261,20 @@ def run_llm_command(
         message=rendered_message,
         details=details,
     )
+    if hook_details:
+        result.details["hooks"] = hook_details
+
+    if result.ok and post_hook:
+        post_result = run_plugin_hook(ctx, post_hook, post_hook_args)
+        hook_details.append(post_result.as_detail())
+        result.details["hooks"] = hook_details
+        if not post_result.ok:
+            result.ok = False
+            result.exit_code = EXIT_ERROR
+            result.message = _append_message(
+                result.message,
+                _plugin_hook_failed_message(post_result),
+            )
 
     # Auto-commit on success
     if result.ok and not ctx.no_commit and not ctx.dry_run:
@@ -193,5 +318,7 @@ __all__ = [
     "auto_commit",
     "error",
     "noop",
+    "PluginHookResult",
+    "run_plugin_hook",
     "run_llm_command",
 ]
