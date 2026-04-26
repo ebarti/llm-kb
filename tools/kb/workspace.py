@@ -44,6 +44,9 @@ node_modules/
 
 # Secrets
 .env
+
+# Discovery review queue (local operational state)
+.queue/
 """
 
 

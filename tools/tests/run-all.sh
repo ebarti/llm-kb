@@ -104,6 +104,9 @@ run_suite "Raw Layout Validator" \
 run_suite "Raw Writer Tests" \
     "python3 '$SCRIPT_DIR/test-raw-writer.py'"
 
+run_suite "Discovery Queue Tests" \
+    "python3 '$SCRIPT_DIR/test-queue.py'"
+
 run_suite "Eval Harness Tests" \
     "python3 '$SCRIPT_DIR/test_eval.py'"
 

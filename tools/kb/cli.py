@@ -12,6 +12,7 @@ from typing import Callable, Sequence
 from .commands import export as export_cmd
 from .commands import init as init_cmd
 from .commands import llm_commands, log as log_cmd, search as search_cmd
+from .commands import queue as queue_cmd
 from .commands import serve as serve_cmd
 from .commands import stats as stats_cmd
 from .commands import test_cmd, viz as viz_cmd, workspaces as workspaces_cmd
@@ -23,6 +24,7 @@ from .models import (
     InitResult,
     LLMInvocationResult,
     LogResult,
+    QueueResult,
     SearchResult,
     ServeResult,
     StatsResult,
@@ -321,6 +323,10 @@ def _run_discover(ctx: CommandContext, args: Sequence[str]) -> LLMInvocationResu
     return llm_commands.discover(ctx)
 
 
+def _run_queue(ctx: CommandContext, args: Sequence[str]) -> QueueResult:
+    return queue_cmd.run(ctx, args)
+
+
 def _run_test(ctx: CommandContext, args: Sequence[str]) -> TestResult:
     _parse_command("kb test", args, lambda p: None)
     return test_cmd.run(ctx)
@@ -488,6 +494,27 @@ def _render_result(result: CommandResult, *, json_output: bool) -> None:
             print(result.message.strip())
         return
 
+    if isinstance(result, QueueResult):
+        if result.action == "list":
+            if not result.items:
+                print("Queue is empty.")
+                return
+            print(f"Queued candidates ({len(result.items)})")
+            for item in result.items:
+                title = item.title or "(untitled)"
+                topic = f" [{item.topic}]" if item.topic else ""
+                print(f"{item.id}{topic} {title}")
+                if item.url:
+                    print(f"   url: {item.url}")
+                if item.content_hash:
+                    print(f"   hash: {item.content_hash}")
+                if item.preview:
+                    print(f"   {item.preview[:180]}")
+            return
+        if result.message:
+            print(result.message.strip())
+        return
+
     if isinstance(result, WorkspacesResult):
         for entry in result.workspaces:
             default = " (default)" if entry.is_default else ""
@@ -524,6 +551,9 @@ Commands:
   report <topic>
   compare <x> <y>
   entity <name>
+  queue list
+  queue approve <id>
+  queue reject <id> [reason]
   export [site|pdf|epub|bundle]
   viz [graph|timeline|stats|concept-map|canvas|all]
   discover
@@ -564,6 +594,7 @@ _COMMANDS: dict[str, Callable[[CommandContext, Sequence[str]], CommandResult]] =
     "export": _run_export,
     "viz": _run_viz,
     "discover": _run_discover,
+    "queue": _run_queue,
     "test": _run_test,
     "log": _run_log,
     "stats": _run_stats,
