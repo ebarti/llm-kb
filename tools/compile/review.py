@@ -99,6 +99,7 @@ class ArticleCandidate:
     metadata: dict[str, object]
     body: str
     article_type: str
+    is_article: bool
 
 
 @dataclass
@@ -215,14 +216,21 @@ def snapshot_articles(wiki_dir: Path) -> dict[str, str]:
 
 
 def iter_article_paths(wiki_dir: Path) -> Iterable[Path]:
-    """Yield markdown files in canonical wiki article directories only."""
-    for subdir in ARTICLE_DIRS:
-        dir_path = wiki_dir / subdir
-        if not dir_path.is_dir():
+    """Yield reviewable wiki markdown files.
+
+    Canonical article directories receive all checks. Structural markdown
+    files such as ``wiki/_index.md``, ``wiki/log.md``, and ``wiki/_meta/*.md``
+    still need the gate for template leaks and broken links, but they do not
+    follow article frontmatter/length requirements.
+    """
+    if not wiki_dir.is_dir():
+        return
+    for path in sorted(wiki_dir.rglob("*.md")):
+        rel = path.relative_to(wiki_dir)
+        if rel.parts and rel.parts[0] == ".pending":
             continue
-        for path in sorted(dir_path.glob("*.md")):
-            if path.is_file():
-                yield path
+        if path.is_file():
+            yield path
 
 
 def changed_article_paths(wiki_dir: Path, before: Optional[dict[str, str]]) -> list[Path]:
@@ -415,6 +423,9 @@ def check_frontmatter(candidate: ArticleCandidate) -> list[ReviewIssue]:
     issues: list[ReviewIssue] = []
     meta = candidate.metadata
 
+    if not candidate.is_article:
+        return issues
+
     if not meta:
         return [ReviewIssue(code="frontmatter_missing", message="missing frontmatter")]
 
@@ -454,6 +465,9 @@ def check_frontmatter(candidate: ArticleCandidate) -> list[ReviewIssue]:
 
 
 def check_min_length(candidate: ArticleCandidate) -> list[ReviewIssue]:
+    if not candidate.is_article:
+        return []
+
     min_words = MIN_WORDS_BY_TYPE.get(
         candidate.article_type,
         MIN_WORDS_BY_TYPE["default"],
@@ -737,7 +751,8 @@ def _load_candidate(path: Path, wiki_dir: Path) -> ArticleCandidate:
     text = path.read_text(encoding="utf-8", errors="replace")
     meta, body = parse_frontmatter(text)
     rel = path.relative_to(wiki_dir).as_posix()
-    article_type = str(meta.get("type") or _expected_type_for_rel_path(rel) or "unknown")
+    expected_type = _expected_type_for_rel_path(rel)
+    article_type = str(meta.get("type") or expected_type or "wiki-page")
     return ArticleCandidate(
         path=path,
         rel_path=rel,
@@ -745,6 +760,7 @@ def _load_candidate(path: Path, wiki_dir: Path) -> ArticleCandidate:
         metadata=meta,
         body=body,
         article_type=article_type,
+        is_article=expected_type is not None,
     )
 
 

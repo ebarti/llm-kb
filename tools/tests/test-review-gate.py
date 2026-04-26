@@ -124,6 +124,60 @@ class ReviewGateTests(unittest.TestCase):
         self.assertEqual(1, len(note_files))
         self.assertIn("template_placeholder", note_files[0].read_text(encoding="utf-8"))
 
+    def test_structural_wiki_markdown_template_leaks_are_rejected(self) -> None:
+        cases = [
+            "_index.md",
+            "log.md",
+            "_meta/summaries.md",
+        ]
+        for rel_path in cases:
+            with self.subTest(rel_path=rel_path):
+                root = Path(tempfile.mkdtemp(dir=self.root))
+                (root / "wiki" / "_meta").mkdir(parents=True, exist_ok=True)
+                before = review.snapshot_articles(root / "wiki")
+                target = root / "wiki" / rel_path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(
+                    f"Structural page leaked {{{{summary}}}} in {rel_path}\n",
+                    encoding="utf-8",
+                )
+
+                outcome = review.review_wiki_writes(
+                    root,
+                    before_snapshot=before,
+                    config=review.ReviewerConfig(enable_llm=False),
+                )
+
+                self.assertFalse(outcome.ok)
+                self.assertEqual(1, outcome.candidates)
+                self.assertEqual(
+                    "template_placeholder",
+                    outcome.rejected[0].issues[0].code,
+                )
+                self.assertFalse(target.exists())
+                self.assertEqual(
+                    1,
+                    len(list((root / "wiki" / ".pending").rglob(Path(rel_path).name))),
+                )
+
+    def test_structural_wiki_markdown_does_not_require_article_frontmatter(self) -> None:
+        before = review.snapshot_articles(self.root / "wiki")
+        log_path = self.root / "wiki" / "log.md"
+        log_path.write_text(
+            "## [2026-04-26] compile | updated metadata\n- Plain structural log entry.\n",
+            encoding="utf-8",
+        )
+
+        outcome = review.review_wiki_writes(
+            self.root,
+            before_snapshot=before,
+            config=review.ReviewerConfig(enable_llm=False),
+        )
+
+        self.assertTrue(outcome.ok, outcome.rejection_summary())
+        self.assertEqual(1, outcome.candidates)
+        self.assertEqual("wiki-page", outcome.accepted[0].article_type)
+
     def test_existing_article_is_restored_when_rejected(self) -> None:
         article = self.root / "wiki" / "concepts" / "stable.md"
         original = valid_concept("Stable Concept")
@@ -239,6 +293,35 @@ Too short.
         self.assertIn("compile review rejected", result.message or "")
         self.assertIn("compile_review", result.details)
         self.assertFalse((self.root / "wiki" / "concepts" / "from-agent.md").exists())
+
+    @mock.patch("tools.kb.commands._common.invoke_llm")
+    def test_shared_llm_helper_rejects_index_only_template_write(self, invoke_mock) -> None:
+        def fake_invoke(*_args, **_kwargs):
+            (self.root / "wiki" / "_index.md").write_text(
+                "# Index\n\nLeaked {{summary}}\n",
+                encoding="utf-8",
+            )
+            return LLMResult(text="compile finished", returncode=0)
+
+        invoke_mock.side_effect = fake_invoke
+        ctx = CommandContext(
+            workspace=Workspace(kb_home=self.root, kb_dir=self.root),
+            no_commit=False,
+        )
+
+        result = run_llm_command(
+            ctx,
+            command="compile",
+            topic=None,
+            prompt_builder=lambda: "compile",
+            commit_label="compile wiki",
+        )
+
+        self.assertFalse(result.ok)
+        self.assertIn("compile review rejected", result.message or "")
+        self.assertIn("compile_review", result.details)
+        self.assertEqual(1, result.details["compile_review"]["candidates"])
+        self.assertFalse((self.root / "wiki" / "_index.md").exists())
 
 
 if __name__ == "__main__":
