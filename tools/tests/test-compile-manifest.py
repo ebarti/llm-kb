@@ -209,6 +209,108 @@ class CompileManifestTests(unittest.TestCase):
                 result.details["reasons"]["raw/alpha/"],
             )
 
+    def test_partial_batch_outputs_do_not_advance_unwritten_source(self) -> None:
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
+            _write_raw_v2(root, "beta", "# Beta\n", b"beta raw")
+
+            prompts: list[str] = []
+
+            def fake_first(_ctx, *, command, topic, prompt_builder, commit_label):
+                prompts.append(prompt_builder())
+                out = root / "wiki" / "sources" / "alpha.md"
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_text("# Alpha source\n", encoding="utf-8")
+                return LLMInvocationResult(command=command, topic=topic, ok=True)
+
+            with mock.patch(
+                "tools.kb.commands.llm_commands.run_llm_command",
+                side_effect=fake_first,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.subprocess.run",
+                return_value=_successful_decoration_run(),
+            ):
+                first = llm_commands.compile_wiki(_ctx(root))
+
+            manifest = compile_manifest.load_manifest(root)
+            self.assertTrue(first.ok)
+            self.assertIn("raw/alpha/", manifest)
+            self.assertNotIn("raw/beta/", manifest)
+
+            def fake_second(_ctx, *, command, topic, prompt_builder, commit_label):
+                prompts.append(prompt_builder())
+                beta_out = root / "wiki" / "sources" / "beta.md"
+                beta_out.write_text("# Beta source\n", encoding="utf-8")
+                return LLMInvocationResult(command=command, topic=topic, ok=True)
+
+            with mock.patch(
+                "tools.kb.commands.llm_commands.run_llm_command",
+                side_effect=fake_second,
+            ) as run_mock, mock.patch(
+                "tools.kb.commands.llm_commands.subprocess.run",
+                return_value=_successful_decoration_run(),
+            ):
+                second = llm_commands.compile_wiki(_ctx(root))
+
+            self.assertTrue(second.ok)
+            self.assertEqual(1, run_mock.call_count)
+            self.assertIn("raw/beta/", prompts[-1])
+            self.assertNotIn("raw/alpha/", prompts[-1])
+
+    def test_empty_outputs_manifest_entry_recompiles_source(self) -> None:
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
+            plan = compile_manifest.plan_compile(root)
+            compile_manifest.save_manifest_if_changed(
+                root,
+                {
+                    "raw/alpha/": {
+                        "sha256": plan.sources[0].sha256,
+                        "last_compiled": "2026-04-26T00:00:00Z",
+                        "compiler_version": compile_manifest.COMPILER_VERSION,
+                        "outputs": [],
+                    }
+                },
+            )
+
+            replanned = compile_manifest.plan_compile(root)
+
+            self.assertEqual(["raw/alpha/"], [s.key for s in replanned.changed_sources])
+            self.assertIn("missing-outputs", replanned.reasons["raw/alpha/"])
+
+    def test_successful_compile_with_no_outputs_does_not_advance_source(self) -> None:
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
+
+            def fake_empty_compile(
+                _ctx,
+                *,
+                command,
+                topic,
+                prompt_builder,
+                commit_label,
+            ):
+                prompt_builder()
+                return LLMInvocationResult(command=command, topic=topic, ok=True)
+
+            with mock.patch(
+                "tools.kb.commands.llm_commands.run_llm_command",
+                side_effect=fake_empty_compile,
+            ) as run_mock, mock.patch(
+                "tools.kb.commands.llm_commands.subprocess.run",
+                return_value=_successful_decoration_run(),
+            ):
+                first = llm_commands.compile_wiki(_ctx(root))
+                second = llm_commands.compile_wiki(_ctx(root))
+
+            self.assertTrue(first.ok)
+            self.assertTrue(second.ok)
+            self.assertEqual(2, run_mock.call_count)
+            self.assertNotIn("raw/alpha/", compile_manifest.load_manifest(root))
+
 
 if __name__ == "__main__":
     unittest.main()

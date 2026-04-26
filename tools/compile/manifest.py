@@ -208,7 +208,8 @@ def build_updated_manifest(
     updated: dict[str, dict[str, Any]] = {}
     for source in plan.sources:
         prior = _normalise_entry(plan.manifest.get(source.key))
-        if source.key in compiled_keys:
+        has_source_output = _source_summary_output(source) in changed_output_set
+        if source.key in compiled_keys and has_source_output:
             outputs = sorted(set(prior["outputs"]) | changed_output_set)
             updated[source.key] = {
                 "sha256": source.sha256,
@@ -267,6 +268,8 @@ def _compile_reasons(
     if not isinstance(outputs, list):
         reasons.append("invalid-outputs")
         outputs = []
+    elif not outputs:
+        reasons.append("missing-outputs")
 
     for output in outputs:
         if not isinstance(output, str) or not output:
@@ -279,6 +282,14 @@ def _compile_reasons(
             reasons.append(f"missing-output:{output}")
 
     return reasons
+
+
+def _source_summary_output(source: RawSource) -> str:
+    if source.layout == "v2":
+        slug = source.key.removeprefix("raw/").rstrip("/")
+    else:
+        slug = Path(source.key).stem
+    return f"wiki/sources/{slug}.md"
 
 
 def _normalise_entry(entry: Any) -> dict[str, Any]:
