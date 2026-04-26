@@ -851,6 +851,67 @@ class IntegrationTests(unittest.TestCase):
 
 
 class CliBuildTests(unittest.TestCase):
+    def test_build_is_idempotent_after_generated_entity_page(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-idempotent-"))
+        try:
+            _write_fixture(tmp)
+            db = tmp / ".graph.db"
+
+            first = _run_gq(
+                "--db", str(db), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(first.returncode, 0, first.stderr)
+
+            conn = sqlite3.connect(db)
+            first_counts = {
+                "edges": conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0],
+                "facts": conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0],
+            }
+            first_self_facts = conn.execute(
+                "SELECT COUNT(*) FROM facts WHERE source LIKE 'entities/karpathy#%'"
+            ).fetchone()[0]
+            conn.close()
+            generated = tmp / "wiki" / "entities" / "karpathy.md"
+            first_page = generated.read_text(encoding="utf-8")
+
+            second = _run_gq(
+                "--db", str(db), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(second.returncode, 0, second.stderr)
+
+            conn = sqlite3.connect(db)
+            second_counts = {
+                "edges": conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0],
+                "facts": conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0],
+            }
+            second_self_facts = conn.execute(
+                "SELECT COUNT(*) FROM facts WHERE source LIKE 'entities/karpathy#%'"
+            ).fetchone()[0]
+            conn.close()
+
+            self.assertEqual(second_counts, first_counts)
+            self.assertEqual(first_self_facts, 0)
+            self.assertEqual(second_self_facts, 0)
+            self.assertEqual(first_page, generated.read_text(encoding="utf-8"))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_build_failure_does_not_write_entity_pages_before_db_replace(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-db-replace-fail-"))
+        try:
+            _write_fixture(tmp)
+            db_dir = tmp / ".graph.db"
+            db_dir.mkdir()
+
+            result = _run_gq(
+                "--db", str(db_dir), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("error: failed to build graph store:", result.stderr)
+            self.assertFalse((tmp / "wiki" / "entities" / "karpathy.md").exists())
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_build_populates_entity_tables_and_rebuilds_entity_page(self):
         tmp = Path(tempfile.mkdtemp(prefix="graph-cli-entities-"))
         try:

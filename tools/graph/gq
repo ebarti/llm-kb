@@ -91,12 +91,10 @@ def cmd_build(args: argparse.Namespace) -> int:
     db_path = Path(args.db).resolve()
     db_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path: Path | None = None
+    written_entity_pages = []
 
     try:
         extraction = extract_graph(wiki_dir, raw_dir=raw_dir)
-        written_entity_pages = []
-        if not args.no_entity_pages:
-            written_entity_pages = rebuild_entity_pages(wiki_dir, extraction)
         fd, tmp_name = tempfile.mkstemp(
             prefix=f".{db_path.name}.",
             suffix=".tmp",
@@ -128,6 +126,9 @@ def cmd_build(args: argparse.Namespace) -> int:
             store.close(commit=store_ok)
 
         os.replace(tmp_path, db_path)
+        tmp_path = None
+        if not args.no_entity_pages:
+            written_entity_pages = rebuild_entity_pages(wiki_dir, extraction)
     except Exception as exc:
         if tmp_path is not None:
             _cleanup_sqlite_artifacts(tmp_path)

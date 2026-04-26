@@ -670,6 +670,10 @@ def _source_ref(node_id: str, provenance: str) -> str:
     return f"{node_id}#{provenance}" if provenance else node_id
 
 
+def _is_graph_generated_frontmatter(fm_block: str) -> bool:
+    return _extract_scalar(fm_block, "generated_by") == "graph"
+
+
 def _canonical_entity_id(node: Node, fm_block: str) -> str:
     manual = _extract_scalar(fm_block, "canonical_id")
     if manual:
@@ -939,7 +943,10 @@ def extract_graph(
         node, fm_block, body = _node_from_file(path, wiki_dir)
         parsed[node.id] = (node, fm_block, body)
         nodes[node.id] = node
-        if node.id.startswith("entities/"):
+        if (
+            node.id.startswith("entities/")
+            and not _is_graph_generated_frontmatter(fm_block)
+        ):
             canonical_id = _canonical_entity_id(node, fm_block)
             if canonical_id:
                 entity_node_to_canonical[node.id] = canonical_id
@@ -964,6 +971,12 @@ def extract_graph(
 
     # Pass 2: emit edges.
     for node_id, (node, fm_block, body) in parsed.items():
+        if (
+            node.id.startswith("entities/")
+            and _is_graph_generated_frontmatter(fm_block)
+        ):
+            continue
+
         # --- 1. Manual / edges frontmatter overrides ---
         override_keys: set[tuple[str, str]] = set()
         for entry in _extract_edges_override(fm_block):
