@@ -200,17 +200,19 @@ def build_updated_manifest(
     *,
     compiled_sources: list[RawSource],
     changed_output_paths: list[str],
+    available_output_paths: list[str],
     compiled_at: str,
 ) -> dict[str, dict[str, Any]]:
     compiled_keys = {source.key for source in compiled_sources}
-    changed_output_set = {p for p in changed_output_paths if p}
+    available_output_set = {p for p in available_output_paths if p}
 
     updated: dict[str, dict[str, Any]] = {}
     for source in plan.sources:
         prior = _normalise_entry(plan.manifest.get(source.key))
-        has_source_output = _source_summary_output(source) in changed_output_set
+        source_output = _source_summary_output(source)
+        has_source_output = source_output in available_output_set
         if source.key in compiled_keys and has_source_output:
-            outputs = sorted(set(prior["outputs"]) | changed_output_set)
+            outputs = sorted(set(prior["outputs"]) | {source_output})
             updated[source.key] = {
                 "sha256": source.sha256,
                 "last_compiled": compiled_at,
@@ -270,6 +272,10 @@ def _compile_reasons(
         outputs = []
     elif not outputs:
         reasons.append("missing-outputs")
+
+    source_output = _source_summary_output(source)
+    if source_output not in outputs:
+        reasons.append(f"missing-source-output:{source_output}")
 
     for output in outputs:
         if not isinstance(output, str) or not output:

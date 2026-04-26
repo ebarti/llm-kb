@@ -209,6 +209,94 @@ class CompileManifestTests(unittest.TestCase):
                 result.details["reasons"]["raw/alpha/"],
             )
 
+    def test_byte_identical_compiler_version_recompile_advances_manifest(self) -> None:
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
+
+            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label):
+                prompt_builder()
+                out = root / "wiki" / "sources" / "alpha.md"
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_text("# Alpha source\n", encoding="utf-8")
+                return LLMInvocationResult(command=command, topic=topic, ok=True)
+
+            with mock.patch(
+                "tools.kb.commands.llm_commands.run_llm_command",
+                side_effect=fake_initial,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.subprocess.run",
+                return_value=_successful_decoration_run(),
+            ):
+                self.assertTrue(llm_commands.compile_wiki(_ctx(root)).ok)
+
+            def fake_no_change(_ctx, *, command, topic, prompt_builder, commit_label):
+                prompt_builder()
+                return LLMInvocationResult(command=command, topic=topic, ok=True)
+
+            with mock.patch("tools.compile.manifest.COMPILER_VERSION", "999.0"):
+                with mock.patch(
+                    "tools.kb.commands.llm_commands.run_llm_command",
+                    side_effect=fake_no_change,
+                ) as run_mock, mock.patch(
+                    "tools.kb.commands.llm_commands.subprocess.run",
+                    return_value=_successful_decoration_run(),
+                ):
+                    first = llm_commands.compile_wiki(_ctx(root))
+                    second = llm_commands.compile_wiki(_ctx(root))
+
+            manifest = compile_manifest.load_manifest(root)
+            self.assertTrue(first.ok)
+            self.assertTrue(second.ok)
+            self.assertEqual(1, run_mock.call_count)
+            self.assertEqual("999.0", manifest["raw/alpha/"]["compiler_version"])
+
+    def test_byte_identical_raw_blob_recompile_advances_manifest_hash(self) -> None:
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw v1")
+
+            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label):
+                prompt_builder()
+                out = root / "wiki" / "sources" / "alpha.md"
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_text("# Alpha source\n", encoding="utf-8")
+                return LLMInvocationResult(command=command, topic=topic, ok=True)
+
+            with mock.patch(
+                "tools.kb.commands.llm_commands.run_llm_command",
+                side_effect=fake_initial,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.subprocess.run",
+                return_value=_successful_decoration_run(),
+            ):
+                self.assertTrue(llm_commands.compile_wiki(_ctx(root)).ok)
+
+            old_manifest = compile_manifest.load_manifest(root)
+            (root / "raw" / "alpha" / "raw.txt").write_bytes(b"alpha raw v2")
+            expected_sha = compile_manifest.discover_raw_sources(root)[0].sha256
+
+            def fake_no_change(_ctx, *, command, topic, prompt_builder, commit_label):
+                prompt_builder()
+                return LLMInvocationResult(command=command, topic=topic, ok=True)
+
+            with mock.patch(
+                "tools.kb.commands.llm_commands.run_llm_command",
+                side_effect=fake_no_change,
+            ) as run_mock, mock.patch(
+                "tools.kb.commands.llm_commands.subprocess.run",
+                return_value=_successful_decoration_run(),
+            ):
+                first = llm_commands.compile_wiki(_ctx(root))
+                second = llm_commands.compile_wiki(_ctx(root))
+
+            new_manifest = compile_manifest.load_manifest(root)
+            self.assertTrue(first.ok)
+            self.assertTrue(second.ok)
+            self.assertEqual(1, run_mock.call_count)
+            self.assertNotEqual(old_manifest["raw/alpha/"]["sha256"], expected_sha)
+            self.assertEqual(expected_sha, new_manifest["raw/alpha/"]["sha256"])
+
     def test_partial_batch_outputs_do_not_advance_unwritten_source(self) -> None:
         with TemporaryDirectory() as td:
             root = Path(td)

@@ -138,6 +138,7 @@ def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
             plan,
             compiled_sources=plan.changed_sources,
             changed_output_paths=output_paths,
+            available_output_paths=list(after_llm_outputs),
             compiled_at=compile_manifest.utc_now(),
         ),
     )
