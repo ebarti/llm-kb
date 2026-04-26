@@ -89,6 +89,9 @@ run_suite "Template Leak Checker Tests" \
 run_suite "Template Placeholder Leaks" \
     "python3 '$SCRIPT_DIR/check-template-leaks.py'"
 
+run_suite "Compile Review Gate Tests" \
+    "python3 '$SCRIPT_DIR/test-review-gate.py'"
+
 run_suite "Search Engine Tests" \
     "python3 '$SCRIPT_DIR/test-search.py'"
 

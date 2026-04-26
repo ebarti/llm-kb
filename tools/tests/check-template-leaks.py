@@ -18,7 +18,7 @@ such as:
 Anything matched here indicates content was not properly substituted during
 compilation and must be replaced with real links (or removed).
 
-Excludes: templates/ and raw/ (placeholders there are intentional).
+Excludes: templates/, raw/, and wiki/.pending/ (quarantined rejected drafts).
 
 Usage: python3 tools/tests/check-template-leaks.py [--json]
 """
@@ -217,6 +217,9 @@ def run_checks():
         }
 
     for filepath in sorted(WIKI_DIR.rglob("*.md")):
+        rel_parts = filepath.relative_to(WIKI_DIR).parts
+        if rel_parts and rel_parts[0] == ".pending":
+            continue
         total_files += 1
         leaks = scan_file(filepath)
         if leaks:
