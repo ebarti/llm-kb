@@ -84,9 +84,8 @@ run_test "kb responds to invocation" \
 
 run_test "kb compile fails when regen_meta script is missing" \
     "tmpdir=\$(mktemp -d)
-    cp '$BASE_DIR/kb' \"\$tmpdir/kb\"
-    chmod +x \"\$tmpdir/kb\"
-    if KB_NO_COMMIT=1 \"\$tmpdir/kb\" compile >\"\$tmpdir/out\" 2>&1; then
+    mkdir -p \"\$tmpdir/wiki/_meta\" \"\$tmpdir/raw\"
+    if KB_DIR=\"\$tmpdir\" KB_NO_COMMIT=1 '$BASE_DIR/kb' compile >\"\$tmpdir/out\" 2>&1; then
         cat \"\$tmpdir/out\"
         rm -rf \"\$tmpdir\"
         exit 1

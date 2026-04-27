@@ -92,6 +92,9 @@ run_suite "Template Placeholder Leaks" \
 run_suite "Compile Review Gate Tests" \
     "python3 '$SCRIPT_DIR/test-review-gate.py'"
 
+run_suite "Typed Compile Tests" \
+    "python3 '$SCRIPT_DIR/test-typed-compile.py'"
+
 run_suite "Search Engine Tests" \
     "python3 '$SCRIPT_DIR/test-search.py'"
 
