@@ -12,14 +12,16 @@ from __future__ import annotations
 import datetime as _dt
 import hashlib
 import html
+import ipaddress
 import json
 import re
+import socket
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable
 from urllib.parse import urlsplit, urlunsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
 QUEUE_DIR_NAME = ".queue"
@@ -55,6 +57,19 @@ class EnqueueResult:
 
 
 Fetcher = Callable[[str], FetchResult]
+
+
+class UnsafeFetchURL(ValueError):
+    """Raised when a preview URL targets a disallowed scheme or network."""
+
+
+class _SafeRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[override]
+        _validate_fetch_url(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_URL_OPENER = build_opener(_SafeRedirectHandler)
 
 
 def utc_now() -> str:
@@ -101,13 +116,16 @@ def fetch_url_preview(
     """
     fetched_at = utc_now()
     headers = {"User-Agent": "llm-kb-discovery-worker/1.0"}
+    clean_url = url.strip()
     try:
-        req = Request(url, headers=headers)
-        with urlopen(req, timeout=timeout) as resp:  # nosec - user-reviewed URLs
+        _validate_fetch_url(clean_url)
+        req = Request(clean_url, headers=headers)
+        with _URL_OPENER.open(req, timeout=timeout) as resp:  # nosec - validated URL
             raw = resp.read(max_bytes + 1)
             status = getattr(resp, "status", None) or resp.getcode()
             content_type = resp.headers.get("content-type", "")
             final_url = resp.geturl()
+            _validate_fetch_url(final_url)
         truncated = len(raw) > max_bytes
         body = raw[:max_bytes]
         decoded = _decode_body(body, content_type)
@@ -141,6 +159,53 @@ def fetch_url_preview(
                 "fetched_at": fetched_at,
             },
         )
+
+
+def _validate_fetch_url(url: str) -> None:
+    parsed = urlsplit(url.strip())
+    if parsed.scheme.lower() not in {"http", "https"}:
+        raise UnsafeFetchURL(f"unsupported URL scheme: {parsed.scheme or '<none>'}")
+
+    hostname = parsed.hostname
+    if not hostname:
+        raise UnsafeFetchURL("URL must include a host")
+
+    host = hostname.rstrip(".").lower()
+    if host == "localhost" or host.endswith(".localhost"):
+        raise UnsafeFetchURL("localhost URLs are not fetchable")
+
+    port = parsed.port or (443 if parsed.scheme.lower() == "https" else 80)
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        try:
+            infos = socket.getaddrinfo(hostname, port, type=socket.SOCK_STREAM)
+        except OSError as exc:
+            raise UnsafeFetchURL(f"could not resolve host: {hostname}") from exc
+        for info in infos:
+            resolved = info[4][0]
+            try:
+                address = ipaddress.ip_address(resolved)
+            except ValueError:
+                continue
+            _reject_unsafe_address(address, hostname)
+    else:
+        _reject_unsafe_address(address, hostname)
+
+
+def _reject_unsafe_address(
+    address: ipaddress.IPv4Address | ipaddress.IPv6Address,
+    hostname: str,
+) -> None:
+    if (
+        address.is_loopback
+        or address.is_link_local
+        or address.is_private
+        or address.is_multicast
+        or address.is_reserved
+        or address.is_unspecified
+    ):
+        raise UnsafeFetchURL(f"host resolves to a non-public address: {hostname}")
 
 
 def list_pending_items(kb_dir: Path | str) -> list[dict[str, Any]]:

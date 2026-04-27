@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager, nullcontext
 import importlib
 import json
 import os
@@ -60,6 +61,7 @@ def main(argv: list[str] | None = None) -> int:
             days=args.days,
             topic_filter=args.topic,
             include_feeds=args.include_feeds,
+            dry_run=args.dry_run,
         )
 
     result = enqueue_discovered_sources(
@@ -113,42 +115,63 @@ def discover_sources(
     days: int,
     topic_filter: str | None,
     include_feeds: bool,
+    dry_run: bool = False,
 ) -> list[dict[str, Any]]:
     sources: list[dict[str, Any]] = []
 
     monitor = importlib.import_module("tools.monitor.monitor")
     _retarget_monitor_module(monitor, kb_dir)
     topics_config = monitor.load_topics()
-    for source in monitor.discover_new_sources(
-        topics_config,
-        days_back=days,
-        topic_filter=topic_filter,
-    ):
-        sources.append({**source, "source_type": "web_search"})
+    write_guard = _disable_module_writes(monitor, "save_state") if dry_run else nullcontext()
+    with write_guard:
+        for source in monitor.discover_new_sources(
+            topics_config,
+            days_back=days,
+            topic_filter=topic_filter,
+        ):
+            sources.append({**source, "source_type": "web_search"})
 
     if include_feeds:
         rss = importlib.import_module("tools.monitor.rss")
         _retarget_rss_module(rss, kb_dir)
         feeds_config = rss.load_feeds_config()
-        for feed_result in rss.check_feeds(feeds_config, since_days=days):
-            feed = feed_result.get("feed", "RSS")
-            for entry in feed_result.get("entries", []):
-                if not entry.get("url"):
-                    continue
-                sources.append(
-                    {
-                        "topic": feed,
-                        "feed": feed,
-                        "url": entry.get("url"),
-                        "title": entry.get("title", ""),
-                        "date": entry.get("date"),
-                        "summary": entry.get("summary", ""),
-                        "relevant": entry.get("relevant", True),
-                        "source_type": "rss",
-                    }
-                )
+        write_guard = _disable_module_writes(rss, "save_feed_state") if dry_run else nullcontext()
+        with write_guard:
+            for feed_result in rss.check_feeds(feeds_config, since_days=days):
+                feed = feed_result.get("feed", "RSS")
+                for entry in feed_result.get("entries", []):
+                    if not entry.get("url"):
+                        continue
+                    sources.append(
+                        {
+                            "topic": feed,
+                            "feed": feed,
+                            "url": entry.get("url"),
+                            "title": entry.get("title", ""),
+                            "date": entry.get("date"),
+                            "summary": entry.get("summary", ""),
+                            "relevant": entry.get("relevant", True),
+                            "source_type": "rss",
+                        }
+                    )
 
     return sources
+
+
+@contextmanager
+def _disable_module_writes(module: Any, *names: str):
+    originals = {name: getattr(module, name) for name in names}
+
+    def noop(*_args: Any, **_kwargs: Any) -> None:
+        return None
+
+    try:
+        for name in originals:
+            setattr(module, name, noop)
+        yield
+    finally:
+        for name, original in originals.items():
+            setattr(module, name, original)
 
 
 def _retarget_monitor_module(module: Any, kb_dir: Path) -> None:

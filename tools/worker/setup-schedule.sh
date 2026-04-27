@@ -24,6 +24,17 @@ shell_quote() {
     printf "%q" "$1"
 }
 
+xml_escape() {
+    printf "%s" "$1" | sed \
+        -e 's/&/\&amp;/g' \
+        -e 's/</\&lt;/g' \
+        -e 's/>/\&gt;/g'
+}
+
+sed_replacement() {
+    printf "%s" "$1" | sed -e 's/[\\&|]/\\&/g'
+}
+
 remove_cron() {
     local tmp
     tmp="$(mktemp)"
@@ -78,11 +89,16 @@ fi
 
 mkdir -p "$(dirname "$PLIST_PATH")"
 
+plist_python="$(sed_replacement "$(xml_escape "$PYTHON_BIN")")"
+plist_runner="$(sed_replacement "$(xml_escape "$RUNNER")")"
+plist_kb_dir="$(sed_replacement "$(xml_escape "$KB_DIR")")"
+plist_log_dir="$(sed_replacement "$(xml_escape "$LOG_DIR")")"
+
 sed \
-    -e "s|__PYTHON__|$PYTHON_BIN|g" \
-    -e "s|__RUNNER__|$RUNNER|g" \
-    -e "s|__KB_DIR__|$KB_DIR|g" \
-    -e "s|__LOG_DIR__|$LOG_DIR|g" \
+    -e "s|__PYTHON__|$plist_python|g" \
+    -e "s|__RUNNER__|$plist_runner|g" \
+    -e "s|__KB_DIR__|$plist_kb_dir|g" \
+    -e "s|__LOG_DIR__|$plist_log_dir|g" \
     "$PLIST_TEMPLATE" > "$PLIST_PATH"
 
 launchctl unload "$PLIST_PATH" 2>/dev/null || true

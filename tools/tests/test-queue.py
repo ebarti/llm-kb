@@ -26,7 +26,7 @@ from tools.kb.commands import queue as queue_cmd  # noqa: E402
 from tools.kb.commands._common import CommandContext  # noqa: E402
 from tools.kb.models import LLMInvocationResult  # noqa: E402
 from tools.kb.workspace import Workspace  # noqa: E402
-from tools.worker import queue_store  # noqa: E402
+from tools.worker import queue_store, run_hourly  # noqa: E402
 
 
 def fetch_result_for(body: bytes) -> queue_store.FetchResult:
@@ -47,6 +47,25 @@ def fetch_result_for(body: bytes) -> queue_store.FetchResult:
 
 
 class QueueStoreTests(unittest.TestCase):
+    def test_fetch_url_preview_rejects_unsafe_urls_before_opening(self) -> None:
+        unsafe_urls = [
+            "file:///etc/passwd",
+            "ftp://example.com/feed.xml",
+            "http://localhost:8000/metadata",
+            "http://127.0.0.1:8000/metadata",
+            "http://169.254.169.254/latest/meta-data",
+        ]
+
+        for url in unsafe_urls:
+            with self.subTest(url=url):
+                with mock.patch.object(queue_store._URL_OPENER, "open") as open_mock:
+                    result = queue_store.fetch_url_preview(url)
+
+                self.assertEqual("url-fallback", result.hash_source)
+                self.assertFalse(result.fetch_preview["ok"])
+                self.assertIn("UnsafeFetchURL", result.fetch_preview["error"])
+                open_mock.assert_not_called()
+
     def test_enqueue_writes_candidate_and_dedupes_by_content_hash(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -246,6 +265,96 @@ class QueueCommandTests(unittest.TestCase):
             self.assertTrue(rejected.exists())
             archived = json.loads(rejected.read_text(encoding="utf-8"))
             self.assertEqual("outside scope", archived["rejection_reason"])
+
+
+class WorkerScriptTests(unittest.TestCase):
+    def test_dry_run_discovery_does_not_write_queue_state(self) -> None:
+        topics_config = {
+            "max_results_per_query": 1,
+            "topics": [{"name": "Dry Run", "queries": ["llm knowledge base"]}],
+        }
+        feeds_config = {
+            "feeds": [{"name": "Dry Feed", "url": "https://feeds.example/rss"}],
+            "keywords": [],
+        }
+        feed_xml = """<?xml version="1.0"?>
+<rss><channel><item><title>Feed Item</title><link>https://example.com/feed</link><guid>feed-1</guid></item></channel></rss>
+"""
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            with (
+                mock.patch("tools.monitor.monitor.load_topics", return_value=topics_config),
+                mock.patch(
+                    "tools.monitor.monitor.search_web",
+                    return_value=[{"url": "https://example.com/search", "title": "Search"}],
+                ),
+                mock.patch("tools.monitor.rss.load_feeds_config", return_value=feeds_config),
+                mock.patch("tools.monitor.rss.fetch_feed", return_value=feed_xml),
+            ):
+                sources = run_hourly.discover_sources(
+                    root,
+                    days=1,
+                    topic_filter=None,
+                    include_feeds=True,
+                    dry_run=True,
+                )
+                result = queue_store.enqueue_discovered_sources(
+                    root,
+                    sources,
+                    fetcher=lambda _url: fetch_result_for(b"dry run"),
+                    dry_run=True,
+                )
+
+            self.assertEqual(2, len(sources))
+            self.assertEqual(1, len(result.created))
+            self.assertFalse((root / ".queue").exists())
+
+    def test_setup_schedule_escapes_plist_template_values(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            kb_dir = root / "kb&root|with>chars"
+            worker_dir = kb_dir / "tools" / "worker"
+            worker_dir.mkdir(parents=True)
+            (worker_dir / "run_hourly.py").write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+
+            home = root / "home"
+            bin_dir = root / "bin"
+            bin_dir.mkdir()
+            home.mkdir()
+            uname = bin_dir / "uname"
+            uname.write_text("#!/usr/bin/env bash\nprintf 'Darwin\\n'\n", encoding="utf-8")
+            launchctl = bin_dir / "launchctl"
+            launchctl.write_text("#!/usr/bin/env bash\nexit 0\n", encoding="utf-8")
+            uname.chmod(0o755)
+            launchctl.chmod(0o755)
+
+            python_bin = str(root / "python&bin|py>3")
+            env = os.environ.copy()
+            env["HOME"] = str(home)
+            env["KB_DIR"] = str(kb_dir)
+            env["PYTHON_BIN"] = python_bin
+            env["PATH"] = f"{bin_dir}{os.pathsep}{env['PATH']}"
+
+            proc = subprocess.run(
+                [str(REPO_ROOT / "tools" / "worker" / "setup-schedule.sh")],
+                cwd=str(REPO_ROOT),
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(0, proc.returncode, proc.stderr)
+            plist = home / "Library" / "LaunchAgents" / "com.llm-kb.discovery-worker.plist"
+            text = plist.read_text(encoding="utf-8")
+            self.assertNotIn("__KB_DIR__", text)
+            self.assertIn(python_bin.replace("&", "&amp;").replace(">", "&gt;"), text)
+            self.assertIn(str(kb_dir).replace("&", "&amp;").replace(">", "&gt;"), text)
+            self.assertIn(
+                str(worker_dir / "run_hourly.py").replace("&", "&amp;").replace(">", "&gt;"),
+                text,
+            )
 
 
 def main() -> int:
