@@ -21,6 +21,7 @@ from tools.kb.commands._common import (
     CommandContext,
     PluginHookResult,
     run_llm_command,
+    run_plugin_hook,
 )
 from tools.kb.commands.search import _parse_qmd
 from tools.kb.models import EXIT_ERROR, LLMInvocationResult
@@ -411,6 +412,33 @@ class PluginHookTests(unittest.TestCase):
         self.assertIn("bad hook", result.message or "")
         invoke_mock.assert_not_called()
 
+    def test_missing_plugin_framework_prints_skip_for_terminal_users(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td))
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                result = run_plugin_hook(ctx, "post_compile")
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.skipped)
+        self.assertIn("Framework not found", result.output)
+        self.assertIn("Framework not found", stderr.getvalue())
+
+    def test_missing_plugin_framework_stays_quiet_for_json_users(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            ctx = CommandContext(
+                workspace=Workspace(kb_home=Path(td), kb_dir=Path(td)),
+                json_output=True,
+            )
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                result = run_plugin_hook(ctx, "post_compile")
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.skipped)
+        self.assertIn("Framework not found", result.output)
+        self.assertEqual("", stderr.getvalue())
+
     def test_ingest_runs_post_compile_before_commit(self) -> None:
         calls: list[tuple[str, object]] = []
 
@@ -469,7 +497,7 @@ class PluginHookTests(unittest.TestCase):
         self.assertTrue(result.committed)
         self.assertEqual(
             [
-                ("pre_ingest", ["https://example.com/a"]),
+                ("pre_ingest", []),
                 ("llm", []),
                 ("post_ingest", ["raw/article.md"]),
                 ("post_compile", []),
@@ -480,6 +508,36 @@ class PluginHookTests(unittest.TestCase):
         self.assertEqual(
             ["pre_ingest", "post_ingest", "post_compile"],
             [item["hook"] for item in result.details["hooks"]],
+        )
+
+    def test_ingest_does_not_pass_urls_to_file_path_hooks(self) -> None:
+        calls: list[tuple[str, object]] = []
+
+        def fake_ingest_hook(_ctx, hook_name, args=None):
+            calls.append((hook_name, self._hook_args(args)))
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td), no_commit=False)
+            with mock.patch(
+                "tools.kb.commands._common.run_plugin_hook",
+                side_effect=fake_ingest_hook,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.run_plugin_hook",
+                return_value=PluginHookResult(hook="post_compile", ok=True),
+            ), mock.patch(
+                "tools.kb.commands._common.invoke_llm",
+                return_value=LLMResult(text="ingested", backend="fake"),
+            ), mock.patch("tools.kb.commands.llm_commands.auto_commit"):
+                result = llm_commands.ingest(ctx, ["https://example.com/a"])
+
+        self.assertTrue(result.ok)
+        self.assertEqual(
+            [
+                ("pre_ingest", []),
+                ("post_ingest", []),
+            ],
+            calls,
         )
 
     def test_ingest_post_compile_failure_skips_commit(self) -> None:

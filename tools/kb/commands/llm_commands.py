@@ -36,11 +36,9 @@ def _relative_workspace_paths(ctx: CommandContext, paths: set[Path]) -> list[str
     return relpaths
 
 
-def _new_raw_file_args(ctx: CommandContext, before: set[Path], fallback: list[str]) -> list[str]:
+def _new_raw_file_args(ctx: CommandContext, before: set[Path]) -> list[str]:
     after = _raw_snapshot(ctx)
     new_files = after - before
-    if not new_files:
-        return fallback
     return _relative_workspace_paths(ctx, new_files)
 
 
@@ -82,9 +80,8 @@ def ingest(ctx: CommandContext, urls: list[str]) -> LLMInvocationResult:
         prompt_builder=lambda: prompts.INGEST_PROMPT.format(urls=urls_str),
         commit_label=commit_label,
         pre_hook="pre_ingest",
-        pre_hook_args=urls,
         post_hook="post_ingest",
-        post_hook_args=lambda: _new_raw_file_args(ctx, before_raw, urls),
+        post_hook_args=lambda: _new_raw_file_args(ctx, before_raw),
     )
 
     if not result.ok or ctx.dry_run:

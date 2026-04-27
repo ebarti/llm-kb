@@ -107,11 +107,14 @@ def run_plugin_hook(
 
     framework = ctx.workspace.kb_dir / "tools" / "plugins" / "framework.py"
     if not framework.exists():
+        output = f"[plugin] Framework not found at {framework}; skipped {hook_name}"
+        if not ctx.json_output:
+            print(output, file=sys.stderr)
         return PluginHookResult(
             hook=hook_name,
             ok=True,
             skipped=True,
-            output=f"[plugin] Framework not found at {framework}; skipped {hook_name}",
+            output=output,
         )
 
     proc = subprocess.run(
