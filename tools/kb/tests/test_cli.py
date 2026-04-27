@@ -303,6 +303,24 @@ class WorkspaceDryRunTests(unittest.TestCase):
         self.assertEqual((root / "base").resolve(), ws.kb_dir)
         self.assertFalse(str(ws.kb_dir).startswith(str(home / "kb-workspaces")))
 
+    def test_named_dir_uses_kb_workspaces_env(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            custom_base = root / "custom-workspaces"
+            home = root / "home"
+            home.mkdir()
+
+            with mock.patch("pathlib.Path.home", return_value=home):
+                with mock.patch.dict(
+                    "os.environ",
+                    {"KB_WORKSPACES": str(custom_base)},
+                    clear=False,
+                ):
+                    ws = Workspace.resolve(dir_flag="named", dry_run=True)
+
+            self.assertEqual((custom_base / "named").resolve(), ws.kb_dir)
+            self.assertFalse((home / "kb-workspaces" / "named").exists())
+
 
 class GlobalOptionTests(unittest.TestCase):
     def test_budget_must_be_positive(self) -> None:
