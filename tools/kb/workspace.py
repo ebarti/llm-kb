@@ -158,7 +158,7 @@ class Workspace:
             kb_home = Path(
                 os.environ.get("KB_HOME") or Path(__file__).resolve().parents[2]
             )
-        kb_home = Path(kb_home).resolve()
+        kb_home = Path(kb_home).expanduser().resolve()
 
         # Step 1: start from env var or install location
         base_dir = Path(

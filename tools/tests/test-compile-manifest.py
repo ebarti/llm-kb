@@ -34,7 +34,11 @@ def _write_raw_v2(root: Path, slug: str, clean: str, raw: bytes | None = None) -
     )
 
 
-def _ctx(root: Path) -> CommandContext:
+def _ctx(root: Path, *, with_generate_all: bool = True) -> CommandContext:
+    if with_generate_all:
+        generate_all = root / "tools" / "compile" / "pages" / "generate_all.py"
+        generate_all.parent.mkdir(parents=True, exist_ok=True)
+        generate_all.write_text("#!/usr/bin/env python3\n", encoding="utf-8")
     return CommandContext(
         workspace=Workspace(kb_home=REPO_ROOT, kb_dir=root),
         no_commit=True,
@@ -79,6 +83,62 @@ class CompileManifestTests(unittest.TestCase):
                 manifest["raw/alpha/"]["compiler_version"],
             )
             self.assertIn("wiki/sources/alpha.md", manifest["raw/alpha/"]["outputs"])
+
+    def test_changed_wiki_outputs_are_tracked_for_missing_output_detection(
+        self,
+    ) -> None:
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
+
+            def fake_llm(_ctx, *, command, topic, prompt_builder, commit_label):
+                prompt_builder()
+                source_out = root / "wiki" / "sources" / "alpha.md"
+                concept_out = root / "wiki" / "concepts" / "alpha.md"
+                source_out.parent.mkdir(parents=True, exist_ok=True)
+                concept_out.parent.mkdir(parents=True, exist_ok=True)
+                source_out.write_text("# Alpha source\n", encoding="utf-8")
+                concept_out.write_text("# Alpha concept\n", encoding="utf-8")
+                return LLMInvocationResult(command=command, topic=topic, ok=True)
+
+            with mock.patch(
+                "tools.kb.commands.llm_commands.run_llm_command",
+                side_effect=fake_llm,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.subprocess.run",
+                return_value=_successful_decoration_run(),
+            ):
+                self.assertTrue(llm_commands.compile_wiki(_ctx(root)).ok)
+
+            manifest = compile_manifest.load_manifest(root)
+            outputs = manifest["raw/alpha/"]["outputs"]
+            self.assertIn("wiki/sources/alpha.md", outputs)
+            self.assertIn("wiki/concepts/alpha.md", outputs)
+
+            (root / "wiki" / "concepts" / "alpha.md").unlink()
+            replanned = compile_manifest.plan_compile(root)
+
+            self.assertEqual(["raw/alpha/"], [s.key for s in replanned.changed_sources])
+            self.assertIn(
+                "missing-output:wiki/concepts/alpha.md",
+                replanned.reasons["raw/alpha/"],
+            )
+
+    def test_compile_reports_missing_generate_all_before_llm_call(self) -> None:
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
+
+            with mock.patch(
+                "tools.kb.commands.llm_commands.run_llm_command"
+            ) as run_mock:
+                result = llm_commands.compile_wiki(
+                    _ctx(root, with_generate_all=False)
+                )
+
+            self.assertFalse(result.ok)
+            self.assertIn("Missing generate_all script:", result.message)
+            run_mock.assert_not_called()
 
     def test_changed_raw_source_scopes_compile_prompt(self) -> None:
         with TemporaryDirectory() as td:

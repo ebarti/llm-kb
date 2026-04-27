@@ -298,6 +298,22 @@ class WorkspaceDryRunTests(unittest.TestCase):
         self.assertEqual((root / "base").resolve(), ws.kb_dir)
         self.assertFalse(str(ws.kb_dir).startswith(str(home / "kb-workspaces")))
 
+    def test_kb_home_env_expands_user_home(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            home = Path(td) / "home"
+            home.mkdir()
+
+            with mock.patch.dict(
+                "os.environ",
+                {"HOME": str(home), "KB_HOME": "~/kb-home"},
+                clear=True,
+            ):
+                ws = Workspace.resolve(dry_run=True)
+
+        expected = (home / "kb-home").resolve()
+        self.assertEqual(expected, ws.kb_home)
+        self.assertEqual(expected, ws.kb_dir)
+
 
 class GlobalOptionTests(unittest.TestCase):
     def test_budget_must_be_positive(self) -> None:

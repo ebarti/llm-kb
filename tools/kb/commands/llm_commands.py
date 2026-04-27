@@ -42,19 +42,6 @@ def ingest(ctx: CommandContext, urls: list[str]) -> LLMInvocationResult:
 
 
 def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
-    regen_meta = ctx.workspace.kb_home / "tools" / "compile" / "regen_meta.py"
-    if not regen_meta.exists():
-        return LLMInvocationResult(
-            command="compile",
-            topic=None,
-            ok=False,
-            exit_code=EXIT_ERROR,
-            dry_run=ctx.dry_run,
-            budget_limit=ctx.budget_limit,
-            model=ctx.model,
-            message=f"Missing regen_meta script: {regen_meta}",
-        )
-
     plan = compile_manifest.plan_compile(ctx.workspace.kb_dir)
 
     if plan.is_noop:
@@ -83,6 +70,22 @@ def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
             model=ctx.model,
             message="compile: no changed raw sources; LLM skipped",
             details=details,
+        )
+
+    generate_all = (
+        ctx.workspace.kb_dir / "tools" / "compile" / "pages" / "generate_all.py"
+    )
+    if not generate_all.exists():
+        return LLMInvocationResult(
+            command="compile",
+            topic=None,
+            ok=False,
+            exit_code=EXIT_ERROR,
+            dry_run=ctx.dry_run,
+            budget_limit=ctx.budget_limit,
+            model=ctx.model,
+            message=f"Missing generate_all script: {generate_all}",
+            details=compile_manifest.describe_plan(plan),
         )
 
     # Run the LLM compile step without auto-committing so we can run the
@@ -115,7 +118,6 @@ def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
     # Run decoration-page generators (Dashboard, Graph, Tags, Glossary,
     # Changelog) using the workspace copy so --dir <workspace> writes to the
     # right place.
-    generate_all = ctx.workspace.kb_dir / "tools" / "compile" / "pages" / "generate_all.py"
     proc = subprocess.run(
         ["python3", str(generate_all)],
         cwd=str(ctx.workspace.kb_dir),

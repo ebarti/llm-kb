@@ -210,6 +210,11 @@ def build_updated_manifest(
 ) -> dict[str, dict[str, Any]]:
     compiled_keys = {source.key for source in compiled_sources}
     available_output_set = {p for p in available_output_paths if p}
+    changed_output_set = {
+        p
+        for p in changed_output_paths
+        if p in available_output_set and not Path(p).is_absolute()
+    }
 
     updated: dict[str, dict[str, Any]] = {}
     for source in plan.sources:
@@ -222,7 +227,9 @@ def build_updated_manifest(
             not content_changed or source_output_changed
         )
         if source.key in compiled_keys and can_advance:
-            outputs = sorted(set(prior["outputs"]) | {source_output})
+            outputs = sorted(
+                set(prior["outputs"]) | {source_output} | changed_output_set
+            )
             updated[source.key] = {
                 "sha256": source.sha256,
                 "content_sha256": source.content_sha256,

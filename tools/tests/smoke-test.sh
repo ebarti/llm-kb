@@ -82,16 +82,18 @@ run_test "discover wrapper regression checks" \
 run_test "kb responds to invocation" \
     "'$BASE_DIR/kb' 2>&1 | head -1 | grep -qi ''" "any"
 
-run_test "kb compile fails when regen_meta script is missing" \
+run_test "kb compile fails when generate_all script is missing for changed raw" \
     "tmpdir=\$(mktemp -d)
     cp '$BASE_DIR/kb' \"\$tmpdir/kb\"
     chmod +x \"\$tmpdir/kb\"
+    mkdir -p \"\$tmpdir/raw/alpha\"
+    printf '# Alpha\n' > \"\$tmpdir/raw/alpha/clean.md\"
     if KB_NO_COMMIT=1 \"\$tmpdir/kb\" compile >\"\$tmpdir/out\" 2>&1; then
         cat \"\$tmpdir/out\"
         rm -rf \"\$tmpdir\"
         exit 1
     fi
-    if ! grep -q 'Missing regen_meta script:' \"\$tmpdir/out\"; then
+    if ! grep -q 'Missing generate_all script:' \"\$tmpdir/out\"; then
         cat \"\$tmpdir/out\"
         rm -rf \"\$tmpdir\"
         exit 1
