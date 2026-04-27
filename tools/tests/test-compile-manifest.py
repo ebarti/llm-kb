@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import io
 import os
 import sys
 import types
@@ -615,4 +616,28 @@ class CompileManifestTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    json_mode = "--json" in sys.argv
+    if json_mode:
+        sys.argv.remove("--json")
+
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(CompileManifestTests)
+    stream = io.StringIO() if json_mode else sys.stderr
+    result = unittest.TextTestRunner(
+        stream=stream,
+        verbosity=0 if json_mode else 1,
+    ).run(suite)
+
+    if json_mode:
+        failed = len(result.failures) + len(result.errors)
+        print(
+            json.dumps(
+                {
+                    "total": result.testsRun,
+                    "passed": result.testsRun - failed,
+                    "failed": failed,
+                    "ok": result.wasSuccessful(),
+                }
+            )
+        )
+
+    raise SystemExit(0 if result.wasSuccessful() else 1)
