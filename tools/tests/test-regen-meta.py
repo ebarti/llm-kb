@@ -214,8 +214,17 @@ def test_manifest_covers_all_raw(regen) -> tuple[bool, str]:
     with _sandbox_meta(regen) as tmp_meta_dir:
         regen.regenerate(quiet=True)
         text = (tmp_meta_dir / "manifest.md").read_text(encoding="utf-8")
-    tracked = set(re.findall(r"`raw/([^`]+)\.md`", text))
+    tracked = set()
+    for ref in re.findall(r"`raw/([^`]+)`", text):
+        if ref.endswith("/"):
+            tracked.add(ref[:-1])
+        elif ref.endswith(".md"):
+            tracked.add(ref[:-3])
     actual = {p.stem for p in RAW_DIR.glob("*.md")}
+    if RAW_DIR.is_dir():
+        actual.update(
+            p.name for p in RAW_DIR.iterdir() if p.is_dir() and (p / "clean.md").exists()
+        )
     missing = sorted(actual - tracked)
     return (not missing), (
         f"{len(tracked)}/{len(actual)} covered"

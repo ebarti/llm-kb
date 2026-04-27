@@ -15,12 +15,17 @@ from unittest import mock
 
 from tools.kb import cli as cli_mod
 from tools.kb.budget import BudgetTracker
-from tools.kb.commands import export as export_cmd, serve as serve_cmd
+from tools.kb.commands import export as export_cmd, llm_commands, serve as serve_cmd
 from tools.kb.commands import test_cmd as test_cmd_module, viz as viz_cmd
-from tools.kb.commands._common import CommandContext
+from tools.kb.commands._common import (
+    CommandContext,
+    PluginHookResult,
+    run_llm_command,
+    run_plugin_hook,
+)
 from tools.kb.commands.search import _parse_qmd
-from tools.kb.models import EXIT_ERROR
-from tools.kb.runner import invoke_llm
+from tools.kb.models import EXIT_ERROR, LLMInvocationResult
+from tools.kb.runner import LLMResult, invoke_llm
 from tools.kb.workspace import Workspace
 
 
@@ -298,6 +303,40 @@ class WorkspaceDryRunTests(unittest.TestCase):
         self.assertEqual((root / "base").resolve(), ws.kb_dir)
         self.assertFalse(str(ws.kb_dir).startswith(str(home / "kb-workspaces")))
 
+    def test_kb_home_env_expands_user_home(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            home = Path(td) / "home"
+            home.mkdir()
+
+            with mock.patch.dict(
+                "os.environ",
+                {"HOME": str(home), "KB_HOME": "~/kb-home"},
+                clear=True,
+            ):
+                ws = Workspace.resolve(dry_run=True)
+
+        expected = (home / "kb-home").resolve()
+        self.assertEqual(expected, ws.kb_home)
+        self.assertEqual(expected, ws.kb_dir)
+
+    def test_named_dir_uses_kb_workspaces_env(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            custom_base = root / "custom-workspaces"
+            home = root / "home"
+            home.mkdir()
+
+            with mock.patch("pathlib.Path.home", return_value=home):
+                with mock.patch.dict(
+                    "os.environ",
+                    {"KB_WORKSPACES": str(custom_base)},
+                    clear=False,
+                ):
+                    ws = Workspace.resolve(dir_flag="named", dry_run=True)
+
+            self.assertEqual((custom_base / "named").resolve(), ws.kb_dir)
+            self.assertFalse((home / "kb-workspaces" / "named").exists())
+
 
 class GlobalOptionTests(unittest.TestCase):
     def test_budget_must_be_positive(self) -> None:
@@ -311,6 +350,406 @@ class GlobalOptionTests(unittest.TestCase):
         with mock.patch.dict("os.environ", {"KB_BUDGET": "7", "KB_TOKEN_BUDGET": "11"}, clear=False):
             ctx = cli_mod._build_context(opts)
         self.assertEqual(11, ctx.budget_limit)
+
+
+class PluginHookTests(unittest.TestCase):
+    def _ctx(self, root: Path, *, no_commit: bool = True) -> CommandContext:
+        return CommandContext(
+            workspace=Workspace(kb_home=root, kb_dir=root),
+            no_commit=no_commit,
+        )
+
+    def _hook_args(self, args) -> list[str]:
+        if args is None:
+            return []
+        if callable(args):
+            args = args()
+        return list(args)
+
+    def test_run_llm_command_runs_hooks_around_llm_before_commit(self) -> None:
+        calls: list[tuple[str, str, list[str] | str]] = []
+
+        def fake_hook(_ctx, hook_name, args=None):
+            calls.append(("hook", hook_name, self._hook_args(args)))
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        def fake_invoke(prompt, **_kwargs):
+            calls.append(("llm", prompt, ""))
+            return LLMResult(text="done", backend="fake")
+
+        def fake_commit(_kb_dir, label, dry_run=False):  # noqa: ARG001
+            calls.append(("commit", label, ""))
+            return True
+
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td), no_commit=False)
+            with mock.patch(
+                "tools.kb.commands._common.run_plugin_hook",
+                side_effect=fake_hook,
+            ), mock.patch(
+                "tools.kb.commands._common.invoke_llm",
+                side_effect=fake_invoke,
+            ), mock.patch(
+                "tools.kb.commands._common.auto_commit",
+                side_effect=fake_commit,
+            ):
+                result = run_llm_command(
+                    ctx,
+                    command="ingest",
+                    topic="https://example.com/a",
+                    prompt_builder=lambda: "prompt",
+                    commit_label="ingest article",
+                    pre_hook="pre_ingest",
+                    pre_hook_args=["https://example.com/a"],
+                    post_hook="post_ingest",
+                    post_hook_args=lambda: ["raw/article.md"],
+                )
+
+        self.assertTrue(result.ok)
+        self.assertEqual(
+            [
+                ("hook", "pre_ingest", ["https://example.com/a"]),
+                ("llm", "prompt", ""),
+                ("hook", "post_ingest", ["raw/article.md"]),
+                ("commit", "ingest article", ""),
+            ],
+            calls,
+        )
+        self.assertEqual(["pre_ingest", "post_ingest"], [
+            item["hook"] for item in result.details["hooks"]
+        ])
+
+    def test_pre_hook_failure_skips_llm(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td))
+            with mock.patch(
+                "tools.kb.commands._common.run_plugin_hook",
+                return_value=PluginHookResult(
+                    hook="pre_ingest",
+                    ok=False,
+                    exit_code=1,
+                    output="bad hook",
+                ),
+            ), mock.patch("tools.kb.commands._common.invoke_llm") as invoke_mock:
+                result = run_llm_command(
+                    ctx,
+                    command="ingest",
+                    topic="https://example.com/a",
+                    prompt_builder=lambda: "prompt",
+                    commit_label="ingest article",
+                    pre_hook="pre_ingest",
+                    pre_hook_args=["https://example.com/a"],
+                )
+
+        self.assertFalse(result.ok)
+        self.assertEqual(EXIT_ERROR, result.exit_code)
+        self.assertIn("bad hook", result.message or "")
+        invoke_mock.assert_not_called()
+
+    def test_missing_plugin_framework_prints_skip_for_terminal_users(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td))
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                result = run_plugin_hook(ctx, "post_compile")
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.skipped)
+        self.assertIn("Framework not found", result.output)
+        self.assertIn("Framework not found", stderr.getvalue())
+
+    def test_missing_plugin_framework_stays_quiet_for_json_users(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            ctx = CommandContext(
+                workspace=Workspace(kb_home=Path(td), kb_dir=Path(td)),
+                json_output=True,
+            )
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                result = run_plugin_hook(ctx, "post_compile")
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.skipped)
+        self.assertIn("Framework not found", result.output)
+        self.assertEqual("", stderr.getvalue())
+
+    def test_ingest_runs_post_compile_before_commit(self) -> None:
+        calls: list[tuple[str, object]] = []
+
+        def fake_ingest_hook(_ctx, hook_name, args=None):
+            calls.append((hook_name, self._hook_args(args)))
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        def fake_invoke(prompt, **kwargs):  # noqa: ARG001
+            root = Path(kwargs["cwd"])
+            calls.append(("llm", []))
+            (root / "raw" / "article.md").write_text(
+                "---\ntitle: Article\n---\n",
+                encoding="utf-8",
+            )
+            (root / "wiki" / "concepts" / "article.md").write_text(
+                (
+                    "---\n"
+                    "title: Article\n"
+                    "type: concept\n"
+                    "sources: [\"[[raw/article]]\"]\n"
+                    "last_compiled: 2026-04-27\n"
+                    "summary: \"Article concept summary.\"\n"
+                    "---\n\n"
+                    "## Overview\n\n"
+                    "Article is a deliberately long concept fixture used to "
+                    "exercise plugin hook ordering after the compile review "
+                    "gate was introduced. The body contains enough words to "
+                    "satisfy the deterministic review threshold while keeping "
+                    "the test focused on hook behavior. It explains that the "
+                    "ingest command writes a wiki article, post-ingest hooks "
+                    "run, post-compile hooks decorate the article, and the "
+                    "final auto-commit must include those post-compile "
+                    "decorations in the committed file contents. This extra "
+                    "detail is test scaffolding, not product documentation.\n"
+                ),
+                encoding="utf-8",
+            )
+            return LLMResult(text="ingested", backend="fake")
+
+        def fake_post_compile(ctx, hook_name, args=None):  # noqa: ARG001
+            calls.append((hook_name, self._hook_args(args)))
+            article = ctx.workspace.wiki_dir / "concepts" / "article.md"
+            article.write_text(
+                article.read_text(encoding="utf-8").replace(
+                    "summary: \"Article concept summary.\"\n---",
+                    "summary: \"Article concept summary.\"\nreading_time: \"1 min\"\n---",
+                ),
+                encoding="utf-8",
+            )
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        def fake_commit(kb_dir, label, dry_run=False):  # noqa: ARG001
+            article = Path(kb_dir) / "wiki" / "concepts" / "article.md"
+            calls.append(("commit", "reading_time" in article.read_text(encoding="utf-8")))
+            return True
+
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td), no_commit=False)
+            with mock.patch(
+                "tools.kb.commands._common.run_plugin_hook",
+                side_effect=fake_ingest_hook,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.run_plugin_hook",
+                side_effect=fake_post_compile,
+            ), mock.patch(
+                "tools.kb.commands._common.invoke_llm",
+                side_effect=fake_invoke,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.auto_commit",
+                side_effect=fake_commit,
+            ):
+                result = llm_commands.ingest(ctx, ["https://example.com/a"])
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.committed)
+        self.assertEqual(
+            [
+                ("pre_ingest", []),
+                ("llm", []),
+                ("post_ingest", ["raw/article.md"]),
+                ("post_compile", []),
+                ("commit", True),
+            ],
+            calls,
+        )
+        self.assertEqual(
+            ["pre_ingest", "post_ingest", "post_compile"],
+            [item["hook"] for item in result.details["hooks"]],
+        )
+
+    def test_ingest_does_not_pass_urls_to_file_path_hooks(self) -> None:
+        calls: list[tuple[str, object]] = []
+
+        def fake_ingest_hook(_ctx, hook_name, args=None):
+            calls.append((hook_name, self._hook_args(args)))
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td), no_commit=False)
+            with mock.patch(
+                "tools.kb.commands._common.run_plugin_hook",
+                side_effect=fake_ingest_hook,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.run_plugin_hook",
+                return_value=PluginHookResult(hook="post_compile", ok=True),
+            ), mock.patch(
+                "tools.kb.commands._common.invoke_llm",
+                return_value=LLMResult(text="ingested", backend="fake"),
+            ), mock.patch("tools.kb.commands.llm_commands.auto_commit"):
+                result = llm_commands.ingest(ctx, ["https://example.com/a"])
+
+        self.assertTrue(result.ok)
+        self.assertEqual(
+            [
+                ("pre_ingest", []),
+                ("post_ingest", []),
+            ],
+            calls,
+        )
+
+    def test_ingest_post_compile_failure_skips_commit(self) -> None:
+        def fake_ingest_hook(_ctx, hook_name, args=None):  # noqa: ARG001
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td), no_commit=False)
+            with mock.patch(
+                "tools.kb.commands._common.run_plugin_hook",
+                side_effect=fake_ingest_hook,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.run_plugin_hook",
+                return_value=PluginHookResult(
+                    hook="post_compile",
+                    ok=False,
+                    exit_code=1,
+                    output="frontmatter plugin failed",
+                ),
+            ), mock.patch(
+                "tools.kb.commands._common.invoke_llm",
+                return_value=LLMResult(text="ingested", backend="fake"),
+            ), mock.patch("tools.kb.commands.llm_commands.auto_commit") as commit_mock:
+                result = llm_commands.ingest(ctx, ["https://example.com/a"])
+
+        self.assertFalse(result.ok)
+        self.assertEqual(EXIT_ERROR, result.exit_code)
+        self.assertIn("frontmatter plugin failed", result.message or "")
+        commit_mock.assert_not_called()
+
+    def test_ask_and_lint_run_query_and_lint_hooks(self) -> None:
+        calls: list[tuple[str, list[str]]] = []
+
+        def fake_hook(_ctx, hook_name, args=None):
+            calls.append((hook_name, self._hook_args(args)))
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        with tempfile.TemporaryDirectory() as td:
+            ctx = self._ctx(Path(td))
+            with mock.patch(
+                "tools.kb.commands._common.run_plugin_hook",
+                side_effect=fake_hook,
+            ), mock.patch(
+                "tools.kb.commands._common.invoke_llm",
+                return_value=LLMResult(text="ok", backend="fake"),
+            ):
+                ask_result = llm_commands.ask(ctx, "what changed?")
+                lint_result = llm_commands.lint(ctx)
+
+        self.assertTrue(ask_result.ok)
+        self.assertTrue(lint_result.ok)
+        self.assertEqual(
+            [
+                ("pre_query", ["what changed?"]),
+                ("post_query", ["what changed?"]),
+                ("on_lint", []),
+            ],
+            calls,
+        )
+
+    def test_compile_runs_pre_and_post_hooks_before_commit(self) -> None:
+        calls: list[tuple[str, str]] = []
+
+        def fake_pre_hook(_ctx, hook_name, args=None):  # noqa: ARG001
+            calls.append(("hook", hook_name))
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        def fake_post_hook(_ctx, hook_name, args=None):  # noqa: ARG001
+            calls.append(("hook", hook_name))
+            return PluginHookResult(hook=hook_name, ok=True)
+
+        detail = (
+            "Compile hooks verify that schema driven compilation runs plugin "
+            "hooks around typed extraction, metadata generation, and the final "
+            "commit while keeping generated source pages long enough for the "
+            "review gate used by the command tests."
+        )
+
+        def fake_invoke(prompt, **_kwargs):
+            if "SourceSummary" in prompt:
+                calls.append(("llm", "SourceSummary"))
+                payload = {
+                    "title": "Compile Hooks",
+                    "key_points": [detail, detail],
+                    "detailed_summary": detail,
+                    "notable_quotes": [],
+                    "related_concepts": [],
+                    "entities_mentioned": [],
+                }
+            elif "ConceptUpdateBatch" in prompt:
+                calls.append(("llm", "ConceptUpdateBatch"))
+                payload = {"updates": []}
+            elif "EntityRefBatch" in prompt:
+                calls.append(("llm", "EntityRefBatch"))
+                payload = {"entities": []}
+            elif "ComparisonBatch" in prompt:
+                calls.append(("llm", "ComparisonBatch"))
+                payload = {"comparisons": []}
+            else:
+                raise AssertionError(f"unexpected prompt: {prompt[:120]}")
+            return LLMResult(text=json.dumps(payload), backend="fake")
+
+        def fake_metadata_script(args, *_args, **_kwargs):
+            calls.append(("generate", Path(args[1]).name))
+            return types.SimpleNamespace(returncode=0, stdout="", stderr="")
+
+        def fake_commit(_kb_dir, label, dry_run=False):  # noqa: ARG001
+            calls.append(("commit", label))
+            return True
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            raw_dir = root / "raw" / "compile-hooks"
+            raw_dir.mkdir(parents=True)
+            (raw_dir / "clean.md").write_text("# Compile hooks\n", encoding="utf-8")
+            (raw_dir / "meta.json").write_text(
+                json.dumps({"slug": "compile-hooks", "sha256_clean": "test"}) + "\n",
+                encoding="utf-8",
+            )
+            generate_all = root / "tools" / "compile" / "pages" / "generate_all.py"
+            generate_all.parent.mkdir(parents=True)
+            generate_all.write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+            regen_meta = root / "tools" / "compile" / "regen_meta.py"
+            regen_meta.write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+
+            ctx = self._ctx(root, no_commit=False)
+            with mock.patch(
+                "tools.kb.commands._common.run_plugin_hook",
+                side_effect=fake_pre_hook,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.run_plugin_hook",
+                side_effect=fake_post_hook,
+            ), mock.patch(
+                "tools.kb.typed_compile.invoke_llm",
+                side_effect=fake_invoke,
+            ), mock.patch(
+                "tools.kb.typed_compile.subprocess.run",
+                side_effect=fake_metadata_script,
+            ), mock.patch(
+                "tools.kb.commands.llm_commands.auto_commit",
+                side_effect=fake_commit,
+            ):
+                result = llm_commands.compile_wiki(ctx)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(
+            [
+                ("hook", "pre_compile"),
+                ("llm", "SourceSummary"),
+                ("llm", "ConceptUpdateBatch"),
+                ("llm", "EntityRefBatch"),
+                ("llm", "ComparisonBatch"),
+                ("generate", "regen_meta.py"),
+                ("generate", "generate_all.py"),
+                ("hook", "post_compile"),
+                ("commit", "compile wiki"),
+            ],
+            calls,
+        )
 
 
 class WorkspaceInitTests(unittest.TestCase):
@@ -468,6 +907,26 @@ class MainExitHandlingTests(unittest.TestCase):
 
         self.assertEqual(EXIT_ERROR, exit_code)
         self.assertIn("boom", stderr.getvalue())
+
+    def test_query_alias_routes_to_ask(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            ctx = CommandContext(workspace=Workspace(kb_home=Path(td), kb_dir=Path(td)))
+            ask_result = LLMInvocationResult(
+                command="ask",
+                topic="what now?",
+                ok=True,
+                exit_code=0,
+                message="answer",
+            )
+            stdout = io.StringIO()
+            with mock.patch("tools.kb.cli._build_context", return_value=ctx):
+                with mock.patch("tools.kb.cli.llm_commands.ask", return_value=ask_result) as ask_mock:
+                    with contextlib.redirect_stdout(stdout):
+                        exit_code = cli_mod.main(["query", "what", "now?"])
+
+        self.assertEqual(0, exit_code)
+        ask_mock.assert_called_once_with(ctx, "what now?")
+        self.assertIn("answer", stdout.getvalue())
 
 
 class WrapperIntegrationTests(unittest.TestCase):

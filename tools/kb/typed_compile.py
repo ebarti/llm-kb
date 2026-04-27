@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Optional, TypeVar
 
+from tools.compile import manifest as compile_manifest
 from tools.compile.review import (
     ReviewerConfig,
     review_wiki_writes,
@@ -122,10 +123,13 @@ ModelT = TypeVar("ModelT", bound=BaseModel)
 def compile_workspace(
     ctx,
     *,
-    invoke_model: InvokeLLM = invoke_llm,
+    invoke_model: Optional[InvokeLLM] = None,
     now: Optional[datetime] = None,
 ) -> LLMInvocationResult:
     """Compile ``raw/`` into ``wiki/`` through typed, validated LLM calls."""
+    if invoke_model is None:
+        invoke_model = invoke_llm
+
     if ctx.dry_run:
         return LLMInvocationResult(
             command="compile",
@@ -212,6 +216,11 @@ def compile_workspace(
     cache_changed = cache_needs_update(ctx.workspace.kb_dir, planned_cache)
 
     if not changed_outputs and not cache_changed and not refreshed_sources:
+        manifest_written = sync_compile_manifest(
+            ctx.workspace.kb_dir,
+            bundles,
+            compiled_at=compiled_at,
+        )
         return LLMInvocationResult(
             command="compile",
             topic=None,
@@ -227,6 +236,7 @@ def compile_workspace(
                 "llm_calls": 0,
                 "outputs": [],
                 "cache_hit": True,
+                "manifest_written": manifest_written,
             },
         )
 
@@ -296,6 +306,11 @@ def compile_workspace(
             details=details,
         )
 
+    details["manifest_written"] = sync_compile_manifest(
+        ctx.workspace.kb_dir,
+        bundles,
+        compiled_at=compiled_at,
+    )
     append_compile_log(ctx.workspace.kb_dir, refreshed_sources, changed_outputs)
 
     result = LLMInvocationResult(
@@ -1005,6 +1020,48 @@ def bundle_outputs(bundle: CompileBundle) -> list[str]:
             outputs.append(f"wiki/comparisons/{a}-vs-{b}.md")
     outputs.append("wiki/_index.md")
     return sorted(set(outputs))
+
+
+def sync_compile_manifest(
+    kb_dir: Path,
+    bundles: list[CompileBundle],
+    *,
+    compiled_at: str,
+) -> bool:
+    """Mirror typed compile outputs into the shared raw-to-wiki manifest."""
+    plan = compile_manifest.plan_compile(kb_dir)
+    bundles_by_slug = {bundle.raw_slug: bundle for bundle in bundles}
+    manifest: dict[str, dict[str, Any]] = {}
+
+    for source in plan.sources:
+        slug = _manifest_source_slug(source.key)
+        bundle = bundles_by_slug.get(slug)
+        outputs = [
+            rel_path
+            for rel_path in (bundle_outputs(bundle) if bundle is not None else [])
+            if (Path(kb_dir) / rel_path).exists()
+        ]
+        if bundle is None or f"wiki/sources/{slug}.md" not in outputs:
+            prior = plan.manifest.get(source.key)
+            if isinstance(prior, dict):
+                manifest[source.key] = dict(prior)
+            continue
+        manifest[source.key] = {
+            "sha256": source.sha256,
+            "content_sha256": source.content_sha256,
+            "last_compiled": compiled_at,
+            "compiler_version": compile_manifest.COMPILER_VERSION,
+            "outputs": sorted(outputs),
+        }
+
+    return compile_manifest.save_manifest_if_changed(kb_dir, manifest)
+
+
+def _manifest_source_slug(key: str) -> str:
+    slug = key.removeprefix("raw/").rstrip("/")
+    if slug.endswith(".md"):
+        slug = Path(slug).stem
+    return _slugify(slug)
 
 
 def _missing_required_scripts(kb_dir: Path) -> Optional[str]:

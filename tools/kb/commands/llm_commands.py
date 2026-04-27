@@ -9,10 +9,53 @@ updated without touching runtime logic.
 
 from __future__ import annotations
 
-from ..models import LLMInvocationResult
+import dataclasses
+from pathlib import Path
+
+from ..git_util import auto_commit
+from ..models import EXIT_ERROR, LLMInvocationResult
 from ..typed_compile import compile_workspace
 from . import prompts
-from ._common import CommandContext, run_llm_command
+from ._common import CommandContext, run_llm_command, run_plugin_hook
+
+
+def _raw_snapshot(ctx: CommandContext) -> set[Path]:
+    raw_dir = ctx.workspace.raw_dir
+    if not raw_dir.exists():
+        return set()
+    return {path for path in raw_dir.rglob("*.md") if path.is_file()}
+
+
+def _relative_workspace_paths(ctx: CommandContext, paths: set[Path]) -> list[str]:
+    relpaths: list[str] = []
+    for path in sorted(paths):
+        try:
+            relpaths.append(str(path.relative_to(ctx.workspace.kb_dir)))
+        except ValueError:
+            relpaths.append(str(path))
+    return relpaths
+
+
+def _new_raw_file_args(ctx: CommandContext, before: set[Path]) -> list[str]:
+    after = _raw_snapshot(ctx)
+    new_files = after - before
+    return _relative_workspace_paths(ctx, new_files)
+
+
+def _append_hook_detail(result: LLMInvocationResult, hook_result) -> None:
+    hooks = list(result.details.get("hooks", []))
+    hooks.append(hook_result.as_detail())
+    result.details["hooks"] = hooks
+
+
+def _mark_hook_failure(result: LLMInvocationResult, hook_result) -> LLMInvocationResult:
+    result.ok = False
+    result.exit_code = EXIT_ERROR
+    message = f"plugin hook '{hook_result.hook}' failed"
+    if hook_result.output:
+        message += f":\n{hook_result.output}"
+    result.message = f"{result.message.rstrip()}\n{message}" if result.message else message
+    return result
 
 
 def research(ctx: CommandContext, topic: str) -> LLMInvocationResult:
@@ -27,17 +70,74 @@ def research(ctx: CommandContext, topic: str) -> LLMInvocationResult:
 
 def ingest(ctx: CommandContext, urls: list[str]) -> LLMInvocationResult:
     urls_str = " ".join(urls)
-    return run_llm_command(
-        ctx,
+    commit_label = f"ingest — {urls[0] if urls else 'urls'}"
+    before_raw = _raw_snapshot(ctx)
+    no_commit_ctx = dataclasses.replace(ctx, no_commit=True)
+    result = run_llm_command(
+        no_commit_ctx,
         command="ingest",
         topic=urls_str,
         prompt_builder=lambda: prompts.INGEST_PROMPT.format(urls=urls_str),
-        commit_label=f"ingest — {urls[0] if urls else 'urls'}",
+        commit_label=commit_label,
+        pre_hook="pre_ingest",
+        post_hook="post_ingest",
+        post_hook_args=lambda: _new_raw_file_args(ctx, before_raw),
     )
+
+    if not result.ok or ctx.dry_run:
+        return result
+
+    post_compile = run_plugin_hook(ctx, "post_compile")
+    _append_hook_detail(result, post_compile)
+    if not post_compile.ok:
+        return _mark_hook_failure(result, post_compile)
+
+    if not ctx.no_commit:
+        committed = auto_commit(ctx.workspace.kb_dir, commit_label, dry_run=False)
+        result.committed = committed
+        result.commit_label = commit_label if committed else None
+
+    return result
 
 
 def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
-    return compile_workspace(ctx)
+    if ctx.dry_run:
+        return compile_workspace(ctx)
+
+    pre_hook = run_plugin_hook(ctx, "pre_compile")
+    if not pre_hook.ok:
+        return LLMInvocationResult(
+            command="compile",
+            topic=None,
+            ok=False,
+            exit_code=EXIT_ERROR,
+            budget_limit=ctx.budget_limit,
+            model=ctx.model,
+            message=(
+                f"plugin hook '{pre_hook.hook}' failed"
+                + (f":\n{pre_hook.output}" if pre_hook.output else "")
+            ),
+            details={"hooks": [pre_hook.as_detail()]},
+        )
+
+    no_commit_ctx = dataclasses.replace(ctx, no_commit=True)
+    result = compile_workspace(no_commit_ctx)
+    result.details["hooks"] = [pre_hook.as_detail()]
+
+    if not result.ok:
+        return result
+
+    post_hook = run_plugin_hook(ctx, "post_compile")
+    _append_hook_detail(result, post_hook)
+    if not post_hook.ok:
+        return _mark_hook_failure(result, post_hook)
+
+    if not ctx.no_commit:
+        committed = auto_commit(ctx.workspace.kb_dir, "compile wiki", dry_run=False)
+        result.committed = committed
+        result.commit_label = "compile wiki" if committed else None
+
+    return result
 
 
 def ask(ctx: CommandContext, question: str) -> LLMInvocationResult:
@@ -47,6 +147,10 @@ def ask(ctx: CommandContext, question: str) -> LLMInvocationResult:
         topic=question,
         prompt_builder=lambda: prompts.ASK_PROMPT.format(question=question),
         commit_label=f"query — {question[:50]}",
+        pre_hook="pre_query",
+        pre_hook_args=[question],
+        post_hook="post_query",
+        post_hook_args=[question],
     )
 
 
@@ -57,6 +161,7 @@ def lint(ctx: CommandContext) -> LLMInvocationResult:
         topic=None,
         prompt_builder=lambda: prompts.LINT_PROMPT,
         commit_label="lint + gap fill",
+        post_hook="on_lint",
     )
 
 

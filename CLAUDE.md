@@ -220,7 +220,7 @@ For multiple URLs, process each one, then compile once at the end.
    - `wiki/_meta/summaries.md` -- one-line summary per article (your cheat sheet for Q&A)
    - `wiki/_meta/links.md` -- backlink graph
    - `wiki/_meta/manifest.md` -- list of processed raw files with hashes
-8. **Run post-compile plugins**: `python3 tools/plugins/framework.py run post_compile`
+8. **Plugin hooks**: `./kb compile` runs `pre_compile` and `post_compile` automatically
 9. **Append to log**: Write a log entry to `wiki/log.md`
 
 **A single ingest should typically touch 10-15+ wiki pages** -- source summary, multiple concepts, entities, comparisons, index, metadata.
@@ -280,7 +280,7 @@ python3 tools/viz/canvas.py --all    # Obsidian master canvas
 6. **Thin concepts**: Concept articles backed by only one source -- search the web for additional sources
 7. **Knowledge gaps**: Identify concepts referenced but not well-covered. Use `WebSearch` to find sources that could fill them, then ingest them.
 8. **Suggestions**: Propose new concept articles based on gaps and connections
-9. **Run on_lint plugins**: `python3 tools/plugins/framework.py run on_lint`
+9. **Plugin hooks**: `./kb lint` runs `on_lint` automatically
 10. **Save report**: Write findings to `output/lint-report.md`
 
 **IMPORTANT**: Lint is not just passive checking -- it actively improves the KB. When it finds gaps, it should research and ingest new sources to fill them, then recompile.
@@ -692,7 +692,7 @@ MCP tools exposed: `wiki_search`, `wiki_read`, and others. Add the server to Cla
 - Ensure log.md is updated
 - Ensure _index.md reflects any new articles
 - Ensure summaries.md has entries for all articles
-- Run post-compile plugins if compilation happened
+- Use the `./kb` commands for ingest, compile, query, and lint so plugin hooks run automatically
 
 ### Priority order:
 1. Research agent -- build and expand the knowledge base

@@ -4,7 +4,8 @@ Workspace resolution and filesystem scaffolding.
 The bash `kb` supported:
   - ``KB_DIR`` env var
   - ``--dir`` / ``-d`` pointing at either a bare workspace name (resolved to
-    ``$HOME/kb-workspaces/<name>``) or an absolute/relative path
+    ``$KB_WORKSPACES/<name>`` or ``$HOME/kb-workspaces/<name>``) or an
+    absolute/relative path
   - Auto-initialization of freshly-created workspaces
 
 This module centralises that logic so every subcommand can reuse it.
@@ -44,6 +45,9 @@ node_modules/
 
 # Secrets
 .env
+
+# Discovery review queue (local operational state)
+.queue/
 """
 
 
@@ -122,6 +126,13 @@ def _is_path_like(dir_flag: str) -> bool:
     )
 
 
+def _workspaces_root() -> Path:
+    """Return the base directory for named workspaces."""
+    return Path(
+        os.environ.get("KB_WORKSPACES") or (Path.home() / "kb-workspaces")
+    ).expanduser()
+
+
 @dataclass
 class Workspace:
     """A resolved workspace pairing an install location with an active KB."""
@@ -148,15 +159,18 @@ class Workspace:
             parent (the repo root)
           - ``KB_DIR`` env var overrides ``kb_home`` as the active dir
           - ``--dir <x>`` further overrides; a bare name is resolved under
-            ``$HOME/kb-workspaces/<name>``; a path is used as-is
+            ``$KB_WORKSPACES/<name>`` (default ``$HOME/kb-workspaces/<name>``);
+            a path is used as-is
 
         Under ``dry_run=True`` no directories are created and auto-init is
         skipped — callers that actually need to write to the workspace must
         run without ``--dry-run``.
         """
         if kb_home is None:
-            kb_home = Path(__file__).resolve().parents[2]
-        kb_home = Path(kb_home).resolve()
+            kb_home = Path(
+                os.environ.get("KB_HOME") or Path(__file__).resolve().parents[2]
+            )
+        kb_home = Path(kb_home).expanduser().resolve()
 
         # Step 1: start from env var or install location
         base_dir = Path(
@@ -168,7 +182,7 @@ class Workspace:
             if _is_path_like(dir_flag):
                 base_dir = Path(dir_flag).expanduser()
             else:
-                base_dir = Path.home() / "kb-workspaces" / dir_flag
+                base_dir = _workspaces_root() / dir_flag
 
         if not dry_run:
             base_dir.mkdir(parents=True, exist_ok=True)
@@ -305,6 +319,11 @@ class Workspace:
             if not target.exists():
                 target.write_text(f"# {target.stem}\n", encoding="utf-8")
                 created.append(str(target))
+
+        manifest_json = self.wiki_dir / "_meta" / "manifest.json"
+        if not manifest_json.exists():
+            manifest_json.write_text("{}\n", encoding="utf-8")
+            created.append(str(manifest_json))
 
         # Git init if missing
         if not (self.kb_dir / ".git").exists():

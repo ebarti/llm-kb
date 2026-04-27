@@ -82,15 +82,19 @@ run_test "discover wrapper regression checks" \
 run_test "kb responds to invocation" \
     "'$BASE_DIR/kb' 2>&1 | head -1 | grep -qi ''" "any"
 
-run_test "kb compile fails when regen_meta script is missing" \
+run_test "kb compile fails when generate_all script is missing for changed raw" \
     "tmpdir=\$(mktemp -d)
-    mkdir -p \"\$tmpdir/wiki/_meta\" \"\$tmpdir/raw\"
-    if KB_DIR=\"\$tmpdir\" KB_NO_COMMIT=1 '$BASE_DIR/kb' compile >\"\$tmpdir/out\" 2>&1; then
+    cp '$BASE_DIR/kb' \"\$tmpdir/kb\"
+    chmod +x \"\$tmpdir/kb\"
+    mkdir -p \"\$tmpdir/raw/alpha\" \"\$tmpdir/tools/compile\"
+    printf '# Alpha\n' > \"\$tmpdir/raw/alpha/clean.md\"
+    printf 'from pathlib import Path\nPath(\"wiki/_meta\").mkdir(parents=True, exist_ok=True)\n' > \"\$tmpdir/tools/compile/regen_meta.py\"
+    if KB_NO_COMMIT=1 \"\$tmpdir/kb\" compile >\"\$tmpdir/out\" 2>&1; then
         cat \"\$tmpdir/out\"
         rm -rf \"\$tmpdir\"
         exit 1
     fi
-    if ! grep -q 'Missing regen_meta script:' \"\$tmpdir/out\"; then
+    if ! grep -q 'Missing generate_all script:' \"\$tmpdir/out\"; then
         cat \"\$tmpdir/out\"
         rm -rf \"\$tmpdir\"
         exit 1

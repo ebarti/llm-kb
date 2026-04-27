@@ -248,6 +248,24 @@ class ServeResult(CommandResult):
     url: str
 
 
+class QueueItemSummary(BaseModel):
+    id: str
+    status: str = "pending"
+    topic: Optional[str] = None
+    title: Optional[str] = None
+    url: Optional[str] = None
+    content_hash: Optional[str] = None
+    created_at: Optional[str] = None
+    preview: Optional[str] = None
+
+
+class QueueResult(CommandResult):
+    action: str
+    queue_dir: str
+    items: list[QueueItemSummary] = Field(default_factory=list)
+    item: Optional[QueueItemSummary] = None
+
+
 # --------------------------------------------------------------------------- #
 #  Exit codes (as integers, intentionally verbose names)
 # --------------------------------------------------------------------------- #

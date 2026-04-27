@@ -374,7 +374,7 @@ Too short.
         script.parent.mkdir(parents=True, exist_ok=True)
         script.write_text(body, encoding="utf-8")
 
-    @mock.patch("tools.kb.typed_compile.auto_commit")
+    @mock.patch("tools.kb.commands.llm_commands.auto_commit")
     def test_compile_wiki_rejects_invalid_post_decoration_write(
         self,
         auto_commit_mock,
@@ -410,7 +410,7 @@ Too short.
         )
         auto_commit_mock.assert_not_called()
 
-    @mock.patch("tools.kb.typed_compile.auto_commit")
+    @mock.patch("tools.kb.commands.llm_commands.auto_commit")
     def test_compile_wiki_reviews_partial_decoration_writes_on_generator_failure(
         self,
         auto_commit_mock,
@@ -449,7 +449,7 @@ Too short.
         )
         auto_commit_mock.assert_not_called()
 
-    @mock.patch("tools.kb.typed_compile.auto_commit")
+    @mock.patch("tools.kb.commands.llm_commands.auto_commit")
     def test_compile_wiki_accepts_valid_post_decoration_write_before_commit(
         self,
         auto_commit_mock,

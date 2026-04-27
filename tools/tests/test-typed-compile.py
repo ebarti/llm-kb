@@ -224,6 +224,12 @@ class TypedCompileTests(unittest.TestCase):
         self.assertIn("type: \"source-summary\"", source_text)
         self.assertIn("[[raw/structured-rag]]", source_text)
         self.assertTrue((self.root / "wiki" / "_meta" / "typed-compile-cache.json").exists())
+        manifest = json.loads(
+            (self.root / "wiki" / "_meta" / "manifest.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertIn("raw/structured-rag/", manifest)
 
     def test_second_compile_uses_cache_and_preserves_source_bytes(self) -> None:
         def fake_invoke(*, prompt, budget, **_kwargs):
