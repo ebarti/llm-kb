@@ -237,6 +237,43 @@ Too short.
         self.assertIn("internal contradiction", outcome.rejection_summary())
         self.assertFalse(article.exists())
 
+    def test_optional_llm_review_context_is_loaded_once_per_review(self) -> None:
+        before = review.snapshot_articles(self.root / "wiki")
+        (self.root / "wiki" / "concepts" / "first.md").write_text(
+            valid_concept("First Concept"),
+            encoding="utf-8",
+        )
+        (self.root / "wiki" / "concepts" / "second.md").write_text(
+            valid_concept("Second Concept"),
+            encoding="utf-8",
+        )
+        context_calls = []
+        reviewer_contexts = []
+
+        def fake_context(_wiki_dir, _config):
+            context_calls.append("loaded")
+            return "shared context"
+
+        def fake_reviewer(_candidate, context, _config):
+            reviewer_contexts.append(context)
+            return review.LLMReviewDecision(
+                ok=True,
+                usage={"input_tokens": 2, "output_tokens": 3},
+            )
+
+        with mock.patch.object(review, "_load_review_context", side_effect=fake_context):
+            outcome = review.review_wiki_writes(
+                self.root,
+                before_snapshot=before,
+                config=review.ReviewerConfig(enable_llm=True, llm_model="haiku"),
+                llm_reviewer=fake_reviewer,
+            )
+
+        self.assertTrue(outcome.ok, outcome.rejection_summary())
+        self.assertEqual(["loaded"], context_calls)
+        self.assertEqual(["shared context", "shared context"], reviewer_contexts)
+        self.assertEqual(10, outcome.llm_cost["total_tokens"])
+
     def test_pending_quarantine_is_ignored_by_template_leak_checker(self) -> None:
         pending = self.root / "wiki" / ".pending" / "batch" / "concepts"
         pending.mkdir(parents=True)
@@ -359,6 +396,48 @@ Too short.
         result = llm_commands.compile_wiki(ctx)
 
         self.assertFalse(result.ok)
+        self.assertIn("post-decoration compile review rejected", result.message or "")
+        self.assertIn("post_decoration_review", result.details)
+        self.assertEqual(1, result.details["post_decoration_review"]["candidates"])
+        self.assertFalse((self.root / "wiki" / "_index.md").exists())
+        self.assertEqual(
+            1,
+            len(list((self.root / "wiki" / ".pending").rglob("_index.md"))),
+        )
+        auto_commit_mock.assert_not_called()
+
+    @mock.patch("tools.kb.commands.llm_commands.auto_commit")
+    @mock.patch("tools.kb.commands.llm_commands.run_llm_command")
+    def test_compile_wiki_reviews_partial_decoration_writes_on_generator_failure(
+        self,
+        run_llm_mock,
+        auto_commit_mock,
+    ) -> None:
+        self._write_fake_generate_all(
+            textwrap.dedent(
+                """\
+                from pathlib import Path
+                import sys
+
+                Path("wiki").mkdir(exist_ok=True)
+                Path("wiki/_index.md").write_text("# Index\\n\\nLeaked {{summary}}\\n")
+                sys.exit(1)
+                """
+            )
+        )
+        run_llm_mock.return_value = LLMInvocationResult(
+            command="compile",
+            ok=True,
+            exit_code=0,
+            details={},
+            message="compile finished",
+        )
+        ctx = CommandContext(workspace=Workspace(kb_home=self.root, kb_dir=self.root))
+
+        result = llm_commands.compile_wiki(ctx)
+
+        self.assertFalse(result.ok)
+        self.assertIn("generate_all.py failed", result.message or "")
         self.assertIn("post-decoration compile review rejected", result.message or "")
         self.assertIn("post_decoration_review", result.details)
         self.assertEqual(1, result.details["post_decoration_review"]["candidates"])

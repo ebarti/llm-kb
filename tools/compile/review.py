@@ -280,6 +280,7 @@ def review_wiki_writes(
     known_targets = collect_known_targets(kb_dir)
     candidates = [_load_candidate(path, wiki_dir) for path in paths]
     reviews: dict[str, ArticleReview] = {}
+    review_context: Optional[str] = None
 
     for candidate in candidates:
         review = ArticleReview(
@@ -290,9 +291,11 @@ def review_wiki_writes(
             review.reject(issue)
 
         if cfg.enable_llm and review.accepted:
+            if review_context is None:
+                review_context = _load_review_context(wiki_dir, cfg)
             decision = (llm_reviewer or default_llm_reviewer)(
                 candidate,
-                _load_review_context(wiki_dir, cfg),
+                review_context,
                 cfg,
             )
             _add_cost(llm_cost, decision.usage)
@@ -585,9 +588,9 @@ def quarantine_invalid_articles(
     before_snapshot: dict[str, str],
 ) -> str:
     """Move rejected drafts under ``wiki/.pending/`` and restore old content."""
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     pending_root = wiki_dir / ".pending" / timestamp
-    pending_root.mkdir(parents=True, exist_ok=True)
+    pending_root.mkdir(parents=True, exist_ok=False)
 
     for review in reviews:
         source = wiki_dir / review.rel_path
@@ -939,7 +942,12 @@ def _empty_cost() -> dict[str, int]:
 
 
 def _add_cost(total: dict[str, int], usage: dict[str, int]) -> None:
-    for key in _empty_cost():
+    for key in (
+        "input_tokens",
+        "output_tokens",
+        "cache_creation_input_tokens",
+        "cache_read_input_tokens",
+    ):
         total[key] = int(total.get(key, 0)) + int(usage.get(key, 0) or 0)
     total["total_tokens"] = (
         total["input_tokens"]

@@ -76,7 +76,6 @@ def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
             f"generate_all.py failed; decoration pages not updated"
             + (f":\n{diag}" if diag else "")
         )
-        return result
 
     review_outcome = review_wiki_writes(
         ctx.workspace.kb_dir,
@@ -97,6 +96,8 @@ def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
             if result.message
             else review_message
         )
+        return result
+    if not result.ok:
         return result
 
     # Auto-commit the full compile output (LLM changes + decoration pages).
