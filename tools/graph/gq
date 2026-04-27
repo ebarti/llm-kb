@@ -13,6 +13,7 @@ Usage:
     gq contradictions                   all 'contradicts' / 'refutes' edges
     gq outgoing <article> [--predicate P]   all outgoing edges
     gq incoming <article> [--predicate P]   all incoming edges
+    gq entity show <alias-or-id>         show canonical entity facts
     gq query "<sql>"                    arbitrary read-only SQL
     gq node <id>                        show a node record
 
@@ -46,7 +47,7 @@ from graph.store import (  # noqa: E402  (sys.path set above)
     DEFAULT_DB_PATH,
     ensure_db,
 )
-from graph.extract import extract_nodes_and_edges  # noqa: E402
+from graph.extract import extract_graph, rebuild_entity_pages  # noqa: E402
 
 
 # ---------------------------------------------------------------------- #
@@ -90,9 +91,10 @@ def cmd_build(args: argparse.Namespace) -> int:
     db_path = Path(args.db).resolve()
     db_path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path: Path | None = None
+    written_entity_pages = []
 
     try:
-        nodes, edges = extract_nodes_and_edges(wiki_dir, raw_dir=raw_dir)
+        extraction = extract_graph(wiki_dir, raw_dir=raw_dir)
         fd, tmp_name = tempfile.mkstemp(
             prefix=f".{db_path.name}.",
             suffix=".tmp",
@@ -104,17 +106,36 @@ def cmd_build(args: argparse.Namespace) -> int:
         store = ensure_db(str(tmp_path))
         store_ok = False
         try:
-            for n in nodes:
+            for n in extraction.nodes:
                 store.upsert_node(
                     n.id, type=n.type, title=n.title, path=n.path, summary=n.summary
                 )
-            for e in edges:
+            for e in extraction.edges:
                 store.upsert_edge(e.src, e.dst, e.predicate, provenance=e.provenance)
+            for alias in extraction.entity_aliases:
+                store.upsert_entity_alias(alias.canonical_id, alias.alias)
+            for fact in extraction.facts:
+                store.upsert_fact(
+                    fact.entity_id,
+                    fact.attribute,
+                    fact.value,
+                    fact.source,
+                )
             store_ok = True
         finally:
             store.close(commit=store_ok)
 
         os.replace(tmp_path, db_path)
+        tmp_path = None
+        if not args.no_entity_pages:
+            try:
+                written_entity_pages = rebuild_entity_pages(wiki_dir, extraction)
+            except Exception as exc:
+                print(
+                    "warning: graph store built but entity page rebuild failed: "
+                    f"{exc}",
+                    file=sys.stderr,
+                )
     except Exception as exc:
         if tmp_path is not None:
             _cleanup_sqlite_artifacts(tmp_path)
@@ -124,13 +145,19 @@ def cmd_build(args: argparse.Namespace) -> int:
     if args.json:
         _print_json({
             "db": args.db,
-            "nodes": len(nodes),
-            "edges": len(edges),
+            "nodes": len(extraction.nodes),
+            "edges": len(extraction.edges),
+            "entity_aliases": len(extraction.entity_aliases),
+            "facts": len(extraction.facts),
+            "entity_pages": len(written_entity_pages),
         })
     else:
         print(f"Built {args.db}")
-        print(f"  nodes: {len(nodes)}")
-        print(f"  edges: {len(edges)}")
+        print(f"  nodes: {len(extraction.nodes)}")
+        print(f"  edges: {len(extraction.edges)}")
+        print(f"  entity aliases: {len(extraction.entity_aliases)}")
+        print(f"  facts: {len(extraction.facts)}")
+        print(f"  entity pages: {len(written_entity_pages)}")
     return 0
 
 
@@ -240,6 +267,73 @@ def cmd_node(args: argparse.Namespace) -> int:
     return 0
 
 
+def _split_source(source: str) -> tuple[str, str]:
+    article, sep, provenance = source.partition("#")
+    return article, provenance if sep else ""
+
+
+def cmd_entity_show(args: argparse.Namespace) -> int:
+    with GraphStore(args.db) as store:
+        store.init_schema()
+        canonical_id = store.resolve_entity_id(args.entity)
+        if not canonical_id:
+            print(f"(no entity {args.entity!r})")
+            return 1
+        aliases = store.aliases_for_entity(canonical_id)
+        facts = store.facts_for_entity(canonical_id)
+
+    if args.json:
+        _print_json({
+            "entity_id": canonical_id,
+            "aliases": [dict(r) for r in aliases],
+            "facts": [dict(r) for r in facts],
+        })
+        return 0
+
+    print(f"entity: {canonical_id}")
+    if aliases:
+        print("aliases: " + ", ".join(r["alias"] for r in aliases))
+    else:
+        print("aliases: (none)")
+
+    source_rows: dict[str, list] = {}
+    attr_rows: dict[str, list] = {}
+    for row in facts:
+        source_article, provenance = _split_source(row["source"])
+        if row["attribute"] == "mention":
+            source_rows.setdefault(source_article, []).append((row, provenance))
+        else:
+            attr_rows.setdefault(row["attribute"], []).append((row, provenance))
+
+    print("")
+    print("sources:")
+    if not source_rows:
+        print("  (none)")
+    else:
+        for source_article in sorted(source_rows):
+            print(f"  {source_article}")
+            for row, provenance in sorted(
+                source_rows[source_article],
+                key=lambda item: (item[0]["value"], item[1]),
+            ):
+                suffix = f" [{provenance}]" if provenance else ""
+                print(f"    - mention: {row['value']}{suffix}")
+
+    print("")
+    print("attributes:")
+    if not attr_rows:
+        print("  (none)")
+    else:
+        for attribute in sorted(attr_rows):
+            print(f"  {attribute}")
+            for row, provenance in sorted(
+                attr_rows[attribute],
+                key=lambda item: (item[0]["value"], item[0]["source"]),
+            ):
+                print(f"    - {row['value']} [{row['source']}]")
+    return 0
+
+
 def cmd_query(args: argparse.Namespace) -> int:
     with GraphStore(args.db) as store:
         store.init_schema()
@@ -280,6 +374,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--raw",
         default=None,
         help="raw directory (default: <wiki>/../raw)",
+    )
+    sp.add_argument(
+        "--no-entity-pages",
+        action="store_true",
+        help="skip graph-generated wiki/entities/<id>.md rebuild",
     )
     sp.set_defaults(func=cmd_build)
 
@@ -339,6 +438,13 @@ def _build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("node", help="show a single node record")
     sp.add_argument("id")
     sp.set_defaults(func=cmd_node)
+
+    # entity show
+    sp = sub.add_parser("entity", help="entity canonicalization queries")
+    entity_sub = sp.add_subparsers(dest="entity_command", required=True)
+    show = entity_sub.add_parser("show", help="show aliases, sources, and facts")
+    show.add_argument("entity")
+    show.set_defaults(func=cmd_entity_show)
 
     # query
     sp = sub.add_parser("query", help="run arbitrary read-only SQL")

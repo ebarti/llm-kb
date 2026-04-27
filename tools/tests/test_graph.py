@@ -14,6 +14,9 @@ Run: python3 tools/tests/test_graph.py [--json]
 from __future__ import annotations
 
 import argparse
+import importlib.machinery
+import importlib.util
+import io
 import json
 import os
 import subprocess
@@ -36,8 +39,10 @@ sys.path.insert(0, str(TOOLS_DIR))
 from graph.store import GraphStore, PREDICATES, DEFAULT_PREDICATE  # noqa: E402
 from graph.extract import (  # noqa: E402
     detect_predicate,
+    extract_graph,
     extract_nodes_and_edges,
     fingerprint,
+    rebuild_entity_pages,
     PREDICATE_PATTERNS,
     WINDOW_CHARS,
 )
@@ -224,6 +229,59 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(set(PREDICATES), expected)
         self.assertEqual(DEFAULT_PREDICATE, "mentions")
 
+    def test_entity_aliases_and_facts(self):
+        self.store.upsert_entity_alias("karpathy", "Andrej Karpathy")
+        self.store.upsert_entity_alias("karpathy", "Karpathy")
+        self.store.upsert_fact(
+            "karpathy",
+            "role",
+            "AI educator",
+            "entities/andrej-karpathy#frontmatter:role",
+        )
+        self.store.upsert_fact(
+            "karpathy",
+            "role",
+            "AI educator",
+            "entities/andrej-karpathy#frontmatter:role",
+        )
+
+        self.assertEqual(self.store.count("entity_aliases"), 2)
+        self.assertEqual(self.store.count("facts"), 1)
+        self.assertEqual(self.store.resolve_entity_id("karpathy"), "karpathy")
+        self.assertEqual(self.store.resolve_entity_id("KARPATHY"), "karpathy")
+
+        facts = self.store.facts_for_entity("karpathy")
+        self.assertEqual(facts[0]["attribute"], "role")
+        self.assertEqual(facts[0]["value"], "AI educator")
+
+    def test_entity_aliases_are_case_insensitive_unique(self):
+        self.store.upsert_entity_alias("karpathy", "Karpathy")
+        self.store.upsert_entity_alias("other-karpathy", "karpathy")
+
+        aliases = self.store.all_entity_aliases()
+        self.assertEqual(len(aliases), 1)
+        self.assertEqual(aliases[0]["alias"], "Karpathy")
+        self.assertEqual(aliases[0]["canonical_id"], "other-karpathy")
+        self.assertEqual(self.store.resolve_entity_id("KARPATHY"), "other-karpathy")
+
+    def test_entity_alias_schema_has_no_redundant_unique_index(self):
+        indexes = {
+            row["name"]
+            for row in self.store.conn.execute("PRAGMA index_list(entity_aliases)")
+        }
+        self.assertNotIn("idx_entity_aliases_alias_nocase_unique", indexes)
+
+    def test_reset_clears_entity_tables(self):
+        self.store.upsert_node("a")
+        self.store.upsert_edge("a", "b", "mentions")
+        self.store.upsert_entity_alias("karpathy", "Karpathy")
+        self.store.upsert_fact("karpathy", "role", "AI educator", "source")
+        self.store.reset()
+        self.assertEqual(self.store.count("nodes"), 0)
+        self.assertEqual(self.store.count("edges"), 0)
+        self.assertEqual(self.store.count("entity_aliases"), 0)
+        self.assertEqual(self.store.count("facts"), 0)
+
 
 # ---------------------------------------------------------------------- #
 #  Heuristic tests
@@ -374,6 +432,21 @@ last_compiled: 2026-04-01
 ## Overview
 Tool.
 """,
+    "wiki/entities/andrej-karpathy.md": """---
+title: "Andrej Karpathy"
+type: entity
+entity_type: person
+canonical_id: karpathy
+aliases: ["Karpathy", "Andrej Karpathy"]
+role: "AI educator"
+affiliation: "OpenAI"
+summary: "Researcher and educator associated with neural networks and LLMs"
+last_compiled: 2026-04-01
+---
+
+## Overview
+Karpathy is tracked under a manual canonical ID.
+""",
     "wiki/sources/awesome-rag-paper.md": """---
 title: "Source: Awesome RAG Paper"
 type: source-summary
@@ -386,6 +459,19 @@ summary: "A paper"
 ## Key Points
 
 - This paper cites [[concepts/retrieval]] and extends [[concepts/rag]].
+""",
+    "wiki/sources/karpathy-llm-knowledge-bases.md": """---
+title: "Source: Karpathy LLM Knowledge Bases"
+type: source-summary
+source: "[[raw/karpathy-llm-knowledge-bases]]"
+last_compiled: 2026-04-01
+summary: "Notes on Karpathy discussing LLM knowledge bases"
+---
+
+## Key Points
+
+Andrej Karpathy is an AI educator at OpenAI. Karpathy describes how LLMs
+can use knowledge bases. The article also references [[entities/andrej-karpathy]].
 """,
     "wiki/comparisons/rag-vs-long-context.md": """---
 title: "RAG vs Long Context"
@@ -419,6 +505,14 @@ summary: "raw paper"
 
 Body of the raw paper.
 """,
+    "raw/karpathy-llm-knowledge-bases.md": """---
+title: "Karpathy LLM Knowledge Bases"
+source: "https://example.com/karpathy-kb"
+summary: "raw Karpathy source"
+---
+
+Body of the Karpathy source.
+""",
 }
 
 
@@ -436,6 +530,14 @@ def _run_gq(*args: str) -> subprocess.CompletedProcess[str]:
         capture_output=True,
         text=True,
     )
+
+
+def _load_gq_module():
+    loader = importlib.machinery.SourceFileLoader("graph_gq_under_test", str(GQ))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    return module
 
 
 def _run_kb(repo_root: Path, *args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
@@ -457,7 +559,9 @@ class ExtractionTests(unittest.TestCase):
         _write_fixture(self.tmp)
         self.wiki = self.tmp / "wiki"
         self.raw = self.tmp / "raw"
-        self.nodes, self.edges = extract_nodes_and_edges(self.wiki, raw_dir=self.raw)
+        self.extraction = extract_graph(self.wiki, raw_dir=self.raw)
+        self.nodes = self.extraction.nodes
+        self.edges = self.extraction.edges
         self.edge_map: dict[tuple[str, str], set[str]] = {}
         for e in self.edges:
             self.edge_map.setdefault((e.src, e.dst), set()).add(e.predicate)
@@ -472,9 +576,144 @@ class ExtractionTests(unittest.TestCase):
         ids = {n.id for n in self.nodes}
         self.assertIn("concepts/rag", ids)
         self.assertIn("entities/langchain", ids)
+        self.assertIn("entities/andrej-karpathy", ids)
+        self.assertIn("entities/karpathy", ids)
         self.assertIn("sources/awesome-rag-paper", ids)
         self.assertIn("comparisons/rag-vs-long-context", ids)
         self.assertIn("raw/awesome-rag-paper", ids)
+
+    def test_entity_aliases_from_manual_canonical_id(self):
+        aliases = {
+            (a.canonical_id, a.alias) for a in self.extraction.entity_aliases
+        }
+        self.assertIn(("karpathy", "Andrej Karpathy"), aliases)
+        self.assertIn(("karpathy", "Karpathy"), aliases)
+        self.assertNotIn(("karpathy", "karpathy"), aliases)
+        self.assertEqual(
+            sum(
+                1
+                for canonical_id, alias in aliases
+                if canonical_id == "karpathy" and alias.casefold() == "karpathy"
+            ),
+            1,
+        )
+
+    def test_entity_facts_from_frontmatter_and_mentions(self):
+        facts = {
+            (f.entity_id, f.attribute, f.value, f.source)
+            for f in self.extraction.facts
+        }
+        self.assertIn(
+            (
+                "karpathy",
+                "role",
+                "AI educator",
+                "entities/andrej-karpathy#frontmatter:role",
+            ),
+            facts,
+        )
+        self.assertIn(
+            (
+                "karpathy",
+                "affiliation",
+                "OpenAI",
+                "entities/andrej-karpathy#frontmatter:affiliation",
+            ),
+            facts,
+        )
+        self.assertTrue(any(
+            f.entity_id == "karpathy"
+            and f.attribute == "mention"
+            and f.source.startswith("sources/karpathy-llm-knowledge-bases#")
+            for f in self.extraction.facts
+        ))
+
+    def test_entity_mentions_resolve_to_canonical_node(self):
+        self.assertIn(
+            "mentions",
+            self.edge_map.get(
+                ("sources/karpathy-llm-knowledge-bases", "entities/karpathy"),
+                set(),
+            ),
+        )
+
+    def test_bare_alias_does_not_replace_wikilink_mention_provenance(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-wikilink-provenance-"))
+        try:
+            wiki = tmp / "wiki"
+            raw = tmp / "raw"
+            (wiki / "entities").mkdir(parents=True)
+            (wiki / "sources").mkdir(parents=True)
+            raw.mkdir()
+
+            (wiki / "entities" / "andrej-karpathy.md").write_text(
+                """---
+title: "Andrej Karpathy"
+type: entity
+entity_type: person
+canonical_id: karpathy
+aliases: ["Karpathy"]
+summary: "Researcher and educator"
+last_compiled: 2026-04-21
+---
+
+## Overview
+Manual entity page.
+""",
+                encoding="utf-8",
+            )
+            (wiki / "sources" / "note.md").write_text(
+                """---
+title: "Source: Note"
+type: source-summary
+summary: "A source note"
+last_compiled: 2026-04-21
+---
+
+Karpathy appears as bare text. This sentence links [[entities/andrej-karpathy]].
+""",
+                encoding="utf-8",
+            )
+
+            extraction = extract_graph(wiki, raw_dir=raw)
+            edges = [
+                e for e in extraction.edges
+                if (
+                    e.src,
+                    e.dst,
+                    e.predicate,
+                ) == ("sources/note", "entities/karpathy", "mentions")
+            ]
+            self.assertEqual(len(edges), 1)
+            self.assertEqual(edges[0].provenance, "default")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_rebuild_entity_pages_is_deterministic_and_safe(self):
+        written = rebuild_entity_pages(
+            self.wiki,
+            self.extraction,
+            today="2026-04-26",
+        )
+        generated = self.wiki / "entities" / "karpathy.md"
+        self.assertIn(generated.resolve(), [p.resolve() for p in written])
+        first = generated.read_text(encoding="utf-8")
+        self.assertIn("generated_by: graph", first)
+        self.assertIn("canonical_id: \"karpathy\"", first)
+
+        second_written = rebuild_entity_pages(
+            self.wiki,
+            self.extraction,
+            today="2026-04-26",
+        )
+        self.assertEqual(second_written, [])
+        self.assertEqual(first, generated.read_text(encoding="utf-8"))
+
+        manual = self.wiki / "entities" / "andrej-karpathy.md"
+        self.assertIn(
+            "manual canonical ID",
+            manual.read_text(encoding="utf-8"),
+        )
 
     def test_heuristic_extends(self):
         # "RAG builds on [[concepts/retrieval]] and extends [[concepts/language-models]]"
@@ -653,17 +892,23 @@ class IntegrationTests(unittest.TestCase):
         self.tmp = Path(tempfile.mkdtemp(prefix="graph-int-"))
         _write_fixture(self.tmp)
         self.db = str(self.tmp / ".graph.db")
-        nodes, edges = extract_nodes_and_edges(
+        extraction = extract_graph(
             self.tmp / "wiki", raw_dir=self.tmp / "raw"
         )
         self.store = GraphStore(self.db)
         self.store.init_schema()
-        for n in nodes:
+        for n in extraction.nodes:
             self.store.upsert_node(
                 n.id, type=n.type, title=n.title, path=n.path, summary=n.summary
             )
-        for e in edges:
+        for e in extraction.edges:
             self.store.upsert_edge(e.src, e.dst, e.predicate, provenance=e.provenance)
+        for alias in extraction.entity_aliases:
+            self.store.upsert_entity_alias(alias.canonical_id, alias.alias)
+        for fact in extraction.facts:
+            self.store.upsert_fact(
+                fact.entity_id, fact.attribute, fact.value, fact.source
+            )
         self.store.commit()
 
     def tearDown(self) -> None:
@@ -685,8 +930,182 @@ class IntegrationTests(unittest.TestCase):
         self.assertIn("concepts/rag", dsts)
         self.assertIn("concepts/retrieval", dsts)
 
+    def test_entity_resolution_via_store(self):
+        self.assertEqual(self.store.resolve_entity_id("Karpathy"), "karpathy")
+        facts = self.store.facts_for_entity("karpathy")
+        attrs = {(r["attribute"], r["value"]) for r in facts}
+        self.assertIn(("role", "AI educator"), attrs)
+        self.assertIn(("affiliation", "OpenAI"), attrs)
+
 
 class CliBuildTests(unittest.TestCase):
+    def test_build_is_idempotent_after_generated_entity_page(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-idempotent-"))
+        try:
+            _write_fixture(tmp)
+            db = tmp / ".graph.db"
+
+            first = _run_gq(
+                "--db", str(db), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(first.returncode, 0, first.stderr)
+
+            conn = sqlite3.connect(db)
+            first_counts = {
+                "edges": conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0],
+                "facts": conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0],
+            }
+            first_self_facts = conn.execute(
+                "SELECT COUNT(*) FROM facts WHERE source LIKE 'entities/karpathy#%'"
+            ).fetchone()[0]
+            conn.close()
+            generated = tmp / "wiki" / "entities" / "karpathy.md"
+            first_page = generated.read_text(encoding="utf-8")
+
+            second = _run_gq(
+                "--db", str(db), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(second.returncode, 0, second.stderr)
+
+            conn = sqlite3.connect(db)
+            second_counts = {
+                "edges": conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0],
+                "facts": conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0],
+            }
+            second_self_facts = conn.execute(
+                "SELECT COUNT(*) FROM facts WHERE source LIKE 'entities/karpathy#%'"
+            ).fetchone()[0]
+            conn.close()
+
+            self.assertEqual(second_counts, first_counts)
+            self.assertEqual(first_self_facts, 0)
+            self.assertEqual(second_self_facts, 0)
+            self.assertEqual(first_page, generated.read_text(encoding="utf-8"))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_build_failure_does_not_write_entity_pages_before_db_replace(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-db-replace-fail-"))
+        try:
+            _write_fixture(tmp)
+            db_dir = tmp / ".graph.db"
+            db_dir.mkdir()
+
+            result = _run_gq(
+                "--db", str(db_dir), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("error: failed to build graph store:", result.stderr)
+            self.assertFalse((tmp / "wiki" / "entities" / "karpathy.md").exists())
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_build_warns_when_entity_page_rebuild_fails_after_db_replace(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-page-rebuild-fail-"))
+        try:
+            _write_fixture(tmp)
+            db = tmp / ".graph.db"
+            gq = _load_gq_module()
+
+            with mock.patch.object(
+                gq,
+                "rebuild_entity_pages",
+                side_effect=OSError("disk full"),
+            ):
+                with mock.patch("sys.stdout", new_callable=io.StringIO) as stdout:
+                    with mock.patch("sys.stderr", new_callable=io.StringIO) as stderr:
+                        code = gq.main([
+                            "--db",
+                            str(db),
+                            "build",
+                            "--wiki",
+                            str(tmp / "wiki"),
+                            "--raw",
+                            str(tmp / "raw"),
+                        ])
+
+            self.assertEqual(code, 0)
+            self.assertTrue(db.exists())
+            self.assertIn("Built", stdout.getvalue())
+            self.assertIn(
+                "warning: graph store built but entity page rebuild failed: disk full",
+                stderr.getvalue(),
+            )
+
+            conn = sqlite3.connect(db)
+            try:
+                facts = conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0]
+            finally:
+                conn.close()
+            self.assertGreater(facts, 0)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_build_populates_entity_tables_and_rebuilds_entity_page(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-entities-"))
+        try:
+            _write_fixture(tmp)
+            db = tmp / ".graph.db"
+            result = _run_gq(
+                "--db", str(db), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("entity aliases:", result.stdout)
+            self.assertIn("facts:", result.stdout)
+
+            conn = sqlite3.connect(db)
+            aliases = set(conn.execute(
+                "SELECT canonical_id, alias FROM entity_aliases"
+            ).fetchall())
+            facts = set(conn.execute(
+                "SELECT entity_id, attribute, value FROM facts"
+            ).fetchall())
+            conn.close()
+            self.assertIn(("karpathy", "Karpathy"), aliases)
+            self.assertIn(("karpathy", "Andrej Karpathy"), aliases)
+            self.assertIn(("karpathy", "role", "AI educator"), facts)
+            self.assertIn(("karpathy", "affiliation", "OpenAI"), facts)
+
+            generated = tmp / "wiki" / "entities" / "karpathy.md"
+            self.assertTrue(generated.exists())
+            text = generated.read_text(encoding="utf-8")
+            self.assertIn("generated_by: graph", text)
+            self.assertIn("canonical_id: \"karpathy\"", text)
+            self.assertIn("| role | AI educator |", text)
+            self.assertIn("[[sources/karpathy-llm-knowledge-bases]]", text)
+
+            manual = tmp / "wiki" / "entities" / "andrej-karpathy.md"
+            self.assertIn(
+                "Karpathy is tracked under a manual canonical ID.",
+                manual.read_text(encoding="utf-8"),
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_entity_show_cli_lists_sources_attributes_and_provenance(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-entity-show-"))
+        try:
+            _write_fixture(tmp)
+            db = tmp / ".graph.db"
+            build = _run_gq(
+                "--db", str(db), "build", "--wiki", str(tmp / "wiki"), "--raw", str(tmp / "raw")
+            )
+            self.assertEqual(build.returncode, 0, build.stderr)
+
+            result = _run_gq("--db", str(db), "entity", "show", "karpathy")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("entity: karpathy", result.stdout)
+            self.assertIn("aliases:", result.stdout)
+            self.assertIn("sources/karpathy-llm-knowledge-bases", result.stdout)
+            self.assertIn("attributes:", result.stdout)
+            self.assertIn("role", result.stdout)
+            self.assertIn("AI educator", result.stdout)
+            self.assertIn("affiliation", result.stdout)
+            self.assertIn("OpenAI", result.stdout)
+            self.assertIn("frontmatter:role", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_build_preserves_last_good_db_on_failure(self):
         tmp = Path(tempfile.mkdtemp(prefix="graph-cli-"))
         try:
