@@ -18,6 +18,7 @@ from typing import Any
 
 COMPILER_VERSION = "2.0"
 MANIFEST_REL_PATH = "wiki/_meta/manifest.json"
+WIKI_OUTPUT_DIRS = ("_meta", "sources", "concepts", "entities", "comparisons")
 
 
 @dataclass(frozen=True)
@@ -181,18 +182,18 @@ def scoped_compile_prompt(sources: list[RawSource]) -> str:
 
 
 def snapshot_wiki_outputs(kb_dir: Path) -> dict[str, str]:
-    """Return content/mtime fingerprints for possible compiler outputs."""
+    """Return metadata fingerprints for possible compiler markdown outputs."""
 
     wiki_dir = Path(kb_dir) / "wiki"
     if not wiki_dir.is_dir():
         return {}
     snapshot: dict[str, str] = {}
-    for fp in sorted((p for p in wiki_dir.rglob("*") if p.is_file()), key=str):
+    for fp in _iter_wiki_output_files(wiki_dir):
         rel = fp.relative_to(kb_dir).as_posix()
         if rel == MANIFEST_REL_PATH:
             continue
         stat = fp.stat()
-        snapshot[rel] = f"{_hash_file(fp)}:{stat.st_mtime_ns}"
+        snapshot[rel] = f"{stat.st_size}:{stat.st_mtime_ns}"
     return snapshot
 
 
@@ -328,6 +329,15 @@ def _source_summary_output(source: RawSource) -> str:
     else:
         slug = Path(source.key).stem
     return f"wiki/sources/{slug}.md"
+
+
+def _iter_wiki_output_files(wiki_dir: Path) -> list[Path]:
+    files = [p for p in wiki_dir.glob("*.md") if p.is_file()]
+    for rel_dir in WIKI_OUTPUT_DIRS:
+        output_dir = wiki_dir / rel_dir
+        if output_dir.is_dir():
+            files.extend(p for p in output_dir.rglob("*.md") if p.is_file())
+    return sorted(files, key=str)
 
 
 def _normalise_entry(entry: Any) -> dict[str, Any]:

@@ -124,6 +124,51 @@ class CompileManifestTests(unittest.TestCase):
                 replanned.reasons["raw/alpha/"],
             )
 
+    def test_snapshot_wiki_outputs_tracks_expected_markdown_outputs_only(
+        self,
+    ) -> None:
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            paths = [
+                "wiki/_index.md",
+                "wiki/log.md",
+                "wiki/_meta/summaries.md",
+                "wiki/sources/alpha.md",
+                "wiki/concepts/alpha.md",
+                "wiki/entities/example-tool.md",
+                "wiki/comparisons/alpha-vs-beta.md",
+                "wiki/assets/ignored.md",
+                "wiki/sources/ignored.json",
+                compile_manifest.MANIFEST_REL_PATH,
+            ]
+            for rel in paths:
+                path = root / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(rel, encoding="utf-8")
+
+            before = compile_manifest.snapshot_wiki_outputs(root)
+            source_output = root / "wiki" / "sources" / "alpha.md"
+            touched_ns = source_output.stat().st_mtime_ns + 1_000_000_000
+            os.utime(source_output, ns=(touched_ns, touched_ns))
+            after = compile_manifest.snapshot_wiki_outputs(root)
+
+            self.assertEqual(
+                {
+                    "wiki/_index.md",
+                    "wiki/log.md",
+                    "wiki/_meta/summaries.md",
+                    "wiki/sources/alpha.md",
+                    "wiki/concepts/alpha.md",
+                    "wiki/entities/example-tool.md",
+                    "wiki/comparisons/alpha-vs-beta.md",
+                },
+                set(before),
+            )
+            self.assertEqual(
+                ["wiki/sources/alpha.md"],
+                compile_manifest.changed_outputs(before, after),
+            )
+
     def test_compile_reports_missing_generate_all_before_llm_call(self) -> None:
         with TemporaryDirectory() as td:
             root = Path(td)
