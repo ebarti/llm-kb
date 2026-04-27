@@ -167,8 +167,10 @@ class Workspace:
         run without ``--dry-run``.
         """
         if kb_home is None:
-            kb_home = Path(__file__).resolve().parents[2]
-        kb_home = Path(kb_home).resolve()
+            kb_home = Path(
+                os.environ.get("KB_HOME") or Path(__file__).resolve().parents[2]
+            )
+        kb_home = Path(kb_home).expanduser().resolve()
 
         # Step 1: start from env var or install location
         base_dir = Path(
@@ -317,6 +319,11 @@ class Workspace:
             if not target.exists():
                 target.write_text(f"# {target.stem}\n", encoding="utf-8")
                 created.append(str(target))
+
+        manifest_json = self.wiki_dir / "_meta" / "manifest.json"
+        if not manifest_json.exists():
+            manifest_json.write_text("{}\n", encoding="utf-8")
+            created.append(str(manifest_json))
 
         # Git init if missing
         if not (self.kb_dir / ".git").exists():

@@ -11,6 +11,7 @@
 set -euo pipefail
 
 KB_HOME="$(cd "$(dirname "$0")" && pwd)"
+export KB_HOME
 
 if ! command -v python3 >/dev/null 2>&1; then
     echo "kb: python3 not found on PATH; install Python 3 to use the kb CLI." >&2

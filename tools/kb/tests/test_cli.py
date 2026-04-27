@@ -303,6 +303,22 @@ class WorkspaceDryRunTests(unittest.TestCase):
         self.assertEqual((root / "base").resolve(), ws.kb_dir)
         self.assertFalse(str(ws.kb_dir).startswith(str(home / "kb-workspaces")))
 
+    def test_kb_home_env_expands_user_home(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            home = Path(td) / "home"
+            home.mkdir()
+
+            with mock.patch.dict(
+                "os.environ",
+                {"HOME": str(home), "KB_HOME": "~/kb-home"},
+                clear=True,
+            ):
+                ws = Workspace.resolve(dry_run=True)
+
+        expected = (home / "kb-home").resolve()
+        self.assertEqual(expected, ws.kb_home)
+        self.assertEqual(expected, ws.kb_dir)
+
     def test_named_dir_uses_kb_workspaces_env(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -659,7 +675,19 @@ class PluginHookTests(unittest.TestCase):
             return True
 
         with tempfile.TemporaryDirectory() as td:
-            ctx = self._ctx(Path(td), no_commit=False)
+            root = Path(td)
+            raw_dir = root / "raw" / "compile-hooks"
+            raw_dir.mkdir(parents=True)
+            (raw_dir / "clean.md").write_text("# Compile hooks\n", encoding="utf-8")
+            (raw_dir / "meta.json").write_text(
+                json.dumps({"slug": "compile-hooks", "sha256_clean": "test"}) + "\n",
+                encoding="utf-8",
+            )
+            generate_all = root / "tools" / "compile" / "pages" / "generate_all.py"
+            generate_all.parent.mkdir(parents=True)
+            generate_all.write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+
+            ctx = self._ctx(root, no_commit=False)
             with mock.patch(
                 "tools.kb.commands._common.run_plugin_hook",
                 side_effect=fake_pre_hook,

@@ -252,7 +252,13 @@ def _rebuild_graph_store(ctx: CommandContext, result: LLMInvocationResult) -> LL
 def _run_compile(ctx: CommandContext, args: Sequence[str]) -> LLMInvocationResult:
     _parse_command("kb compile", args, lambda p: None)
     result = llm_commands.compile_wiki(ctx)
-    if result.ok and not ctx.dry_run:
+    raw_noop = result.details.get("noop") and result.details.get("raw_sources", 0) > 0
+    empty_install_noop = (
+        result.details.get("noop")
+        and result.details.get("raw_sources", 0) == 0
+        and not any(ctx.workspace.wiki_dir.rglob("*.md"))
+    )
+    if result.ok and not ctx.dry_run and not raw_noop and not empty_install_noop:
         result = _rebuild_graph_store(ctx, result)
     return result
 

@@ -107,6 +107,9 @@ run_suite "Raw Layout Validator" \
 run_suite "Raw Writer Tests" \
     "python3 '$SCRIPT_DIR/test-raw-writer.py'"
 
+run_suite "Compile Manifest Tests" \
+    "python3 '$SCRIPT_DIR/test-compile-manifest.py'"
+
 run_suite "Discovery Queue Tests" \
     "python3 '$SCRIPT_DIR/test-queue.py'"
 

@@ -367,6 +367,26 @@ Too short.
         script.parent.mkdir(parents=True, exist_ok=True)
         script.write_text(body, encoding="utf-8")
 
+    def _mock_successful_compile_with_changed_raw(self, run_llm_mock) -> None:
+        source_dir = self.root / "raw" / "alpha"
+        source_dir.mkdir(parents=True, exist_ok=True)
+        (source_dir / "clean.md").write_text("# Alpha\n", encoding="utf-8")
+        (source_dir / "raw.txt").write_bytes(b"alpha raw")
+
+        def fake_compile(*args, **kwargs):
+            output = self.root / "wiki" / "sources" / "alpha.md"
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text("# Alpha Summary\n", encoding="utf-8")
+            return LLMInvocationResult(
+                command="compile",
+                ok=True,
+                exit_code=0,
+                details={},
+                message="compile finished",
+            )
+
+        run_llm_mock.side_effect = fake_compile
+
     @mock.patch("tools.kb.commands.llm_commands.auto_commit")
     @mock.patch("tools.kb.commands.llm_commands.run_llm_command")
     def test_compile_wiki_rejects_invalid_post_decoration_write(
@@ -384,13 +404,7 @@ Too short.
                 """
             )
         )
-        run_llm_mock.return_value = LLMInvocationResult(
-            command="compile",
-            ok=True,
-            exit_code=0,
-            details={},
-            message="compile finished",
-        )
+        self._mock_successful_compile_with_changed_raw(run_llm_mock)
         ctx = CommandContext(workspace=Workspace(kb_home=self.root, kb_dir=self.root))
 
         result = llm_commands.compile_wiki(ctx)
@@ -425,13 +439,7 @@ Too short.
                 """
             )
         )
-        run_llm_mock.return_value = LLMInvocationResult(
-            command="compile",
-            ok=True,
-            exit_code=0,
-            details={},
-            message="compile finished",
-        )
+        self._mock_successful_compile_with_changed_raw(run_llm_mock)
         ctx = CommandContext(workspace=Workspace(kb_home=self.root, kb_dir=self.root))
 
         result = llm_commands.compile_wiki(ctx)
@@ -465,13 +473,7 @@ Too short.
                 """
             )
         )
-        run_llm_mock.return_value = LLMInvocationResult(
-            command="compile",
-            ok=True,
-            exit_code=0,
-            details={},
-            message="compile finished",
-        )
+        self._mock_successful_compile_with_changed_raw(run_llm_mock)
         auto_commit_mock.return_value = True
         ctx = CommandContext(workspace=Workspace(kb_home=self.root, kb_dir=self.root))
 
