@@ -12,6 +12,7 @@ from __future__ import annotations
 import dataclasses
 import subprocess
 
+from ...compile.review import ReviewerConfig, review_wiki_writes, snapshot_articles
 from ..git_util import auto_commit
 from ..models import EXIT_ERROR, LLMInvocationResult
 from . import prompts
@@ -55,6 +56,8 @@ def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
     if not result.ok or ctx.dry_run:
         return result
 
+    decoration_snapshot = snapshot_articles(ctx.workspace.wiki_dir)
+
     # Run decoration-page generators (Dashboard, Graph, Tags, Glossary,
     # Changelog) using the workspace copy so --dir <workspace> writes to the
     # right place.
@@ -73,6 +76,28 @@ def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
             f"generate_all.py failed; decoration pages not updated"
             + (f":\n{diag}" if diag else "")
         )
+
+    review_outcome = review_wiki_writes(
+        ctx.workspace.kb_dir,
+        before_snapshot=decoration_snapshot,
+        config=ReviewerConfig.from_env(),
+    )
+    if review_outcome.candidates:
+        result.details["post_decoration_review"] = review_outcome.as_dict()
+    if not review_outcome.ok:
+        result.ok = False
+        result.exit_code = EXIT_ERROR
+        review_message = (
+            "post-decoration compile review rejected wiki writes:\n"
+            + review_outcome.rejection_summary()
+        )
+        result.message = (
+            f"{result.message}\n\n{review_message}"
+            if result.message
+            else review_message
+        )
+        return result
+    if not result.ok:
         return result
 
     # Auto-commit the full compile output (LLM changes + decoration pages).
