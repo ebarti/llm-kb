@@ -251,6 +251,16 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(facts[0]["attribute"], "role")
         self.assertEqual(facts[0]["value"], "AI educator")
 
+    def test_entity_aliases_are_case_insensitive_unique(self):
+        self.store.upsert_entity_alias("karpathy", "Karpathy")
+        self.store.upsert_entity_alias("other-karpathy", "karpathy")
+
+        aliases = self.store.all_entity_aliases()
+        self.assertEqual(len(aliases), 1)
+        self.assertEqual(aliases[0]["alias"], "Karpathy")
+        self.assertEqual(aliases[0]["canonical_id"], "other-karpathy")
+        self.assertEqual(self.store.resolve_entity_id("KARPATHY"), "other-karpathy")
+
     def test_reset_clears_entity_tables(self):
         self.store.upsert_node("a")
         self.store.upsert_edge("a", "b", "mentions")
@@ -600,6 +610,58 @@ class ExtractionTests(unittest.TestCase):
                 set(),
             ),
         )
+
+    def test_bare_alias_does_not_replace_wikilink_mention_provenance(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-wikilink-provenance-"))
+        try:
+            wiki = tmp / "wiki"
+            raw = tmp / "raw"
+            (wiki / "entities").mkdir(parents=True)
+            (wiki / "sources").mkdir(parents=True)
+            raw.mkdir()
+
+            (wiki / "entities" / "andrej-karpathy.md").write_text(
+                """---
+title: "Andrej Karpathy"
+type: entity
+entity_type: person
+canonical_id: karpathy
+aliases: ["Karpathy"]
+summary: "Researcher and educator"
+last_compiled: 2026-04-21
+---
+
+## Overview
+Manual entity page.
+""",
+                encoding="utf-8",
+            )
+            (wiki / "sources" / "note.md").write_text(
+                """---
+title: "Source: Note"
+type: source-summary
+summary: "A source note"
+last_compiled: 2026-04-21
+---
+
+Karpathy appears as bare text. This sentence links [[entities/andrej-karpathy]].
+""",
+                encoding="utf-8",
+            )
+
+            extraction = extract_graph(wiki, raw_dir=raw)
+            edges = [
+                e for e in extraction.edges
+                if (
+                    e.src,
+                    e.dst,
+                    e.predicate,
+                ) == ("sources/note", "entities/karpathy", "mentions")
+            ]
+            self.assertEqual(len(edges), 1)
+            self.assertEqual(edges[0].provenance, "default")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
     def test_rebuild_entity_pages_is_deterministic_and_safe(self):
         written = rebuild_entity_pages(

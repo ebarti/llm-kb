@@ -960,13 +960,20 @@ def extract_graph(
 
     alias_patterns = sorted(
         (
-            (alias, canonical_id)
+            (
+                re.compile(
+                    rf"(?<![A-Za-z0-9_/-]){re.escape(alias)}(?![A-Za-z0-9_/-])",
+                    re.IGNORECASE,
+                ),
+                alias,
+                canonical_id,
+            )
             for alias, canonical_id in (
                 (a.alias, a.canonical_id) for a in _dedupe_aliases(entity_aliases)
             )
             if len(alias) >= 3
         ),
-        key=lambda item: (-len(item[0]), item[0].casefold(), item[1]),
+        key=lambda item: (-len(item[1]), item[1].casefold(), item[2]),
     )
 
     # Pass 2: emit edges.
@@ -979,6 +986,7 @@ def extract_graph(
 
         # --- 1. Manual / edges frontmatter overrides ---
         override_keys: set[tuple[str, str]] = set()
+        emitted_mention_targets: set[str] = set()
         for entry in _extract_edges_override(fm_block):
             target = _normalise_link(entry["to"])
             pred = entry["predicate"]
@@ -993,6 +1001,8 @@ def extract_graph(
                 predicate=pred,
                 provenance="frontmatter:manual",
             ))
+            if pred == "mentions":
+                emitted_mention_targets.add(target)
             override_keys.add((target, pred))
         # --- 2. Structural frontmatter lists ---
         # `source` (scalar) and `sources` (list) both imply `cites`.
@@ -1057,6 +1067,8 @@ def extract_graph(
                     predicate=predicate,
                     provenance=provenance,
                 ))
+                if predicate == "mentions":
+                    emitted_mention_targets.add(target)
             if original_target.startswith("entities/"):
                 canonical_id = target[len("entities/") :]
                 alias = m.group(2) or m.group(1).rsplit("/", 1)[-1]
@@ -1070,23 +1082,21 @@ def extract_graph(
         # --- 4. Bare alias mentions in non-entity articles ---
         if node.type != "entity":
             seen_mentions: set[tuple[str, str]] = set()
-            for alias, canonical_id in alias_patterns:
-                pattern = re.compile(
-                    rf"(?<![A-Za-z0-9_/-]){re.escape(alias)}(?![A-Za-z0-9_/-])",
-                    re.IGNORECASE,
-                )
+            for pattern, alias, canonical_id in alias_patterns:
                 for match in pattern.finditer(body):
                     mention_key = (canonical_id, alias.casefold())
                     if mention_key in seen_mentions:
                         continue
                     seen_mentions.add(mention_key)
                     dst = f"entities/{canonical_id}"
-                    edges.append(Edge(
-                        src=node_id,
-                        dst=dst,
-                        predicate="mentions",
-                        provenance=f"entity_mention:{alias}",
-                    ))
+                    if dst not in emitted_mention_targets:
+                        edges.append(Edge(
+                            src=node_id,
+                            dst=dst,
+                            predicate="mentions",
+                            provenance=f"entity_mention:{alias}",
+                        ))
+                        emitted_mention_targets.add(dst)
                     source = _source_ref(node_id, f"mention:{alias}")
                     facts.append(Fact(
                         entity_id=canonical_id,
