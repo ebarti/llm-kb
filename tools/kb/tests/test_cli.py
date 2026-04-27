@@ -454,7 +454,26 @@ class PluginHookTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (root / "wiki" / "concepts" / "article.md").write_text(
-                "---\ntitle: Article\n---\n\n# Article\n",
+                (
+                    "---\n"
+                    "title: Article\n"
+                    "type: concept\n"
+                    "sources: [\"[[raw/article]]\"]\n"
+                    "last_compiled: 2026-04-27\n"
+                    "summary: \"Article concept summary.\"\n"
+                    "---\n\n"
+                    "## Overview\n\n"
+                    "Article is a deliberately long concept fixture used to "
+                    "exercise plugin hook ordering after the compile review "
+                    "gate was introduced. The body contains enough words to "
+                    "satisfy the deterministic review threshold while keeping "
+                    "the test focused on hook behavior. It explains that the "
+                    "ingest command writes a wiki article, post-ingest hooks "
+                    "run, post-compile hooks decorate the article, and the "
+                    "final auto-commit must include those post-compile "
+                    "decorations in the committed file contents. This extra "
+                    "detail is test scaffolding, not product documentation.\n"
+                ),
                 encoding="utf-8",
             )
             return LLMResult(text="ingested", backend="fake")
@@ -464,8 +483,8 @@ class PluginHookTests(unittest.TestCase):
             article = ctx.workspace.wiki_dir / "concepts" / "article.md"
             article.write_text(
                 article.read_text(encoding="utf-8").replace(
-                    "---\n\n# Article",
-                    "reading_time: \"1 min\"\n---\n\n# Article",
+                    "summary: \"Article concept summary.\"\n---",
+                    "summary: \"Article concept summary.\"\nreading_time: \"1 min\"\n---",
                 ),
                 encoding="utf-8",
             )

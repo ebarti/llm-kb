@@ -96,6 +96,36 @@ def _recent_activity(limit: int = 10):
     return entries[:limit]
 
 
+def _navigation_rows() -> list[tuple[str, str]]:
+    """Return dashboard navigation rows whose wikilinks should resolve.
+
+    Some tests and partial workspaces run decoration generation without the
+    usual seeded ``_index.md``/``log.md``/``_meta`` files. Keep those optional,
+    but always include pages produced by this decoration batch.
+    """
+    generated_pages = {
+        "Graph": "Link-graph analysis",
+        "Tags": "Tag cloud",
+        "Glossary": "Glossary of defined terms",
+        "Changelog": "Wiki changelog from git",
+    }
+    optional_pages = {
+        "_index": "Master index of every article",
+        "_meta/summaries": "One-line summary per article",
+        "_meta/links": "Backlink graph",
+        "_meta/manifest": "Compilation tracking",
+        "_meta/queries": "Pre-built Dataview queries",
+        "log": "Append-only activity log",
+    }
+
+    rows: list[tuple[str, str]] = []
+    for target, description in optional_pages.items():
+        if (WIKI / f"{target}.md").exists():
+            rows.append((target, description))
+    rows.extend(generated_pages.items())
+    return rows
+
+
 def generate() -> Path:
     counts = _counts_by_type()
     total_articles = sum(counts.values())
@@ -177,16 +207,8 @@ def generate() -> Path:
     lines.append("")
     lines.append("| Page | Description |")
     lines.append("|------|-------------|")
-    lines.append("| [[_index]] | Master index of every article |")
-    lines.append("| [[_meta/summaries]] | One-line summary per article |")
-    lines.append("| [[_meta/links]] | Backlink graph |")
-    lines.append("| [[_meta/manifest]] | Compilation tracking |")
-    lines.append("| [[_meta/queries]] | Pre-built Dataview queries |")
-    lines.append("| [[Graph]] | Link-graph analysis |")
-    lines.append("| [[Tags]] | Tag cloud |")
-    lines.append("| [[Glossary]] | Glossary of defined terms |")
-    lines.append("| [[Changelog]] | Wiki changelog from git |")
-    lines.append("| [[log]] | Append-only activity log |")
+    for target, description in _navigation_rows():
+        lines.append(f"| [[{target}]] | {description} |")
     lines.append("")
 
     body = "\n".join(lines)

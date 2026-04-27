@@ -28,6 +28,7 @@ from ..models import (
 )
 from ..runner import invoke_llm
 from ..workspace import Workspace
+from ...compile.review import ReviewerConfig, review_wiki_writes, snapshot_articles
 
 
 @dataclass
@@ -197,6 +198,7 @@ def run_llm_command(
                 details={"hooks": hook_details},
             )
 
+    article_snapshot = snapshot_articles(ctx.workspace.wiki_dir)
     budget = ctx.new_budget()
 
     try:
@@ -243,6 +245,14 @@ def run_llm_command(
     else:
         rendered_message = raw_text
 
+    review_outcome = review_wiki_writes(
+        ctx.workspace.kb_dir,
+        before_snapshot=article_snapshot,
+        config=ReviewerConfig.from_env(),
+    )
+    if review_outcome.candidates:
+        details["compile_review"] = review_outcome.as_dict()
+
     result = LLMInvocationResult(
         command=command,
         topic=topic,
@@ -255,11 +265,19 @@ def run_llm_command(
             cache_read_input_tokens=budget.usage.cache_read_input_tokens,
         ),
         model=ctx.model,
-        ok=llm_result.returncode == 0 and not llm_result.budget_exceeded,
+        ok=(
+            llm_result.returncode == 0
+            and not llm_result.budget_exceeded
+            and review_outcome.ok
+        ),
         exit_code=(
             EXIT_BUDGET
             if llm_result.budget_exceeded
-            else (EXIT_SUCCESS if llm_result.returncode == 0 else EXIT_ERROR)
+            else (
+                EXIT_SUCCESS
+                if llm_result.returncode == 0 and review_outcome.ok
+                else EXIT_ERROR
+            )
         ),
         message=rendered_message,
         details=details,
@@ -278,6 +296,17 @@ def run_llm_command(
                 result.message,
                 _plugin_hook_failed_message(post_result),
             )
+
+    if not review_outcome.ok:
+        review_message = (
+            "compile review rejected wiki writes:\n"
+            + review_outcome.rejection_summary()
+        )
+        result.message = (
+            f"{rendered_message}\n\n{review_message}"
+            if rendered_message
+            else review_message
+        )
 
     # Auto-commit on success
     if result.ok and not ctx.no_commit and not ctx.dry_run:
