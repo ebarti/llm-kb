@@ -14,6 +14,9 @@ Run: python3 tools/tests/test_graph.py [--json]
 from __future__ import annotations
 
 import argparse
+import importlib.machinery
+import importlib.util
+import io
 import json
 import os
 import subprocess
@@ -260,6 +263,13 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(aliases[0]["alias"], "Karpathy")
         self.assertEqual(aliases[0]["canonical_id"], "other-karpathy")
         self.assertEqual(self.store.resolve_entity_id("KARPATHY"), "other-karpathy")
+
+    def test_entity_alias_schema_has_no_redundant_unique_index(self):
+        indexes = {
+            row["name"]
+            for row in self.store.conn.execute("PRAGMA index_list(entity_aliases)")
+        }
+        self.assertNotIn("idx_entity_aliases_alias_nocase_unique", indexes)
 
     def test_reset_clears_entity_tables(self):
         self.store.upsert_node("a")
@@ -522,6 +532,14 @@ def _run_gq(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def _load_gq_module():
+    loader = importlib.machinery.SourceFileLoader("graph_gq_under_test", str(GQ))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    return module
+
+
 def _run_kb(repo_root: Path, *args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
     merged_env = os.environ.copy()
     if env:
@@ -570,7 +588,15 @@ class ExtractionTests(unittest.TestCase):
         }
         self.assertIn(("karpathy", "Andrej Karpathy"), aliases)
         self.assertIn(("karpathy", "Karpathy"), aliases)
-        self.assertIn(("karpathy", "karpathy"), aliases)
+        self.assertNotIn(("karpathy", "karpathy"), aliases)
+        self.assertEqual(
+            sum(
+                1
+                for canonical_id, alias in aliases
+                if canonical_id == "karpathy" and alias.casefold() == "karpathy"
+            ),
+            1,
+        )
 
     def test_entity_facts_from_frontmatter_and_mentions(self):
         facts = {
@@ -971,6 +997,47 @@ class CliBuildTests(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
             self.assertIn("error: failed to build graph store:", result.stderr)
             self.assertFalse((tmp / "wiki" / "entities" / "karpathy.md").exists())
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_build_warns_when_entity_page_rebuild_fails_after_db_replace(self):
+        tmp = Path(tempfile.mkdtemp(prefix="graph-cli-page-rebuild-fail-"))
+        try:
+            _write_fixture(tmp)
+            db = tmp / ".graph.db"
+            gq = _load_gq_module()
+
+            with mock.patch.object(
+                gq,
+                "rebuild_entity_pages",
+                side_effect=OSError("disk full"),
+            ):
+                with mock.patch("sys.stdout", new_callable=io.StringIO) as stdout:
+                    with mock.patch("sys.stderr", new_callable=io.StringIO) as stderr:
+                        code = gq.main([
+                            "--db",
+                            str(db),
+                            "build",
+                            "--wiki",
+                            str(tmp / "wiki"),
+                            "--raw",
+                            str(tmp / "raw"),
+                        ])
+
+            self.assertEqual(code, 0)
+            self.assertTrue(db.exists())
+            self.assertIn("Built", stdout.getvalue())
+            self.assertIn(
+                "warning: graph store built but entity page rebuild failed: disk full",
+                stderr.getvalue(),
+            )
+
+            conn = sqlite3.connect(db)
+            try:
+                facts = conn.execute("SELECT COUNT(*) FROM facts").fetchone()[0]
+            finally:
+                conn.close()
+            self.assertGreater(facts, 0)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 

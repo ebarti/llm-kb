@@ -128,7 +128,14 @@ def cmd_build(args: argparse.Namespace) -> int:
         os.replace(tmp_path, db_path)
         tmp_path = None
         if not args.no_entity_pages:
-            written_entity_pages = rebuild_entity_pages(wiki_dir, extraction)
+            try:
+                written_entity_pages = rebuild_entity_pages(wiki_dir, extraction)
+            except Exception as exc:
+                print(
+                    "warning: graph store built but entity page rebuild failed: "
+                    f"{exc}",
+                    file=sys.stderr,
+                )
     except Exception as exc:
         if tmp_path is not None:
             _cleanup_sqlite_artifacts(tmp_path)

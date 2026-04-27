@@ -39,8 +39,6 @@ Schema (idempotent — uses CREATE TABLE IF NOT EXISTS):
 
     CREATE INDEX IF NOT EXISTS idx_entity_aliases_canonical
         ON entity_aliases(canonical_id);
-    CREATE UNIQUE INDEX IF NOT EXISTS idx_entity_aliases_alias_nocase_unique
-        ON entity_aliases(alias COLLATE NOCASE);
     CREATE INDEX IF NOT EXISTS idx_facts_entity ON facts(entity_id);
     CREATE INDEX IF NOT EXISTS idx_facts_source ON facts(source);
 
@@ -178,10 +176,6 @@ class GraphStore:
         cur.execute(
             "CREATE INDEX IF NOT EXISTS idx_entity_aliases_canonical "
             "ON entity_aliases(canonical_id)"
-        )
-        cur.execute(
-            "CREATE UNIQUE INDEX IF NOT EXISTS idx_entity_aliases_alias_nocase_unique "
-            "ON entity_aliases(alias COLLATE NOCASE)"
         )
         cur.execute("CREATE INDEX IF NOT EXISTS idx_facts_entity ON facts(entity_id)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_facts_source ON facts(source)")

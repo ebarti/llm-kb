@@ -883,11 +883,27 @@ def _dedupe_edges(edges: Iterable[Edge]) -> list[Edge]:
     return sorted(seen.values(), key=lambda e: (e.src, e.predicate, e.dst))
 
 
+def _alias_casing_rank(value: str) -> int:
+    has_upper = any(c.isupper() for c in value)
+    has_lower = any(c.islower() for c in value)
+    if has_upper and has_lower:
+        return 0
+    if has_upper:
+        return 1
+    return 2
+
+
 def _dedupe_aliases(aliases: Iterable[EntityAlias]) -> list[EntityAlias]:
     seen: dict[str, EntityAlias] = {}
     for alias in aliases:
         if alias.canonical_id and alias.alias:
-            seen[alias.alias] = alias
+            key = alias.alias.casefold()
+            current = seen.get(key)
+            if current is None or (
+                _alias_casing_rank(alias.alias)
+                < _alias_casing_rank(current.alias)
+            ):
+                seen[key] = alias
     return sorted(
         seen.values(),
         key=lambda a: (a.canonical_id, a.alias.casefold(), a.alias),
