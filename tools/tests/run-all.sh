@@ -110,6 +110,9 @@ run_suite "Raw Writer Tests" \
 run_suite "Compile Manifest Tests" \
     "python3 '$SCRIPT_DIR/test-compile-manifest.py'"
 
+run_suite "Discovery Queue Tests" \
+    "python3 '$SCRIPT_DIR/test-queue.py'"
+
 run_suite "Eval Harness Tests" \
     "python3 '$SCRIPT_DIR/test_eval.py'"
 

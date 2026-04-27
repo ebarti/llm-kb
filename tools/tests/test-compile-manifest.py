@@ -56,7 +56,7 @@ class CompileManifestTests(unittest.TestCase):
             root = Path(td)
             _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
 
-            def fake_llm(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_llm(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 out = root / "wiki" / "sources" / "alpha.md"
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -92,7 +92,7 @@ class CompileManifestTests(unittest.TestCase):
             root = Path(td)
             _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
 
-            def fake_llm(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_llm(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 source_out = root / "wiki" / "sources" / "alpha.md"
                 concept_out = root / "wiki" / "concepts" / "alpha.md"
@@ -198,7 +198,7 @@ class CompileManifestTests(unittest.TestCase):
                 (out_dir / "alpha.md").write_text("# Alpha source\n", encoding="utf-8")
                 (out_dir / "beta.md").write_text("# Beta source\n", encoding="utf-8")
 
-            def fake_first(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_first(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 write_both_outputs()
                 return LLMInvocationResult(command=command, topic=topic, ok=True)
@@ -215,7 +215,7 @@ class CompileManifestTests(unittest.TestCase):
             _write_raw_v2(root, "beta", "# Beta changed\n", b"beta raw")
             prompts: list[str] = []
 
-            def fake_second(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_second(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompts.append(prompt_builder())
                 beta_out = root / "wiki" / "sources" / "beta.md"
                 beta_out.write_text("# Beta changed source\n", encoding="utf-8")
@@ -244,7 +244,7 @@ class CompileManifestTests(unittest.TestCase):
             root = Path(td)
             _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
 
-            def fake_llm(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_llm(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 out = root / "wiki" / "sources" / "alpha.md"
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -283,7 +283,7 @@ class CompileManifestTests(unittest.TestCase):
             root = Path(td)
             _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
 
-            def fake_llm(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_llm(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 out = root / "wiki" / "sources" / "alpha.md"
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -321,7 +321,7 @@ class CompileManifestTests(unittest.TestCase):
             root = Path(td)
             _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
 
-            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 out = root / "wiki" / "sources" / "alpha.md"
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -337,7 +337,7 @@ class CompileManifestTests(unittest.TestCase):
             ):
                 self.assertTrue(llm_commands.compile_wiki(_ctx(root)).ok)
 
-            def fake_no_change(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_no_change(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 return LLMInvocationResult(command=command, topic=topic, ok=True)
 
@@ -363,7 +363,7 @@ class CompileManifestTests(unittest.TestCase):
             root = Path(td)
             _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw v1")
 
-            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 out = root / "wiki" / "sources" / "alpha.md"
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -383,7 +383,7 @@ class CompileManifestTests(unittest.TestCase):
             (root / "raw" / "alpha" / "raw.txt").write_bytes(b"alpha raw v2")
             expected_sha = compile_manifest.discover_raw_sources(root)[0].sha256
 
-            def fake_no_change(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_no_change(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 return LLMInvocationResult(command=command, topic=topic, ok=True)
 
@@ -409,7 +409,7 @@ class CompileManifestTests(unittest.TestCase):
             root = Path(td)
             _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
 
-            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 out = root / "wiki" / "sources" / "alpha.md"
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -432,7 +432,7 @@ class CompileManifestTests(unittest.TestCase):
             )
             expected_sha = compile_manifest.discover_raw_sources(root)[0].sha256
 
-            def fake_no_change(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_no_change(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 return LLMInvocationResult(command=command, topic=topic, ok=True)
 
@@ -458,7 +458,7 @@ class CompileManifestTests(unittest.TestCase):
             root = Path(td)
             _write_raw_v2(root, "alpha", "# Alpha\n", b"alpha raw")
 
-            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_initial(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompt_builder()
                 out = root / "wiki" / "sources" / "alpha.md"
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -487,6 +487,7 @@ class CompileManifestTests(unittest.TestCase):
                 topic,
                 prompt_builder,
                 commit_label,
+                **_kwargs,
             ):
                 prompt_builder()
                 out = root / "wiki" / "sources" / "alpha.md"
@@ -520,7 +521,7 @@ class CompileManifestTests(unittest.TestCase):
 
             prompts: list[str] = []
 
-            def fake_first(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_first(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompts.append(prompt_builder())
                 out = root / "wiki" / "sources" / "alpha.md"
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -541,7 +542,7 @@ class CompileManifestTests(unittest.TestCase):
             self.assertIn("raw/alpha/", manifest)
             self.assertNotIn("raw/beta/", manifest)
 
-            def fake_second(_ctx, *, command, topic, prompt_builder, commit_label):
+            def fake_second(_ctx, *, command, topic, prompt_builder, commit_label, **_kwargs):
                 prompts.append(prompt_builder())
                 beta_out = root / "wiki" / "sources" / "beta.md"
                 beta_out.write_text("# Beta source\n", encoding="utf-8")
@@ -595,6 +596,7 @@ class CompileManifestTests(unittest.TestCase):
                 topic,
                 prompt_builder,
                 commit_label,
+                **_kwargs,
             ):
                 prompt_builder()
                 return LLMInvocationResult(command=command, topic=topic, ok=True)
