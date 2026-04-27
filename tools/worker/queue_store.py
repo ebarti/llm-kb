@@ -65,7 +65,7 @@ class UnsafeFetchURL(ValueError):
 
 class _SafeRedirectHandler(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[override]
-        _validate_fetch_url(newurl)
+        validate_fetch_url(newurl)
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
@@ -118,14 +118,15 @@ def fetch_url_preview(
     headers = {"User-Agent": "llm-kb-discovery-worker/1.0"}
     clean_url = url.strip()
     try:
-        _validate_fetch_url(clean_url)
+        validate_fetch_url(clean_url)
         req = Request(clean_url, headers=headers)
         with _URL_OPENER.open(req, timeout=timeout) as resp:  # nosec - validated URL
+            final_url = resp.geturl()
+            validate_fetch_url(final_url)
+            _validate_response_peer(resp)
             raw = resp.read(max_bytes + 1)
             status = getattr(resp, "status", None) or resp.getcode()
             content_type = resp.headers.get("content-type", "")
-            final_url = resp.geturl()
-            _validate_fetch_url(final_url)
         truncated = len(raw) > max_bytes
         body = raw[:max_bytes]
         decoded = _decode_body(body, content_type)
@@ -161,6 +162,11 @@ def fetch_url_preview(
         )
 
 
+def validate_fetch_url(url: str) -> None:
+    """Raise ``UnsafeFetchURL`` if a URL is unsafe for network fetching."""
+    _validate_fetch_url(url)
+
+
 def _validate_fetch_url(url: str) -> None:
     parsed = urlsplit(url.strip())
     if parsed.scheme.lower() not in {"http", "https"}:
@@ -191,6 +197,39 @@ def _validate_fetch_url(url: str) -> None:
             _reject_unsafe_address(address, hostname)
     else:
         _reject_unsafe_address(address, hostname)
+
+
+def _validate_response_peer(resp: Any) -> None:
+    peer_address = _response_peer_address(resp)
+    if peer_address is None:
+        raise UnsafeFetchURL("could not verify response peer address")
+
+    final_url = resp.geturl() if hasattr(resp, "geturl") else ""
+    hostname = urlsplit(str(final_url)).hostname or "<unknown>"
+    _reject_unsafe_address(peer_address, hostname)
+
+
+def _response_peer_address(
+    resp: Any,
+) -> ipaddress.IPv4Address | ipaddress.IPv6Address | None:
+    for attr_path in (("fp", "raw", "_sock"), ("fp", "fp", "raw", "_sock")):
+        value = resp
+        for attr in attr_path:
+            value = getattr(value, attr, None)
+            if value is None:
+                break
+        if value is None or not hasattr(value, "getpeername"):
+            continue
+        try:
+            peer = value.getpeername()
+        except OSError:
+            continue
+        if isinstance(peer, tuple) and peer:
+            try:
+                return ipaddress.ip_address(peer[0])
+            except ValueError:
+                continue
+    return None
 
 
 def _reject_unsafe_address(

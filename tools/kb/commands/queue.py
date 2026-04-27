@@ -36,7 +36,7 @@ def run(ctx: CommandContext, args: Sequence[str]) -> QueueResult:
     if ns.action == "approve":
         return _approve(ctx, ns.id)
     if ns.action == "reject":
-        reason = ns.reason_flag or " ".join(ns.reason).strip() or "rejected by user"
+        reason = _rejection_reason(ns)
         return _reject(ctx, ns.id, reason=reason)
     return QueueResult(
         command="queue",
@@ -79,6 +79,19 @@ def _approve(ctx: CommandContext, item_id: str) -> QueueResult:
             queue_dir=_queue_dir(ctx),
             item=summary,
             message=f"queue item has no URL: {summary.id}",
+        )
+
+    try:
+        store.validate_fetch_url(summary.url)
+    except store.UnsafeFetchURL as exc:
+        return QueueResult(
+            command="queue",
+            action="approve",
+            ok=False,
+            exit_code=EXIT_ERROR,
+            queue_dir=_queue_dir(ctx),
+            item=summary,
+            message=f"queue item has unsafe URL: {exc}",
         )
 
     if ctx.dry_run:
@@ -161,6 +174,14 @@ def _reject(ctx: CommandContext, item_id: str, *, reason: str) -> QueueResult:
         item=archived_summary,
         message=f"rejected {archived_summary.id}: {reason}",
     )
+
+
+def _rejection_reason(ns: argparse.Namespace) -> str:
+    parts: list[str] = []
+    if ns.reason_flag:
+        parts.append(str(ns.reason_flag))
+    parts.extend(str(part) for part in ns.reason)
+    return " ".join(part.strip() for part in parts if part.strip()) or "rejected by user"
 
 
 def _queue_error(action: str, exc: Exception, ctx: CommandContext) -> QueueResult:

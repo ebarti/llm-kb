@@ -66,6 +66,50 @@ class QueueStoreTests(unittest.TestCase):
                 self.assertIn("UnsafeFetchURL", result.fetch_preview["error"])
                 open_mock.assert_not_called()
 
+    def test_fetch_url_preview_rejects_private_peer_before_reading(self) -> None:
+        class FakeSocket:
+            def getpeername(self) -> tuple[str, int]:
+                return ("127.0.0.1", 80)
+
+        class FakeRaw:
+            _sock = FakeSocket()
+
+        class FakeFP:
+            raw = FakeRaw()
+
+        class FakeResponse:
+            fp = FakeFP()
+            status = 200
+            headers = {"content-type": "text/plain"}
+
+            def __init__(self) -> None:
+                self.read_called = False
+
+            def __enter__(self) -> "FakeResponse":
+                return self
+
+            def __exit__(self, *_exc: object) -> None:
+                return None
+
+            def getcode(self) -> int:
+                return 200
+
+            def geturl(self) -> str:
+                return "http://8.8.8.8/article"
+
+            def read(self, _size: int) -> bytes:
+                self.read_called = True
+                return b"private response"
+
+        response = FakeResponse()
+        with mock.patch.object(queue_store._URL_OPENER, "open", return_value=response):
+            result = queue_store.fetch_url_preview("http://8.8.8.8/article")
+
+        self.assertEqual("url-fallback", result.hash_source)
+        self.assertFalse(result.fetch_preview["ok"])
+        self.assertIn("UnsafeFetchURL", result.fetch_preview["error"])
+        self.assertFalse(response.read_called)
+
     def test_enqueue_writes_candidate_and_dedupes_by_content_hash(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -158,7 +202,10 @@ class QueueCommandTests(unittest.TestCase):
             self.assertEqual(1, len(list_result.items))
             self.assertEqual(item_id, list_result.items[0].id)
 
-            with mock.patch("tools.kb.commands.queue.llm_commands.ingest") as ingest_mock:
+            with (
+                mock.patch("tools.worker.queue_store.validate_fetch_url") as validate_mock,
+                mock.patch("tools.kb.commands.queue.llm_commands.ingest") as ingest_mock,
+            ):
                 ingest_mock.return_value = LLMInvocationResult(
                     command="ingest",
                     ok=True,
@@ -168,6 +215,7 @@ class QueueCommandTests(unittest.TestCase):
                 approve_result = queue_cmd.run(ctx, ["approve", item_id[:8]])
 
             self.assertTrue(approve_result.ok)
+            validate_mock.assert_called_once_with("https://example.com/pkm")
             ingest_mock.assert_called_once()
             called_ctx, called_urls = ingest_mock.call_args.args
             self.assertIs(called_ctx, ctx)
@@ -178,6 +226,25 @@ class QueueCommandTests(unittest.TestCase):
             archived = json.loads(approved.read_text(encoding="utf-8"))
             self.assertEqual("approved", archived["status"])
             self.assertEqual("ingested", archived["ingest_result"]["message"])
+
+    def test_approve_rejects_unsafe_url_before_ingest(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            ws = Workspace(kb_home=REPO_ROOT, kb_dir=root)
+            ctx = CommandContext(workspace=ws)
+            enqueued = queue_store.enqueue_discovered_sources(
+                root,
+                [{"topic": "PKM", "url": "file:///etc/passwd", "title": "Local"}],
+            )
+            item_id = enqueued.created[0]["id"]
+
+            with mock.patch("tools.kb.commands.queue.llm_commands.ingest") as ingest_mock:
+                approve_result = queue_cmd.run(ctx, ["approve", item_id])
+
+            self.assertFalse(approve_result.ok)
+            self.assertIn("unsafe URL", approve_result.message or "")
+            ingest_mock.assert_not_called()
+            self.assertTrue((root / ".queue" / f"{item_id}.json").exists())
 
     def test_reject_command_records_reason(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -197,6 +264,27 @@ class QueueCommandTests(unittest.TestCase):
             payload = json.loads(archived.read_text(encoding="utf-8"))
             self.assertEqual("duplicate", payload["rejection_reason"])
             self.assertEqual("rejected", payload["status"])
+
+    def test_reject_command_combines_reason_flag_with_trailing_tokens(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            ctx = CommandContext(workspace=Workspace(kb_home=REPO_ROOT, kb_dir=root))
+            enqueued = queue_store.enqueue_discovered_sources(
+                root,
+                [{"topic": "RAG", "url": "https://example.com/nope"}],
+                fetcher=lambda _url: fetch_result_for(b"nope"),
+            )
+            item_id = enqueued.created[0]["id"]
+
+            result = queue_cmd.run(
+                ctx,
+                ["reject", item_id, "--reason", "duplicate", "low", "signal"],
+            )
+
+            self.assertTrue(result.ok)
+            archived = root / ".queue" / ".rejected" / f"{item_id}.json"
+            payload = json.loads(archived.read_text(encoding="utf-8"))
+            self.assertEqual("duplicate low signal", payload["rejection_reason"])
 
     def test_named_dir_queue_list_uses_kb_workspaces(self) -> None:
         with tempfile.TemporaryDirectory() as td:
