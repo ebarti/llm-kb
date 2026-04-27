@@ -260,6 +260,11 @@ def _run_ask(ctx: CommandContext, args: Sequence[str]) -> LLMInvocationResult:
     return llm_commands.ask(ctx, " ".join(ns.question))
 
 
+def _run_query(ctx: CommandContext, args: Sequence[str]) -> LLMInvocationResult:
+    ns = _parse_command("kb query", args, lambda p: p.add_argument("question", nargs="+"))
+    return llm_commands.ask(ctx, " ".join(ns.question))
+
+
 def _run_lint(ctx: CommandContext, args: Sequence[str]) -> LLMInvocationResult:
     _parse_command("kb lint", args, lambda p: None)
     return llm_commands.lint(ctx)
@@ -518,6 +523,7 @@ Commands:
   ingest <url> [urls...]
   compile
   ask <question>
+  query <question>
   lint
   search <query> [--top N]
   slides <topic>
@@ -555,6 +561,7 @@ _COMMANDS: dict[str, Callable[[CommandContext, Sequence[str]], CommandResult]] =
     "ingest": _run_ingest,
     "compile": _run_compile,
     "ask": _run_ask,
+    "query": _run_query,
     "lint": _run_lint,
     "search": _run_search,
     "slides": _run_slides,
