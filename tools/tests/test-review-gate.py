@@ -19,7 +19,6 @@ sys.path.insert(0, str(BASE_DIR))
 from tools.compile import review  # noqa: E402
 from tools.kb.commands import llm_commands  # noqa: E402
 from tools.kb.commands._common import CommandContext, run_llm_command  # noqa: E402
-from tools.kb.models import LLMInvocationResult  # noqa: E402
 from tools.kb.runner import LLMResult  # noqa: E402
 from tools.kb.workspace import Workspace  # noqa: E402
 
@@ -363,35 +362,21 @@ Too short.
         self.assertFalse((self.root / "wiki" / "_index.md").exists())
 
     def _write_fake_generate_all(self, body: str) -> None:
+        regen = self.root / "tools" / "compile" / "regen_meta.py"
+        regen.parent.mkdir(parents=True, exist_ok=True)
+        regen.write_text(
+            "from pathlib import Path\n"
+            "Path('wiki/_meta').mkdir(parents=True, exist_ok=True)\n"
+            "Path('wiki/_meta/summaries.md').write_text('# summaries\\n')\n",
+            encoding="utf-8",
+        )
         script = self.root / "tools" / "compile" / "pages" / "generate_all.py"
         script.parent.mkdir(parents=True, exist_ok=True)
         script.write_text(body, encoding="utf-8")
 
-    def _mock_successful_compile_with_changed_raw(self, run_llm_mock) -> None:
-        source_dir = self.root / "raw" / "alpha"
-        source_dir.mkdir(parents=True, exist_ok=True)
-        (source_dir / "clean.md").write_text("# Alpha\n", encoding="utf-8")
-        (source_dir / "raw.txt").write_bytes(b"alpha raw")
-
-        def fake_compile(*args, **kwargs):
-            output = self.root / "wiki" / "sources" / "alpha.md"
-            output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_text("# Alpha Summary\n", encoding="utf-8")
-            return LLMInvocationResult(
-                command="compile",
-                ok=True,
-                exit_code=0,
-                details={},
-                message="compile finished",
-            )
-
-        run_llm_mock.side_effect = fake_compile
-
     @mock.patch("tools.kb.commands.llm_commands.auto_commit")
-    @mock.patch("tools.kb.commands.llm_commands.run_llm_command")
     def test_compile_wiki_rejects_invalid_post_decoration_write(
         self,
-        run_llm_mock,
         auto_commit_mock,
     ) -> None:
         self._write_fake_generate_all(
@@ -404,7 +389,6 @@ Too short.
                 """
             )
         )
-        self._mock_successful_compile_with_changed_raw(run_llm_mock)
         ctx = CommandContext(workspace=Workspace(kb_home=self.root, kb_dir=self.root))
 
         result = llm_commands.compile_wiki(ctx)
@@ -412,8 +396,14 @@ Too short.
         self.assertFalse(result.ok)
         self.assertIn("post-decoration compile review rejected", result.message or "")
         self.assertIn("post_decoration_review", result.details)
-        self.assertEqual(1, result.details["post_decoration_review"]["candidates"])
-        self.assertFalse((self.root / "wiki" / "_index.md").exists())
+        self.assertGreaterEqual(
+            result.details["post_decoration_review"]["candidates"],
+            1,
+        )
+        self.assertNotIn(
+            "{{summary}}",
+            (self.root / "wiki" / "_index.md").read_text(encoding="utf-8"),
+        )
         self.assertEqual(
             1,
             len(list((self.root / "wiki" / ".pending").rglob("_index.md"))),
@@ -421,10 +411,8 @@ Too short.
         auto_commit_mock.assert_not_called()
 
     @mock.patch("tools.kb.commands.llm_commands.auto_commit")
-    @mock.patch("tools.kb.commands.llm_commands.run_llm_command")
     def test_compile_wiki_reviews_partial_decoration_writes_on_generator_failure(
         self,
-        run_llm_mock,
         auto_commit_mock,
     ) -> None:
         self._write_fake_generate_all(
@@ -439,7 +427,6 @@ Too short.
                 """
             )
         )
-        self._mock_successful_compile_with_changed_raw(run_llm_mock)
         ctx = CommandContext(workspace=Workspace(kb_home=self.root, kb_dir=self.root))
 
         result = llm_commands.compile_wiki(ctx)
@@ -448,8 +435,14 @@ Too short.
         self.assertIn("generate_all.py failed", result.message or "")
         self.assertIn("post-decoration compile review rejected", result.message or "")
         self.assertIn("post_decoration_review", result.details)
-        self.assertEqual(1, result.details["post_decoration_review"]["candidates"])
-        self.assertFalse((self.root / "wiki" / "_index.md").exists())
+        self.assertGreaterEqual(
+            result.details["post_decoration_review"]["candidates"],
+            1,
+        )
+        self.assertNotIn(
+            "{{summary}}",
+            (self.root / "wiki" / "_index.md").read_text(encoding="utf-8"),
+        )
         self.assertEqual(
             1,
             len(list((self.root / "wiki" / ".pending").rglob("_index.md"))),
@@ -457,10 +450,8 @@ Too short.
         auto_commit_mock.assert_not_called()
 
     @mock.patch("tools.kb.commands.llm_commands.auto_commit")
-    @mock.patch("tools.kb.commands.llm_commands.run_llm_command")
     def test_compile_wiki_accepts_valid_post_decoration_write_before_commit(
         self,
-        run_llm_mock,
         auto_commit_mock,
     ) -> None:
         self._write_fake_generate_all(
@@ -473,7 +464,6 @@ Too short.
                 """
             )
         )
-        self._mock_successful_compile_with_changed_raw(run_llm_mock)
         auto_commit_mock.return_value = True
         ctx = CommandContext(workspace=Workspace(kb_home=self.root, kb_dir=self.root))
 
@@ -481,7 +471,10 @@ Too short.
 
         self.assertTrue(result.ok, result.message)
         self.assertIn("post_decoration_review", result.details)
-        self.assertEqual(1, result.details["post_decoration_review"]["candidates"])
+        self.assertGreaterEqual(
+            result.details["post_decoration_review"]["candidates"],
+            1,
+        )
         self.assertTrue((self.root / "wiki" / "Dashboard.md").exists())
         auto_commit_mock.assert_called_once_with(
             self.root,

@@ -662,12 +662,39 @@ class PluginHookTests(unittest.TestCase):
             calls.append(("hook", hook_name))
             return PluginHookResult(hook=hook_name, ok=True)
 
-        def fake_invoke(prompt, **_kwargs):  # noqa: ARG001
-            calls.append(("llm", "compile"))
-            return LLMResult(text="compiled", backend="fake")
+        detail = (
+            "Compile hooks verify that schema driven compilation runs plugin "
+            "hooks around typed extraction, metadata generation, and the final "
+            "commit while keeping generated source pages long enough for the "
+            "review gate used by the command tests."
+        )
 
-        def fake_generate_all(*_args, **_kwargs):
-            calls.append(("generate", "pages"))
+        def fake_invoke(prompt, **_kwargs):
+            if "SourceSummary" in prompt:
+                calls.append(("llm", "SourceSummary"))
+                payload = {
+                    "title": "Compile Hooks",
+                    "key_points": [detail, detail],
+                    "detailed_summary": detail,
+                    "notable_quotes": [],
+                    "related_concepts": [],
+                    "entities_mentioned": [],
+                }
+            elif "ConceptUpdateBatch" in prompt:
+                calls.append(("llm", "ConceptUpdateBatch"))
+                payload = {"updates": []}
+            elif "EntityRefBatch" in prompt:
+                calls.append(("llm", "EntityRefBatch"))
+                payload = {"entities": []}
+            elif "ComparisonBatch" in prompt:
+                calls.append(("llm", "ComparisonBatch"))
+                payload = {"comparisons": []}
+            else:
+                raise AssertionError(f"unexpected prompt: {prompt[:120]}")
+            return LLMResult(text=json.dumps(payload), backend="fake")
+
+        def fake_metadata_script(args, *_args, **_kwargs):
+            calls.append(("generate", Path(args[1]).name))
             return types.SimpleNamespace(returncode=0, stdout="", stderr="")
 
         def fake_commit(_kb_dir, label, dry_run=False):  # noqa: ARG001
@@ -686,6 +713,8 @@ class PluginHookTests(unittest.TestCase):
             generate_all = root / "tools" / "compile" / "pages" / "generate_all.py"
             generate_all.parent.mkdir(parents=True)
             generate_all.write_text("#!/usr/bin/env python3\n", encoding="utf-8")
+            regen_meta = root / "tools" / "compile" / "regen_meta.py"
+            regen_meta.write_text("#!/usr/bin/env python3\n", encoding="utf-8")
 
             ctx = self._ctx(root, no_commit=False)
             with mock.patch(
@@ -695,11 +724,11 @@ class PluginHookTests(unittest.TestCase):
                 "tools.kb.commands.llm_commands.run_plugin_hook",
                 side_effect=fake_post_hook,
             ), mock.patch(
-                "tools.kb.commands._common.invoke_llm",
+                "tools.kb.typed_compile.invoke_llm",
                 side_effect=fake_invoke,
             ), mock.patch(
-                "tools.kb.commands.llm_commands.subprocess.run",
-                side_effect=fake_generate_all,
+                "tools.kb.typed_compile.subprocess.run",
+                side_effect=fake_metadata_script,
             ), mock.patch(
                 "tools.kb.commands.llm_commands.auto_commit",
                 side_effect=fake_commit,
@@ -710,8 +739,12 @@ class PluginHookTests(unittest.TestCase):
         self.assertEqual(
             [
                 ("hook", "pre_compile"),
-                ("llm", "compile"),
-                ("generate", "pages"),
+                ("llm", "SourceSummary"),
+                ("llm", "ConceptUpdateBatch"),
+                ("llm", "EntityRefBatch"),
+                ("llm", "ComparisonBatch"),
+                ("generate", "regen_meta.py"),
+                ("generate", "generate_all.py"),
                 ("hook", "post_compile"),
                 ("commit", "compile wiki"),
             ],

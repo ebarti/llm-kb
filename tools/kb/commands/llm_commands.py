@@ -10,14 +10,11 @@ updated without touching runtime logic.
 from __future__ import annotations
 
 import dataclasses
-import subprocess
 from pathlib import Path
 
-from tools.compile import manifest as compile_manifest
-
-from ...compile.review import ReviewerConfig, review_wiki_writes, snapshot_articles
 from ..git_util import auto_commit
-from ..models import EXIT_ERROR, EXIT_SUCCESS, LLMInvocationResult
+from ..models import EXIT_ERROR, LLMInvocationResult
+from ..typed_compile import compile_workspace
 from . import prompts
 from ._common import CommandContext, run_llm_command, run_plugin_hook
 
@@ -104,145 +101,37 @@ def ingest(ctx: CommandContext, urls: list[str]) -> LLMInvocationResult:
 
 
 def compile_wiki(ctx: CommandContext) -> LLMInvocationResult:
-    plan = compile_manifest.plan_compile(ctx.workspace.kb_dir)
+    if ctx.dry_run:
+        return compile_workspace(ctx)
 
-    if plan.is_noop:
-        manifest_written = False
-        if not ctx.dry_run and (plan.sources or plan.manifest):
-            manifest_written = compile_manifest.save_manifest_if_changed(
-                ctx.workspace.kb_dir,
-                compile_manifest.build_current_manifest(plan),
-            )
-
-        details = compile_manifest.describe_plan(plan)
-        details.update(
-            {
-                "noop": True,
-                "llm_skipped": True,
-                "manifest_written": manifest_written,
-            }
-        )
-        return LLMInvocationResult(
-            command="compile",
-            topic=None,
-            ok=True,
-            exit_code=EXIT_SUCCESS,
-            dry_run=ctx.dry_run,
-            budget_limit=ctx.budget_limit,
-            model=ctx.model,
-            message="compile: no changed raw sources; LLM skipped",
-            details=details,
-        )
-
-    generate_all = (
-        ctx.workspace.kb_dir / "tools" / "compile" / "pages" / "generate_all.py"
-    )
-    if not generate_all.exists():
+    pre_hook = run_plugin_hook(ctx, "pre_compile")
+    if not pre_hook.ok:
         return LLMInvocationResult(
             command="compile",
             topic=None,
             ok=False,
             exit_code=EXIT_ERROR,
-            dry_run=ctx.dry_run,
             budget_limit=ctx.budget_limit,
             model=ctx.model,
-            message=f"Missing generate_all script: {generate_all}",
-            details=compile_manifest.describe_plan(plan),
+            message=(
+                f"plugin hook '{pre_hook.hook}' failed"
+                + (f":\n{pre_hook.output}" if pre_hook.output else "")
+            ),
+            details={"hooks": [pre_hook.as_detail()]},
         )
 
-    # Run the LLM compile step without auto-committing so we can run the
-    # decoration-page generators first and include their output in the same
-    # commit.
     no_commit_ctx = dataclasses.replace(ctx, no_commit=True)
-    before_outputs = compile_manifest.snapshot_wiki_outputs(ctx.workspace.kb_dir)
-    result = run_llm_command(
-        no_commit_ctx,
-        command="compile",
-        topic=None,
-        prompt_builder=lambda: compile_manifest.scoped_compile_prompt(
-            plan.changed_sources
-        ),
-        commit_label="compile wiki",
-        pre_hook="pre_compile",
-    )
-    result.details = {
-        **(result.details or {}),
-        **compile_manifest.describe_plan(plan),
-        "noop": False,
-        "llm_skipped": False,
-    }
+    result = compile_workspace(no_commit_ctx)
+    result.details["hooks"] = [pre_hook.as_detail()]
 
-    if not result.ok or ctx.dry_run:
-        return result
-
-    after_llm_outputs = compile_manifest.snapshot_wiki_outputs(ctx.workspace.kb_dir)
-    output_paths = compile_manifest.changed_outputs(before_outputs, after_llm_outputs)
-    decoration_snapshot = snapshot_articles(ctx.workspace.wiki_dir)
-
-    # Run decoration-page generators (Dashboard, Graph, Tags, Glossary,
-    # Changelog) using the workspace copy so --dir <workspace> writes to the
-    # right place.
-    proc = subprocess.run(
-        ["python3", str(generate_all)],
-        cwd=str(ctx.workspace.kb_dir),
-        capture_output=True,
-        text=True,
-    )
-    if proc.returncode != 0:
-        result.ok = False
-        result.exit_code = EXIT_ERROR
-        diag = (proc.stderr or proc.stdout or "").strip()
-        result.message = (
-            f"generate_all.py failed; decoration pages not updated"
-            + (f":\n{diag}" if diag else "")
-        )
-
-    review_outcome = review_wiki_writes(
-        ctx.workspace.kb_dir,
-        before_snapshot=decoration_snapshot,
-        config=ReviewerConfig.from_env(),
-    )
-    if review_outcome.candidates:
-        result.details["post_decoration_review"] = review_outcome.as_dict()
-    if not review_outcome.ok:
-        result.ok = False
-        result.exit_code = EXIT_ERROR
-        review_message = (
-            "post-decoration compile review rejected wiki writes:\n"
-            + review_outcome.rejection_summary()
-        )
-        result.message = (
-            f"{result.message}\n\n{review_message}"
-            if result.message
-            else review_message
-        )
-        return result
     if not result.ok:
         return result
-
-    manifest_written = compile_manifest.save_manifest_if_changed(
-        ctx.workspace.kb_dir,
-        compile_manifest.build_updated_manifest(
-            plan,
-            compiled_sources=plan.changed_sources,
-            changed_output_paths=output_paths,
-            available_output_paths=list(after_llm_outputs),
-            compiled_at=compile_manifest.utc_now(),
-        ),
-    )
-    result.details.update(
-        {
-            "outputs": output_paths,
-            "manifest_written": manifest_written,
-        }
-    )
 
     post_hook = run_plugin_hook(ctx, "post_compile")
     _append_hook_detail(result, post_hook)
     if not post_hook.ok:
         return _mark_hook_failure(result, post_hook)
 
-    # Auto-commit the full compile output (LLM changes + decoration pages).
     if not ctx.no_commit:
         committed = auto_commit(ctx.workspace.kb_dir, "compile wiki", dry_run=False)
         result.committed = committed

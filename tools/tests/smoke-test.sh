@@ -86,8 +86,9 @@ run_test "kb compile fails when generate_all script is missing for changed raw" 
     "tmpdir=\$(mktemp -d)
     cp '$BASE_DIR/kb' \"\$tmpdir/kb\"
     chmod +x \"\$tmpdir/kb\"
-    mkdir -p \"\$tmpdir/raw/alpha\"
+    mkdir -p \"\$tmpdir/raw/alpha\" \"\$tmpdir/tools/compile\"
     printf '# Alpha\n' > \"\$tmpdir/raw/alpha/clean.md\"
+    printf 'from pathlib import Path\nPath(\"wiki/_meta\").mkdir(parents=True, exist_ok=True)\n' > \"\$tmpdir/tools/compile/regen_meta.py\"
     if KB_NO_COMMIT=1 \"\$tmpdir/kb\" compile >\"\$tmpdir/out\" 2>&1; then
         cat \"\$tmpdir/out\"
         rm -rf \"\$tmpdir\"
