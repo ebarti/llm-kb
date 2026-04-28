@@ -60,6 +60,40 @@ class QmdParseTests(unittest.TestCase):
         self.assertIn("Softmax attention", hits[0].snippet or "")
 
 
+class HelpRenderingTests(unittest.TestCase):
+    def _help_output(self, env: dict[str, str]) -> str:
+        buf = io.StringIO()
+        with mock.patch.dict(os.environ, env, clear=True):
+            with contextlib.redirect_stdout(buf):
+                cli_mod._print_help()
+        return buf.getvalue()
+
+    def test_help_includes_expanded_guidance_without_color(self) -> None:
+        output = self._help_output({"KB_COLOR": "never"})
+
+        self.assertIn("LLM Knowledge Base CLI", output)
+        self.assertIn("CORE COMMANDS", output)
+        self.assertIn('research "<topic>"', output)
+        self.assertIn("QUEUE", output)
+        self.assertIn("ENVIRONMENT", output)
+        self.assertIn("KB_COLOR", output)
+        self.assertIn("SMART ROUTING", output)
+        self.assertIn("EXAMPLES", output)
+        self.assertNotIn("\033[", output)
+
+    def test_help_can_force_color_for_pagers_or_snapshots(self) -> None:
+        output = self._help_output({"KB_COLOR": "always"})
+
+        self.assertIn("\033[0;36m", output)
+        self.assertIn("\033[1;33m--dir, -d", output)
+        self.assertIn("\033[0;32mkb", output)
+
+    def test_no_color_disables_auto_color(self) -> None:
+        output = self._help_output({"KB_COLOR": "auto", "NO_COLOR": "1"})
+
+        self.assertNotIn("\033[", output)
+
+
 def _make_fake_agent_sdk():
     """Build a fake ``claude_agent_sdk`` module.
 
