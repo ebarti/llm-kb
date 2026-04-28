@@ -30,7 +30,11 @@ from tools.kb.workspace import Workspace
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-KB_SCRIPT = REPO_ROOT / "kb"
+UV_BIN = os.environ.get("UV", "uv")
+
+
+def _kb_command(*args: str) -> list[str]:
+    return [UV_BIN, "run", "--locked", "--project", str(REPO_ROOT), "kb", *args]
 
 
 class QmdParseTests(unittest.TestCase):
@@ -73,7 +77,8 @@ class HelpRenderingTests(unittest.TestCase):
 
         self.assertIn("LLM Knowledge Base CLI", output)
         self.assertIn("SETUP", output)
-        self.assertIn("python3 -m pip install -r requirements.txt", output)
+        self.assertIn("uv sync", output)
+        self.assertIn("uv run kb --help", output)
         self.assertIn("CORE COMMANDS", output)
         self.assertIn('research "<topic>"', output)
         self.assertIn("QUEUE", output)
@@ -89,7 +94,7 @@ class HelpRenderingTests(unittest.TestCase):
 
         self.assertIn("\033[0;36m", output)
         self.assertIn("\033[1;33m--dir, -d", output)
-        self.assertIn("\033[0;32mkb", output)
+        self.assertIn("\033[0;32muv run kb", output)
 
     def test_no_color_disables_auto_color(self) -> None:
         output = self._help_output({"KB_COLOR": "auto", "NO_COLOR": "1"})
@@ -268,8 +273,8 @@ class RunnerAgentBackendTests(unittest.TestCase):
         self.assertEqual("agent", result.backend)
         self.assertEqual(1, result.returncode)
         self.assertIn("claude-agent-sdk", result.text)
-        self.assertIn("python3 -m pip install -r requirements.txt", result.text)
-        self.assertIn("kb -i", result.text)
+        self.assertIn("uv sync", result.text)
+        self.assertIn("uv run kb -i", result.text)
 
     def test_agent_backend_surfaces_agent_reported_error(self) -> None:
         module, seq, _captured, _Am, Rm = _make_fake_agent_sdk()
@@ -842,7 +847,7 @@ class WorkspacesCommandTests(unittest.TestCase):
         # because Path methods were called on a str.
         with tempfile.TemporaryDirectory() as td:
             proc = subprocess.run(
-                [str(KB_SCRIPT), "workspaces", td, "--json"],
+                _kb_command("workspaces", td, "--json"),
                 cwd=str(REPO_ROOT),
                 capture_output=True,
                 text=True,
@@ -980,13 +985,13 @@ class MainExitHandlingTests(unittest.TestCase):
         self.assertIn("answer", stdout.getvalue())
 
 
-class WrapperIntegrationTests(unittest.TestCase):
-    def test_kb_wrapper_executes_python_cli(self) -> None:
+class UvCliIntegrationTests(unittest.TestCase):
+    def test_uv_console_script_executes_python_cli(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             env = os.environ.copy()
             env["HOME"] = td
             proc = subprocess.run(
-                [str(KB_SCRIPT), "stats", "--json"],
+                _kb_command("stats", "--json"),
                 cwd=str(REPO_ROOT),
                 env=env,
                 capture_output=True,
@@ -999,7 +1004,7 @@ class WrapperIntegrationTests(unittest.TestCase):
         self.assertEqual("stats", payload["command"])
         self.assertIn("total_wiki_files", payload)
 
-    def test_kb_wrapper_preserves_caller_cwd_for_relative_kb_dir(self) -> None:
+    def test_uv_console_script_preserves_caller_cwd_for_relative_kb_dir(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             (root / "wiki" / "concepts").mkdir(parents=True)
@@ -1011,7 +1016,7 @@ class WrapperIntegrationTests(unittest.TestCase):
             env = os.environ.copy()
             env["KB_DIR"] = "."
             proc = subprocess.run(
-                [str(KB_SCRIPT), "stats", "--json"],
+                _kb_command("stats", "--json"),
                 cwd=str(root),
                 env=env,
                 capture_output=True,

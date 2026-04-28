@@ -8,7 +8,7 @@ and outputs new sources to ingest.
 
 Usage:
     python3 tools/monitor/monitor.py              # print new sources found
-    python3 tools/monitor/monitor.py --ingest      # also trigger ingestion via ./kb ingest
+    python3 tools/monitor/monitor.py --ingest      # also trigger ingestion via uv run kb ingest
     python3 tools/monitor/monitor.py --days 7      # look back 7 days (default: 3)
     python3 tools/monitor/monitor.py --topic "RAG"  # only check topics matching name
 """
@@ -285,24 +285,31 @@ def print_sources(sources):
 
 
 def ingest_sources(sources):
-    """Trigger ingestion for each discovered source via ./kb ingest."""
+    """Trigger ingestion for each discovered source via uv run kb ingest."""
     if not sources:
         print("Nothing to ingest.")
         return
 
-    kb_script = KB_DIR / "kb"
-    if not kb_script.exists():
-        print(f"[error] kb script not found at {kb_script}", file=sys.stderr)
+    project_dir = Path(os.environ.get("KB_PROJECT") or KB_DIR).expanduser()
+    if not (project_dir / "pyproject.toml").exists():
+        print(
+            "[error] uv project not found. Run this from the llm-kb checkout "
+            "or set KB_PROJECT=/path/to/llm-kb.",
+            file=sys.stderr,
+        )
         return
 
     urls = [s["url"] for s in sources]
-    print(f"\nIngesting {len(urls)} source(s) via ./kb ingest ...")
+    print(f"\nIngesting {len(urls)} source(s) via uv run kb ingest ...")
+    env = os.environ.copy()
+    env["KB_DIR"] = str(KB_DIR)
     for url in urls:
         print(f"  -> {url}")
         try:
             subprocess.run(
-                [str(kb_script), "ingest", url],
-                cwd=str(KB_DIR),
+                ["uv", "run", "--project", str(project_dir), "kb", "ingest", url],
+                cwd=str(project_dir),
+                env=env,
                 timeout=120,
             )
         except subprocess.TimeoutExpired:
@@ -333,7 +340,7 @@ def main():
     )
     parser.add_argument(
         "--ingest", action="store_true",
-        help="Also trigger ingestion via ./kb ingest"
+        help="Also trigger ingestion via uv run kb ingest"
     )
     parser.add_argument(
         "--days", type=int, default=3,

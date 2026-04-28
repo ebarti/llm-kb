@@ -3,7 +3,7 @@
 # Smoke Tests
 # Quick validation that all tools are executable and respond to basic invocation.
 #
-# Tests: kb, tools/search.sh, tools/fetch-url.sh
+# Tests: uv kb entrypoint, tools/search.sh, tools/fetch-url.sh
 # Tests Python scripts can import without error.
 #
 # Usage: ./tools/tests/smoke-test.sh [--json]
@@ -65,9 +65,6 @@ fi
 
 # --- Tool existence and executability ---
 
-run_test "kb script exists and is executable" \
-    "test -x '$BASE_DIR/kb'"
-
 run_test "tools/search.sh exists and is executable" \
     "test -x '$BASE_DIR/tools/search.sh'"
 
@@ -79,17 +76,15 @@ run_test "discover wrapper regression checks" \
 
 # --- kb responds to help/basic invocation ---
 
-run_test "kb responds to invocation" \
-    "'$BASE_DIR/kb' 2>&1 | head -1 | grep -qi ''" "any"
+run_test "uv kb entrypoint responds to help" \
+    "uv run --locked --project '$BASE_DIR' kb --help 2>&1 | grep -q 'LLM Knowledge Base CLI'"
 
 run_test "kb compile fails when generate_all script is missing for changed raw" \
     "tmpdir=\$(mktemp -d)
-    cp '$BASE_DIR/kb' \"\$tmpdir/kb\"
-    chmod +x \"\$tmpdir/kb\"
-    mkdir -p \"\$tmpdir/raw/alpha\" \"\$tmpdir/tools/compile\"
+    mkdir -p \"\$tmpdir/raw/alpha\" \"\$tmpdir/tools/compile\" \"\$tmpdir/wiki/_meta\"
     printf '# Alpha\n' > \"\$tmpdir/raw/alpha/clean.md\"
     printf 'from pathlib import Path\nPath(\"wiki/_meta\").mkdir(parents=True, exist_ok=True)\n' > \"\$tmpdir/tools/compile/regen_meta.py\"
-    if KB_DIR=\"\$tmpdir\" KB_NO_COMMIT=1 \"\$tmpdir/kb\" compile >\"\$tmpdir/out\" 2>&1; then
+    if KB_DIR=\"\$tmpdir\" KB_NO_COMMIT=1 uv run --locked --project '$BASE_DIR' kb compile >\"\$tmpdir/out\" 2>&1; then
         cat \"\$tmpdir/out\"
         rm -rf \"\$tmpdir\"
         exit 1

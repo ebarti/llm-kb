@@ -13,7 +13,7 @@ from typing import Any, Optional
 try:
     from pydantic import BaseModel, Field
 except Exception:  # pragma: no cover - pydantic is an optional dependency
-    # Fallback: minimal stub so `./kb --help`, ``kb stats``, ``kb search``
+    # Fallback: minimal stub so `uv run kb --help`, ``kb stats``, ``kb search``
     # etc. keep working without a functioning pydantic installed. We catch
     # ``Exception`` (not just ``ImportError``) because broken pydantic/
     # pydantic-core version mismatches raise ``SystemError`` at module

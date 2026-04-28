@@ -660,19 +660,18 @@ def _print_help() -> None:
     print(f"  {theme.dim('LLM Knowledge Base CLI')}\n")
 
     _help_section(theme, "SETUP")
-    print(
-        f"  {theme.color('python3 -m pip install -r requirements.txt', 'green')}"
-    )
+    print(f"  {theme.color('uv sync', 'green')}")
     print(f"  {theme.color('export ANTHROPIC_API_KEY=<key>', 'green')}")
-    print(f"  {theme.dim('LLM commands use claude-agent-sdk; kb -i uses claude CLI.')}")
+    print(f"  {theme.color('uv run kb --help', 'green')}")
+    print(f"  {theme.dim('LLM commands use claude-agent-sdk; uv run kb -i uses claude CLI.')}")
     print(
         f"  {theme.dim('Default workspace: $KB_WORKSPACES/default unless --dir or KB_DIR is set.')}"
     )
     print("")
 
     _help_section(theme, "USAGE")
-    print(f"  {theme.color('kb', 'green')} <command> [args...] [flags]")
-    print(f"  {theme.color('kb', 'green')} \"<natural language prompt>\"")
+    print(f"  {theme.color('uv run kb', 'green')} <command> [args...] [flags]")
+    print(f"  {theme.color('uv run kb', 'green')} \"<natural language prompt>\"")
     print("")
 
     _help_section(theme, "CORE COMMANDS")
@@ -779,7 +778,7 @@ def _print_help() -> None:
     print("")
 
     _help_section(theme, "SMART ROUTING")
-    print(f"  If no command matches, {theme.color('kb', 'green')} routes by input shape:")
+    print(f"  If no command matches, {theme.color('uv run kb', 'green')} routes by input shape:")
     _help_bullet(theme, "URLs", "ingest")
     _help_bullet(theme, "Questions", "ask")
     _help_bullet(theme, "Short phrases", "research")
@@ -787,12 +786,12 @@ def _print_help() -> None:
     print("")
 
     _help_section(theme, "EXAMPLES")
-    _help_example(theme, "kb new agents")
-    _help_example(theme, "kb --dir agents research \"LLM agents with memory\"")
-    _help_example(theme, "kb ingest https://arxiv.org/abs/2401.00001")
-    _help_example(theme, "kb \"what are the key themes?\"")
-    _help_example(theme, "kb compare \"RLHF\" \"DPO\"")
-    _help_example(theme, "kb search \"attention\" --top 5")
+    _help_example(theme, "uv run kb new agents")
+    _help_example(theme, "uv run kb --dir agents research \"LLM agents with memory\"")
+    _help_example(theme, "uv run kb ingest https://arxiv.org/abs/2401.00001")
+    _help_example(theme, "uv run kb \"what are the key themes?\"")
+    _help_example(theme, "uv run kb compare \"RLHF\" \"DPO\"")
+    _help_example(theme, "uv run kb search \"attention\" --top 5")
 
 
 def _format_message(message: str, ok: bool, theme: TerminalTheme) -> str:

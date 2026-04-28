@@ -20,6 +20,7 @@ from unittest import mock
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+UV_BIN = os.environ.get("UV", "uv")
 sys.path.insert(0, str(REPO_ROOT))
 
 from tools.kb.commands import queue as queue_cmd  # noqa: E402
@@ -27,6 +28,10 @@ from tools.kb.commands._common import CommandContext  # noqa: E402
 from tools.kb.models import LLMInvocationResult  # noqa: E402
 from tools.kb.workspace import Workspace  # noqa: E402
 from tools.worker import queue_store, run_hourly  # noqa: E402
+
+
+def kb_command(*args: str) -> list[str]:
+    return [UV_BIN, "run", "--locked", "--project", str(REPO_ROOT), "kb", *args]
 
 
 def fetch_result_for(body: bytes) -> queue_store.FetchResult:
@@ -299,7 +304,7 @@ class QueueCommandTests(unittest.TestCase):
             env = os.environ.copy()
             env["KB_WORKSPACES"] = str(base)
             proc = subprocess.run(
-                [str(REPO_ROOT / "kb"), "--dir", "named", "queue", "list", "--json"],
+                kb_command("--dir", "named", "queue", "list", "--json"),
                 cwd=str(REPO_ROOT),
                 env=env,
                 capture_output=True,
@@ -327,8 +332,7 @@ class QueueCommandTests(unittest.TestCase):
             env = os.environ.copy()
             env["KB_WORKSPACES"] = str(base)
             proc = subprocess.run(
-                [
-                    str(REPO_ROOT / "kb"),
+                kb_command(
                     "--dir",
                     "named",
                     "queue",
@@ -337,7 +341,7 @@ class QueueCommandTests(unittest.TestCase):
                     "--reason",
                     "outside scope",
                     "--json",
-                ],
+                ),
                 cwd=str(REPO_ROOT),
                 env=env,
                 capture_output=True,

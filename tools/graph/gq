@@ -2,7 +2,7 @@
 """gq — graph query CLI for the LLM knowledge base.
 
 Backed by `.graph.db` (SQLite) at the repo root. The DB is rebuilt from
-the wiki/ directory by `gq build`, which is also wired into `./kb compile`.
+the wiki/ directory by `gq build`, which is also wired into `uv run kb compile`.
 
 Usage:
     gq build                            rebuild .graph.db from wiki/

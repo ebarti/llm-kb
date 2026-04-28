@@ -9,14 +9,15 @@
 ```bash
 git clone git@github.com:ebarti/llm-kb.git ~/Github/llm-kb
 cd ~/Github/llm-kb
+uv sync
 ```
 
 Workspace data (wiki/, raw/, output/) lives under `$KB_WORKSPACES`
 (default `~/kb-workspaces/`), never inside this repo. Create one with:
 
 ```bash
-./kb new <name>                  # → ~/kb-workspaces/<name>
-./kb --dir <name> research "..." # target it explicitly
+uv run kb new <name>                  # → ~/kb-workspaces/<name>
+uv run kb --dir <name> research "..." # target it explicitly
 ```
 
 Build the search index inside a workspace (not the repo):
@@ -36,6 +37,7 @@ BRANCH=feat/42-typed-graph-store
 git worktree add ../llm-kb-$BRANCH -b $BRANCH origin/main
 
 cd ../llm-kb-$BRANCH
+uv sync
 # ... make changes, commit normally ...
 bash tools/tests/run-all.sh         # before opening non-draft PR
 git push -u origin $BRANCH

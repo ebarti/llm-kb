@@ -3,7 +3,9 @@
 .obsidian/workspace-mobile.json
 *.pyc
 __pycache__/
+*.egg-info/
 .env
+.venv/
 .idea/
 tools/search-engine/.index/
 tools/monitor/.logs/

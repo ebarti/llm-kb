@@ -104,7 +104,7 @@ last_updated: ""
 
 ## Concepts
 
-_No concept articles yet. Run `./kb research "<topic>"` to get started._
+_No concept articles yet. Run `uv run kb research "<topic>"` to get started._
 
 ## Entities
 
@@ -137,7 +137,7 @@ def _workspaces_root() -> Path:
 class Workspace:
     """A resolved workspace pairing an install location with an active KB."""
 
-    kb_home: Path  # Where the `kb` script / tools / CLAUDE.md live
+    kb_home: Path  # Where the uv project / tools / CLAUDE.md live
     kb_dir: Path   # Active workspace (wiki/raw/output live here)
 
     # ------------------------------------------------------------------ #

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run every decoration-page generator in `tools/compile/pages/`.
 
-Called by `./kb compile` so every `wiki/<Page>.md` that is auto-generatable
+Called by `uv run kb compile` so every `wiki/<Page>.md` that is auto-generatable
 (Dashboard, Graph, Tags, Glossary, Changelog) ends up with a fresh
 `last_compiled` timestamp on every compile.
 

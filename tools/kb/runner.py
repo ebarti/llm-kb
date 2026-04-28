@@ -124,10 +124,8 @@ def _invoke_agent(
         return LLMResult(
             text=(
                 "ERROR: kb LLM commands require claude-agent-sdk. Install it "
-                "from the repo root with `python3 -m pip install -r "
-                "requirements.txt` (or `python3 -m pip install "
-                "claude-agent-sdk`). The `claude` CLI is only used for "
-                f"`kb -i`. Import failed: {sdk_error}."
+                "from the repo root with `uv sync`. The `claude` CLI is "
+                f"only used for `uv run kb -i`. Import failed: {sdk_error}."
             ),
             backend="agent",
             returncode=1,
