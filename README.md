@@ -2,7 +2,7 @@
 
 > A personal knowledge base you operate in natural language. You drop sources (URLs, PDFs, repos, tweets); Claude fetches, summarises, cross-links, and maintains an Obsidian-browsable wiki. You ask questions; it answers with citations and files the answers back.
 
-`llm-kb` is a small CLI that turns `claude` into a research agent over a set of markdown notes. You never edit the wiki by hand — it is written, linted, and extended by the LLM. You read it (in Obsidian, a browser, an EPUB) and you ask it things.
+`llm-kb` is a small CLI that turns Claude into a research agent over a set of markdown notes. You never edit the wiki by hand — it is written, linted, and extended by the LLM. You read it (in Obsidian, a browser, an EPUB) and you ask it things.
 
 ---
 
@@ -25,14 +25,18 @@ The core idea: **raw data is immutable; the wiki is the LLM's compiled, cross-li
 ## Quickstart
 
 Requirements:
-- `claude` CLI installed and authenticated ([Claude Code](https://docs.claude.com/claude-code))
-- Python 3.9+ (stdlib only for core tools — no `pip install` needed)
+- Python 3.9+
+- `claude-agent-sdk` for LLM-backed commands (`research`, `ingest`, `compile`, `ask`, `lint`, `slides`, `report`, `compare`, `entity`, `discover`)
+- `ANTHROPIC_API_KEY` exported in your shell
+- Optional: `claude` CLI installed and authenticated for `./kb -i` interactive sessions ([Claude Code](https://docs.claude.com/claude-code))
 - Optional: `yt-dlp`, `pdftotext`, `gh` (for YouTube / PDF / GitHub ingest)
 - Optional: [Obsidian](https://obsidian.md) to browse the vault
 
 ```bash
 git clone git@github.com:ebarti/llm-kb.git ~/Github/llm-kb
 cd ~/Github/llm-kb
+python3 -m pip install -r requirements.txt
+export ANTHROPIC_API_KEY="your-api-key"
 
 # Create your first workspace (data lives outside the repo):
 ./kb new ai                       # → ~/kb-workspaces/ai/
@@ -48,6 +52,8 @@ open ~/kb-workspaces/ai
 ```
 
 First-run tips:
+- LLM-backed commands use the Claude Agent SDK by default. If you see a `claude-agent-sdk is required` error, run `python3 -m pip install -r requirements.txt` from the repo root.
+- If you omit `--dir`, `./kb` targets `$KB_WORKSPACES/default`.
 - `./kb workspaces` lists every workspace and shows which one is active.
 - `./kb --dir <name>` auto-creates the workspace if it does not exist.
 - The `--dir` flag accepts a bare name (resolved to `$KB_WORKSPACES/<name>`) or an absolute path.
@@ -87,7 +93,7 @@ A **workspace** is a self-contained directory with its own `raw/`, `wiki/`, `out
   my-other-topic/
 ```
 
-`./kb` refuses to run with `KB_DIR` pointing at the install dir — data never lives inside this repo.
+By default, `./kb` uses `$KB_WORKSPACES/default`. Use `--dir <name|path>` or `KB_DIR` to target another workspace.
 
 ---
 
@@ -105,7 +111,7 @@ Run `./kb --help` for the full list. A useful subset:
 
 # Search & browse
 ./kb search "<query>"             # BM25 full-text search
-./kb serve                        # web UI on :8888
+./kb serve                        # web UI on :8765
 ./kb stats                        # quick counts and tags
 ./kb log [n]                      # recent activity log
 
@@ -132,14 +138,14 @@ Run `./kb --help` for the full list. A useful subset:
 ```
 
 Flags: `--dir / -d`, `--model`, `--budget`, `--no-commit`, `--dry-run`, `--verbose`.
-Env: `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_BUDGET`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`.
+Env: `ANTHROPIC_API_KEY`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
 
 ---
 
 ## What's in the repo
 
 ```
-kb                    The CLI (bash, ~1200 lines)
+kb                    Stable CLI wrapper; implementation lives in tools/kb/
 tools/
   search-engine/      BM25 search (Python stdlib) + web UI on :8888
   ingest/             One shell script per source type (youtube, arxiv, github, pdf, tweet, batch)

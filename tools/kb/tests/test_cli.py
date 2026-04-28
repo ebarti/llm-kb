@@ -72,10 +72,13 @@ class HelpRenderingTests(unittest.TestCase):
         output = self._help_output({"KB_COLOR": "never"})
 
         self.assertIn("LLM Knowledge Base CLI", output)
+        self.assertIn("SETUP", output)
+        self.assertIn("python3 -m pip install -r requirements.txt", output)
         self.assertIn("CORE COMMANDS", output)
         self.assertIn('research "<topic>"', output)
         self.assertIn("QUEUE", output)
         self.assertIn("ENVIRONMENT", output)
+        self.assertIn("ANTHROPIC_API_KEY", output)
         self.assertIn("KB_COLOR", output)
         self.assertIn("SMART ROUTING", output)
         self.assertIn("EXAMPLES", output)
@@ -248,6 +251,7 @@ class RunnerAgentBackendTests(unittest.TestCase):
         self.assertEqual("agent", result.backend)
         self.assertEqual(1, result.returncode)
         self.assertIn("ANTHROPIC_API_KEY", result.text)
+        self.assertIn("export ANTHROPIC_API_KEY", result.text)
 
     def test_agent_backend_errors_when_sdk_not_installed(self) -> None:
         # Force-import failure by stubbing claude_agent_sdk with a non-module.
@@ -264,6 +268,8 @@ class RunnerAgentBackendTests(unittest.TestCase):
         self.assertEqual("agent", result.backend)
         self.assertEqual(1, result.returncode)
         self.assertIn("claude-agent-sdk", result.text)
+        self.assertIn("python3 -m pip install -r requirements.txt", result.text)
+        self.assertIn("kb -i", result.text)
 
     def test_agent_backend_surfaces_agent_reported_error(self) -> None:
         module, seq, _captured, _Am, Rm = _make_fake_agent_sdk()
@@ -337,7 +343,7 @@ class WorkspaceDryRunTests(unittest.TestCase):
         self.assertEqual((root / "base").resolve(), ws.kb_dir)
         self.assertFalse(str(ws.kb_dir).startswith(str(home / "kb-workspaces")))
 
-    def test_kb_home_env_expands_user_home(self) -> None:
+    def test_default_workspace_uses_workspaces_default(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             home = Path(td) / "home"
             home.mkdir()
@@ -349,9 +355,20 @@ class WorkspaceDryRunTests(unittest.TestCase):
             ):
                 ws = Workspace.resolve(dry_run=True)
 
-        expected = (home / "kb-home").resolve()
-        self.assertEqual(expected, ws.kb_home)
-        self.assertEqual(expected, ws.kb_dir)
+        self.assertEqual((home / "kb-home").resolve(), ws.kb_home)
+        self.assertEqual((home / "kb-workspaces" / "default").resolve(), ws.kb_dir)
+        self.assertFalse((home / "kb-workspaces" / "default").exists())
+
+    def test_non_dry_run_initializes_default_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            home = Path(td) / "home"
+            home.mkdir()
+
+            with mock.patch.dict("os.environ", {"HOME": str(home)}, clear=True):
+                ws = Workspace.resolve(dry_run=False)
+
+            self.assertEqual((home / "kb-workspaces" / "default").resolve(), ws.kb_dir)
+            self.assertTrue((home / "kb-workspaces" / "default" / "wiki").exists())
 
     def test_named_dir_uses_kb_workspaces_env(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -965,13 +982,17 @@ class MainExitHandlingTests(unittest.TestCase):
 
 class WrapperIntegrationTests(unittest.TestCase):
     def test_kb_wrapper_executes_python_cli(self) -> None:
-        proc = subprocess.run(
-            [str(KB_SCRIPT), "stats", "--json"],
-            cwd=str(REPO_ROOT),
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        with tempfile.TemporaryDirectory() as td:
+            env = os.environ.copy()
+            env["HOME"] = td
+            proc = subprocess.run(
+                [str(KB_SCRIPT), "stats", "--json"],
+                cwd=str(REPO_ROOT),
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
 
         self.assertEqual(0, proc.returncode, proc.stderr)
         payload = json.loads(proc.stdout)

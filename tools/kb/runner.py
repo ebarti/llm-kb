@@ -123,8 +123,11 @@ def _invoke_agent(
     if sdk_error is not None:
         return LLMResult(
             text=(
-                "ERROR: claude-agent-sdk is required. Install with "
-                f"`pip install claude-agent-sdk` (import failed: {sdk_error})."
+                "ERROR: kb LLM commands require claude-agent-sdk. Install it "
+                "from the repo root with `python3 -m pip install -r "
+                "requirements.txt` (or `python3 -m pip install "
+                "claude-agent-sdk`). The `claude` CLI is only used for "
+                f"`kb -i`. Import failed: {sdk_error}."
             ),
             backend="agent",
             returncode=1,
@@ -132,7 +135,11 @@ def _invoke_agent(
 
     if not os.environ.get("ANTHROPIC_API_KEY"):
         return LLMResult(
-            text="ERROR: ANTHROPIC_API_KEY is not set.",
+            text=(
+                "ERROR: ANTHROPIC_API_KEY is not set. Export it before "
+                "running LLM-backed commands, for example: "
+                "`export ANTHROPIC_API_KEY=<key>`."
+            ),
             backend="agent",
             returncode=1,
         )

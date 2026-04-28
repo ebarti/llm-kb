@@ -1263,6 +1263,7 @@ last_compiled: 2026-04-22
                 tmp,
                 "compile",
                 env={
+                    "KB_DIR": str(tmp),
                     "KB_NO_COMMIT": "1",
                 },
             )

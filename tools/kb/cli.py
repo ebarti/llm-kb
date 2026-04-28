@@ -659,6 +659,17 @@ def _print_help() -> None:
     print(theme.color(logo.rstrip("\n"), "cyan"))
     print(f"  {theme.dim('LLM Knowledge Base CLI')}\n")
 
+    _help_section(theme, "SETUP")
+    print(
+        f"  {theme.color('python3 -m pip install -r requirements.txt', 'green')}"
+    )
+    print(f"  {theme.color('export ANTHROPIC_API_KEY=<key>', 'green')}")
+    print(f"  {theme.dim('LLM commands use claude-agent-sdk; kb -i uses claude CLI.')}")
+    print(
+        f"  {theme.dim('Default workspace: $KB_WORKSPACES/default unless --dir or KB_DIR is set.')}"
+    )
+    print("")
+
     _help_section(theme, "USAGE")
     print(f"  {theme.color('kb', 'green')} <command> [args...] [flags]")
     print(f"  {theme.color('kb', 'green')} \"<natural language prompt>\"")
@@ -764,6 +775,7 @@ def _print_help() -> None:
     _help_env(theme, "KB_TOKEN_BUDGET", "Default token budget for LLM commands")
     _help_env(theme, "KB_COLOR", "auto|always|never terminal color control")
     _help_env(theme, "NO_COLOR", "Disable color when KB_COLOR is auto")
+    _help_env(theme, "ANTHROPIC_API_KEY", "Required by claude-agent-sdk for LLM commands")
     print("")
 
     _help_section(theme, "SMART ROUTING")

@@ -157,7 +157,8 @@ class Workspace:
         Mirrors the bash logic:
           - ``kb_home`` defaults to the directory containing this package's
             parent (the repo root)
-          - ``KB_DIR`` env var overrides ``kb_home`` as the active dir
+          - the active dir defaults to ``$KB_WORKSPACES/default``
+          - ``KB_DIR`` env var overrides the default active dir
           - ``--dir <x>`` further overrides; a bare name is resolved under
             ``$KB_WORKSPACES/<name>`` (default ``$HOME/kb-workspaces/<name>``);
             a path is used as-is
@@ -172,9 +173,11 @@ class Workspace:
             )
         kb_home = Path(kb_home).expanduser().resolve()
 
-        # Step 1: start from env var or install location
+        # Step 1: start from env var or the default workspace, never the
+        # install location. The repo checkout is tooling-only; wiki/raw/output
+        # data belongs under $KB_WORKSPACES unless explicitly overridden.
         base_dir = Path(
-            kb_dir or os.environ.get("KB_DIR") or str(kb_home)
+            kb_dir or os.environ.get("KB_DIR") or (_workspaces_root() / "default")
         ).expanduser()
 
         # Step 2: --dir/-d flag overrides
@@ -195,10 +198,9 @@ class Workspace:
 
         ws = cls(kb_home=kb_home, kb_dir=base_dir)
 
-        # Auto-init freshly created workspaces (only when --dir was used and
-        # we aren't in dry-run). Under --dry-run we deliberately skip init
-        # so the command preview stays side-effect-free.
-        if dir_flag and not dry_run and not (base_dir / "wiki").exists():
+        # Auto-init freshly created workspaces. Under --dry-run we deliberately
+        # skip init so the command preview stays side-effect-free.
+        if not dry_run and not (base_dir / "wiki").exists():
             ws.initialize()
 
         return ws
