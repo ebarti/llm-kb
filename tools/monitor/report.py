@@ -268,7 +268,7 @@ def generate_report(output_path):
         lines.append("Run these to expand the knowledge base:")
         lines.append("")
         for s in suggestions:
-            lines.append(f"- `./kb research \"{s['query']}\"`")
+            lines.append(f"- `uv run kb research \"{s['query']}\"`")
             lines.append(f"  Reason: {s['reason']}")
             lines.append("")
     else:

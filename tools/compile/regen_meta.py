@@ -37,7 +37,7 @@ Design goals
 * **Sorted.** Everything is emitted in sorted order by path so diffs
   are minimal and reviewable.
 * **Safe to call before the LLM compile step.** Intended to be invoked
-  by ``./kb compile`` so the meta files cannot silently drift out of
+  by ``uv run kb compile`` so the meta files cannot silently drift out of
   sync with reality.
 
 Usage

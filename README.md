@@ -2,7 +2,7 @@
 
 > A personal knowledge base you operate in natural language. You drop sources (URLs, PDFs, repos, tweets); Claude fetches, summarises, cross-links, and maintains an Obsidian-browsable wiki. You ask questions; it answers with citations and files the answers back.
 
-`llm-kb` is a small CLI that turns `claude` into a research agent over a set of markdown notes. You never edit the wiki by hand — it is written, linted, and extended by the LLM. You read it (in Obsidian, a browser, an EPUB) and you ask it things.
+`llm-kb` is a small CLI that turns Claude into a research agent over a set of markdown notes. You never edit the wiki by hand — it is written, linted, and extended by the LLM. You read it (in Obsidian, a browser, an EPUB) and you ask it things.
 
 ---
 
@@ -12,9 +12,9 @@ Three operations cover 90% of use:
 
 | Operation | You say | It does |
 |-----------|---------|---------|
-| **Research** | `kb research "mixture of experts"` | Web-searches 5–15 angles, fetches the good sources, ingests them, compiles summaries + concept pages + entity pages + comparisons. One prompt → 10–15 new wiki pages. |
-| **Ingest** | `kb ingest https://arxiv.org/abs/...` | Handles URLs, arXiv, YouTube, GitHub, PDFs, tweets. Cleans, frontmatters, indexes. |
-| **Ask** | `kb ask "what's the tradeoff between softmax and linear attention?"` | Reads summaries to find relevant articles, answers with `[[wikilinks]]`, optionally files the answer back as a new wiki page. |
+| **Research** | `uv run kb research "mixture of experts"` | Web-searches 5–15 angles, fetches the good sources, ingests them, compiles summaries + concept pages + entity pages + comparisons. One prompt → 10–15 new wiki pages. |
+| **Ingest** | `uv run kb ingest https://arxiv.org/abs/...` | Handles URLs, arXiv, YouTube, GitHub, PDFs, tweets. Cleans, frontmatters, indexes. |
+| **Ask** | `uv run kb ask "what's the tradeoff between softmax and linear attention?"` | Reads summaries to find relevant articles, answers with `[[wikilinks]]`, optionally files the answer back as a new wiki page. |
 
 Plus: lint (find gaps and fill them from the web), search (BM25), compare, slides (Marp), report, visualise (knowledge graph, timeline, concept map, Obsidian canvas), export (static site / PDF / EPUB / bundle), monitor (RSS + topic watch), MCP server, Python SDK.
 
@@ -25,31 +25,36 @@ The core idea: **raw data is immutable; the wiki is the LLM's compiled, cross-li
 ## Quickstart
 
 Requirements:
-- `claude` CLI installed and authenticated ([Claude Code](https://docs.claude.com/claude-code))
-- Python 3.9+ (stdlib only for core tools — no `pip install` needed)
+- [uv](https://docs.astral.sh/uv/) with Python 3.10+
+- `ANTHROPIC_API_KEY` exported in your shell
+- Optional: `claude` CLI installed and authenticated for `uv run kb -i` interactive sessions ([Claude Code](https://docs.claude.com/claude-code))
 - Optional: `yt-dlp`, `pdftotext`, `gh` (for YouTube / PDF / GitHub ingest)
 - Optional: [Obsidian](https://obsidian.md) to browse the vault
 
 ```bash
 git clone git@github.com:ebarti/llm-kb.git ~/Github/llm-kb
 cd ~/Github/llm-kb
+uv sync
+export ANTHROPIC_API_KEY="your-api-key"
 
 # Create your first workspace (data lives outside the repo):
-./kb new ai                       # → ~/kb-workspaces/ai/
+uv run kb new ai                  # → ~/kb-workspaces/ai/
 
 # Kick off your first research session:
-./kb --dir ai research "transformer architecture"
+uv run kb --dir ai research "transformer architecture"
 
 # Ask a question once the wiki has content:
-./kb --dir ai ask "what is a mixture of experts?"
+uv run kb --dir ai ask "what is a mixture of experts?"
 
 # Open the workspace in Obsidian:
 open ~/kb-workspaces/ai
 ```
 
 First-run tips:
-- `./kb workspaces` lists every workspace and shows which one is active.
-- `./kb --dir <name>` auto-creates the workspace if it does not exist.
+- LLM-backed commands use the Claude Agent SDK by default. If you see a `claude-agent-sdk is required` error, run `uv sync` from the repo root.
+- If you omit `--dir`, `uv run kb` targets `$KB_WORKSPACES/default`.
+- `uv run kb workspaces` lists every workspace and shows which one is active.
+- `uv run kb --dir <name>` auto-creates the workspace if it does not exist.
 - The `--dir` flag accepts a bare name (resolved to `$KB_WORKSPACES/<name>`) or an absolute path.
 
 ---
@@ -72,7 +77,7 @@ A **workspace** is a self-contained directory with its own `raw/`, `wiki/`, `out
 
 ```
 ~/Github/llm-kb/            # this repo — tooling only
-  kb                        # CLI
+  pyproject.toml            # uv project + CLI entrypoint
   tools/                    # search engine, ingest, viz, export, plugins, MCP, SDK
   templates/                # article + slide templates
   CLAUDE.md                 # Claude's operating manual (copied into workspaces)
@@ -87,59 +92,59 @@ A **workspace** is a self-contained directory with its own `raw/`, `wiki/`, `out
   my-other-topic/
 ```
 
-`./kb` refuses to run with `KB_DIR` pointing at the install dir — data never lives inside this repo.
+By default, `uv run kb` uses `$KB_WORKSPACES/default`. Use `--dir <name|path>` or `KB_DIR` to target another workspace.
 
 ---
 
 ## Command reference
 
-Run `./kb --help` for the full list. A useful subset:
+Run `uv run kb --help` for the full list. A useful subset:
 
 ```bash
 # Core
-./kb research "<topic>"           # web research + ingest + compile
-./kb ingest <url> [urls...]       # ingest specific sources
-./kb compile                      # recompile wiki from raw/
-./kb ask "<question>"             # Q&A with citations
-./kb lint                         # health check + fill gaps from the web
+uv run kb research "<topic>"           # web research + ingest + compile
+uv run kb ingest <url> [urls...]       # ingest specific sources
+uv run kb compile                      # recompile wiki from raw/
+uv run kb ask "<question>"             # Q&A with citations
+uv run kb lint                         # health check + fill gaps from the web
 
 # Search & browse
-./kb search "<query>"             # BM25 full-text search
-./kb serve                        # web UI on :8888
-./kb stats                        # quick counts and tags
-./kb log [n]                      # recent activity log
+uv run kb search "<query>"             # BM25 full-text search
+uv run kb serve                        # web UI on :8765
+uv run kb stats                        # quick counts and tags
+uv run kb log [n]                      # recent activity log
 
 # Generate
-./kb slides "<topic>"             # Marp deck in output/slides/
-./kb report "<topic>"             # long-form markdown report
-./kb compare "<x>" "<y>"          # comparison article
-./kb entity "<name>"              # entity page
+uv run kb slides "<topic>"             # Marp deck in output/slides/
+uv run kb report "<topic>"             # long-form markdown report
+uv run kb compare "<x>" "<y>"          # comparison article
+uv run kb entity "<name>"              # entity page
 
 # Export & visualize
-./kb export [site|pdf|epub|bundle]
-./kb viz    [graph|timeline|stats|canvas]
+uv run kb export [site|pdf|epub|bundle]
+uv run kb viz    [graph|timeline|stats|canvas]
 
 # Maintenance & ops
-./kb discover                     # auto-discover new sources via RSS + topic queries
-./kb test                         # run the integrity test suite
-./kb mcp                          # MCP server over stdio (for Claude Desktop)
-./kb -i                           # interactive Claude session in this workspace
+uv run kb discover                     # auto-discover new sources via RSS + topic queries
+uv run kb test                         # run the integrity test suite
+uv run kb mcp                          # MCP server over stdio (for Claude Desktop)
+uv run kb -i                           # interactive Claude session in this workspace
 
 # Workspaces
-./kb new <name>                   # create ~/kb-workspaces/<name>
-./kb workspaces                   # list all workspaces
-./kb --dir <name> <command>       # target a specific workspace
+uv run kb new <name>                   # create ~/kb-workspaces/<name>
+uv run kb workspaces                   # list all workspaces
+uv run kb --dir <name> <command>       # target a specific workspace
 ```
 
 Flags: `--dir / -d`, `--model`, `--budget`, `--no-commit`, `--dry-run`, `--verbose`.
-Env: `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_BUDGET`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`.
+Env: `ANTHROPIC_API_KEY`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
 
 ---
 
 ## What's in the repo
 
 ```
-kb                    The CLI (bash, ~1200 lines)
+pyproject.toml        uv project metadata and `kb` console script
 tools/
   search-engine/      BM25 search (Python stdlib) + web UI on :8888
   ingest/             One shell script per source type (youtube, arxiv, github, pdf, tweet, batch)
@@ -166,11 +171,11 @@ The operating manual (`CLAUDE.md`) is the authoritative description of how Claud
 
 Workspaces are plain markdown, so any editor works — but Obsidian is the intended frontend:
 - `[[wikilinks]]` resolve natively
-- `.canvas` files from `kb viz canvas` render as interactive node graphs
+- `.canvas` files from `uv run kb viz canvas` render as interactive node graphs
 - The Marp community plugin renders `output/slides/*.md` as live slide decks
 - Dataview works on the frontmatter (every article has `title`, `type`, `summary`, `last_compiled`, etc.)
 
-A minimal `.obsidian/` config is created automatically by `kb init`.
+A minimal `.obsidian/` config is created automatically by `uv run kb init`.
 
 ---
 

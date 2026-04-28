@@ -159,7 +159,7 @@ def test_committed_artifacts_are_up_to_date(regen) -> tuple[bool, str]:
     return (not stale), (
         "all committed meta files up to date"
         if not stale
-        else f"stale committed artifacts: {stale} (run ./kb compile or python3 tools/compile/regen_meta.py)"
+        else f"stale committed artifacts: {stale} (run uv run kb compile or python3 tools/compile/regen_meta.py)"
     )
 
 

@@ -545,7 +545,7 @@ def _run_kb(repo_root: Path, *args: str, env: dict[str, str] | None = None) -> s
     if env:
         merged_env.update(env)
     return subprocess.run(
-        ["bash", str(repo_root / "kb"), *args],
+        ["uv", "run", "--project", str(repo_root), "kb", *args],
         cwd=str(repo_root),
         capture_output=True,
         text=True,
@@ -1192,12 +1192,36 @@ edges:
         tmp = Path(tempfile.mkdtemp(prefix="graph-kb-compile-"))
         try:
             (tmp / "tools" / "graph").mkdir(parents=True)
-            for rel in ("kb", "tools/graph/__init__.py", "tools/graph/extract.py", "tools/graph/store.py", "tools/graph/gq"):
+            (tmp / "pyproject.toml").write_text(
+                """[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graph-kb-fixture"
+version = "0.0.0"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+kb = "tools.kb.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tools*"]
+namespaces = true
+""",
+                encoding="utf-8",
+            )
+            for rel in (
+                "tools/graph/__init__.py",
+                "tools/graph/extract.py",
+                "tools/graph/store.py",
+                "tools/graph/gq",
+            ):
                 src = REPO_ROOT / rel
                 dst = tmp / rel
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dst)
-            # The kb shim delegates to the Python CLI; copy it into the temp tree.
             shutil.copytree(
                 REPO_ROOT / "tools" / "kb",
                 tmp / "tools" / "kb",
@@ -1263,6 +1287,7 @@ last_compiled: 2026-04-22
                 tmp,
                 "compile",
                 env={
+                    "KB_DIR": str(tmp),
                     "KB_NO_COMMIT": "1",
                 },
             )

@@ -41,6 +41,19 @@ _QUESTION_RE = re.compile(
     re.IGNORECASE,
 )
 
+_ANSI = {
+    "reset": "\033[0m",
+    "bold": "\033[1m",
+    "dim": "\033[2m",
+    "red": "\033[0;31m",
+    "green": "\033[0;32m",
+    "yellow": "\033[1;33m",
+    "blue": "\033[0;34m",
+    "magenta": "\033[0;35m",
+    "cyan": "\033[0;36m",
+    "white": "\033[1;37m",
+}
+
 
 @dataclass
 class GlobalOptions:
@@ -52,6 +65,60 @@ class GlobalOptions:
     budget: int | None = None
     dir_flag: str | None = None
     permission_mode: str | None = None
+
+
+@dataclass(frozen=True)
+class TerminalTheme:
+    enabled: bool
+    ok: str
+    fail: str
+    warn: str
+    info: str
+    bullet: str
+    arrow: str
+    spark: str
+
+    def color(self, text: object, *styles: str) -> str:
+        value = str(text)
+        if not self.enabled:
+            return value
+        prefix = "".join(_ANSI[style] for style in styles if style in _ANSI)
+        if not prefix:
+            return value
+        return f"{prefix}{value}{_ANSI['reset']}"
+
+    def heading(self, text: str) -> str:
+        return self.color(text, "bold", "white")
+
+    def dim(self, text: object) -> str:
+        return self.color(text, "dim")
+
+
+def _color_enabled(stream: object | None = None) -> bool:
+    stream = sys.stdout if stream is None else stream
+    setting = os.environ.get("KB_COLOR", "auto").strip().lower()
+    if setting in {"1", "always", "force", "on", "true", "yes"}:
+        return True
+    if setting in {"0", "never", "off", "false", "no"}:
+        return False
+    if os.environ.get("NO_COLOR") is not None:
+        return False
+    isatty = getattr(stream, "isatty", None)
+    return bool(isatty and isatty())
+
+
+def _theme(stream: object | None = None) -> TerminalTheme:
+    enabled = _color_enabled(stream)
+    return TerminalTheme(
+        enabled=enabled,
+        ok="✓" if enabled else "[ok]",
+        fail="✗" if enabled else "[fail]",
+        warn="⚠" if enabled else "[warn]",
+        info="ℹ" if enabled else "[info]",
+        bullet="•" if enabled else "*",
+        arrow="→" if enabled else "->",
+        spark="⚡" if enabled else "[!]",
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -453,34 +520,52 @@ def _render_result(result: CommandResult, *, json_output: bool) -> None:
         print(_model_dump_json(result))
         return
 
+    theme = _theme()
+
     if isinstance(result, SearchResult):
         if result.message and not result.hits:
-            print(result.message.strip())
+            if result.ok:
+                print(f"{theme.color(theme.info, 'yellow')} {result.message.strip()}")
+            else:
+                print(_format_message(result.message.strip(), result.ok, theme))
             return
         if not result.hits:
-            print(f'No results for "{result.query}"')
+            print(
+                f"{theme.color(theme.info, 'yellow')} "
+                f"No results for {theme.color(result.query, 'green')}"
+            )
             return
-        print(f'Search results for "{result.query}" ({result.backend})')
+        print(
+            f"{theme.heading('Search Results')} "
+            f"{theme.dim(f'backend: {result.backend}')}"
+        )
+        print(f"  Query: {theme.color(result.query, 'green')}")
         for idx, hit in enumerate(result.hits, start=1):
             title = hit.title or hit.path
             score = f" score={hit.score:.4f}" if hit.score is not None else ""
-            print(f"{idx}. {title}{score}")
-            print(f"   file: {hit.path}")
+            print(
+                f"{theme.color(str(idx) + '.', 'cyan')} "
+                f"{theme.color(title, 'bold')}{theme.color(score, 'yellow')}"
+            )
+            print(f"   {theme.dim('file:')} {hit.path}")
             if hit.snippet:
                 print(f"   {hit.snippet}")
         return
 
     if isinstance(result, StatsResult):
+        print(theme.heading("Wiki Stats"))
         print(
-            f"Wiki files: {result.total_wiki_files} | "
-            f"Wiki words: {result.total_wiki_words} | "
-            f"Raw words: {result.total_raw_words}"
+            f"  {theme.color('wiki files', 'cyan')}: {result.total_wiki_files} | "
+            f"{theme.color('wiki words', 'cyan')}: {result.total_wiki_words} | "
+            f"{theme.color('raw words', 'cyan')}: {result.total_raw_words}"
         )
         for section in result.sections:
+            section_padding = " " * max(2, 22 - len(section.name))
             print(
-                f"{section.name} files={section.files} words={section.words}"
+                f"  {theme.color(section.name, 'green')}{section_padding}"
+                f"files={section.files} words={section.words}"
                 + (
-                    f" last_modified={section.last_modified}"
+                    f" {theme.dim(f'last_modified={section.last_modified}')}"
                     if section.last_modified
                     else ""
                 )
@@ -496,100 +581,260 @@ def _render_result(result: CommandResult, *, json_output: bool) -> None:
 
     if isinstance(result, TestResult):
         print(
-            f"Test suites: total={result.total} passed={result.passed} failed={result.failed}"
+            f"{theme.heading('Test Suites')} "
+            f"total={result.total} "
+            f"{theme.color(f'passed={result.passed}', 'green')} "
+            f"{theme.color(f'failed={result.failed}', 'red' if result.failed else 'green')}"
         )
         for suite in result.suites:
-            status = "PASS" if suite.passed else "FAIL"
-            print(f"{status} {suite.name} (rc={suite.returncode})")
+            if suite.passed:
+                status = theme.color("PASS", "green")
+            else:
+                status = theme.color("FAIL", "red")
+            print(f"{status} {suite.name} {theme.dim(f'(rc={suite.returncode})')}")
         if result.message:
-            print(result.message.strip())
+            print(_format_message(result.message.strip(), result.ok, theme))
         return
 
     if isinstance(result, QueueResult):
         if result.action == "list":
             if not result.items:
-                print("Queue is empty.")
+                print(f"{theme.color(theme.info, 'cyan')} Queue is empty.")
                 return
-            print(f"Queued candidates ({len(result.items)})")
+            print(f"{theme.heading('Queued Candidates')} {theme.dim(f'({len(result.items)})')}")
             for item in result.items:
                 title = item.title or "(untitled)"
-                topic = f" [{item.topic}]" if item.topic else ""
-                print(f"{item.id}{topic} {title}")
+                topic = (
+                    f" {theme.color(f'[{item.topic}]', 'magenta')}"
+                    if item.topic
+                    else ""
+                )
+                print(f"{theme.color(item.id, 'cyan')}{topic} {title}")
                 if item.url:
-                    print(f"   url: {item.url}")
+                    print(f"   {theme.dim('url:')} {item.url}")
                 if item.content_hash:
-                    print(f"   hash: {item.content_hash}")
+                    print(f"   {theme.dim('hash:')} {item.content_hash}")
                 if item.preview:
                     print(f"   {item.preview[:180]}")
             return
         if result.message:
-            print(result.message.strip())
+            print(_format_message(result.message.strip(), result.ok, theme))
         return
 
     if isinstance(result, WorkspacesResult):
+        print(theme.heading("Workspaces"))
         for entry in result.workspaces:
-            default = " (default)" if entry.is_default else ""
-            print(f"{entry.name}{default}: {entry.path} [{entry.articles} articles]")
+            name = theme.color(entry.name, "green" if entry.is_default else "cyan")
+            default = f" {theme.color('(default)', 'yellow')}" if entry.is_default else ""
+            print(
+                f"  {name}{default}: "
+                f"{theme.dim(entry.path)} [{entry.articles} articles]"
+            )
         return
 
     if isinstance(result, InitResult):
         if result.message:
-            print(result.message)
+            print(_format_message(result.message, result.ok, theme))
         for path in result.created_files:
-            print(path)
+            print(f"{theme.color(theme.ok, 'green')} {path}")
         return
 
     if result.message:
-        print(result.message.strip())
+        print(_format_message(result.message.strip(), result.ok, theme))
 
 
 def _print_help() -> None:
-    print(
-        """kb — Python CLI for the LLM knowledge base
+    theme = _theme()
+    model_default = os.environ.get("KB_MODEL", "opus")
+    permission_default = os.environ.get("KB_PERMISSION_MODE", "bypassPermissions")
 
-Usage:
-  kb <command> [args] [--json] [--verbose] [--dry-run] [--no-commit]
-  kb "<natural language prompt>"
-
-Commands:
-  research <topic>
-  ingest <url> [urls...]
-  compile
-  ask <question>
-  query <question>
-  lint
-  search <query> [--top N]
-  slides <topic>
-  report <topic>
-  compare <x> <y>
-  entity <name>
-  queue list
-  queue approve <id>
-  queue reject <id> [reason]
-  export [site|pdf|epub|bundle]
-  viz [graph|timeline|stats|concept-map|canvas|all]
-  discover
-  test
-  log [n] [--all]
-  stats
-  init [path]
-  new <name> [base]
-  workspaces
-  serve [port]
-  mcp [args...]
-  -i | --interactive
-
-Global flags:
-  --dir, -d <name|path>
-  --model <model>
-  --budget <tokens>
-  --permission-mode <mode>
-  --json
-  --verbose, -v
-  --dry-run
-  --no-commit
+    logo = r"""
+    ██╗  ██╗██████╗
+    ██║ ██╔╝██╔══██╗
+    █████╔╝ ██████╔╝
+    ██╔═██╗ ██╔══██╗
+    ██║  ██╗██████╔╝
+    ╚═╝  ╚═╝╚═════╝
 """
+    print(theme.color(logo.rstrip("\n"), "cyan"))
+    print(f"  {theme.dim('LLM Knowledge Base CLI')}\n")
+
+    _help_section(theme, "SETUP")
+    print(f"  {theme.color('uv sync', 'green')}")
+    print(f"  {theme.color('export ANTHROPIC_API_KEY=<key>', 'green')}")
+    print(f"  {theme.color('uv run kb --help', 'green')}")
+    print(f"  {theme.dim('LLM commands use claude-agent-sdk; uv run kb -i uses claude CLI.')}")
+    print(
+        f"  {theme.dim('Default workspace: $KB_WORKSPACES/default unless --dir or KB_DIR is set.')}"
     )
+    print("")
+
+    _help_section(theme, "USAGE")
+    print(f"  {theme.color('uv run kb', 'green')} <command> [args...] [flags]")
+    print(f"  {theme.color('uv run kb', 'green')} \"<natural language prompt>\"")
+    print("")
+
+    _help_section(theme, "CORE COMMANDS")
+    _help_row(theme, "research", "\"<topic>\"", "Deep web research + ingest + compile")
+    _help_row(theme, "ingest", "<url> [urls...]", "Ingest specific URLs into raw/")
+    _help_row(theme, "compile", "", "Recompile wiki from raw sources")
+    _help_row(theme, "ask", "\"<question>\"", "Q&A over the wiki")
+    _help_row(theme, "query", "\"<question>\"", "Alias for ask")
+    _help_row(theme, "lint", "", "Health check + active gap filling")
+    print("")
+
+    _help_section(theme, "SEARCH & BROWSE")
+    _help_row(theme, "search", "\"<query>\" [--top N]", "Full-text search")
+    _help_row(theme, "serve", "[port]", "Start search web UI (default: 8765)")
+    print("")
+
+    _help_section(theme, "GENERATE")
+    _help_row(theme, "slides", "\"<topic>\"", "Generate a Marp slide deck")
+    _help_row(theme, "report", "\"<topic>\"", "Generate a detailed report")
+    _help_row(theme, "compare", "\"<x>\" \"<y>\"", "Generate a comparison article")
+    _help_row(theme, "entity", "\"<name>\"", "Create/update an entity page")
+    print("")
+
+    _help_section(theme, "QUEUE")
+    _help_row(theme, "queue list", "", "Show discovered candidates awaiting review")
+    _help_row(theme, "queue approve", "<id>", "Promote a candidate through ingest")
+    _help_row(theme, "queue reject", "<id> [reason]", "Archive a candidate")
+    print("")
+
+    _help_section(theme, "EXPORT & VISUALIZE")
+    _help_row(theme, "export", "[format]", "Export wiki: site, pdf, epub, or bundle")
+    _help_row(
+        theme,
+        "viz",
+        "[type]",
+        "Generate graph, timeline, stats, concept-map, canvas, or all",
+    )
+    print("")
+
+    _help_section(theme, "MAINTENANCE")
+    _help_row(theme, "discover", "", "Auto-discover new sources")
+    _help_row(theme, "test", "", "Run integrity tests")
+    _help_row(theme, "stats", "", "Quick wiki statistics")
+    _help_row(theme, "log", "[n] [--all]", "Show recent log entries")
+    _help_row(theme, "init", "[path]", "Initialize a new knowledge base")
+    _help_row(theme, "new", "<name> [base]", "Create a named workspace")
+    _help_row(theme, "workspaces", "[base]", "List all workspaces (alias: ws)")
+    print("")
+
+    _help_section(theme, "INFRASTRUCTURE")
+    _help_row(theme, "mcp", "[args...]", "Start MCP server")
+    _help_row(theme, "-i", "| --interactive", "Interactive Claude session")
+    print("")
+
+    _help_section(theme, "FLAGS")
+    _help_flag(
+        theme,
+        "--dir, -d",
+        "<name|path>",
+        "Target a workspace; names resolve under $KB_WORKSPACES and auto-init if new",
+    )
+    _help_flag(
+        theme,
+        "--model",
+        "<model>",
+        f"Override Claude model (default: {model_default})",
+    )
+    _help_flag(
+        theme,
+        "--budget",
+        "<tokens>",
+        "Stop when aggregate token usage exceeds this",
+    )
+    _help_flag(
+        theme,
+        "--permission-mode",
+        "<mode>",
+        f"Claude permission mode (default: {permission_default})",
+    )
+    _help_flag(theme, "--json", "", "Emit machine-readable output")
+    _help_flag(theme, "--verbose, -v", "", "Show detailed output and prompt previews")
+    _help_flag(theme, "--dry-run", "", "Preview what would happen without side effects")
+    _help_flag(theme, "--no-commit", "", "Skip git auto-commit after successful wiki writes")
+    print("")
+
+    _help_section(theme, "ENVIRONMENT")
+    _help_env(theme, "KB_MODEL", f"Claude model default (current: {model_default})")
+    _help_env(
+        theme,
+        "KB_PERMISSION_MODE",
+        f"Permission mode default (current: {permission_default})",
+    )
+    _help_env(
+        theme,
+        "KB_WORKSPACES",
+        "Base dir for named workspaces (default: ~/kb-workspaces)",
+    )
+    _help_env(theme, "KB_DIR", "Active workspace override")
+    _help_env(theme, "KB_NO_COMMIT", "Skip git commits when set to 1")
+    _help_env(theme, "KB_TOKEN_BUDGET", "Default token budget for LLM commands")
+    _help_env(theme, "KB_COLOR", "auto|always|never terminal color control")
+    _help_env(theme, "NO_COLOR", "Disable color when KB_COLOR is auto")
+    _help_env(theme, "ANTHROPIC_API_KEY", "Required by claude-agent-sdk for LLM commands")
+    print("")
+
+    _help_section(theme, "SMART ROUTING")
+    print(f"  If no command matches, {theme.color('uv run kb', 'green')} routes by input shape:")
+    _help_bullet(theme, "URLs", "ingest")
+    _help_bullet(theme, "Questions", "ask")
+    _help_bullet(theme, "Short phrases", "research")
+    _help_bullet(theme, "Anything else", "free-form LLM prompt")
+    print("")
+
+    _help_section(theme, "EXAMPLES")
+    _help_example(theme, "uv run kb new agents")
+    _help_example(theme, "uv run kb --dir agents research \"LLM agents with memory\"")
+    _help_example(theme, "uv run kb ingest https://arxiv.org/abs/2401.00001")
+    _help_example(theme, "uv run kb \"what are the key themes?\"")
+    _help_example(theme, "uv run kb compare \"RLHF\" \"DPO\"")
+    _help_example(theme, "uv run kb search \"attention\" --top 5")
+
+
+def _format_message(message: str, ok: bool, theme: TerminalTheme) -> str:
+    if ok:
+        return message
+    return f"{theme.color(theme.fail, 'red')} {message}"
+
+
+def _help_section(theme: TerminalTheme, title: str) -> None:
+    print(theme.heading(title))
+
+
+def _help_row(theme: TerminalTheme, command: str, args: str, description: str) -> None:
+    left_plain = f"{command} {args}".strip()
+    left = theme.color(command, "cyan")
+    if args:
+        left = f"{left} {args}"
+    padding = " " * max(2, 30 - len(left_plain))
+    print(f"  {left}{padding}{description}")
+
+
+def _help_flag(theme: TerminalTheme, flag: str, arg: str, description: str) -> None:
+    left_plain = f"{flag} {arg}".strip()
+    left = theme.color(flag, "yellow")
+    if arg:
+        left = f"{left} {arg}"
+    padding = " " * max(2, 34 - len(left_plain))
+    print(f"  {left}{padding}{description}")
+
+
+def _help_env(theme: TerminalTheme, name: str, description: str) -> None:
+    print(f"  {theme.dim(f'{name:<22}')} {description}")
+
+
+def _help_bullet(theme: TerminalTheme, label: str, target: str) -> None:
+    print(
+        f"  {theme.dim(theme.bullet)} {label:<14} "
+        f"{theme.color(theme.arrow, 'magenta')} {target}"
+    )
+
+
+def _help_example(theme: TerminalTheme, command: str) -> None:
+    print(f"  {theme.color(command, 'green')}")
 
 
 _COMMANDS: dict[str, Callable[[CommandContext, Sequence[str]], CommandResult]] = {
