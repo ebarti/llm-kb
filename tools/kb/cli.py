@@ -661,7 +661,19 @@ def _print_help() -> None:
 
     _help_section(theme, "SETUP")
     print(f"  {theme.color('uv sync', 'green')}")
-    print(f"  {theme.color('export ANTHROPIC_API_KEY=<key>', 'green')}")
+    print(f"  {theme.dim('Choose one auth path:')}")
+    print(
+        f"  {theme.color('export ANTHROPIC_API_KEY=<key>', 'green')} "
+        f"{theme.dim('# Anthropic API')}"
+    )
+    print(
+        f"  {theme.color('export KB_LLM_PROVIDER=vertex', 'green')} "
+        f"{theme.dim('# Vertex AI')}"
+    )
+    print(
+        f"  {theme.color('export ANTHROPIC_VERTEX_PROJECT_ID=<gcp-project>', 'green')}"
+    )
+    print(f"  {theme.color('export CLOUD_ML_REGION=global', 'green')}")
     print(f"  {theme.color('uv run kb --help', 'green')}")
     print(f"  {theme.dim('LLM commands use claude-agent-sdk; uv run kb -i uses claude CLI.')}")
     print(
@@ -759,6 +771,7 @@ def _print_help() -> None:
 
     _help_section(theme, "ENVIRONMENT")
     _help_env(theme, "KB_MODEL", f"Claude model default (current: {model_default})")
+    _help_env(theme, "KB_LLM_PROVIDER", "anthropic|vertex|bedrock|foundry provider")
     _help_env(
         theme,
         "KB_PERMISSION_MODE",
@@ -774,7 +787,11 @@ def _print_help() -> None:
     _help_env(theme, "KB_TOKEN_BUDGET", "Default token budget for LLM commands")
     _help_env(theme, "KB_COLOR", "auto|always|never terminal color control")
     _help_env(theme, "NO_COLOR", "Disable color when KB_COLOR is auto")
-    _help_env(theme, "ANTHROPIC_API_KEY", "Required by claude-agent-sdk for LLM commands")
+    _help_env(theme, "ANTHROPIC_API_KEY", "Required for Anthropic API mode")
+    _help_env(theme, "CLAUDE_CODE_USE_VERTEX", "Use Vertex AI via Claude Agent SDK")
+    _help_env(theme, "ANTHROPIC_VERTEX_PROJECT_ID", "GCP project for Vertex AI")
+    _help_env(theme, "CLOUD_ML_REGION", "Vertex endpoint region: global, us, eu, or region")
+    _help_env(theme, "GOOGLE_APPLICATION_CREDENTIALS", "Optional service account credentials")
     print("")
 
     _help_section(theme, "SMART ROUTING")

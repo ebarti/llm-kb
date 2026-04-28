@@ -84,6 +84,9 @@ class HelpRenderingTests(unittest.TestCase):
         self.assertIn("QUEUE", output)
         self.assertIn("ENVIRONMENT", output)
         self.assertIn("ANTHROPIC_API_KEY", output)
+        self.assertIn("KB_LLM_PROVIDER", output)
+        self.assertIn("CLAUDE_CODE_USE_VERTEX", output)
+        self.assertIn("ANTHROPIC_VERTEX_PROJECT_ID", output)
         self.assertIn("KB_COLOR", output)
         self.assertIn("SMART ROUTING", output)
         self.assertIn("EXAMPLES", output)
@@ -257,6 +260,82 @@ class RunnerAgentBackendTests(unittest.TestCase):
         self.assertEqual(1, result.returncode)
         self.assertIn("ANTHROPIC_API_KEY", result.text)
         self.assertIn("export ANTHROPIC_API_KEY", result.text)
+        self.assertIn("KB_LLM_PROVIDER=vertex", result.text)
+
+    def test_agent_backend_allows_vertex_without_api_key(self) -> None:
+        module, seq, captured, _Am, Rm = _make_fake_agent_sdk()
+        seq.append(Rm(result="vertex answer", usage={"output_tokens": 4}))
+
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict(
+                "os.environ",
+                {
+                    "CLAUDE_CODE_USE_VERTEX": "1",
+                    "ANTHROPIC_VERTEX_PROJECT_ID": "project",
+                    "CLOUD_ML_REGION": "global",
+                },
+                clear=True,
+            ):
+                result = invoke_llm(
+                    "prompt",
+                    model="sonnet",
+                    budget=BudgetTracker(limit=None),
+                )
+
+        self.assertEqual(0, result.returncode)
+        self.assertEqual("vertex answer", result.text)
+        self.assertEqual("prompt", captured["prompt"])
+
+    def test_kb_provider_vertex_sets_claude_code_vertex_env(self) -> None:
+        module, seq, captured, _Am, Rm = _make_fake_agent_sdk()
+        seq.append(Rm(result="ok"))
+
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict(
+                "os.environ",
+                {
+                    "KB_LLM_PROVIDER": "vertex",
+                    "ANTHROPIC_VERTEX_PROJECT_ID": "project",
+                    "CLOUD_ML_REGION": "global",
+                },
+                clear=True,
+            ):
+                result = invoke_llm(
+                    "prompt",
+                    model="sonnet",
+                    budget=BudgetTracker(limit=None),
+                )
+                self.assertEqual("1", os.environ.get("CLAUDE_CODE_USE_VERTEX"))
+
+        self.assertEqual(0, result.returncode)
+        self.assertEqual("prompt", captured["prompt"])
+
+    def test_vertex_failure_hint_delegates_google_credentials_to_environment(self) -> None:
+        module, _seq, _captured, _Am, _Rm = _make_fake_agent_sdk()
+
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict(
+                "os.environ",
+                {
+                    "KB_LLM_PROVIDER": "vertex",
+                    "ANTHROPIC_VERTEX_PROJECT_ID": "project",
+                    "CLOUD_ML_REGION": "global",
+                },
+                clear=True,
+            ):
+                with mock.patch(
+                    "tools.kb.runner._stream_agent",
+                    side_effect=RuntimeError("auth failed"),
+                ):
+                    result = invoke_llm(
+                        "prompt",
+                        model="sonnet",
+                        budget=BudgetTracker(limit=None),
+                    )
+
+        self.assertEqual(1, result.returncode)
+        self.assertIn("GOOGLE_APPLICATION_CREDENTIALS", result.text)
+        self.assertNotIn("gcloud auth application-default login", result.text)
 
     def test_agent_backend_errors_when_sdk_not_installed(self) -> None:
         # Force-import failure by stubbing claude_agent_sdk with a non-module.

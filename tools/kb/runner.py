@@ -97,6 +97,14 @@ _MODEL_ALIASES = {
     "haiku": "claude-haiku-4-5-20251001",
 }
 
+_FALSEY_ENV = {"", "0", "false", "no", "off"}
+_THIRD_PARTY_PROVIDER_FLAGS = {
+    "vertex": "CLAUDE_CODE_USE_VERTEX",
+    "bedrock": "CLAUDE_CODE_USE_BEDROCK",
+    "foundry": "CLAUDE_CODE_USE_FOUNDRY",
+}
+_SUPPORTED_PROVIDERS = {"anthropic", *_THIRD_PARTY_PROVIDER_FLAGS}
+
 
 def _resolve_model(name: str) -> str:
     return _MODEL_ALIASES.get(name, name)
@@ -110,6 +118,58 @@ def _missing_sdk_error() -> Optional[Exception]:
     return None
 
 
+def _env_flag_enabled(name: str) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return False
+    return value.strip().lower() not in _FALSEY_ENV
+
+
+def _configure_agent_provider() -> tuple[str, Optional[str]]:
+    """Return the active Agent SDK provider and apply kb provider aliases."""
+    requested = os.environ.get("KB_LLM_PROVIDER", "").strip().lower()
+    if requested:
+        if requested == "google-vertex":
+            requested = "vertex"
+        if requested not in _SUPPORTED_PROVIDERS:
+            supported = ", ".join(sorted(_SUPPORTED_PROVIDERS))
+            return (
+                requested,
+                f"ERROR: unsupported KB_LLM_PROVIDER={requested!r}. "
+                f"Use one of: {supported}.",
+            )
+        if requested in _THIRD_PARTY_PROVIDER_FLAGS:
+            os.environ[_THIRD_PARTY_PROVIDER_FLAGS[requested]] = "1"
+        return requested, None
+
+    for provider, flag in _THIRD_PARTY_PROVIDER_FLAGS.items():
+        if _env_flag_enabled(flag):
+            return provider, None
+    return "anthropic", None
+
+
+def _auth_preflight_error(provider: str) -> Optional[str]:
+    if provider == "anthropic" and not os.environ.get("ANTHROPIC_API_KEY"):
+        return (
+            "ERROR: ANTHROPIC_API_KEY is not set. Export it before running "
+            "LLM-backed commands with the Anthropic API, for example: "
+            "`export ANTHROPIC_API_KEY=<key>`. For Vertex AI, set "
+            "`KB_LLM_PROVIDER=vertex` or `CLAUDE_CODE_USE_VERTEX=1` and "
+            "configure Google Cloud credentials."
+        )
+    return None
+
+
+def _provider_failure_hint(provider: str) -> str:
+    if provider == "vertex":
+        return (
+            " Vertex AI mode is active; verify `CLAUDE_CODE_USE_VERTEX=1`, "
+            "`ANTHROPIC_VERTEX_PROJECT_ID`, `CLOUD_ML_REGION`, and Google "
+            "credentials in the environment, such as `GOOGLE_APPLICATION_CREDENTIALS`."
+        )
+    return ""
+
+
 def _invoke_agent(
     *,
     prompt: str,
@@ -119,6 +179,10 @@ def _invoke_agent(
     verbose: bool,
     cwd: Optional[str],
 ) -> LLMResult:
+    provider, provider_error = _configure_agent_provider()
+    if provider_error is not None:
+        return LLMResult(text=provider_error, backend="agent", returncode=1)
+
     sdk_error = _missing_sdk_error()
     if sdk_error is not None:
         return LLMResult(
@@ -131,16 +195,9 @@ def _invoke_agent(
             returncode=1,
         )
 
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        return LLMResult(
-            text=(
-                "ERROR: ANTHROPIC_API_KEY is not set. Export it before "
-                "running LLM-backed commands, for example: "
-                "`export ANTHROPIC_API_KEY=<key>`."
-            ),
-            backend="agent",
-            returncode=1,
-        )
+    auth_error = _auth_preflight_error(provider)
+    if auth_error is not None:
+        return LLMResult(text=auth_error, backend="agent", returncode=1)
 
     resolved_model = _resolve_model(model)
 
@@ -155,7 +212,7 @@ def _invoke_agent(
 
     if verbose:
         print(
-            f"[kb] agent backend | model={resolved_model} "
+            f"[kb] agent backend | provider={provider} model={resolved_model} "
             f"permission_mode={permission_mode} budget={budget.limit}"
         )
 
@@ -171,7 +228,10 @@ def _invoke_agent(
         )
     except Exception as exc:  # noqa: BLE001
         return LLMResult(
-            text=f"ERROR: claude-agent-sdk call failed: {exc}",
+            text=(
+                f"ERROR: claude-agent-sdk call failed: {exc}."
+                f"{_provider_failure_hint(provider)}"
+            ),
             backend="agent",
             returncode=1,
         )
