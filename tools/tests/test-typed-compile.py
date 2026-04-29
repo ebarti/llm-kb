@@ -15,10 +15,10 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from tools.kb.commands._common import CommandContext
-from tools.kb.runner import LLMResult
-from tools.kb.typed_compile import compile_workspace
-from tools.kb.workspace import Workspace
+from kb.commands._common import CommandContext
+from kb.runner import LLMResult
+from kb.typed_compile import compile_workspace
+from kb.workspace import Workspace
 
 
 LONG_DETAIL = (

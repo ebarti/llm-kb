@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from ..models import EXIT_ERROR, EXIT_SUCCESS, LogResult
-from ._common import CommandContext
+from kb.models import EXIT_ERROR, EXIT_SUCCESS, LogResult
+from kb.commands._common import CommandContext
 
 
 def run(ctx: CommandContext, n: int | None = 10, all_entries: bool = False) -> LogResult:

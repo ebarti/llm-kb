@@ -17,8 +17,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.kb.workspace import Workspace  # noqa: E402
-from tools.worker.queue_store import enqueue_discovered_sources  # noqa: E402
+from kb.workspace import Workspace  # noqa: E402
+from kb.queue_store import enqueue_discovered_sources  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:

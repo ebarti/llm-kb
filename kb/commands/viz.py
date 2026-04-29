@@ -6,8 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ..models import EXIT_ERROR, EXIT_SUCCESS, VizResult
-from ._common import CommandContext
+from kb.models import EXIT_ERROR, EXIT_SUCCESS, VizResult
+from kb.commands._common import CommandContext
 
 
 VIZ_SCRIPTS = {

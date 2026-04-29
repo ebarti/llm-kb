@@ -4,7 +4,7 @@ LLM runner for kb.
 Backend: the **Claude Agent SDK** (``claude-agent-sdk`` on PyPI). It gives
 us agentic behaviour (tool use, permission modes, working directory, etc.)
 like the old ``claude`` CLI subprocess path did, *and* it reports token
-usage via ``ResultMessage.usage`` so :class:`~tools.kb.budget.BudgetTracker`
+usage via ``ResultMessage.usage`` so :class:`~kb.budget.BudgetTracker`
 can hard-enforce budgets on every invocation.
 
 The old two-backend split (raw ``anthropic`` SDK vs ``claude`` CLI
@@ -17,13 +17,13 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import os
-import sys
 import time
 from dataclasses import dataclass, field
 from typing import Optional
 
-from .budget import BudgetExceeded, BudgetTracker
-from .models import TokenUsage
+from kb import observability
+from kb.budget import BudgetExceeded, BudgetTracker
+from kb.models import TokenUsage
 
 
 @dataclass
@@ -48,6 +48,7 @@ def invoke_llm(
     dry_run: bool = False,
     permission_mode: str = "bypassPermissions",
     verbose: bool = False,
+    show_progress: bool | None = None,
     cwd: Optional[str] = None,
 ) -> LLMResult:
     """Run ``prompt`` through the Claude Agent SDK.
@@ -60,7 +61,7 @@ def invoke_llm(
         Model alias (``opus``/``sonnet``/``haiku``) or a full model id
         (e.g. ``claude-opus-4-7``). Aliases are expanded below.
     budget
-        A :class:`~tools.kb.budget.BudgetTracker`. The ``ResultMessage``
+        A :class:`~kb.budget.BudgetTracker`. The ``ResultMessage``
         usage is fed into it; if the response crosses the cap, the
         returned :class:`LLMResult` has ``budget_exceeded=True``.
     dry_run
@@ -85,6 +86,7 @@ def invoke_llm(
         budget=budget,
         permission_mode=permission_mode,
         verbose=verbose,
+        show_progress=verbose if show_progress is None else show_progress,
         cwd=cwd,
     )
 
@@ -180,11 +182,22 @@ def _invoke_agent(
     budget: BudgetTracker,
     permission_mode: str,
     verbose: bool,
+    show_progress: bool,
     cwd: Optional[str],
 ) -> LLMResult:
     provider, provider_error = _configure_agent_provider()
     if provider_error is not None:
         return LLMResult(text=provider_error, backend="agent", returncode=1)
+
+    resolved_model = _resolve_model(model)
+    if show_progress:
+        observability.event(
+            "agent backend",
+            f"provider={provider} model={resolved_model} "
+            f"permission_mode={permission_mode} budget={budget.limit} "
+            f"cwd={cwd or os.getcwd()}",
+            visible=True,
+        )
 
     sdk_error = _missing_sdk_error()
     if sdk_error is not None:
@@ -202,8 +215,6 @@ def _invoke_agent(
     if auth_error is not None:
         return LLMResult(text=auth_error, backend="agent", returncode=1)
 
-    resolved_model = _resolve_model(model)
-
     remaining = budget.remaining()
     if remaining is not None and remaining <= 0:
         return LLMResult(
@@ -211,14 +222,6 @@ def _invoke_agent(
             backend="agent",
             returncode=1,
             budget_exceeded=True,
-        )
-
-    if verbose:
-        print(
-            f"[kb] agent backend | provider={provider} model={resolved_model} "
-            f"permission_mode={permission_mode} budget={budget.limit} "
-            f"cwd={cwd or os.getcwd()}",
-            file=sys.stderr,
         )
 
     try:
@@ -231,6 +234,7 @@ def _invoke_agent(
                 cwd=cwd,
                 provider=provider,
                 verbose=verbose,
+                show_progress=show_progress,
             )
         )
     except Exception as exc:  # noqa: BLE001
@@ -275,6 +279,7 @@ async def _stream_agent(
     cwd: Optional[str],
     provider: str,
     verbose: bool,
+    show_progress: bool,
 ) -> tuple[str, bool, bool, Optional[str]]:
     """Drive ``claude_agent_sdk.query`` and return (text, budget_exceeded,
     had_error, error_subtype)."""
@@ -298,7 +303,7 @@ async def _stream_agent(
 
     stop_heartbeat = asyncio.Event()
     heartbeat_task: asyncio.Task[None] | None = None
-    if verbose:
+    if show_progress:
         heartbeat_task = asyncio.create_task(
             _agent_heartbeat(stop_heartbeat, provider=provider, model=model, cwd=cwd)
         )
@@ -306,12 +311,29 @@ async def _stream_agent(
     try:
         async for msg in query(prompt=prompt, options=options):
             if isinstance(msg, AssistantMessage):
-                if verbose:
-                    print("[kb] agent event | assistant message", file=sys.stderr)
+                block_count = len(getattr(msg, "content", None) or [])
+                observability.event(
+                    "agent event",
+                    f"assistant message blocks={block_count}",
+                    visible=show_progress,
+                )
                 for block in getattr(msg, "content", None) or []:
                     block_text = getattr(block, "text", None)
                     if block_text:
                         assistant_text_parts.append(block_text)
+                        observability.event(
+                            "agent stream",
+                            _preview_text(block_text),
+                            visible=verbose,
+                        )
+                        continue
+                    tool_name = getattr(block, "name", None)
+                    if tool_name:
+                        observability.event(
+                            "agent tool",
+                            f"name={tool_name}",
+                            visible=show_progress,
+                        )
             elif isinstance(msg, ResultMessage):
                 final_result_text = getattr(msg, "result", None)
                 if getattr(msg, "is_error", False):
@@ -321,13 +343,14 @@ async def _stream_agent(
                     budget.add_from_response(msg)
                 except BudgetExceeded:
                     budget_exceeded = True
-                if verbose:
-                    print(
-                        "[kb] agent event | result "
+                if show_progress:
+                    observability.event(
+                        "agent event",
+                        "result "
                         f"error={getattr(msg, 'is_error', False)} "
                         f"subtype={getattr(msg, 'subtype', None)} "
                         f"tokens={budget.usage.total}",
-                        file=sys.stderr,
+                        visible=True,
                     )
     finally:
         if heartbeat_task is not None:
@@ -356,10 +379,11 @@ async def _agent_heartbeat(
             await asyncio.wait_for(stop.wait(), timeout=interval)
         except asyncio.TimeoutError:
             elapsed = int(time.monotonic() - started)
-            print(
-                f"[kb] agent running | elapsed={elapsed}s "
+            observability.event(
+                "agent running",
+                f"elapsed={elapsed}s "
                 f"provider={provider} model={model} cwd={cwd or os.getcwd()}",
-                file=sys.stderr,
+                visible=True,
             )
 
 
@@ -369,3 +393,10 @@ def _heartbeat_interval() -> int:
         return max(0, int(raw))
     except ValueError:
         return 30
+
+
+def _preview_text(text: str, *, limit: int = 280) -> str:
+    collapsed = " ".join(text.split())
+    if len(collapsed) > limit:
+        collapsed = collapsed[: limit - 1].rstrip() + "…"
+    return f"text chars={len(text)} preview={collapsed!r}"

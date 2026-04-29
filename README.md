@@ -63,7 +63,8 @@ First-run tips:
 - LLM-backed commands use the Claude Agent SDK by default. If you see a `claude-agent-sdk is required` error, run `uv sync` from the repo root.
 - Anthropic API mode requires `ANTHROPIC_API_KEY`.
 - Vertex AI mode does not require `ANTHROPIC_API_KEY`; set `KB_LLM_PROVIDER=vertex` or `CLAUDE_CODE_USE_VERTEX=1`, configure `ANTHROPIC_VERTEX_PROJECT_ID` and `CLOUD_ML_REGION`, then provide Google credentials in your environment, such as `GOOGLE_APPLICATION_CREDENTIALS`.
-- If you omit `--dir`, `uv run kb` targets `$KB_WORKSPACES/default`.
+- If you omit `--dir`/`KB_DIR`, `uv run kb research "<topic>"` creates a topic-named workspace.
+- Non-research commands without `--dir`/`KB_DIR` target `$KB_WORKSPACES/default`.
 - `uv run kb workspaces` lists every workspace and shows which one is active.
 - `uv run kb --dir <name>` auto-creates the workspace if it does not exist.
 - The `--dir` flag accepts a bare name (resolved to `$KB_WORKSPACES/<name>`) or an absolute path.
@@ -89,7 +90,8 @@ A **workspace** is a self-contained directory with its own `raw/`, `wiki/`, `out
 ```
 ~/Github/llm-kb/            # this repo — tooling only
   pyproject.toml            # uv project + CLI entrypoint
-  tools/                    # search engine, ingest, viz, export, plugins, MCP, SDK
+  kb/                       # Python CLI package (`kb.*`)
+  tools/                    # operational scripts: ingest, viz, export, plugins, MCP, SDK
   templates/                # article + slide templates
   CLAUDE.md                 # Claude's operating manual (copied into workspaces)
 
@@ -103,7 +105,7 @@ A **workspace** is a self-contained directory with its own `raw/`, `wiki/`, `out
   my-other-topic/
 ```
 
-By default, `uv run kb` uses `$KB_WORKSPACES/default`. Use `--dir <name|path>` or `KB_DIR` to target another workspace.
+Research commands auto-create a topic-named workspace when `--dir` and `KB_DIR` are unset. Other commands use `$KB_WORKSPACES/default` unless you pass `--dir <name|path>` or set `KB_DIR`.
 
 ---
 
@@ -145,10 +147,15 @@ uv run kb -i                           # interactive Claude session in this work
 uv run kb new <name>                   # create ~/kb-workspaces/<name>
 uv run kb workspaces                   # list all workspaces
 uv run kb --dir <name> <command>       # target a specific workspace
+uv run kb research "<topic>"           # auto-creates a topic-named workspace if --dir/KB_DIR is unset
 ```
 
 Flags: `--dir / -d`, `--model`, `--budget`, `--no-commit`, `--dry-run`, `--verbose`.
-Env: `ANTHROPIC_API_KEY`, `KB_LLM_PROVIDER`, `CLAUDE_CODE_USE_VERTEX`, `ANTHROPIC_VERTEX_PROJECT_ID`, `CLOUD_ML_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_AGENT_HEARTBEAT_SECONDS`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
+Env: `ANTHROPIC_API_KEY`, `KB_LLM_PROVIDER`, `CLAUDE_CODE_USE_VERTEX`, `ANTHROPIC_VERTEX_PROJECT_ID`, `CLOUD_ML_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_AGENT_HEARTBEAT_SECONDS`, `KB_LOG_DIR`, `KB_RUN_LOG`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
+
+LLM-backed commands print timestamped progress and tee stdout/stderr to
+`<workspace>/output/logs/*.log` by default. Set `KB_LOG_DIR` to move run logs or
+`KB_RUN_LOG=0` to disable log files.
 
 ---
 
@@ -156,6 +163,7 @@ Env: `ANTHROPIC_API_KEY`, `KB_LLM_PROVIDER`, `CLAUDE_CODE_USE_VERTEX`, `ANTHROPI
 
 ```
 pyproject.toml        uv project metadata and `kb` console script
+kb/                   Python package for the CLI (`kb.*`)
 tools/
   search-engine/      BM25 search (Python stdlib) + web UI on :8888
   ingest/             One shell script per source type (youtube, arxiv, github, pdf, tweet, batch)

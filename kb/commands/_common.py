@@ -11,13 +11,15 @@ lint, slides, report, compare, entity, discover, freeform).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 import subprocess
 import sys
 from typing import Callable, Optional, Sequence
 
-from ..budget import BudgetExceeded, BudgetTracker
-from ..git_util import auto_commit
-from ..models import (
+from kb import observability
+from kb.budget import BudgetExceeded, BudgetTracker
+from kb.git_util import auto_commit
+from kb.models import (
     EXIT_ABORT,
     EXIT_BUDGET,
     EXIT_ERROR,
@@ -26,9 +28,9 @@ from ..models import (
     LLMInvocationResult,
     TokenUsage,
 )
-from ..runner import invoke_llm
-from ..workspace import Workspace
-from ...compile.review import ReviewerConfig, review_wiki_writes, snapshot_articles
+from kb.runner import invoke_llm
+from kb.workspace import Workspace
+from tools.compile.review import ReviewerConfig, review_wiki_writes, snapshot_articles
 
 
 @dataclass
@@ -43,9 +45,15 @@ class CommandContext:
     verbose: bool = False
     json_output: bool = False
     permission_mode: str = "bypassPermissions"
+    workspace_source: str = "unknown"
+    run_log_path: Path | None = None
+    show_progress: bool = False
 
     def new_budget(self) -> BudgetTracker:
         return BudgetTracker(limit=self.budget_limit)
+
+    def should_show_progress(self) -> bool:
+        return not self.json_output and (self.show_progress or self.verbose)
 
 
 @dataclass
@@ -181,12 +189,27 @@ def run_llm_command(
             exit_code=EXIT_SUCCESS,
         )
 
+    observability.event(
+        "workspace",
+        f"ready path={ctx.workspace.kb_dir} source={ctx.workspace_source}",
+        visible=ctx.should_show_progress(),
+    )
     ctx.workspace.ensure_dirs()
     hook_details: list[dict[str, object]] = []
     if pre_hook:
+        observability.event(
+            "hook",
+            f"running {pre_hook}",
+            visible=ctx.should_show_progress(),
+        )
         pre_result = run_plugin_hook(ctx, pre_hook, pre_hook_args)
         hook_details.append(pre_result.as_detail())
         if not pre_result.ok:
+            observability.event(
+                "hook",
+                f"failed {pre_hook} exit_code={pre_result.exit_code}",
+                visible=ctx.should_show_progress(),
+            )
             return LLMInvocationResult(
                 command=command,
                 topic=topic,
@@ -200,14 +223,24 @@ def run_llm_command(
 
     article_snapshot = snapshot_articles(ctx.workspace.wiki_dir)
     budget = ctx.new_budget()
-    if ctx.verbose and not ctx.json_output:
-        print(
-            f"[kb] llm | command={command} workspace={ctx.workspace.kb_dir}",
-            file=sys.stderr,
-        )
+    observability.event(
+        "llm",
+        f"command={command} workspace={ctx.workspace.kb_dir}",
+        visible=ctx.should_show_progress(),
+    )
 
     try:
+        observability.event(
+            "prompt",
+            f"building command={command}",
+            visible=ctx.verbose and not ctx.json_output,
+        )
         prompt = prompt_builder()
+        observability.event(
+            "agent",
+            f"starting command={command} model={ctx.model} budget={ctx.budget_limit}",
+            visible=ctx.should_show_progress(),
+        )
         llm_result = invoke_llm(
             prompt=prompt,
             model=ctx.model,
@@ -215,6 +248,7 @@ def run_llm_command(
             dry_run=False,
             permission_mode=ctx.permission_mode,
             verbose=ctx.verbose,
+            show_progress=ctx.should_show_progress(),
             cwd=str(ctx.workspace.kb_dir),
         )
     except BudgetExceeded as exc:
@@ -250,22 +284,24 @@ def run_llm_command(
     else:
         rendered_message = raw_text
 
-    if ctx.verbose and not ctx.json_output:
-        print("[kb] review | scanning changed wiki writes", file=sys.stderr)
+    observability.event(
+        "review",
+        "scanning changed wiki writes",
+        visible=ctx.should_show_progress(),
+    )
     review_outcome = review_wiki_writes(
         ctx.workspace.kb_dir,
         before_snapshot=article_snapshot,
         config=ReviewerConfig.from_env(),
     )
-    if ctx.verbose and not ctx.json_output:
-        print(
-            "[kb] review | "
-            f"candidates={review_outcome.candidates} "
-            f"accepted={len(review_outcome.accepted)} "
-            f"rejected={len(review_outcome.rejected)} "
-            f"quarantine={review_outcome.quarantine_batch or 'none'}",
-            file=sys.stderr,
-        )
+    observability.event(
+        "review",
+        f"candidates={review_outcome.candidates} "
+        f"accepted={len(review_outcome.accepted)} "
+        f"rejected={len(review_outcome.rejected)} "
+        f"quarantine={review_outcome.quarantine_batch or 'none'}",
+        visible=ctx.should_show_progress(),
+    )
     if review_outcome.candidates:
         details["compile_review"] = review_outcome.as_dict()
 
@@ -302,10 +338,20 @@ def run_llm_command(
         result.details["hooks"] = hook_details
 
     if result.ok and post_hook:
+        observability.event(
+            "hook",
+            f"running {post_hook}",
+            visible=ctx.should_show_progress(),
+        )
         post_result = run_plugin_hook(ctx, post_hook, post_hook_args)
         hook_details.append(post_result.as_detail())
         result.details["hooks"] = hook_details
         if not post_result.ok:
+            observability.event(
+                "hook",
+                f"failed {post_hook} exit_code={post_result.exit_code}",
+                visible=ctx.should_show_progress(),
+            )
             result.ok = False
             result.exit_code = EXIT_ERROR
             result.message = _append_message(
@@ -326,9 +372,26 @@ def run_llm_command(
 
     # Auto-commit on success
     if result.ok and not ctx.no_commit and not ctx.dry_run:
+        observability.event(
+            "git",
+            f"auto-commit label={commit_label!r}",
+            visible=ctx.should_show_progress(),
+        )
         committed = auto_commit(ctx.workspace.kb_dir, commit_label, dry_run=False)
         result.committed = committed
         result.commit_label = commit_label if committed else None
+        observability.event(
+            "git",
+            f"auto-commit committed={committed}",
+            visible=ctx.should_show_progress(),
+        )
+
+    observability.event(
+        "result",
+        f"command={command} ok={result.ok} exit_code={result.exit_code} "
+        f"tokens={result.usage.total}",
+        visible=ctx.should_show_progress(),
+    )
 
     return result
 

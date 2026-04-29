@@ -25,9 +25,9 @@ from tools.compile.review import (
     snapshot_articles,
 )
 
-from .budget import BudgetExceeded
-from .git_util import auto_commit
-from .models import (
+from kb.budget import BudgetExceeded
+from kb.git_util import auto_commit
+from kb.models import (
     BaseModel,
     EXIT_BUDGET,
     EXIT_ERROR,
@@ -36,7 +36,7 @@ from .models import (
     LLMInvocationResult,
     TokenUsage,
 )
-from .runner import LLMResult, invoke_llm
+from kb.runner import LLMResult, invoke_llm
 
 
 COMPILER_VERSION = "typed-compile-v1"

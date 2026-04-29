@@ -13,23 +13,23 @@ from pathlib import Path
 from typing import Optional
 from unittest import mock
 
-from tools.kb import cli as cli_mod
-from tools.kb.budget import BudgetTracker
-from tools.kb.commands import export as export_cmd, llm_commands, serve as serve_cmd
-from tools.kb.commands import test_cmd as test_cmd_module, viz as viz_cmd
-from tools.kb.commands._common import (
+from kb import cli as cli_mod, observability
+from kb.budget import BudgetTracker
+from kb.commands import export as export_cmd, llm_commands, serve as serve_cmd
+from kb.commands import test_cmd as test_cmd_module, viz as viz_cmd
+from kb.commands._common import (
     CommandContext,
     PluginHookResult,
     run_llm_command,
     run_plugin_hook,
 )
-from tools.kb.commands.search import _parse_qmd
-from tools.kb.models import EXIT_ERROR, LLMInvocationResult
-from tools.kb.runner import LLMResult, invoke_llm
-from tools.kb.workspace import Workspace
+from kb.commands.search import _parse_qmd
+from kb.models import EXIT_ERROR, LLMInvocationResult
+from kb.runner import LLMResult, invoke_llm
+from kb.workspace import Workspace
 
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 UV_BIN = os.environ.get("UV", "uv")
 
 
@@ -353,7 +353,7 @@ class RunnerAgentBackendTests(unittest.TestCase):
                 clear=True,
             ):
                 with mock.patch(
-                    "tools.kb.runner._stream_agent",
+                    "kb.runner._stream_agent",
                     side_effect=RuntimeError("auth failed"),
                 ):
                     result = invoke_llm(
@@ -368,7 +368,7 @@ class RunnerAgentBackendTests(unittest.TestCase):
 
     def test_agent_backend_errors_when_sdk_not_installed(self) -> None:
         # Force-import failure by stubbing claude_agent_sdk with a non-module.
-        with mock.patch("tools.kb.runner._missing_sdk_error", return_value=ImportError("nope")):
+        with mock.patch("kb.runner._missing_sdk_error", return_value=ImportError("nope")):
             with mock.patch.dict(
                 "os.environ", {"ANTHROPIC_API_KEY": "test-key"}, clear=False
             ):
@@ -515,6 +515,97 @@ class GlobalOptionTests(unittest.TestCase):
             ctx = cli_mod._build_context(opts)
         self.assertEqual(11, ctx.budget_limit)
 
+    def test_research_without_workspace_uses_topic_slug(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td) / "workspaces"
+            opts = cli_mod.GlobalOptions(dry_run=True)
+            with mock.patch.dict(
+                "os.environ",
+                {"KB_WORKSPACES": str(base)},
+                clear=True,
+            ):
+                ctx = cli_mod._build_context(
+                    opts,
+                    command="research",
+                    command_args=[
+                        "Harness Engineering in the context of GenAI - what are people building?"
+                    ],
+                )
+
+        self.assertEqual(
+            (base / "harness-engineering-context-genai-people-building").resolve(),
+            ctx.workspace.kb_dir,
+        )
+        self.assertEqual(
+            "auto:harness-engineering-context-genai-people-building",
+            ctx.workspace_source,
+        )
+        self.assertFalse(ctx.workspace.kb_dir.exists())
+
+    def test_explicit_dir_overrides_research_topic_slug(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td) / "workspaces"
+            opts = cli_mod.GlobalOptions(dry_run=True, dir_flag="named")
+            with mock.patch.dict(
+                "os.environ",
+                {"KB_WORKSPACES": str(base)},
+                clear=True,
+            ):
+                ctx = cli_mod._build_context(
+                    opts,
+                    command="research",
+                    command_args=["Harness Engineering"],
+                )
+
+        self.assertEqual((base / "named").resolve(), ctx.workspace.kb_dir)
+        self.assertEqual("--dir named", ctx.workspace_source)
+
+    def test_kb_dir_overrides_research_topic_slug(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / "active"
+            opts = cli_mod.GlobalOptions(dry_run=True)
+            with mock.patch.dict(
+                "os.environ",
+                {"KB_DIR": str(target)},
+                clear=True,
+            ):
+                ctx = cli_mod._build_context(
+                    opts,
+                    command="research",
+                    command_args=["Harness Engineering"],
+                )
+
+        self.assertEqual(target.resolve(), ctx.workspace.kb_dir)
+        self.assertEqual("KB_DIR", ctx.workspace_source)
+
+    def test_run_log_tees_cli_output(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            workspace = Path(td)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(stdout):
+                    with contextlib.redirect_stderr(stderr):
+                        log_path = observability.start_run_log(
+                            workspace,
+                            command="research",
+                            topic="Harness Engineering",
+                        )
+                        self.assertIsNotNone(log_path)
+                        print("visible result")
+                        observability.event("stage", "working")
+            finally:
+                observability.stop_run_log()
+
+            assert log_path is not None
+            contents = log_path.read_text(encoding="utf-8")
+
+        self.assertIn("visible result", stdout.getvalue())
+        self.assertIn("[kb] stage | working", stderr.getvalue())
+        self.assertIn("visible result", contents)
+        self.assertIn("[kb] stage | working", contents)
+        self.assertIn("started=", contents)
+
 
 class PluginHookTests(unittest.TestCase):
     def _ctx(self, root: Path, *, no_commit: bool = True) -> CommandContext:
@@ -548,13 +639,13 @@ class PluginHookTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             ctx = self._ctx(Path(td), no_commit=False)
             with mock.patch(
-                "tools.kb.commands._common.run_plugin_hook",
+                "kb.commands._common.run_plugin_hook",
                 side_effect=fake_hook,
             ), mock.patch(
-                "tools.kb.commands._common.invoke_llm",
+                "kb.commands._common.invoke_llm",
                 side_effect=fake_invoke,
             ), mock.patch(
-                "tools.kb.commands._common.auto_commit",
+                "kb.commands._common.auto_commit",
                 side_effect=fake_commit,
             ):
                 result = run_llm_command(
@@ -587,14 +678,14 @@ class PluginHookTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             ctx = self._ctx(Path(td))
             with mock.patch(
-                "tools.kb.commands._common.run_plugin_hook",
+                "kb.commands._common.run_plugin_hook",
                 return_value=PluginHookResult(
                     hook="pre_ingest",
                     ok=False,
                     exit_code=1,
                     output="bad hook",
                 ),
-            ), mock.patch("tools.kb.commands._common.invoke_llm") as invoke_mock:
+            ), mock.patch("kb.commands._common.invoke_llm") as invoke_mock:
                 result = run_llm_command(
                     ctx,
                     command="ingest",
@@ -696,16 +787,16 @@ class PluginHookTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             ctx = self._ctx(Path(td), no_commit=False)
             with mock.patch(
-                "tools.kb.commands._common.run_plugin_hook",
+                "kb.commands._common.run_plugin_hook",
                 side_effect=fake_ingest_hook,
             ), mock.patch(
-                "tools.kb.commands.llm_commands.run_plugin_hook",
+                "kb.commands.llm_commands.run_plugin_hook",
                 side_effect=fake_post_compile,
             ), mock.patch(
-                "tools.kb.commands._common.invoke_llm",
+                "kb.commands._common.invoke_llm",
                 side_effect=fake_invoke,
             ), mock.patch(
-                "tools.kb.commands.llm_commands.auto_commit",
+                "kb.commands.llm_commands.auto_commit",
                 side_effect=fake_commit,
             ):
                 result = llm_commands.ingest(ctx, ["https://example.com/a"])
@@ -737,15 +828,15 @@ class PluginHookTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             ctx = self._ctx(Path(td), no_commit=False)
             with mock.patch(
-                "tools.kb.commands._common.run_plugin_hook",
+                "kb.commands._common.run_plugin_hook",
                 side_effect=fake_ingest_hook,
             ), mock.patch(
-                "tools.kb.commands.llm_commands.run_plugin_hook",
+                "kb.commands.llm_commands.run_plugin_hook",
                 return_value=PluginHookResult(hook="post_compile", ok=True),
             ), mock.patch(
-                "tools.kb.commands._common.invoke_llm",
+                "kb.commands._common.invoke_llm",
                 return_value=LLMResult(text="ingested", backend="fake"),
-            ), mock.patch("tools.kb.commands.llm_commands.auto_commit"):
+            ), mock.patch("kb.commands.llm_commands.auto_commit"):
                 result = llm_commands.ingest(ctx, ["https://example.com/a"])
 
         self.assertTrue(result.ok)
@@ -764,10 +855,10 @@ class PluginHookTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             ctx = self._ctx(Path(td), no_commit=False)
             with mock.patch(
-                "tools.kb.commands._common.run_plugin_hook",
+                "kb.commands._common.run_plugin_hook",
                 side_effect=fake_ingest_hook,
             ), mock.patch(
-                "tools.kb.commands.llm_commands.run_plugin_hook",
+                "kb.commands.llm_commands.run_plugin_hook",
                 return_value=PluginHookResult(
                     hook="post_compile",
                     ok=False,
@@ -775,9 +866,9 @@ class PluginHookTests(unittest.TestCase):
                     output="frontmatter plugin failed",
                 ),
             ), mock.patch(
-                "tools.kb.commands._common.invoke_llm",
+                "kb.commands._common.invoke_llm",
                 return_value=LLMResult(text="ingested", backend="fake"),
-            ), mock.patch("tools.kb.commands.llm_commands.auto_commit") as commit_mock:
+            ), mock.patch("kb.commands.llm_commands.auto_commit") as commit_mock:
                 result = llm_commands.ingest(ctx, ["https://example.com/a"])
 
         self.assertFalse(result.ok)
@@ -795,10 +886,10 @@ class PluginHookTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             ctx = self._ctx(Path(td))
             with mock.patch(
-                "tools.kb.commands._common.run_plugin_hook",
+                "kb.commands._common.run_plugin_hook",
                 side_effect=fake_hook,
             ), mock.patch(
-                "tools.kb.commands._common.invoke_llm",
+                "kb.commands._common.invoke_llm",
                 return_value=LLMResult(text="ok", backend="fake"),
             ):
                 ask_result = llm_commands.ask(ctx, "what changed?")
@@ -882,19 +973,19 @@ class PluginHookTests(unittest.TestCase):
 
             ctx = self._ctx(root, no_commit=False)
             with mock.patch(
-                "tools.kb.commands._common.run_plugin_hook",
+                "kb.commands._common.run_plugin_hook",
                 side_effect=fake_pre_hook,
             ), mock.patch(
-                "tools.kb.commands.llm_commands.run_plugin_hook",
+                "kb.commands.llm_commands.run_plugin_hook",
                 side_effect=fake_post_hook,
             ), mock.patch(
-                "tools.kb.typed_compile.invoke_llm",
+                "kb.typed_compile.invoke_llm",
                 side_effect=fake_invoke,
             ), mock.patch(
-                "tools.kb.typed_compile.subprocess.run",
+                "kb.typed_compile.subprocess.run",
                 side_effect=fake_metadata_script,
             ), mock.patch(
-                "tools.kb.commands.llm_commands.auto_commit",
+                "kb.commands.llm_commands.auto_commit",
                 side_effect=fake_commit,
             ):
                 result = llm_commands.compile_wiki(ctx)
@@ -967,7 +1058,7 @@ class WorkspacesCommandTests(unittest.TestCase):
 
 
 class ServeCommandTests(unittest.TestCase):
-    @mock.patch("tools.kb.commands.serve.os.execvp")
+    @mock.patch("kb.commands.serve.os.execvp")
     def test_run_serve_uses_sys_executable(self, execvp_mock: mock.Mock) -> None:
         ctx = CommandContext(workspace=Workspace.resolve(dry_run=True))
         execvp_mock.side_effect = OSError("boom")
@@ -982,7 +1073,7 @@ class ServeCommandTests(unittest.TestCase):
 
 
 class ExportCommandTests(unittest.TestCase):
-    @mock.patch("tools.kb.commands.export.subprocess.run")
+    @mock.patch("kb.commands.export.subprocess.run")
     def test_site_export_uses_active_python_interpreter(self, run_mock: mock.Mock) -> None:
         run_mock.return_value = types.SimpleNamespace(returncode=0, stdout="", stderr="")
         with tempfile.TemporaryDirectory() as td:
@@ -998,8 +1089,8 @@ class ExportCommandTests(unittest.TestCase):
             args = run_mock.call_args.args[0]
             self.assertEqual(sys.executable or "python3", args[0])
 
-    @mock.patch("tools.kb.commands.export.subprocess.run")
-    @mock.patch("tools.kb.commands.export.shutil.which", return_value="/usr/bin/pandoc")
+    @mock.patch("kb.commands.export.subprocess.run")
+    @mock.patch("kb.commands.export.shutil.which", return_value="/usr/bin/pandoc")
     def test_pdf_export_creates_output_dir(self, _which_mock: mock.Mock, run_mock: mock.Mock) -> None:
         run_mock.return_value = types.SimpleNamespace(returncode=0, stdout="", stderr="")
         with tempfile.TemporaryDirectory() as td:
@@ -1017,7 +1108,7 @@ class ExportCommandTests(unittest.TestCase):
 
 
 class VizCommandTests(unittest.TestCase):
-    @mock.patch("tools.kb.commands.viz.subprocess.run")
+    @mock.patch("kb.commands.viz.subprocess.run")
     def test_viz_uses_active_python_interpreter(self, run_mock: mock.Mock) -> None:
         run_mock.return_value = types.SimpleNamespace(returncode=0, stdout="", stderr="")
         with tempfile.TemporaryDirectory() as td:
@@ -1035,7 +1126,7 @@ class VizCommandTests(unittest.TestCase):
 
 
 class TestCommandTests(unittest.TestCase):
-    @mock.patch("tools.kb.commands.test_cmd.subprocess.run")
+    @mock.patch("kb.commands.test_cmd.subprocess.run")
     def test_invalid_json_output_is_treated_as_failure(self, run_mock: mock.Mock) -> None:
         run_mock.return_value = types.SimpleNamespace(
             returncode=0,
@@ -1083,8 +1174,8 @@ class MainExitHandlingTests(unittest.TestCase):
                 message="answer",
             )
             stdout = io.StringIO()
-            with mock.patch("tools.kb.cli._build_context", return_value=ctx):
-                with mock.patch("tools.kb.cli.llm_commands.ask", return_value=ask_result) as ask_mock:
+            with mock.patch("kb.cli._build_context", return_value=ctx):
+                with mock.patch("kb.cli.llm_commands.ask", return_value=ask_result) as ask_mock:
                     with contextlib.redirect_stdout(stdout):
                         exit_code = cli_mod.main(["query", "what", "now?"])
 

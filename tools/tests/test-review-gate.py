@@ -18,10 +18,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(BASE_DIR))
 
 from tools.compile import review  # noqa: E402
-from tools.kb.commands import llm_commands  # noqa: E402
-from tools.kb.commands._common import CommandContext, run_llm_command  # noqa: E402
-from tools.kb.runner import LLMResult  # noqa: E402
-from tools.kb.workspace import Workspace  # noqa: E402
+from kb.commands import llm_commands  # noqa: E402
+from kb.commands._common import CommandContext, run_llm_command  # noqa: E402
+from kb.runner import LLMResult  # noqa: E402
+from kb.workspace import Workspace  # noqa: E402
 
 CHECKER_PATH = BASE_DIR / "tools" / "tests" / "check-template-leaks.py"
 
@@ -385,7 +385,7 @@ Too short.
         self.assertTrue(result["ok"])
         self.assertEqual(0, result["total_leaks"])
 
-    @mock.patch("tools.kb.commands._common.invoke_llm")
+    @mock.patch("kb.commands._common.invoke_llm")
     def test_shared_llm_helper_runs_review_before_accepting_writes(self, invoke_mock) -> None:
         def fake_invoke(*_args, **_kwargs):
             article = self.root / "wiki" / "concepts" / "from-agent.md"
@@ -426,7 +426,7 @@ Too short.
         self.assertIn("compile_review", result.details)
         self.assertFalse((self.root / "wiki" / "concepts" / "from-agent.md").exists())
 
-    @mock.patch("tools.kb.commands._common.invoke_llm")
+    @mock.patch("kb.commands._common.invoke_llm")
     def test_shared_llm_helper_rejects_index_only_template_write(self, invoke_mock) -> None:
         def fake_invoke(*_args, **_kwargs):
             (self.root / "wiki" / "_index.md").write_text(
@@ -455,7 +455,7 @@ Too short.
         self.assertEqual(1, result.details["compile_review"]["candidates"])
         self.assertFalse((self.root / "wiki" / "_index.md").exists())
 
-    @mock.patch("tools.kb.commands._common.invoke_llm")
+    @mock.patch("kb.commands._common.invoke_llm")
     def test_shared_llm_helper_verbose_reports_review_counts(self, invoke_mock) -> None:
         def fake_invoke(*_args, **_kwargs):
             (self.root / "wiki" / "_index.md").write_text(
@@ -500,7 +500,7 @@ Too short.
         script.parent.mkdir(parents=True, exist_ok=True)
         script.write_text(body, encoding="utf-8")
 
-    @mock.patch("tools.kb.commands.llm_commands.auto_commit")
+    @mock.patch("kb.commands.llm_commands.auto_commit")
     def test_compile_wiki_rejects_invalid_post_decoration_write(
         self,
         auto_commit_mock,
@@ -536,7 +536,7 @@ Too short.
         )
         auto_commit_mock.assert_not_called()
 
-    @mock.patch("tools.kb.commands.llm_commands.auto_commit")
+    @mock.patch("kb.commands.llm_commands.auto_commit")
     def test_compile_wiki_reviews_partial_decoration_writes_on_generator_failure(
         self,
         auto_commit_mock,
@@ -575,7 +575,7 @@ Too short.
         )
         auto_commit_mock.assert_not_called()
 
-    @mock.patch("tools.kb.commands.llm_commands.auto_commit")
+    @mock.patch("kb.commands.llm_commands.auto_commit")
     def test_compile_wiki_accepts_valid_post_decoration_write_before_commit(
         self,
         auto_commit_mock,

@@ -1204,10 +1204,10 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.scripts]
-kb = "tools.kb.cli:main"
+kb = "kb.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["tools*"]
+include = ["kb*", "tools.compile*", "tools.graph*"]
 namespaces = true
 """,
                 encoding="utf-8",
@@ -1223,8 +1223,8 @@ namespaces = true
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dst)
             shutil.copytree(
-                REPO_ROOT / "tools" / "kb",
-                tmp / "tools" / "kb",
+                REPO_ROOT / "kb",
+                tmp / "kb",
                 dirs_exist_ok=True,
             )
             # Compile runs decoration-page generators before the graph rebuild;
@@ -1237,8 +1237,8 @@ namespaces = true
             )
             # Stub out runner.py so the LLM step always succeeds without
             # requiring claude-agent-sdk or ANTHROPIC_API_KEY.
-            (tmp / "tools" / "kb" / "runner.py").write_text(
-                "from .models import TokenUsage\n"
+            (tmp / "kb" / "runner.py").write_text(
+                "from kb.models import TokenUsage\n"
                 "from dataclasses import dataclass, field\n"
                 "\n"
                 "@dataclass\n"

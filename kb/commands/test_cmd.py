@@ -6,8 +6,8 @@ import json
 import subprocess
 from pathlib import Path
 
-from ..models import EXIT_ERROR, EXIT_SUCCESS, TestResult, TestSuiteResult
-from ._common import CommandContext
+from kb.models import EXIT_ERROR, EXIT_SUCCESS, TestResult, TestSuiteResult
+from kb.commands._common import CommandContext
 
 
 def run(ctx: CommandContext) -> TestResult:

@@ -14,8 +14,8 @@ import subprocess
 import sys
 from typing import Optional
 
-from ..models import EXIT_ERROR, EXIT_SUCCESS, ServeResult
-from ._common import CommandContext
+from kb.models import EXIT_ERROR, EXIT_SUCCESS, ServeResult
+from kb.commands._common import CommandContext
 
 
 def run_serve(ctx: CommandContext, port: int = 8765) -> ServeResult:

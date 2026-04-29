@@ -9,15 +9,16 @@ import sys
 from dataclasses import dataclass
 from typing import Callable, Sequence
 
-from .commands import export as export_cmd
-from .commands import init as init_cmd
-from .commands import llm_commands, log as log_cmd, search as search_cmd
-from .commands import queue as queue_cmd
-from .commands import serve as serve_cmd
-from .commands import stats as stats_cmd
-from .commands import test_cmd, viz as viz_cmd, workspaces as workspaces_cmd
-from .commands._common import CommandContext, error
-from .models import (
+from kb import observability
+from kb.commands import export as export_cmd
+from kb.commands import init as init_cmd
+from kb.commands import llm_commands, log as log_cmd, search as search_cmd
+from kb.commands import queue as queue_cmd
+from kb.commands import serve as serve_cmd
+from kb.commands import stats as stats_cmd
+from kb.commands import test_cmd, viz as viz_cmd, workspaces as workspaces_cmd
+from kb.commands._common import CommandContext, error
+from kb.models import (
     CommandResult,
     EXIT_ERROR,
     ExportResult,
@@ -32,7 +33,7 @@ from .models import (
     VizResult,
     WorkspacesResult,
 )
-from .workspace import Workspace
+from kb.workspace import Workspace
 
 
 _URL_RE = re.compile(r"https?://\S+")
@@ -40,6 +41,29 @@ _QUESTION_RE = re.compile(
     r"^(who|what|when|where|why|how|can|could|should|would|is|are|do|does|did)\b",
     re.IGNORECASE,
 )
+_WORKSPACE_STOP_WORDS = {
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "by",
+    "for",
+    "from",
+    "how",
+    "in",
+    "into",
+    "is",
+    "of",
+    "on",
+    "or",
+    "the",
+    "to",
+    "what",
+    "with",
+}
 
 _ANSI = {
     "reset": "\033[0m",
@@ -129,31 +153,47 @@ def main(argv: Sequence[str] | None = None) -> int:
         _print_help()
         return 0
 
-    ctx = _build_context(opts)
     command = remaining[0]
     command_args = remaining[1:]
-    if ctx.verbose and not ctx.json_output:
-        _print_verbose_invocation(ctx, opts, command, command_args)
+    workspace_command, workspace_args = _workspace_command(command, command_args, remaining)
+    ctx = _build_context(opts, command=workspace_command, command_args=workspace_args)
+    log_path = observability.start_run_log(
+        ctx.workspace.kb_dir,
+        command=command,
+        topic=" ".join(command_args).strip() if command_args else None,
+        json_output=ctx.json_output,
+        dry_run=ctx.dry_run or command in {"-i", "--interactive"},
+    )
+    if log_path is not None:
+        ctx.run_log_path = log_path
 
     try:
-        if command in {"-i", "--interactive"}:
-            result = _run_interactive(ctx)
-        else:
-            handler = _COMMANDS.get(command)
-            result = (
-                handler(ctx, command_args)
-                if handler is not None
-                else _smart_route(ctx, " ".join(remaining).strip())
-            )
-    except SystemExit as exc:
-        if isinstance(exc.code, int):
-            return int(exc.code)
-        if exc.code is not None:
-            print(exc.code, file=sys.stderr)
-        return EXIT_ERROR
+        try:
+            _emit_invocation(ctx, command, command_args)
+            if command in {"-i", "--interactive"}:
+                result = _run_interactive(ctx)
+            else:
+                handler = _COMMANDS.get(command)
+                result = (
+                    handler(ctx, command_args)
+                    if handler is not None
+                    else _smart_route(ctx, " ".join(remaining).strip())
+                )
+        except SystemExit as exc:
+            if isinstance(exc.code, int):
+                observability.event("command", f"exit_code={int(exc.code)}", visible=False)
+                return int(exc.code)
+            if exc.code is not None:
+                print(exc.code, file=sys.stderr)
+            observability.event("command", f"exit_code={EXIT_ERROR}", visible=False)
+            return EXIT_ERROR
 
-    _render_result(result, json_output=ctx.json_output)
-    return int(result.exit_code)
+        _render_result(result, json_output=ctx.json_output)
+        exit_code = int(result.exit_code)
+        observability.event("command", f"exit_code={exit_code}", visible=False)
+        return exit_code
+    finally:
+        observability.stop_run_log()
 
 
 def _parse_budget_value(value: str, *, source: str) -> int:
@@ -210,15 +250,28 @@ def _parse_global_options(argv: Sequence[str]) -> tuple[GlobalOptions, list[str]
     return opts, remaining
 
 
-def _build_context(opts: GlobalOptions) -> CommandContext:
+def _build_context(
+    opts: GlobalOptions,
+    *,
+    command: str | None = None,
+    command_args: Sequence[str] | None = None,
+) -> CommandContext:
     env_budget = os.environ.get("KB_TOKEN_BUDGET")
     budget_limit = opts.budget
     if budget_limit is None and env_budget:
         budget_limit = _parse_budget_value(env_budget, source="KB_TOKEN_BUDGET")
 
+    auto_workspace = (
+        None
+        if opts.dir_flag or os.environ.get("KB_DIR")
+        else _auto_workspace_name(command, command_args or [])
+    )
+    dir_flag = opts.dir_flag or auto_workspace
+    workspace_source = _workspace_selection_source(opts, auto_workspace=auto_workspace)
+
     return CommandContext(
         workspace=Workspace.resolve(
-            kb_home=None, kb_dir=None, dir_flag=opts.dir_flag, dry_run=opts.dry_run,
+            kb_home=None, kb_dir=None, dir_flag=dir_flag, dry_run=opts.dry_run,
         ),
         model=opts.model or os.environ.get("KB_MODEL", "opus"),
         budget_limit=budget_limit,
@@ -228,38 +281,96 @@ def _build_context(opts: GlobalOptions) -> CommandContext:
         json_output=opts.json_output,
         permission_mode=opts.permission_mode
         or os.environ.get("KB_PERMISSION_MODE", "bypassPermissions"),
+        workspace_source=workspace_source,
+        show_progress=not opts.json_output,
     )
 
 
-def _print_verbose_invocation(
+def _emit_invocation(
     ctx: CommandContext,
-    opts: GlobalOptions,
     command: str,
     command_args: Sequence[str],
 ) -> None:
-    source = _workspace_selection_source(opts)
     topic = " ".join(command_args).strip()
     suffix = f" topic={topic!r}" if topic else ""
-    print(
-        f"[kb] command | command={command}{suffix} "
-        f"workspace={ctx.workspace.kb_dir} workspace_source={source} "
+    observability.event(
+        "command",
+        f"command={command}{suffix} "
+        f"workspace={ctx.workspace.kb_dir} workspace_source={ctx.workspace_source} "
         f"model={ctx.model} dry_run={ctx.dry_run}",
-        file=sys.stderr,
+        visible=not ctx.json_output,
     )
-    if source == "$KB_WORKSPACES/default":
-        print(
-            "[kb] workspace | default selected because neither --dir nor KB_DIR was set; "
-            "use `--dir <name>` to target a named workspace",
-            file=sys.stderr,
+    if ctx.run_log_path is not None:
+        observability.event(
+            "log",
+            f"file={ctx.run_log_path}",
+            visible=not ctx.json_output,
+        )
+    if ctx.workspace_source == "$KB_WORKSPACES/default":
+        observability.event(
+            "workspace",
+            "default selected because neither --dir nor KB_DIR was set; "
+            "research auto-selects a topic-named workspace",
+            visible=not ctx.json_output,
+        )
+    elif ctx.workspace_source.startswith("auto:"):
+        observability.event(
+            "workspace",
+            f"auto-selected from research topic name={ctx.workspace_source.removeprefix('auto:')}",
+            visible=not ctx.json_output,
         )
 
 
-def _workspace_selection_source(opts: GlobalOptions) -> str:
+def _workspace_selection_source(
+    opts: GlobalOptions,
+    *,
+    auto_workspace: str | None = None,
+) -> str:
     if opts.dir_flag:
         return f"--dir {opts.dir_flag}"
     if os.environ.get("KB_DIR"):
         return "KB_DIR"
+    if auto_workspace:
+        return f"auto:{auto_workspace}"
     return "$KB_WORKSPACES/default"
+
+
+def _auto_workspace_name(
+    command: str | None,
+    command_args: Sequence[str],
+) -> str | None:
+    if command != "research":
+        return None
+    topic = " ".join(command_args).strip()
+    if not topic:
+        return None
+    words = re.findall(r"[a-z0-9]+", topic.lower())
+    kept = [word for word in words if word not in _WORKSPACE_STOP_WORDS]
+    slug = "-".join(kept or words).strip("-")
+    return slug[:72].strip("-") or "research"
+
+
+def _workspace_command(
+    command: str,
+    command_args: Sequence[str],
+    remaining: Sequence[str],
+) -> tuple[str, Sequence[str]]:
+    if command in _COMMANDS or command in {"-i", "--interactive"}:
+        return command, command_args
+    text = " ".join(remaining).strip()
+    routed = _route_text_command(text)
+    return routed, [text]
+
+
+def _route_text_command(text: str) -> str:
+    urls = _URL_RE.findall(text)
+    if urls:
+        return "ingest"
+    if text.endswith("?") or _QUESTION_RE.match(text):
+        return "ask"
+    if len(text.split()) <= 6:
+        return "research"
+    return "freeform"
 
 
 def _parse_command(
@@ -342,7 +453,7 @@ def _rebuild_graph_store(ctx: CommandContext, result: LLMInvocationResult) -> LL
         "Graph store build failed and no existing .graph.db is available",
         file=sys.stderr,
     )
-    from .models import EXIT_ERROR as _EXIT_ERROR
+    from kb.models import EXIT_ERROR as _EXIT_ERROR
 
     result.ok = False
     result.exit_code = _EXIT_ERROR
@@ -710,7 +821,10 @@ def _print_help() -> None:
     print(f"  {theme.color('uv run kb --help', 'green')}")
     print(f"  {theme.dim('LLM commands use claude-agent-sdk; uv run kb -i uses claude CLI.')}")
     print(
-        f"  {theme.dim('Default workspace: $KB_WORKSPACES/default unless --dir or KB_DIR is set.')}"
+        f"  {theme.dim('Research without --dir/KB_DIR creates a topic-named workspace.')}"
+    )
+    print(
+        f"  {theme.dim('Run logs are written to <workspace>/output/logs by default.')}"
     )
     print("")
 
@@ -818,7 +932,9 @@ def _print_help() -> None:
     _help_env(theme, "KB_DIR", "Active workspace override")
     _help_env(theme, "KB_NO_COMMIT", "Skip git commits when set to 1")
     _help_env(theme, "KB_TOKEN_BUDGET", "Default token budget for LLM commands")
-    _help_env(theme, "KB_AGENT_HEARTBEAT_SECONDS", "Verbose heartbeat interval")
+    _help_env(theme, "KB_AGENT_HEARTBEAT_SECONDS", "Agent progress heartbeat interval")
+    _help_env(theme, "KB_LOG_DIR", "Override per-run CLI log directory")
+    _help_env(theme, "KB_RUN_LOG", "Set to 0 to disable per-run CLI logs")
     _help_env(theme, "KB_COLOR", "auto|always|never terminal color control")
     _help_env(theme, "NO_COLOR", "Disable color when KB_COLOR is auto")
     _help_env(theme, "ANTHROPIC_API_KEY", "Required for Anthropic API mode")
@@ -838,6 +954,7 @@ def _print_help() -> None:
 
     _help_section(theme, "EXAMPLES")
     _help_example(theme, "uv run kb new agents")
+    _help_example(theme, "uv run kb research \"LLM agents with memory\"")
     _help_example(theme, "uv run kb --dir agents research \"LLM agents with memory\"")
     _help_example(theme, "uv run kb ingest https://arxiv.org/abs/2401.00001")
     _help_example(theme, "uv run kb \"what are the key themes?\"")

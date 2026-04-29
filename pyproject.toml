@@ -13,8 +13,8 @@ dependencies = [
 ]
 
 [project.scripts]
-kb = "tools.kb.cli:main"
+kb = "kb.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["tools*"]
+include = ["kb*", "tools.compile*"]
 namespaces = true

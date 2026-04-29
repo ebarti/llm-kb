@@ -5,9 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from ..models import EXIT_SUCCESS, InitResult
-from ..workspace import Workspace
-from ._common import CommandContext
+from kb.models import EXIT_SUCCESS, InitResult
+from kb.workspace import Workspace
+from kb.commands._common import CommandContext
 
 
 def run_init(
