@@ -145,10 +145,15 @@ uv run kb -i                           # interactive Claude session in this work
 uv run kb new <name>                   # create ~/kb-workspaces/<name>
 uv run kb workspaces                   # list all workspaces
 uv run kb --dir <name> <command>       # target a specific workspace
+uv run kb research "<topic>"           # auto-creates a topic-named workspace if --dir/KB_DIR is unset
 ```
 
 Flags: `--dir / -d`, `--model`, `--budget`, `--no-commit`, `--dry-run`, `--verbose`.
-Env: `ANTHROPIC_API_KEY`, `KB_LLM_PROVIDER`, `CLAUDE_CODE_USE_VERTEX`, `ANTHROPIC_VERTEX_PROJECT_ID`, `CLOUD_ML_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_AGENT_HEARTBEAT_SECONDS`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
+Env: `ANTHROPIC_API_KEY`, `KB_LLM_PROVIDER`, `CLAUDE_CODE_USE_VERTEX`, `ANTHROPIC_VERTEX_PROJECT_ID`, `CLOUD_ML_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_AGENT_HEARTBEAT_SECONDS`, `KB_LOG_DIR`, `KB_RUN_LOG`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
+
+LLM-backed commands print timestamped progress and tee stdout/stderr to
+`<workspace>/output/logs/*.log` by default. Set `KB_LOG_DIR` to move run logs or
+`KB_RUN_LOG=0` to disable log files.
 
 ---
 

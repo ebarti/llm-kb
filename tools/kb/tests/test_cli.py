@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Optional
 from unittest import mock
 
-from tools.kb import cli as cli_mod
+from tools.kb import cli as cli_mod, observability
 from tools.kb.budget import BudgetTracker
 from tools.kb.commands import export as export_cmd, llm_commands, serve as serve_cmd
 from tools.kb.commands import test_cmd as test_cmd_module, viz as viz_cmd
@@ -514,6 +514,97 @@ class GlobalOptionTests(unittest.TestCase):
         with mock.patch.dict("os.environ", {"KB_BUDGET": "7", "KB_TOKEN_BUDGET": "11"}, clear=False):
             ctx = cli_mod._build_context(opts)
         self.assertEqual(11, ctx.budget_limit)
+
+    def test_research_without_workspace_uses_topic_slug(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td) / "workspaces"
+            opts = cli_mod.GlobalOptions(dry_run=True)
+            with mock.patch.dict(
+                "os.environ",
+                {"KB_WORKSPACES": str(base)},
+                clear=True,
+            ):
+                ctx = cli_mod._build_context(
+                    opts,
+                    command="research",
+                    command_args=[
+                        "Harness Engineering in the context of GenAI - what are people building?"
+                    ],
+                )
+
+        self.assertEqual(
+            (base / "harness-engineering-context-genai-people-building").resolve(),
+            ctx.workspace.kb_dir,
+        )
+        self.assertEqual(
+            "auto:harness-engineering-context-genai-people-building",
+            ctx.workspace_source,
+        )
+        self.assertFalse(ctx.workspace.kb_dir.exists())
+
+    def test_explicit_dir_overrides_research_topic_slug(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td) / "workspaces"
+            opts = cli_mod.GlobalOptions(dry_run=True, dir_flag="named")
+            with mock.patch.dict(
+                "os.environ",
+                {"KB_WORKSPACES": str(base)},
+                clear=True,
+            ):
+                ctx = cli_mod._build_context(
+                    opts,
+                    command="research",
+                    command_args=["Harness Engineering"],
+                )
+
+        self.assertEqual((base / "named").resolve(), ctx.workspace.kb_dir)
+        self.assertEqual("--dir named", ctx.workspace_source)
+
+    def test_kb_dir_overrides_research_topic_slug(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / "active"
+            opts = cli_mod.GlobalOptions(dry_run=True)
+            with mock.patch.dict(
+                "os.environ",
+                {"KB_DIR": str(target)},
+                clear=True,
+            ):
+                ctx = cli_mod._build_context(
+                    opts,
+                    command="research",
+                    command_args=["Harness Engineering"],
+                )
+
+        self.assertEqual(target.resolve(), ctx.workspace.kb_dir)
+        self.assertEqual("KB_DIR", ctx.workspace_source)
+
+    def test_run_log_tees_cli_output(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            workspace = Path(td)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(stdout):
+                    with contextlib.redirect_stderr(stderr):
+                        log_path = observability.start_run_log(
+                            workspace,
+                            command="research",
+                            topic="Harness Engineering",
+                        )
+                        self.assertIsNotNone(log_path)
+                        print("visible result")
+                        observability.event("stage", "working")
+            finally:
+                observability.stop_run_log()
+
+            assert log_path is not None
+            contents = log_path.read_text(encoding="utf-8")
+
+        self.assertIn("visible result", stdout.getvalue())
+        self.assertIn("[kb] stage | working", stderr.getvalue())
+        self.assertIn("visible result", contents)
+        self.assertIn("[kb] stage | working", contents)
+        self.assertIn("started=", contents)
 
 
 class PluginHookTests(unittest.TestCase):
