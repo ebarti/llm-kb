@@ -6,8 +6,8 @@ import re
 import subprocess
 from pathlib import Path
 
-from ..models import EXIT_ERROR, EXIT_NOOP, EXIT_SUCCESS, SearchHit, SearchResult
-from ._common import CommandContext
+from kb.models import EXIT_ERROR, EXIT_NOOP, EXIT_SUCCESS, SearchHit, SearchResult
+from kb.commands._common import CommandContext
 
 
 def run(ctx: CommandContext, query: str, top_k: int = 10) -> SearchResult:

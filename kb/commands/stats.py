@@ -9,8 +9,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Optional
 
-from ..models import EXIT_SUCCESS, StatsResult, StatsSection
-from ._common import CommandContext
+from kb.models import EXIT_SUCCESS, StatsResult, StatsSection
+from kb.commands._common import CommandContext
 
 
 def _count_md(path: Path, recursive: bool = False) -> int:

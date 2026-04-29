@@ -708,8 +708,8 @@ def default_llm_reviewer(
     config: ReviewerConfig,
 ) -> LLMReviewDecision:
     """Run the optional LLM reviewer. Disabled unless ``KB_REVIEW_LLM=1``."""
-    from tools.kb.budget import BudgetTracker
-    from tools.kb.runner import invoke_llm
+    from kb.budget import BudgetTracker
+    from kb.runner import invoke_llm
 
     article_text = candidate.text
     if len(article_text) > config.max_article_chars_for_llm:

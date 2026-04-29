@@ -9,16 +9,16 @@ import sys
 from dataclasses import dataclass
 from typing import Callable, Sequence
 
-from . import observability
-from .commands import export as export_cmd
-from .commands import init as init_cmd
-from .commands import llm_commands, log as log_cmd, search as search_cmd
-from .commands import queue as queue_cmd
-from .commands import serve as serve_cmd
-from .commands import stats as stats_cmd
-from .commands import test_cmd, viz as viz_cmd, workspaces as workspaces_cmd
-from .commands._common import CommandContext, error
-from .models import (
+from kb import observability
+from kb.commands import export as export_cmd
+from kb.commands import init as init_cmd
+from kb.commands import llm_commands, log as log_cmd, search as search_cmd
+from kb.commands import queue as queue_cmd
+from kb.commands import serve as serve_cmd
+from kb.commands import stats as stats_cmd
+from kb.commands import test_cmd, viz as viz_cmd, workspaces as workspaces_cmd
+from kb.commands._common import CommandContext, error
+from kb.models import (
     CommandResult,
     EXIT_ERROR,
     ExportResult,
@@ -33,7 +33,7 @@ from .models import (
     VizResult,
     WorkspacesResult,
 )
-from .workspace import Workspace
+from kb.workspace import Workspace
 
 
 _URL_RE = re.compile(r"https?://\S+")
@@ -453,7 +453,7 @@ def _rebuild_graph_store(ctx: CommandContext, result: LLMInvocationResult) -> LL
         "Graph store build failed and no existing .graph.db is available",
         file=sys.stderr,
     )
-    from .models import EXIT_ERROR as _EXIT_ERROR
+    from kb.models import EXIT_ERROR as _EXIT_ERROR
 
     result.ok = False
     result.exit_code = _EXIT_ERROR

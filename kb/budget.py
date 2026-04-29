@@ -12,7 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from .models import TokenUsage
+from kb.models import TokenUsage
 
 
 DEFAULT_BUDGET_TOKENS = 50_000

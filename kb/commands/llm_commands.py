@@ -2,8 +2,8 @@
 LLM-invoking subcommand dispatchers.
 
 Each function here is a thin shim that builds the prompt and delegates
-to :func:`tools.kb.commands._common.run_llm_command`. The actual prompt
-text lives in :mod:`tools.kb.commands.prompts` so it can be reviewed /
+to :func:`kb.commands._common.run_llm_command`. The actual prompt
+text lives in :mod:`kb.commands.prompts` so it can be reviewed /
 updated without touching runtime logic.
 """
 
@@ -12,11 +12,11 @@ from __future__ import annotations
 import dataclasses
 from pathlib import Path
 
-from ..git_util import auto_commit
-from ..models import EXIT_ERROR, LLMInvocationResult
-from ..typed_compile import compile_workspace
-from . import prompts
-from ._common import CommandContext, run_llm_command, run_plugin_hook
+from kb.git_util import auto_commit
+from kb.models import EXIT_ERROR, LLMInvocationResult
+from kb.typed_compile import compile_workspace
+from kb.commands import prompts
+from kb.commands._common import CommandContext, run_llm_command, run_plugin_hook
 
 
 def _raw_snapshot(ctx: CommandContext) -> set[Path]:

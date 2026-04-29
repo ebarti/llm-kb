@@ -6,14 +6,14 @@ import argparse
 from pathlib import Path
 from typing import Any, Sequence
 
-from ..models import (
+from kb.models import (
     EXIT_ERROR,
     EXIT_SUCCESS,
     QueueItemSummary,
     QueueResult,
 )
-from . import llm_commands
-from ._common import CommandContext
+from kb.commands import llm_commands
+from kb.commands._common import CommandContext
 
 
 def run(ctx: CommandContext, args: Sequence[str]) -> QueueResult:
@@ -232,6 +232,6 @@ def _queue_dir(ctx: CommandContext) -> str:
 
 
 def _store() -> Any:
-    from tools.worker import queue_store
+    from kb import queue_store
 
     return queue_store

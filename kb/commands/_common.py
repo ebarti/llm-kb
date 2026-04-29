@@ -16,10 +16,10 @@ import subprocess
 import sys
 from typing import Callable, Optional, Sequence
 
-from .. import observability
-from ..budget import BudgetExceeded, BudgetTracker
-from ..git_util import auto_commit
-from ..models import (
+from kb import observability
+from kb.budget import BudgetExceeded, BudgetTracker
+from kb.git_util import auto_commit
+from kb.models import (
     EXIT_ABORT,
     EXIT_BUDGET,
     EXIT_ERROR,
@@ -28,9 +28,9 @@ from ..models import (
     LLMInvocationResult,
     TokenUsage,
 )
-from ..runner import invoke_llm
-from ..workspace import Workspace
-from ...compile.review import ReviewerConfig, review_wiki_writes, snapshot_articles
+from kb.runner import invoke_llm
+from kb.workspace import Workspace
+from tools.compile.review import ReviewerConfig, review_wiki_writes, snapshot_articles
 
 
 @dataclass

@@ -4,7 +4,7 @@ LLM runner for kb.
 Backend: the **Claude Agent SDK** (``claude-agent-sdk`` on PyPI). It gives
 us agentic behaviour (tool use, permission modes, working directory, etc.)
 like the old ``claude`` CLI subprocess path did, *and* it reports token
-usage via ``ResultMessage.usage`` so :class:`~tools.kb.budget.BudgetTracker`
+usage via ``ResultMessage.usage`` so :class:`~kb.budget.BudgetTracker`
 can hard-enforce budgets on every invocation.
 
 The old two-backend split (raw ``anthropic`` SDK vs ``claude`` CLI
@@ -21,9 +21,9 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional
 
-from . import observability
-from .budget import BudgetExceeded, BudgetTracker
-from .models import TokenUsage
+from kb import observability
+from kb.budget import BudgetExceeded, BudgetTracker
+from kb.models import TokenUsage
 
 
 @dataclass
@@ -61,7 +61,7 @@ def invoke_llm(
         Model alias (``opus``/``sonnet``/``haiku``) or a full model id
         (e.g. ``claude-opus-4-7``). Aliases are expanded below.
     budget
-        A :class:`~tools.kb.budget.BudgetTracker`. The ``ResultMessage``
+        A :class:`~kb.budget.BudgetTracker`. The ``ResultMessage``
         usage is fed into it; if the response crosses the cap, the
         returned :class:`LLMResult` has ``budget_exceeded=True``.
     dry_run

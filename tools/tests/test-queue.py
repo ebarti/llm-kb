@@ -23,11 +23,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 UV_BIN = os.environ.get("UV", "uv")
 sys.path.insert(0, str(REPO_ROOT))
 
-from tools.kb.commands import queue as queue_cmd  # noqa: E402
-from tools.kb.commands._common import CommandContext  # noqa: E402
-from tools.kb.models import LLMInvocationResult  # noqa: E402
-from tools.kb.workspace import Workspace  # noqa: E402
-from tools.worker import queue_store, run_hourly  # noqa: E402
+from kb.commands import queue as queue_cmd  # noqa: E402
+from kb.commands._common import CommandContext  # noqa: E402
+from kb.models import LLMInvocationResult  # noqa: E402
+from kb.workspace import Workspace  # noqa: E402
+from kb import queue_store
+from tools.worker import run_hourly  # noqa: E402
 
 
 def kb_command(*args: str) -> list[str]:
@@ -208,8 +209,8 @@ class QueueCommandTests(unittest.TestCase):
             self.assertEqual(item_id, list_result.items[0].id)
 
             with (
-                mock.patch("tools.worker.queue_store.validate_fetch_url") as validate_mock,
-                mock.patch("tools.kb.commands.queue.llm_commands.ingest") as ingest_mock,
+                mock.patch("kb.queue_store.validate_fetch_url") as validate_mock,
+                mock.patch("kb.commands.queue.llm_commands.ingest") as ingest_mock,
             ):
                 ingest_mock.return_value = LLMInvocationResult(
                     command="ingest",
@@ -243,7 +244,7 @@ class QueueCommandTests(unittest.TestCase):
             )
             item_id = enqueued.created[0]["id"]
 
-            with mock.patch("tools.kb.commands.queue.llm_commands.ingest") as ingest_mock:
+            with mock.patch("kb.commands.queue.llm_commands.ingest") as ingest_mock:
                 approve_result = queue_cmd.run(ctx, ["approve", item_id])
 
             self.assertFalse(approve_result.ok)

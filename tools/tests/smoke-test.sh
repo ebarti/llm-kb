@@ -123,6 +123,14 @@ run_test "test-search.py imports without error" \
 
 # --- Python tools in other directories ---
 
+for pyfile in "$BASE_DIR"/kb/*.py "$BASE_DIR"/kb/commands/*.py; do
+    if [[ -f "$pyfile" ]]; then
+        rel="${pyfile#$BASE_DIR/}"
+        run_test "$rel syntax check" \
+            "python3 -m py_compile '$pyfile'" "any"
+    fi
+done
+
 for pyfile in "$BASE_DIR"/tools/search-engine/*.py; do
     if [[ -f "$pyfile" ]]; then
         fname=$(basename "$pyfile")
