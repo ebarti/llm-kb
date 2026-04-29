@@ -299,6 +299,7 @@ def run_llm_command(
         f"candidates={review_outcome.candidates} "
         f"accepted={len(review_outcome.accepted)} "
         f"rejected={len(review_outcome.rejected)} "
+        f"repaired={len(review_outcome.repairs)} "
         f"quarantine={review_outcome.quarantine_batch or 'none'}",
         visible=ctx.should_show_progress(),
     )
@@ -364,10 +365,22 @@ def run_llm_command(
             "compile review rejected wiki writes:\n"
             + review_outcome.rejection_summary()
         )
-        result.message = (
-            f"{rendered_message}\n\n{review_message}"
-            if rendered_message
-            else review_message
+        if raw_text is not None:
+            details.setdefault("raw_output", raw_text)
+        log_hint = (
+            f"\nAgent final output was captured in {ctx.run_log_path}."
+            if ctx.run_log_path
+            else ""
+        )
+        result.message = f"{review_message}{log_hint}"
+    elif review_outcome.repairs:
+        result.message = _append_message(
+            result.message,
+            (
+                "compile review auto-repaired "
+                f"{len(review_outcome.repairs)} draft issue(s); "
+                f"see {review_outcome.log_path or 'wiki/_meta/compile-review.jsonl'}"
+            ),
         )
 
     # Auto-commit on success

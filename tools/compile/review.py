@@ -90,6 +90,26 @@ class ReviewIssue:
 
 
 @dataclass
+class ReviewRepair:
+    """One deterministic repair applied before validating a draft."""
+
+    rel_path: str
+    code: str
+    message: str
+    line: Optional[int] = None
+
+    def as_dict(self) -> dict[str, object]:
+        data: dict[str, object] = {
+            "path": self.rel_path,
+            "code": self.code,
+            "message": self.message,
+        }
+        if self.line is not None:
+            data["line"] = self.line
+        return data
+
+
+@dataclass
 class ArticleCandidate:
     """A new or modified wiki article being reviewed."""
 
@@ -146,6 +166,7 @@ class ReviewerConfig:
 
     enable_llm: bool = False
     llm_model: str = "haiku"
+    auto_repair: bool = True
     quarantine_invalid: bool = True
     log_review: bool = True
     max_article_chars_for_llm: int = 16_000
@@ -157,6 +178,10 @@ class ReviewerConfig:
         return cls(
             enable_llm=enable in {"1", "true", "yes", "on"},
             llm_model=os.environ.get("KB_REVIEW_MODEL", "haiku"),
+            auto_repair=os.environ.get("KB_REVIEW_AUTO_REPAIR", "1")
+            .strip()
+            .lower()
+            not in {"0", "false", "no", "off"},
             quarantine_invalid=os.environ.get("KB_REVIEW_QUARANTINE", "1")
             .strip()
             .lower()
@@ -179,6 +204,7 @@ class ReviewOutcome:
     llm_cost: dict[str, int] = field(default_factory=dict)
     log_path: Optional[str] = None
     quarantine_batch: Optional[str] = None
+    repairs: list[ReviewRepair] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -191,6 +217,7 @@ class ReviewOutcome:
             "llm_cost": self.llm_cost,
             "log_path": self.log_path,
             "quarantine_batch": self.quarantine_batch,
+            "repairs": [repair.as_dict() for repair in self.repairs],
             "articles": [r.as_dict() for r in self.accepted + self.rejected],
         }
 
@@ -337,6 +364,12 @@ def review_wiki_writes(
             llm_cost=llm_cost,
         )
 
+    repairs: list[ReviewRepair] = []
+    if cfg.auto_repair:
+        repairs = auto_repair_drafts(kb_dir, wiki_dir, paths)
+        if repairs:
+            paths = changed_article_paths(wiki_dir, before_snapshot)
+
     known_targets = collect_known_targets(kb_dir)
     candidates = [_load_candidate(path, wiki_dir) for path in paths]
     reviews: dict[str, ArticleReview] = {}
@@ -388,6 +421,7 @@ def review_wiki_writes(
         llm_model=cfg.llm_model if cfg.enable_llm else None,
         llm_cost=llm_cost,
         quarantine_batch=quarantine_batch,
+        repairs=repairs,
     )
 
     if cfg.log_review:
@@ -481,6 +515,190 @@ def collect_known_targets(kb_dir: Path) -> dict[str, str]:
         if len(matches) == 1:
             mapping.setdefault(basename, matches[0])
     return mapping
+
+
+def auto_repair_drafts(
+    kb_dir: Path,
+    wiki_dir: Path,
+    paths: Iterable[Path],
+) -> list[ReviewRepair]:
+    """Repair deterministic LLM draft mistakes before validation.
+
+    The review gate should catch bad output, but it should not turn common,
+    mechanically fixable issues into an empty wiki. These repairs are
+    deliberately narrow: schema alias normalization, bare-link qualification
+    when the intended wiki article is unambiguous, and unwrapping links whose
+    targets were never created.
+    """
+    repairs: list[ReviewRepair] = []
+    known_targets = collect_known_targets(kb_dir)
+    article_targets_by_basename = _collect_article_targets_by_basename(wiki_dir)
+
+    for path in paths:
+        if not path.is_file():
+            continue
+        try:
+            original = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+
+        rel_path = path.relative_to(wiki_dir).as_posix()
+        text = original
+        metadata, _body = parse_frontmatter(text)
+        expected_type = _expected_type_for_rel_path(rel_path)
+        article_type = str(metadata.get("type") or expected_type or "wiki-page")
+
+        if (
+            article_type == "comparison"
+            and _is_empty(metadata.get("subjects"))
+            and not _is_empty(metadata.get("items"))
+        ):
+            repaired = _rename_frontmatter_key(text, "items", "subjects")
+            if repaired != text:
+                text = repaired
+                repairs.append(
+                    ReviewRepair(
+                        rel_path=rel_path,
+                        code="comparison_items_to_subjects",
+                        message="renamed comparison frontmatter field items -> subjects",
+                    )
+                )
+                metadata, _body = parse_frontmatter(text)
+
+        text, link_repairs = _repair_wikilinks(
+            text,
+            rel_path=rel_path,
+            known_targets=known_targets,
+            article_targets_by_basename=article_targets_by_basename,
+        )
+        repairs.extend(link_repairs)
+
+        if text != original:
+            path.write_text(text, encoding="utf-8")
+
+    return repairs
+
+
+def _collect_article_targets_by_basename(wiki_dir: Path) -> dict[str, list[str]]:
+    targets_by_basename: dict[str, list[str]] = {}
+    if not wiki_dir.is_dir():
+        return targets_by_basename
+
+    for article_dir in ARTICLE_DIRS:
+        root = wiki_dir / article_dir
+        if not root.is_dir():
+            continue
+        for path in root.rglob("*.md"):
+            if ".pending" in path.parts:
+                continue
+            rel = path.relative_to(wiki_dir).with_suffix("").as_posix()
+            targets_by_basename.setdefault(path.stem, []).append(rel)
+
+    for basename in list(targets_by_basename):
+        targets_by_basename[basename].sort()
+    return targets_by_basename
+
+
+def _rename_frontmatter_key(text: str, old_key: str, new_key: str) -> str:
+    if not text.startswith("---"):
+        return text
+    end = text.find("\n---", 3)
+    if end == -1:
+        return text
+
+    block = text[4:end]
+    lines = block.splitlines()
+    changed = False
+    new_lines: list[str] = []
+    for line in lines:
+        stripped = line.lstrip()
+        indent = line[: len(line) - len(stripped)]
+        if not indent and stripped.startswith(f"{old_key}:") and not changed:
+            new_lines.append(f"{new_key}:{stripped[len(old_key) + 1:]}")
+            changed = True
+            continue
+        new_lines.append(line)
+
+    if not changed:
+        return text
+    return "---\n" + "\n".join(new_lines) + text[end:]
+
+
+def _repair_wikilinks(
+    text: str,
+    *,
+    rel_path: str,
+    known_targets: dict[str, str],
+    article_targets_by_basename: dict[str, list[str]],
+) -> tuple[str, list[ReviewRepair]]:
+    repairs: list[ReviewRepair] = []
+
+    def replace(match: re.Match[str]) -> str:
+        payload = match.group(1)
+        target = normalize_wikilink_target(payload)
+        if not target:
+            return match.group(0)
+
+        if target in known_targets:
+            return match.group(0)
+
+        line = text.count("\n", 0, match.start()) + 1
+        basename = target.rsplit("/", 1)[-1]
+        if "/" not in target:
+            article_targets = article_targets_by_basename.get(target, [])
+            if len(article_targets) == 1:
+                canonical = article_targets[0]
+                repairs.append(
+                    ReviewRepair(
+                        rel_path=rel_path,
+                        code="qualify_bare_wikilink",
+                        line=line,
+                        message=f"rewrote [[{target}]] -> [[{canonical}]]",
+                    )
+                )
+                return f"[[{_replace_wikilink_target(payload, canonical)}]]"
+
+        display = _wikilink_display_text(payload, fallback=basename)
+        repairs.append(
+            ReviewRepair(
+                rel_path=rel_path,
+                code="unwrap_unresolved_wikilink",
+                line=line,
+                message=f"unwrapped unresolved wikilink [[{target}]]",
+            )
+        )
+        return display
+
+    repaired = WIKILINK_RE.sub(replace, text)
+    return repaired, repairs
+
+
+def _replace_wikilink_target(payload: str, new_target: str) -> str:
+    separator = _find_wikilink_alias_separator(payload)
+    if separator is None:
+        return new_target
+    return new_target + payload[separator:]
+
+
+def _wikilink_display_text(payload: str, *, fallback: str) -> str:
+    separator = _find_wikilink_alias_separator(payload)
+    if separator is None:
+        return fallback
+    offset = 2 if payload[separator : separator + 2] == "\\|" else 1
+    alias = payload[separator + offset :].strip()
+    return alias or fallback
+
+
+def _find_wikilink_alias_separator(payload: str) -> Optional[int]:
+    index = 0
+    while index < len(payload):
+        ch = payload[index]
+        if ch == "\\" and index + 1 < len(payload) and payload[index + 1] == "|":
+            return index
+        if ch == "|":
+            return index
+        index += 1
+    return None
 
 
 def check_frontmatter(candidate: ArticleCandidate) -> list[ReviewIssue]:
@@ -695,6 +913,7 @@ def append_review_log(kb_dir: Path, outcome: ReviewOutcome) -> str:
             "model": outcome.llm_model,
             "cost": outcome.llm_cost,
         },
+        "repairs": [repair.as_dict() for repair in outcome.repairs],
         "articles": [review.as_dict() for review in outcome.accepted + outcome.rejected],
     }
     with log_path.open("a", encoding="utf-8") as fh:

@@ -84,7 +84,14 @@ class ReviewGateTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
-        for subdir in ("wiki/concepts", "wiki/sources", "wiki/_meta", "raw"):
+        for subdir in (
+            "wiki/comparisons",
+            "wiki/concepts",
+            "wiki/entities",
+            "wiki/sources",
+            "wiki/_meta",
+            "raw",
+        ):
             (self.root / subdir).mkdir(parents=True, exist_ok=True)
         (self.root / "wiki" / "sources" / "source-one.md").write_text(
             "# Source One\n",
@@ -163,6 +170,112 @@ class ReviewGateTests(unittest.TestCase):
             .splitlines()[-1]
         )
         self.assertEqual("min_length", event["articles"][0]["warnings"][0]["code"])
+
+    def test_auto_repair_renames_comparison_items_to_subjects(self) -> None:
+        (self.root / "wiki" / "concepts" / "a.md").write_text(
+            valid_concept("Concept A"),
+            encoding="utf-8",
+        )
+        (self.root / "wiki" / "concepts" / "b.md").write_text(
+            valid_concept("Concept B"),
+            encoding="utf-8",
+        )
+        before = review.snapshot_articles(self.root / "wiki")
+        article = self.root / "wiki" / "comparisons" / "a-vs-b.md"
+        article.write_text(
+            textwrap.dedent(
+                """\
+                ---
+                title: "A vs B"
+                type: comparison
+                items: ["[[concepts/a]]", "[[concepts/b]]"]
+                sources: ["[[sources/source-one]]"]
+                last_compiled: 2026-04-26
+                summary: "A comparison summary."
+                ---
+
+                ## Overview
+
+                """
+            )
+            + " ".join(f"compare{i}" for i in range(110)),
+            encoding="utf-8",
+        )
+
+        outcome = review.review_wiki_writes(
+            self.root,
+            before_snapshot=before,
+            config=review.ReviewerConfig(enable_llm=False),
+        )
+
+        self.assertTrue(outcome.ok, outcome.rejection_summary())
+        self.assertEqual(["comparison_items_to_subjects"], [r.code for r in outcome.repairs])
+        repaired = article.read_text(encoding="utf-8")
+        self.assertIn("subjects: [\"[[concepts/a]]\", \"[[concepts/b]]\"]", repaired)
+        self.assertNotIn("items:", repaired)
+
+    def test_auto_repair_qualifies_bare_wikilink_when_raw_has_same_basename(self) -> None:
+        (self.root / "raw" / "ambiguous.md").write_text("# Raw\n", encoding="utf-8")
+        (self.root / "wiki" / "sources" / "ambiguous.md").write_text(
+            "# Source\n",
+            encoding="utf-8",
+        )
+        before = review.snapshot_articles(self.root / "wiki")
+        article = self.root / "wiki" / "concepts" / "uses-bare.md"
+        article.write_text(
+            valid_concept("Uses Bare").replace(
+                "[[sources/source-one]]",
+                "[[ambiguous]]",
+            ),
+            encoding="utf-8",
+        )
+
+        outcome = review.review_wiki_writes(
+            self.root,
+            before_snapshot=before,
+            config=review.ReviewerConfig(enable_llm=False),
+        )
+
+        self.assertTrue(outcome.ok, outcome.rejection_summary())
+        self.assertEqual(
+            ["qualify_bare_wikilink", "qualify_bare_wikilink"],
+            [r.code for r in outcome.repairs],
+        )
+        self.assertIn(
+            "[[sources/ambiguous]]",
+            article.read_text(encoding="utf-8"),
+        )
+
+    def test_auto_repair_unwraps_missing_wikilink_without_cascading(self) -> None:
+        before = review.snapshot_articles(self.root / "wiki")
+        source = self.root / "wiki" / "sources" / "source-with-missing.md"
+        source.write_text(
+            source_summary(words=95).replace(
+                "## Key Points",
+                "## Key Points\n\nMentions [[concepts/missing-target]] as a possible future page.",
+            ),
+            encoding="utf-8",
+        )
+        concept = self.root / "wiki" / "concepts" / "linked-source.md"
+        concept.write_text(
+            valid_concept("Linked Source").replace(
+                "[[sources/source-one]]",
+                "[[sources/source-with-missing]]",
+            ),
+            encoding="utf-8",
+        )
+
+        outcome = review.review_wiki_writes(
+            self.root,
+            before_snapshot=before,
+            config=review.ReviewerConfig(enable_llm=False),
+        )
+
+        self.assertTrue(outcome.ok, outcome.rejection_summary())
+        self.assertEqual(["unwrap_unresolved_wikilink"], [r.code for r in outcome.repairs])
+        self.assertIn("missing-target", source.read_text(encoding="utf-8"))
+        self.assertNotIn("[[concepts/missing-target]]", source.read_text(encoding="utf-8"))
+        self.assertFalse((self.root / "wiki" / ".pending").exists())
 
     def test_short_source_warning_does_not_cascade_to_linking_articles(self) -> None:
         before = review.snapshot_articles(self.root / "wiki")
@@ -422,8 +535,10 @@ Too short.
         )
 
         self.assertFalse(result.ok)
+        self.assertTrue((result.message or "").startswith("compile review rejected"))
         self.assertIn("compile review rejected", result.message or "")
         self.assertIn("compile_review", result.details)
+        self.assertEqual("compile finished", result.details.get("raw_output"))
         self.assertFalse((self.root / "wiki" / "concepts" / "from-agent.md").exists())
 
     @mock.patch("kb.commands._common.invoke_llm")
