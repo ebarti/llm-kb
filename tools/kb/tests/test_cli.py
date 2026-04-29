@@ -183,6 +183,35 @@ class RunnerAgentBackendTests(unittest.TestCase):
         self.assertEqual("claude-sonnet-4-6", captured["options"]["model"])
         self.assertEqual("bypassPermissions", captured["options"]["permission_mode"])
 
+    def test_agent_backend_verbose_progress_goes_to_stderr(self) -> None:
+        module, seq, _captured, _Am, Rm = _make_fake_agent_sdk()
+        seq.append(Rm(result="ok", usage={"output_tokens": 2}))
+        stderr = io.StringIO()
+
+        with mock.patch.dict("sys.modules", {"claude_agent_sdk": module}):
+            with mock.patch.dict(
+                "os.environ",
+                {
+                    "ANTHROPIC_API_KEY": "test-key",
+                    "KB_AGENT_HEARTBEAT_SECONDS": "0",
+                },
+                clear=False,
+            ):
+                with contextlib.redirect_stderr(stderr):
+                    result = invoke_llm(
+                        "prompt",
+                        model="sonnet",
+                        budget=BudgetTracker(limit=None),
+                        verbose=True,
+                        cwd="/tmp/kb-workspace",
+                    )
+
+        self.assertEqual(0, result.returncode)
+        output = stderr.getvalue()
+        self.assertIn("provider=anthropic", output)
+        self.assertIn("cwd=/tmp/kb-workspace", output)
+        self.assertIn("[kb] agent event | result", output)
+
     def test_agent_backend_falls_back_to_assistant_text_when_result_empty(self) -> None:
         module, seq, _captured, Am, Rm = _make_fake_agent_sdk()
         seq.append(Am("partial "))

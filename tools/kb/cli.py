@@ -132,6 +132,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     ctx = _build_context(opts)
     command = remaining[0]
     command_args = remaining[1:]
+    if ctx.verbose and not ctx.json_output:
+        _print_verbose_invocation(ctx, opts, command, command_args)
 
     try:
         if command in {"-i", "--interactive"}:
@@ -227,6 +229,37 @@ def _build_context(opts: GlobalOptions) -> CommandContext:
         permission_mode=opts.permission_mode
         or os.environ.get("KB_PERMISSION_MODE", "bypassPermissions"),
     )
+
+
+def _print_verbose_invocation(
+    ctx: CommandContext,
+    opts: GlobalOptions,
+    command: str,
+    command_args: Sequence[str],
+) -> None:
+    source = _workspace_selection_source(opts)
+    topic = " ".join(command_args).strip()
+    suffix = f" topic={topic!r}" if topic else ""
+    print(
+        f"[kb] command | command={command}{suffix} "
+        f"workspace={ctx.workspace.kb_dir} workspace_source={source} "
+        f"model={ctx.model} dry_run={ctx.dry_run}",
+        file=sys.stderr,
+    )
+    if source == "$KB_WORKSPACES/default":
+        print(
+            "[kb] workspace | default selected because neither --dir nor KB_DIR was set; "
+            "use `--dir <name>` to target a named workspace",
+            file=sys.stderr,
+        )
+
+
+def _workspace_selection_source(opts: GlobalOptions) -> str:
+    if opts.dir_flag:
+        return f"--dir {opts.dir_flag}"
+    if os.environ.get("KB_DIR"):
+        return "KB_DIR"
+    return "$KB_WORKSPACES/default"
 
 
 def _parse_command(
@@ -785,6 +818,7 @@ def _print_help() -> None:
     _help_env(theme, "KB_DIR", "Active workspace override")
     _help_env(theme, "KB_NO_COMMIT", "Skip git commits when set to 1")
     _help_env(theme, "KB_TOKEN_BUDGET", "Default token budget for LLM commands")
+    _help_env(theme, "KB_AGENT_HEARTBEAT_SECONDS", "Verbose heartbeat interval")
     _help_env(theme, "KB_COLOR", "auto|always|never terminal color control")
     _help_env(theme, "NO_COLOR", "Disable color when KB_COLOR is auto")
     _help_env(theme, "ANTHROPIC_API_KEY", "Required for Anthropic API mode")

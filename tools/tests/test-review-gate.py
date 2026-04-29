@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import importlib.util
 import io
 import json
@@ -60,6 +61,22 @@ summary: "A useful concept summary."
 ---
 
 {long_body()}
+"""
+
+
+def source_summary(title: str = "Short Source", *, words: int = 95, summary: str = "Source summary.") -> str:
+    prose = " ".join(f"sourceword{i}" for i in range(words))
+    return f"""---
+title: "{title}"
+type: source-summary
+source: "[[sources/source-one]]"
+last_compiled: 2026-04-26
+summary: "{summary}"
+---
+
+## Key Points
+
+{prose}
 """
 
 
@@ -124,6 +141,83 @@ class ReviewGateTests(unittest.TestCase):
         self.assertEqual(1, len(pending_files))
         self.assertEqual(1, len(note_files))
         self.assertIn("template_placeholder", note_files[0].read_text(encoding="utf-8"))
+
+    def test_min_length_is_warning_not_rejection(self) -> None:
+        before = review.snapshot_articles(self.root / "wiki")
+        article = self.root / "wiki" / "sources" / "short.md"
+        article.write_text(source_summary(words=12), encoding="utf-8")
+
+        outcome = review.review_wiki_writes(
+            self.root,
+            before_snapshot=before,
+            config=review.ReviewerConfig(enable_llm=False),
+        )
+
+        self.assertTrue(outcome.ok, outcome.rejection_summary())
+        self.assertTrue(article.exists())
+        self.assertEqual(1, len(outcome.accepted))
+        self.assertEqual("min_length", outcome.accepted[0].warnings[0].code)
+        event = json.loads(
+            (self.root / "wiki" / "_meta" / "compile-review.jsonl")
+            .read_text(encoding="utf-8")
+            .splitlines()[-1]
+        )
+        self.assertEqual("min_length", event["articles"][0]["warnings"][0]["code"])
+
+    def test_short_source_warning_does_not_cascade_to_linking_articles(self) -> None:
+        before = review.snapshot_articles(self.root / "wiki")
+        source = self.root / "wiki" / "sources" / "short.md"
+        source.write_text(source_summary(words=12), encoding="utf-8")
+        concept = self.root / "wiki" / "concepts" / "linked.md"
+        concept.write_text(
+            valid_concept("Linked Concept").replace(
+                "[[sources/source-one]]",
+                "[[sources/short]]",
+            ),
+            encoding="utf-8",
+        )
+
+        outcome = review.review_wiki_writes(
+            self.root,
+            before_snapshot=before,
+            config=review.ReviewerConfig(enable_llm=False),
+        )
+
+        self.assertTrue(outcome.ok, outcome.rejection_summary())
+        self.assertEqual(2, len(outcome.accepted))
+        self.assertTrue(source.exists())
+        self.assertTrue(concept.exists())
+        self.assertFalse((self.root / "wiki" / ".pending").exists())
+
+    def test_rejection_summary_separates_root_causes_from_dependents(self) -> None:
+        before = review.snapshot_articles(self.root / "wiki")
+        bad_source = self.root / "wiki" / "sources" / "bad.md"
+        bad_source.write_text(
+            source_summary(words=95, summary="{{summary}}"),
+            encoding="utf-8",
+        )
+        concept = self.root / "wiki" / "concepts" / "linked-bad.md"
+        concept.write_text(
+            valid_concept("Linked Bad").replace(
+                "[[sources/source-one]]",
+                "[[sources/bad]]",
+            ),
+            encoding="utf-8",
+        )
+
+        outcome = review.review_wiki_writes(
+            self.root,
+            before_snapshot=before,
+            config=review.ReviewerConfig(enable_llm=False),
+        )
+
+        self.assertFalse(outcome.ok)
+        summary = outcome.rejection_summary()
+        self.assertIn("1 root rejection(s)", summary)
+        self.assertIn("1 dependent rejection(s)", summary)
+        self.assertIn("Root rejections:", summary)
+        self.assertIn("Dependent rejection targets:", summary)
+        self.assertIn("[[sources/bad]]: 1 article(s)", summary)
 
     def test_structural_wiki_markdown_template_leaks_are_rejected(self) -> None:
         cases = [
@@ -360,6 +454,38 @@ Too short.
         self.assertIn("compile_review", result.details)
         self.assertEqual(1, result.details["compile_review"]["candidates"])
         self.assertFalse((self.root / "wiki" / "_index.md").exists())
+
+    @mock.patch("tools.kb.commands._common.invoke_llm")
+    def test_shared_llm_helper_verbose_reports_review_counts(self, invoke_mock) -> None:
+        def fake_invoke(*_args, **_kwargs):
+            (self.root / "wiki" / "_index.md").write_text(
+                "# Index\n\nLeaked {{summary}}\n",
+                encoding="utf-8",
+            )
+            return LLMResult(text="compile finished", returncode=0)
+
+        invoke_mock.side_effect = fake_invoke
+        ctx = CommandContext(
+            workspace=Workspace(kb_home=self.root, kb_dir=self.root),
+            no_commit=False,
+            verbose=True,
+        )
+        stderr = io.StringIO()
+
+        with contextlib.redirect_stderr(stderr):
+            result = run_llm_command(
+                ctx,
+                command="compile",
+                topic=None,
+                prompt_builder=lambda: "compile",
+                commit_label="compile wiki",
+            )
+
+        self.assertFalse(result.ok)
+        output = stderr.getvalue()
+        self.assertIn("[kb] llm | command=compile", output)
+        self.assertIn("[kb] review | scanning changed wiki writes", output)
+        self.assertIn("candidates=1 accepted=0 rejected=1", output)
 
     def _write_fake_generate_all(self, body: str) -> None:
         regen = self.root / "tools" / "compile" / "regen_meta.py"

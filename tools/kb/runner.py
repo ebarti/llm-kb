@@ -15,7 +15,10 @@ Agent SDK closes that gap, so this module now has a single code path.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import os
+import sys
+import time
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -213,7 +216,9 @@ def _invoke_agent(
     if verbose:
         print(
             f"[kb] agent backend | provider={provider} model={resolved_model} "
-            f"permission_mode={permission_mode} budget={budget.limit}"
+            f"permission_mode={permission_mode} budget={budget.limit} "
+            f"cwd={cwd or os.getcwd()}",
+            file=sys.stderr,
         )
 
     try:
@@ -224,6 +229,8 @@ def _invoke_agent(
                 budget=budget,
                 permission_mode=permission_mode,
                 cwd=cwd,
+                provider=provider,
+                verbose=verbose,
             )
         )
     except Exception as exc:  # noqa: BLE001
@@ -266,6 +273,8 @@ async def _stream_agent(
     budget: BudgetTracker,
     permission_mode: str,
     cwd: Optional[str],
+    provider: str,
+    verbose: bool,
 ) -> tuple[str, bool, bool, Optional[str]]:
     """Drive ``claude_agent_sdk.query`` and return (text, budget_exceeded,
     had_error, error_subtype)."""
@@ -287,21 +296,76 @@ async def _stream_agent(
     had_error = False
     error_subtype: Optional[str] = None
 
-    async for msg in query(prompt=prompt, options=options):
-        if isinstance(msg, AssistantMessage):
-            for block in getattr(msg, "content", None) or []:
-                block_text = getattr(block, "text", None)
-                if block_text:
-                    assistant_text_parts.append(block_text)
-        elif isinstance(msg, ResultMessage):
-            final_result_text = getattr(msg, "result", None)
-            if getattr(msg, "is_error", False):
-                had_error = True
-                error_subtype = getattr(msg, "subtype", None)
-            try:
-                budget.add_from_response(msg)
-            except BudgetExceeded:
-                budget_exceeded = True
+    stop_heartbeat = asyncio.Event()
+    heartbeat_task: asyncio.Task[None] | None = None
+    if verbose:
+        heartbeat_task = asyncio.create_task(
+            _agent_heartbeat(stop_heartbeat, provider=provider, model=model, cwd=cwd)
+        )
+
+    try:
+        async for msg in query(prompt=prompt, options=options):
+            if isinstance(msg, AssistantMessage):
+                if verbose:
+                    print("[kb] agent event | assistant message", file=sys.stderr)
+                for block in getattr(msg, "content", None) or []:
+                    block_text = getattr(block, "text", None)
+                    if block_text:
+                        assistant_text_parts.append(block_text)
+            elif isinstance(msg, ResultMessage):
+                final_result_text = getattr(msg, "result", None)
+                if getattr(msg, "is_error", False):
+                    had_error = True
+                    error_subtype = getattr(msg, "subtype", None)
+                try:
+                    budget.add_from_response(msg)
+                except BudgetExceeded:
+                    budget_exceeded = True
+                if verbose:
+                    print(
+                        "[kb] agent event | result "
+                        f"error={getattr(msg, 'is_error', False)} "
+                        f"subtype={getattr(msg, 'subtype', None)} "
+                        f"tokens={budget.usage.total}",
+                        file=sys.stderr,
+                    )
+    finally:
+        if heartbeat_task is not None:
+            stop_heartbeat.set()
+            heartbeat_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await heartbeat_task
 
     text = final_result_text if final_result_text else "".join(assistant_text_parts)
     return text, budget_exceeded, had_error, error_subtype
+
+
+async def _agent_heartbeat(
+    stop: asyncio.Event,
+    *,
+    provider: str,
+    model: str,
+    cwd: Optional[str],
+) -> None:
+    interval = _heartbeat_interval()
+    if interval <= 0:
+        return
+    started = time.monotonic()
+    while not stop.is_set():
+        try:
+            await asyncio.wait_for(stop.wait(), timeout=interval)
+        except asyncio.TimeoutError:
+            elapsed = int(time.monotonic() - started)
+            print(
+                f"[kb] agent running | elapsed={elapsed}s "
+                f"provider={provider} model={model} cwd={cwd or os.getcwd()}",
+                file=sys.stderr,
+            )
+
+
+def _heartbeat_interval() -> int:
+    raw = os.environ.get("KB_AGENT_HEARTBEAT_SECONDS", "30")
+    try:
+        return max(0, int(raw))
+    except ValueError:
+        return 30

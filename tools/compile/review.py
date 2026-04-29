@@ -110,11 +110,15 @@ class ArticleReview:
     article_type: str
     accepted: bool = True
     issues: list[ReviewIssue] = field(default_factory=list)
+    warnings: list[ReviewIssue] = field(default_factory=list)
     quarantined_to: Optional[str] = None
 
     def reject(self, issue: ReviewIssue) -> None:
         self.accepted = False
         self.issues.append(issue)
+
+    def warn(self, issue: ReviewIssue) -> None:
+        self.warnings.append(issue)
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -123,6 +127,7 @@ class ArticleReview:
             "accepted": self.accepted,
             "quarantined_to": self.quarantined_to,
             "issues": [issue.as_dict() for issue in self.issues],
+            "warnings": [warning.as_dict() for warning in self.warnings],
         }
 
 
@@ -190,6 +195,61 @@ class ReviewOutcome:
         }
 
     def rejection_summary(self) -> str:
+        root_lines: list[str] = []
+        dependent_targets: dict[str, int] = {}
+        dependent_count = 0
+
+        for review in self.rejected:
+            root_issues = [
+                issue
+                for issue in review.issues
+                if issue.code != "wikilink_rejected_target"
+            ]
+            if root_issues:
+                messages = "; ".join(issue.message for issue in root_issues[:3])
+                extra = ""
+                if len(root_issues) > 3:
+                    extra = f" (+{len(root_issues) - 3} more)"
+                root_lines.append(f"{review.rel_path}: {messages}{extra}")
+                continue
+
+            dependent_count += 1
+            for issue in review.issues:
+                if issue.code != "wikilink_rejected_target":
+                    continue
+                target = issue.token or issue.message.rsplit(": ", 1)[-1]
+                dependent_targets[target] = dependent_targets.get(target, 0) + 1
+
+        if root_lines:
+            parts = [
+                (
+                    f"{len(self.rejected)} rejected / {self.candidates} candidates; "
+                    f"{len(root_lines)} root rejection(s), "
+                    f"{dependent_count} dependent rejection(s)"
+                ),
+                "Root rejections:",
+                *[f"- {line}" for line in root_lines[:20]],
+            ]
+            if len(root_lines) > 20:
+                parts.append(f"- ... {len(root_lines) - 20} more root rejection(s)")
+            if dependent_targets:
+                parts.append("Dependent rejection targets:")
+                sorted_targets = sorted(
+                    dependent_targets.items(),
+                    key=lambda item: (-item[1], item[0]),
+                )
+                for target, count in sorted_targets[:10]:
+                    parts.append(f"- {target}: {count} article(s)")
+                if len(sorted_targets) > 10:
+                    parts.append(
+                        f"- ... {len(sorted_targets) - 10} more rejected target(s)"
+                    )
+            if self.quarantine_batch:
+                parts.append(f"Quarantine: wiki/{self.quarantine_batch}")
+            if self.log_path:
+                parts.append(f"Review log: {self.log_path}")
+            return "\n".join(parts)
+
         parts: list[str] = []
         for review in self.rejected:
             messages = "; ".join(issue.message for issue in review.issues[:3])
@@ -304,6 +364,8 @@ def review_wiki_writes(
                     review.reject(ReviewIssue(code="llm_reviewer", message=note))
 
         reviews[candidate.rel_path] = review
+        for warning in check_min_length(candidate):
+            review.warn(warning)
 
     _reject_links_to_rejected_candidates(reviews, candidates)
 
@@ -342,7 +404,6 @@ def validate_candidate(
     issues: list[ReviewIssue] = []
     issues.extend(check_template_placeholders(candidate.text))
     issues.extend(check_frontmatter(candidate))
-    issues.extend(check_min_length(candidate))
     issues.extend(check_wikilinks(candidate, known_targets))
     return issues
 
