@@ -26,7 +26,7 @@ The core idea: **raw data is immutable; the wiki is the LLM's compiled, cross-li
 
 Requirements:
 - [uv](https://docs.astral.sh/uv/) with Python 3.10+
-- `ANTHROPIC_API_KEY` exported in your shell
+- Either direct Anthropic API auth (`ANTHROPIC_API_KEY`) or Vertex AI auth (`KB_LLM_PROVIDER=vertex` / `CLAUDE_CODE_USE_VERTEX=1` plus Google Cloud credentials)
 - Optional: `claude` CLI installed and authenticated for `uv run kb -i` interactive sessions ([Claude Code](https://docs.claude.com/claude-code))
 - Optional: `yt-dlp`, `pdftotext`, `gh` (for YouTube / PDF / GitHub ingest)
 - Optional: [Obsidian](https://obsidian.md) to browse the vault
@@ -35,7 +35,16 @@ Requirements:
 git clone git@github.com:ebarti/llm-kb.git ~/Github/llm-kb
 cd ~/Github/llm-kb
 uv sync
+
+# Choose one auth path.
+
+# Option A: Anthropic API
 export ANTHROPIC_API_KEY="your-api-key"
+
+# Option B: Vertex AI
+export KB_LLM_PROVIDER=vertex
+export ANTHROPIC_VERTEX_PROJECT_ID="your-gcp-project"
+export CLOUD_ML_REGION="global"
 
 # Create your first workspace (data lives outside the repo):
 uv run kb new ai                  # → ~/kb-workspaces/ai/
@@ -52,6 +61,8 @@ open ~/kb-workspaces/ai
 
 First-run tips:
 - LLM-backed commands use the Claude Agent SDK by default. If you see a `claude-agent-sdk is required` error, run `uv sync` from the repo root.
+- Anthropic API mode requires `ANTHROPIC_API_KEY`.
+- Vertex AI mode does not require `ANTHROPIC_API_KEY`; set `KB_LLM_PROVIDER=vertex` or `CLAUDE_CODE_USE_VERTEX=1`, configure `ANTHROPIC_VERTEX_PROJECT_ID` and `CLOUD_ML_REGION`, then provide Google credentials in your environment, such as `GOOGLE_APPLICATION_CREDENTIALS`.
 - If you omit `--dir`, `uv run kb` targets `$KB_WORKSPACES/default`.
 - `uv run kb workspaces` lists every workspace and shows which one is active.
 - `uv run kb --dir <name>` auto-creates the workspace if it does not exist.
@@ -137,7 +148,7 @@ uv run kb --dir <name> <command>       # target a specific workspace
 ```
 
 Flags: `--dir / -d`, `--model`, `--budget`, `--no-commit`, `--dry-run`, `--verbose`.
-Env: `ANTHROPIC_API_KEY`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
+Env: `ANTHROPIC_API_KEY`, `KB_LLM_PROVIDER`, `CLAUDE_CODE_USE_VERTEX`, `ANTHROPIC_VERTEX_PROJECT_ID`, `CLOUD_ML_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_AGENT_HEARTBEAT_SECONDS`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
 
 ---
 

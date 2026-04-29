@@ -200,6 +200,11 @@ def run_llm_command(
 
     article_snapshot = snapshot_articles(ctx.workspace.wiki_dir)
     budget = ctx.new_budget()
+    if ctx.verbose and not ctx.json_output:
+        print(
+            f"[kb] llm | command={command} workspace={ctx.workspace.kb_dir}",
+            file=sys.stderr,
+        )
 
     try:
         prompt = prompt_builder()
@@ -245,11 +250,22 @@ def run_llm_command(
     else:
         rendered_message = raw_text
 
+    if ctx.verbose and not ctx.json_output:
+        print("[kb] review | scanning changed wiki writes", file=sys.stderr)
     review_outcome = review_wiki_writes(
         ctx.workspace.kb_dir,
         before_snapshot=article_snapshot,
         config=ReviewerConfig.from_env(),
     )
+    if ctx.verbose and not ctx.json_output:
+        print(
+            "[kb] review | "
+            f"candidates={review_outcome.candidates} "
+            f"accepted={len(review_outcome.accepted)} "
+            f"rejected={len(review_outcome.rejected)} "
+            f"quarantine={review_outcome.quarantine_batch or 'none'}",
+            file=sys.stderr,
+        )
     if review_outcome.candidates:
         details["compile_review"] = review_outcome.as_dict()
 
