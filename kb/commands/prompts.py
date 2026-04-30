@@ -86,6 +86,26 @@ Do NOT stop after a single pass. Expect 3-5+ iterations of this loop for any non
 - Do a final compile pass ensuring all wiki pages are cross-linked
 - Update the index and all metadata files
 - Print the final RESEARCH COMPLETE progress report
+
+## Wiki write contract
+
+The compile review gate validates every changed wiki markdown file after you
+finish. Treat these as hard requirements:
+
+- Every source summary uses `type: source-summary` and a `source` field linking
+  to `[[raw/<slug>]]`.
+- Every concept page uses `type: concept` and a non-empty `sources` field.
+- Every entity page uses `type: entity` and a valid `entity_type`.
+- Every comparison page uses `type: comparison` and a non-empty `subjects`
+  field. Do not use `items` for comparison subjects.
+- Use fully qualified wikilinks: `[[sources/<slug>]]`,
+  `[[concepts/<slug>]]`, `[[entities/<slug>]]`,
+  `[[comparisons/<slug>]]`, or `[[raw/<slug>]]`.
+- Do not write bare wikilinks like `[[some-slug]]`; they are ambiguous when a
+  raw file and wiki article share a slug.
+- Only create wikilinks to files you actually created or that already exist. If
+  a related idea does not deserve a page yet, write it as plain text instead of
+  a dead wikilink.
 """
 
 
@@ -133,6 +153,7 @@ COMPARE_PROMPT = """Create a detailed comparison article: '{x}' vs '{y}'. Includ
 - Pros/cons of each
 - When to use each
 - Sources and citations
+Use comparison frontmatter with `type: comparison` and `subjects`, not `items`.
 Save to wiki/comparisons/ and update the index. If the wiki lacks coverage of either topic, research them first using WebSearch."""
 
 

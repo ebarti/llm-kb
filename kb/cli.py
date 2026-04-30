@@ -935,6 +935,7 @@ def _print_help() -> None:
     _help_env(theme, "KB_AGENT_HEARTBEAT_SECONDS", "Agent progress heartbeat interval")
     _help_env(theme, "KB_LOG_DIR", "Override per-run CLI log directory")
     _help_env(theme, "KB_RUN_LOG", "Set to 0 to disable per-run CLI logs")
+    _help_env(theme, "KB_REVIEW_AUTO_REPAIR", "Set to 0 to disable review auto-repairs")
     _help_env(theme, "KB_COLOR", "auto|always|never terminal color control")
     _help_env(theme, "NO_COLOR", "Disable color when KB_COLOR is auto")
     _help_env(theme, "ANTHROPIC_API_KEY", "Required for Anthropic API mode")
