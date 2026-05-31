@@ -179,6 +179,9 @@ def test_expected_citations_exist() -> None:
             f"import failed: {e!r}",
         )
         return
+
+    allowed_prefixes = {"sources", "concepts", "entities", "comparisons"}
+    malformed = []
     missing = []
     with GOLDSET.open("r", encoding="utf-8") as f:
         for line in f:
@@ -187,14 +190,37 @@ def test_expected_citations_exist() -> None:
                 continue
             entry = json.loads(line)
             for c in entry.get("expected_citations", []):
+                doc_id = eval_retrieval.citation_to_doc_id(c)
+                prefix = doc_id.split("/", 1)[0] if "/" in doc_id else ""
+                if (
+                    not doc_id
+                    or prefix not in allowed_prefixes
+                    or doc_id.startswith("/")
+                    or ".." in Path(doc_id).parts
+                ):
+                    malformed.append((entry.get("id"), c, doc_id))
+                    continue
                 path = c[len("wiki/"):] if c.startswith("wiki/") else c
                 if (REPO_ROOT / "wiki" / path.lstrip("/")).exists():
                     continue
                 # Also accept the doc-id style "concepts/foo" without .md
-                doc_id = eval_retrieval.citation_to_doc_id(c)
                 if (WIKI_DIR / f"{doc_id}.md").exists():
                     continue
                 missing.append((entry.get("id"), c))
+
+    check(
+        "every expected_citation is a valid wiki doc id",
+        not malformed,
+        f"{len(malformed)} malformed — first few: {malformed[:3]}",
+    )
+    if not WIKI_DIR.exists():
+        check(
+            "repo wiki corpus absent; citation file resolution skipped",
+            True,
+            "workspace data lives outside the repo checkout",
+        )
+        return
+
     check(
         "every expected_citation resolves to a wiki file",
         not missing,
