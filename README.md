@@ -26,7 +26,8 @@ The core idea: **raw data is immutable; the wiki is the LLM's compiled, cross-li
 
 Requirements:
 - [uv](https://docs.astral.sh/uv/) with Python 3.10+
-- Either direct Anthropic API auth (`ANTHROPIC_API_KEY`) or Vertex AI auth (`KB_LLM_PROVIDER=vertex` / `CLAUDE_CODE_USE_VERTEX=1` plus Google Cloud credentials)
+- One LLM runtime: direct Anthropic API auth (`ANTHROPIC_API_KEY`), Vertex AI auth (`KB_LLM_PROVIDER=vertex` / `CLAUDE_CODE_USE_VERTEX=1` plus Google Cloud credentials), or Codex SDK auth (`KB_LLM_PROVIDER=codex` plus Codex CLI login or `OPENAI_API_KEY`/`CODEX_API_KEY`)
+- Optional for Codex mode: Node.js 18+ and `npm install` to install `@openai/codex-sdk`
 - Optional: `claude` CLI installed and authenticated for `uv run kb -i` interactive sessions ([Claude Code](https://docs.claude.com/claude-code))
 - Optional: `yt-dlp`, `pdftotext`, `gh` (for YouTube / PDF / GitHub ingest)
 - Optional: [Obsidian](https://obsidian.md) to browse the vault
@@ -46,6 +47,11 @@ export KB_LLM_PROVIDER=vertex
 export ANTHROPIC_VERTEX_PROJECT_ID="your-gcp-project"
 export CLOUD_ML_REGION="global"
 
+# Option C: Codex SDK
+npm install
+export KB_LLM_PROVIDER=codex
+export OPENAI_API_KEY="your-openai-api-key"  # optional if Codex CLI is already authenticated
+
 # Create your first workspace (data lives outside the repo):
 uv run kb new ai                  # → ~/kb-workspaces/ai/
 
@@ -63,6 +69,7 @@ First-run tips:
 - LLM-backed commands use the Claude Agent SDK by default. If you see a `claude-agent-sdk is required` error, run `uv sync` from the repo root.
 - Anthropic API mode requires `ANTHROPIC_API_KEY`.
 - Vertex AI mode does not require `ANTHROPIC_API_KEY`; set `KB_LLM_PROVIDER=vertex` or `CLAUDE_CODE_USE_VERTEX=1`, configure `ANTHROPIC_VERTEX_PROJECT_ID` and `CLOUD_ML_REGION`, then provide Google credentials in your environment, such as `GOOGLE_APPLICATION_CREDENTIALS`.
+- Codex mode uses `@openai/codex-sdk` via a Node bridge. Run `npm install`, then set `KB_LLM_PROVIDER=codex`. It uses the Codex SDK default model unless you set `KB_CODEX_MODEL` or pass a non-Claude `--model`. llm-kb injects `CODEX_HOME` for the Codex subprocess, defaulting to `~/.codex_llm_kb`, and refreshes `auth.json` from the user's primary Codex home.
 - If you omit `--dir`/`KB_DIR`, `uv run kb research "<topic>"` creates a topic-named workspace.
 - Non-research commands without `--dir`/`KB_DIR` target `$KB_WORKSPACES/default`.
 - `uv run kb workspaces` lists every workspace and shows which one is active.
@@ -151,7 +158,7 @@ uv run kb research "<topic>"           # auto-creates a topic-named workspace if
 ```
 
 Flags: `--dir / -d`, `--model`, `--budget`, `--no-commit`, `--dry-run`, `--verbose`.
-Env: `ANTHROPIC_API_KEY`, `KB_LLM_PROVIDER`, `CLAUDE_CODE_USE_VERTEX`, `ANTHROPIC_VERTEX_PROJECT_ID`, `CLOUD_ML_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_AGENT_HEARTBEAT_SECONDS`, `KB_LOG_DIR`, `KB_RUN_LOG`, `KB_REVIEW_AUTO_REPAIR`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
+Env: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `CODEX_API_KEY`, `KB_LLM_PROVIDER`, `KB_CODEX_MODEL`, `KB_CODEX_HOME`, `KB_CODEX_BIN`, `KB_CODEX_SANDBOX_MODE`, `KB_CODEX_APPROVAL_POLICY`, `KB_CODEX_NETWORK`, `KB_CODEX_SKIP_GIT_CHECK`, `KB_CODEX_WEB_SEARCH_MODE`, `KB_CODEX_REASONING_EFFORT`, `KB_CODEX_BASE_URL`, `CLAUDE_CODE_USE_VERTEX`, `ANTHROPIC_VERTEX_PROJECT_ID`, `CLOUD_ML_REGION`, `GOOGLE_APPLICATION_CREDENTIALS`, `KB_DIR`, `KB_WORKSPACES`, `KB_MODEL`, `KB_TOKEN_BUDGET`, `KB_AGENT_HEARTBEAT_SECONDS`, `KB_LOG_DIR`, `KB_RUN_LOG`, `KB_REVIEW_AUTO_REPAIR`, `KB_PERMISSION_MODE`, `KB_NO_COMMIT`, `KB_COLOR`.
 
 LLM-backed commands print timestamped progress and tee stdout/stderr to
 `<workspace>/output/logs/*.log` by default. Set `KB_LOG_DIR` to move run logs or

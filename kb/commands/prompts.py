@@ -92,20 +92,69 @@ Do NOT stop after a single pass. Expect 3-5+ iterations of this loop for any non
 The compile review gate validates every changed wiki markdown file after you
 finish. Treat these as hard requirements:
 
-- Every source summary uses `type: source-summary` and a `source` field linking
-  to `[[raw/<slug>]]`.
-- Every concept page uses `type: concept` and a non-empty `sources` field.
-- Every entity page uses `type: entity` and a valid `entity_type`.
-- Every comparison page uses `type: comparison` and a non-empty `subjects`
-  field. Do not use `items` for comparison subjects.
-- Use fully qualified wikilinks: `[[sources/<slug>]]`,
-  `[[concepts/<slug>]]`, `[[entities/<slug>]]`,
-  `[[comparisons/<slug>]]`, or `[[raw/<slug>]]`.
-- Do not write bare wikilinks like `[[some-slug]]`; they are ambiguous when a
-  raw file and wiki article share a slug.
-- Only create wikilinks to files you actually created or that already exist. If
-  a related idea does not deserve a page yet, write it as plain text instead of
-  a dead wikilink.
+Use this exact frontmatter shape before writing files under wiki/:
+
+Source summaries in wiki/sources/*.md:
+```
+---
+title: "Source: Descriptive Source Title"
+type: source-summary
+source: "[[raw/raw-file-slug]]"
+related: ["[[concepts/example-concept]]"]
+last_compiled: YYYY-MM-DD
+summary: "One-line summary."
+---
+```
+
+Concept articles in wiki/concepts/*.md:
+```
+---
+title: "Concept Name"
+type: concept
+sources: ["[[sources/source-summary-slug]]"]
+related: ["[[concepts/related-concept]]"]
+last_compiled: YYYY-MM-DD
+summary: "One-line summary."
+---
+```
+
+Entity pages in wiki/entities/*.md:
+```
+---
+title: "Entity Name"
+type: entity
+entity_type: person|tool|org|paper|dataset|framework
+sources: ["[[sources/source-summary-slug]]"]
+related: ["[[concepts/related-concept]]"]
+last_compiled: YYYY-MM-DD
+summary: "One-line summary."
+---
+```
+
+Comparison pages in wiki/comparisons/*.md:
+```
+---
+title: "X vs Y"
+type: comparison
+subjects: ["[[concepts/x]]", "[[concepts/y]]"]
+sources: ["[[sources/source-summary-slug]]"]
+last_compiled: YYYY-MM-DD
+summary: "One-line summary."
+---
+```
+
+Review constraints:
+- Use YYYY-MM-DD for last_compiled.
+- Every source-summary body must contain at least 80 words.
+- Every concept body must contain at least 80 words.
+- Every entity body must contain at least 60 words.
+- Every comparison body must contain at least 100 words.
+- Do not use bare wikilinks like [[memgpt]] or [[agentic-memory]].
+  Always include the category path, such as [[entities/memgpt]],
+  [[sources/memgpt]], [[concepts/agentic-memory]], or
+  [[comparisons/memory-architecture-comparison]].
+- Before finishing, check that every wikilink resolves to a file you wrote or
+  an existing file in wiki/.
 """
 
 
