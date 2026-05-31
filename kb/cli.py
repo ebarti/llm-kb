@@ -815,11 +815,19 @@ def _print_help() -> None:
         f"{theme.dim('# Vertex AI')}"
     )
     print(
+        f"  {theme.color('export KB_LLM_PROVIDER=codex', 'green')} "
+        f"{theme.dim('# Codex SDK')}"
+    )
+    print(
         f"  {theme.color('export ANTHROPIC_VERTEX_PROJECT_ID=<gcp-project>', 'green')}"
     )
     print(f"  {theme.color('export CLOUD_ML_REGION=global', 'green')}")
     print(f"  {theme.color('uv run kb --help', 'green')}")
-    print(f"  {theme.dim('LLM commands use claude-agent-sdk; uv run kb -i uses claude CLI.')}")
+    runtime_help = (
+        "LLM commands use claude-agent-sdk by default; "
+        "KB_LLM_PROVIDER=codex uses @openai/codex-sdk."
+    )
+    print(f"  {theme.dim(runtime_help)}")
     print(
         f"  {theme.dim('Research without --dir/KB_DIR creates a topic-named workspace.')}"
     )
@@ -896,7 +904,7 @@ def _print_help() -> None:
         theme,
         "--model",
         "<model>",
-        f"Override Claude model (default: {model_default})",
+        f"Override model (Claude default: {model_default}; Codex uses SDK default)",
     )
     _help_flag(
         theme,
@@ -917,8 +925,38 @@ def _print_help() -> None:
     print("")
 
     _help_section(theme, "ENVIRONMENT")
-    _help_env(theme, "KB_MODEL", f"Claude model default (current: {model_default})")
-    _help_env(theme, "KB_LLM_PROVIDER", "anthropic|vertex|bedrock|foundry provider")
+    _help_env(theme, "KB_MODEL", f"Model default (current: {model_default})")
+    _help_env(
+        theme,
+        "KB_LLM_PROVIDER",
+        "anthropic|vertex|bedrock|foundry|codex provider",
+    )
+    _help_env(theme, "KB_CODEX_MODEL", "Optional Codex model override")
+    _help_env(
+        theme,
+        "KB_CODEX_HOME",
+        "Override isolated Codex home (default: ~/.codex_llm_kb)",
+    )
+    _help_env(theme, "KB_CODEX_BIN", "Override Codex CLI binary used by the SDK")
+    _help_env(
+        theme,
+        "KB_CODEX_SANDBOX_MODE",
+        "Codex sandbox: read-only|workspace-write|danger-full-access",
+    )
+    _help_env(
+        theme,
+        "KB_CODEX_APPROVAL_POLICY",
+        "Codex approvals: never|on-request|on-failure|untrusted",
+    )
+    _help_env(theme, "KB_CODEX_NETWORK", "Set to 0 to disable Codex SDK network access")
+    _help_env(theme, "KB_CODEX_SKIP_GIT_CHECK", "Set to 0 to require a git repo")
+    _help_env(
+        theme,
+        "KB_CODEX_WEB_SEARCH_MODE",
+        "Codex web search mode: live|cached|disabled",
+    )
+    _help_env(theme, "KB_CODEX_REASONING_EFFORT", "Optional Codex reasoning effort")
+    _help_env(theme, "KB_CODEX_BASE_URL", "Optional Codex/OpenAI API base URL")
     _help_env(
         theme,
         "KB_PERMISSION_MODE",
@@ -939,6 +977,8 @@ def _print_help() -> None:
     _help_env(theme, "KB_COLOR", "auto|always|never terminal color control")
     _help_env(theme, "NO_COLOR", "Disable color when KB_COLOR is auto")
     _help_env(theme, "ANTHROPIC_API_KEY", "Required for Anthropic API mode")
+    _help_env(theme, "OPENAI_API_KEY", "Optional Codex SDK API key")
+    _help_env(theme, "CODEX_API_KEY", "Optional Codex SDK API key override")
     _help_env(theme, "CLAUDE_CODE_USE_VERTEX", "Use Vertex AI via Claude Agent SDK")
     _help_env(theme, "ANTHROPIC_VERTEX_PROJECT_ID", "GCP project for Vertex AI")
     _help_env(theme, "CLOUD_ML_REGION", "Vertex endpoint region: global, us, eu, or region")

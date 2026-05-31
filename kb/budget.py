@@ -39,12 +39,12 @@ class BudgetExceeded(RuntimeError):
 
 @dataclass
 class BudgetTracker:
-    """Accumulates Anthropic SDK token usage and enforces a hard cap.
+    """Accumulates provider token usage and enforces a hard cap.
 
     The tracker treats the sum of input, output, cache-creation and
     cache-read tokens as "total tokens used" for the command. Callers
-    should invoke :meth:`add_from_response` after each Anthropic SDK
-    response and :meth:`check` whenever they want to short-circuit.
+    should invoke :meth:`add_from_response` or :meth:`add` after provider
+    responses and :meth:`check` whenever they want to short-circuit.
 
     Parameters
     ----------

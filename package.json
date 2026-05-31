@@ -1,0 +1,8 @@
+{
+  "name": "llm-kb",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@openai/codex-sdk": "^0.135.0"
+  }
+}

@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Optional
 from unittest import mock
 
-from kb import cli as cli_mod, observability
+from kb import cli as cli_mod, observability, runner as runner_mod
 from kb.budget import BudgetTracker
 from kb.commands import export as export_cmd, llm_commands, serve as serve_cmd
 from kb.commands import test_cmd as test_cmd_module, viz as viz_cmd
@@ -84,7 +84,13 @@ class HelpRenderingTests(unittest.TestCase):
         self.assertIn("QUEUE", output)
         self.assertIn("ENVIRONMENT", output)
         self.assertIn("ANTHROPIC_API_KEY", output)
+        self.assertIn("OPENAI_API_KEY", output)
         self.assertIn("KB_LLM_PROVIDER", output)
+        self.assertIn("KB_CODEX_MODEL", output)
+        self.assertIn("KB_CODEX_HOME", output)
+        self.assertIn("KB_CODEX_BIN", output)
+        self.assertIn("KB_CODEX_REASONING_EFFORT", output)
+        self.assertIn("KB_CODEX_BASE_URL", output)
         self.assertIn("CLAUDE_CODE_USE_VERTEX", output)
         self.assertIn("ANTHROPIC_VERTEX_PROJECT_ID", output)
         self.assertIn("KB_COLOR", output)
@@ -195,7 +201,7 @@ class RunnerAgentBackendTests(unittest.TestCase):
                     "ANTHROPIC_API_KEY": "test-key",
                     "KB_AGENT_HEARTBEAT_SECONDS": "0",
                 },
-                clear=False,
+                clear=True,
             ):
                 with contextlib.redirect_stderr(stderr):
                     result = invoke_llm(
@@ -418,6 +424,430 @@ class RunnerAgentBackendTests(unittest.TestCase):
         )
         self.assertEqual("dry-run", result.backend)
         self.assertIn("DRY RUN", result.text)
+
+
+class RunnerCodexBackendTests(unittest.TestCase):
+    def test_codex_provider_invokes_codex_bridge_without_anthropic_key(self) -> None:
+        captured: dict = {}
+
+        async def fake_bridge(**kwargs):
+            captured.update(kwargs)
+            return {
+                "finalResponse": "codex answer",
+                "usage": {
+                    "input_tokens": 9,
+                    "cached_input_tokens": 2,
+                    "output_tokens": 7,
+                    "reasoning_output_tokens": 3,
+                },
+            }
+
+        with tempfile.TemporaryDirectory() as td:
+            codex_home = Path(td) / ".codex_llm_kb"
+            with mock.patch("kb.runner._missing_codex_runtime_error", return_value=None):
+                with mock.patch(
+                    "kb.runner._prepare_isolated_codex_home",
+                    return_value=codex_home,
+                ):
+                    with mock.patch(
+                        "kb.runner._run_codex_bridge",
+                        side_effect=fake_bridge,
+                    ):
+                        with mock.patch.dict(
+                            "os.environ",
+                            {"KB_LLM_PROVIDER": "codex"},
+                            clear=True,
+                        ):
+                            result = invoke_llm(
+                                "prompt",
+                                model="opus",
+                                budget=BudgetTracker(limit=None),
+                                cwd="/tmp/kb-workspace",
+                            )
+
+        self.assertEqual("codex", result.backend)
+        self.assertEqual(0, result.returncode)
+        self.assertEqual("codex answer", result.text)
+        self.assertEqual(9, result.usage.input_tokens)
+        self.assertEqual(10, result.usage.output_tokens)
+        self.assertEqual(2, result.usage.cache_read_input_tokens)
+        self.assertEqual("prompt", captured["prompt"])
+        self.assertIsNone(captured["model"])
+        self.assertEqual("/tmp/kb-workspace", captured["cwd"])
+        self.assertEqual(codex_home, captured["codex_home"])
+
+    def test_codex_provider_uses_env_model_override(self) -> None:
+        captured: dict = {}
+
+        async def fake_bridge(**kwargs):
+            captured.update(kwargs)
+            return {"finalResponse": "ok", "usage": {}}
+
+        with tempfile.TemporaryDirectory() as td:
+            with mock.patch("kb.runner._missing_codex_runtime_error", return_value=None):
+                with mock.patch(
+                    "kb.runner._prepare_isolated_codex_home",
+                    return_value=Path(td) / ".codex_llm_kb",
+                ):
+                    with mock.patch(
+                        "kb.runner._run_codex_bridge",
+                        side_effect=fake_bridge,
+                    ):
+                        with mock.patch.dict(
+                            "os.environ",
+                            {
+                                "KB_LLM_PROVIDER": "codex",
+                                "KB_CODEX_MODEL": "gpt-5.4",
+                            },
+                            clear=True,
+                        ):
+                            result = invoke_llm(
+                                "prompt",
+                                model="opus",
+                                budget=BudgetTracker(limit=None),
+                            )
+
+        self.assertEqual(0, result.returncode)
+        self.assertEqual("gpt-5.4", captured["model"])
+
+    def test_codex_provider_flags_budget_exceeded_after_turn_usage(self) -> None:
+        async def fake_bridge(**_kwargs):
+            return {
+                "finalResponse": "codex answer",
+                "usage": {"input_tokens": 10, "output_tokens": 15},
+            }
+
+        with tempfile.TemporaryDirectory() as td:
+            with mock.patch("kb.runner._missing_codex_runtime_error", return_value=None):
+                with mock.patch(
+                    "kb.runner._prepare_isolated_codex_home",
+                    return_value=Path(td) / ".codex_llm_kb",
+                ):
+                    with mock.patch(
+                        "kb.runner._run_codex_bridge",
+                        side_effect=fake_bridge,
+                    ):
+                        with mock.patch.dict(
+                            "os.environ",
+                            {"KB_LLM_PROVIDER": "codex"},
+                            clear=True,
+                        ):
+                            result = invoke_llm(
+                                "prompt",
+                                model="opus",
+                                budget=BudgetTracker(limit=20),
+                            )
+
+        self.assertEqual("codex", result.backend)
+        self.assertEqual(1, result.returncode)
+        self.assertTrue(result.budget_exceeded)
+        self.assertEqual("codex answer", result.text)
+
+    def test_codex_provider_reports_missing_runtime(self) -> None:
+        with mock.patch(
+            "kb.runner._missing_codex_runtime_error",
+            return_value="ERROR: Codex provider requires Node.js 18+",
+        ):
+            with mock.patch.dict(
+                "os.environ",
+                {"KB_LLM_PROVIDER": "codex"},
+                clear=True,
+            ):
+                result = invoke_llm(
+                    "prompt",
+                    model="opus",
+                    budget=BudgetTracker(limit=None),
+                )
+
+        self.assertEqual("codex", result.backend)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("Node.js 18+", result.text)
+
+    def test_prepare_isolated_codex_home_refreshes_auth_from_primary_home(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            home = Path(td)
+            source_auth = home / ".codex" / "auth.json"
+            source_auth.parent.mkdir()
+            source_auth.write_text('{"token":"primary"}\n', encoding="utf-8")
+
+            with mock.patch("kb.runner.Path.home", classmethod(lambda _cls: home)):
+                with mock.patch.dict("os.environ", {}, clear=True):
+                    codex_home = runner_mod._prepare_isolated_codex_home()
+
+            self.assertEqual((home / ".codex_llm_kb").resolve(), codex_home)
+            self.assertTrue(codex_home.is_absolute())
+            self.assertEqual(
+                '{"token":"primary"}\n',
+                (codex_home / "auth.json").read_text(encoding="utf-8"),
+            )
+
+    def test_prepare_isolated_codex_home_honors_overrides(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source_home = root / "source-codex"
+            target_home = root / "target-codex"
+            source_auth = source_home / "auth.json"
+            source_home.mkdir()
+            source_auth.write_text('{"token":"custom"}\n', encoding="utf-8")
+
+            with mock.patch.dict(
+                "os.environ",
+                {
+                    "CODEX_HOME": str(source_home),
+                    "KB_CODEX_HOME": str(target_home),
+                },
+                clear=True,
+            ):
+                codex_home = runner_mod._prepare_isolated_codex_home()
+
+            self.assertEqual(target_home.resolve(), codex_home)
+            self.assertEqual(
+                '{"token":"custom"}\n',
+                (target_home / "auth.json").read_text(encoding="utf-8"),
+            )
+
+    def test_codex_provider_runs_real_bridge_with_injected_codex_home(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source_home = root / "source-codex"
+            target_home = root / "target-codex"
+            capture_path = root / "capture.json"
+            fake_codex = root / "fake-codex"
+            source_home.mkdir()
+            (source_home / "auth.json").write_text('{"token":"source"}\n', encoding="utf-8")
+            fake_codex.write_text(
+                """#!/usr/bin/env python3
+import json
+import os
+import sys
+
+prompt = sys.stdin.read()
+capture = os.environ.get("KB_FAKE_CODEX_CAPTURE")
+if capture:
+    with open(capture, "w", encoding="utf-8") as fh:
+        json.dump(
+            {
+                "argv": sys.argv[1:],
+                "codex_home": os.environ.get("CODEX_HOME"),
+                "prompt": prompt,
+            },
+            fh,
+        )
+print(json.dumps({"type": "thread.started", "thread_id": "fake-thread"}))
+print(json.dumps({"type": "turn.started"}))
+print(json.dumps({
+    "type": "item.completed",
+    "item": {"id": "msg1", "type": "agent_message", "text": "fake codex ok"},
+}))
+print(json.dumps({
+    "type": "turn.completed",
+    "usage": {
+        "input_tokens": 1,
+        "cached_input_tokens": 2,
+        "output_tokens": 3,
+        "reasoning_output_tokens": 4,
+    },
+}))
+""",
+                encoding="utf-8",
+            )
+            fake_codex.chmod(0o700)
+
+            with mock.patch.dict(
+                "os.environ",
+                {
+                    "PATH": os.environ.get("PATH", ""),
+                    "KB_LLM_PROVIDER": "codex",
+                    "CODEX_HOME": str(source_home),
+                    "KB_CODEX_HOME": str(target_home),
+                    "KB_CODEX_BIN": str(fake_codex),
+                    "KB_FAKE_CODEX_CAPTURE": str(capture_path),
+                },
+                clear=True,
+            ):
+                result = invoke_llm(
+                    "bridge prompt",
+                    model="opus",
+                    budget=BudgetTracker(limit=None),
+                    cwd=str(root),
+                )
+
+            self.assertEqual("codex", result.backend)
+            self.assertEqual(0, result.returncode)
+            self.assertEqual("fake codex ok", result.text)
+            self.assertEqual(1, result.usage.input_tokens)
+            self.assertEqual(7, result.usage.output_tokens)
+            self.assertEqual(2, result.usage.cache_read_input_tokens)
+            self.assertEqual(
+                '{"token":"source"}\n',
+                (target_home / "auth.json").read_text(encoding="utf-8"),
+            )
+            captured = json.loads(capture_path.read_text(encoding="utf-8"))
+            self.assertEqual(str(target_home.resolve()), captured["codex_home"])
+            self.assertEqual("bridge prompt", captured["prompt"])
+            self.assertIn("--skip-git-repo-check", captured["argv"])
+
+    def test_cli_research_creates_kb_with_codex_bridge(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            workspace = root / "agentic-memory-systems"
+            source_home = root / "source-codex"
+            target_home = root / "target-codex"
+            capture_path = root / "capture.json"
+            fake_codex = root / "fake-codex"
+            source_home.mkdir()
+            (source_home / "auth.json").write_text('{"token":"source"}\n', encoding="utf-8")
+            fake_codex.write_text(
+                """#!/usr/bin/env python3
+import json
+import os
+import pathlib
+import sys
+
+prompt = sys.stdin.read()
+args = sys.argv[1:]
+cwd = pathlib.Path.cwd()
+if "--cd" in args:
+    idx = args.index("--cd")
+    if idx + 1 < len(args):
+        cwd = pathlib.Path(args[idx + 1])
+raw_dir = cwd / "raw"
+concept_dir = cwd / "wiki" / "concepts"
+meta_dir = cwd / "wiki" / "_meta"
+raw_dir.mkdir(parents=True, exist_ok=True)
+concept_dir.mkdir(parents=True, exist_ok=True)
+meta_dir.mkdir(parents=True, exist_ok=True)
+
+(raw_dir / "agentic-memory-systems.md").write_text(
+    "# Agentic memory systems\\n\\n"
+    "This local fixture records synthetic research notes about agentic memory "
+    "systems, including working memory, episodic memory, semantic memory, "
+    "retrieval, consolidation, reflection, and provenance-aware updates.\\n",
+    encoding="utf-8",
+)
+(concept_dir / "agentic-memory-systems.md").write_text(
+    "---\\n"
+    "title: Agentic Memory Systems\\n"
+    "type: concept\\n"
+    "summary: \\"Agentic memory systems persist, retrieve, and update task context across agent runs.\\"\\n"
+    "last_compiled: 2026-05-31\\n"
+    "sources:\\n"
+    "  - \\"[[raw/agentic-memory-systems]]\\"\\n"
+    "---\\n\\n"
+    "## Overview\\n\\n"
+    "Agentic memory systems combine short term working state with durable "
+    "episodic traces and semantic abstractions so an agent can continue useful "
+    "work across turns, sessions, and tools. A practical design records the "
+    "observation, the source, the action taken, and the later validation result. "
+    "Retrieval should be scoped to the active goal, ranked by relevance, and "
+    "checked against current evidence before it is trusted. Consolidation turns "
+    "repeated experiences into stable knowledge, while decay and review prevent "
+    "obsolete memories from dominating new decisions. The strongest systems keep "
+    "provenance beside every memory, separate unverified claims from confirmed "
+    "facts, and expose enough metadata for debugging when an agent chooses the "
+    "wrong context.\\n",
+    encoding="utf-8",
+)
+(cwd / "wiki" / "_index.md").write_text(
+    "# Agentic Memory Systems\\n\\n"
+    "- [[concepts/agentic-memory-systems]]\\n",
+    encoding="utf-8",
+)
+(meta_dir / "manifest.json").write_text(
+    json.dumps({"topic": "agentic memory systems", "backend": "codex"}),
+    encoding="utf-8",
+)
+
+capture = os.environ.get("KB_FAKE_CODEX_CAPTURE")
+if capture:
+    pathlib.Path(capture).write_text(
+        json.dumps(
+            {
+                "argv": args,
+                "codex_home": os.environ.get("CODEX_HOME"),
+                "cwd": str(cwd),
+                "prompt": prompt,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+print(json.dumps({"type": "thread.started", "thread_id": "fake-thread"}))
+print(json.dumps({"type": "turn.started"}))
+print(json.dumps({
+    "type": "item.completed",
+    "item": {
+        "id": "msg1",
+        "type": "agent_message",
+        "text": "RESEARCH COMPLETE\\n  Total sources:     1\\n  Wiki pages:        1",
+    },
+}))
+print(json.dumps({
+    "type": "turn.completed",
+    "usage": {
+        "input_tokens": 11,
+        "cached_input_tokens": 5,
+        "output_tokens": 13,
+        "reasoning_output_tokens": 7,
+    },
+}))
+""",
+                encoding="utf-8",
+            )
+            fake_codex.chmod(0o700)
+
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with mock.patch.dict(
+                "os.environ",
+                {
+                    "PATH": os.environ.get("PATH", ""),
+                    "KB_LLM_PROVIDER": "codex",
+                    "CODEX_HOME": str(source_home),
+                    "KB_CODEX_HOME": str(target_home),
+                    "KB_CODEX_BIN": str(fake_codex),
+                    "KB_FAKE_CODEX_CAPTURE": str(capture_path),
+                    "KB_RUN_LOG": "0",
+                },
+                clear=True,
+            ):
+                with contextlib.redirect_stdout(stdout):
+                    with contextlib.redirect_stderr(stderr):
+                        exit_code = cli_mod.main(
+                            [
+                                "--json",
+                                "--no-commit",
+                                "--dir",
+                                str(workspace),
+                                "research",
+                                "agentic",
+                                "memory",
+                                "systems",
+                            ]
+                        )
+
+            self.assertEqual(0, exit_code, stderr.getvalue())
+            payload = json.loads(stdout.getvalue())
+            self.assertTrue(payload["ok"])
+            self.assertEqual("research", payload["command"])
+            self.assertEqual("codex", payload["details"]["backend"])
+            self.assertIn("RESEARCH COMPLETE", payload["details"]["raw_output"])
+            self.assertEqual(11, payload["usage"]["input_tokens"])
+            self.assertEqual(20, payload["usage"]["output_tokens"])
+            self.assertEqual(5, payload["usage"]["cache_read_input_tokens"])
+            article = workspace / "wiki" / "concepts" / "agentic-memory-systems.md"
+            self.assertIn("provenance", article.read_text(encoding="utf-8"))
+            self.assertTrue((workspace / "raw" / "agentic-memory-systems.md").exists())
+            self.assertTrue((workspace / "wiki" / "_index.md").exists())
+            self.assertEqual(
+                '{"token":"source"}\n',
+                (target_home / "auth.json").read_text(encoding="utf-8"),
+            )
+            captured = json.loads(capture_path.read_text(encoding="utf-8"))
+            self.assertEqual(str(target_home.resolve()), captured["codex_home"])
+            self.assertEqual(str(workspace.resolve()), captured["cwd"])
+            self.assertIn("RESEARCH this topic", captured["prompt"])
+            self.assertIn("agentic memory systems", captured["prompt"])
 
 
 class WorkspaceDryRunTests(unittest.TestCase):

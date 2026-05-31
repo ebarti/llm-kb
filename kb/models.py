@@ -115,7 +115,7 @@ except Exception:  # pragma: no cover - pydantic is an optional dependency
 
 
 class TokenUsage(BaseModel):
-    """Aggregated Anthropic token usage for one command invocation."""
+    """Aggregated provider token usage for one command invocation."""
 
     input_tokens: int = 0
     output_tokens: int = 0
